@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
-let user = "%USER%"; in
+let
+  user = "%USER%";
+in
 
 {
   imports = [
@@ -13,15 +15,25 @@ let user = "%USER%"; in
   nix = {
     package = pkgs.nix;
     settings = {
-      trusted-users = [ "@admin" "${user}" ];
-      substituters = [ "https://nix-community.cachix.org" "https://cache.nixos.org" ];
+      trusted-users = [
+        "@admin"
+        "${user}"
+      ];
+      substituters = [
+        "https://nix-community.cachix.org"
+        "https://cache.nixos.org"
+      ];
       trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
     };
 
     gc = {
       user = "root";
       automatic = true;
-      interval = { Weekday = 0; Hour = 2; Minute = 0; };
+      interval = {
+        Weekday = 0;
+        Hour = 2;
+        Minute = 0;
+      };
       options = "--delete-older-than 30d";
     };
 
@@ -64,10 +76,21 @@ let user = "%USER%"; in
 
       trackpad = {
         Clicking = 1;
-        TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
-        TrackpadTwoFingerDoubleTapGesture = 1;
         TrackpadThreeFingerDrag = 1;
-        TrackpadFourFingerPinchGesture = 2;
+      };
+
+      CustomUserPreferences = {
+        "com.apple.AppleMultitouchTrackpad" = {
+          TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
+          TrackpadTwoFingerDoubleTapGesture = 1;
+          TrackpadFourFingerPinchGesture = 2;
+        };
+
+        "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
+          TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
+          TrackpadTwoFingerDoubleTapGesture = 1;
+          TrackpadFourFingerPinchGesture = 2;
+        };
       };
     };
   };
