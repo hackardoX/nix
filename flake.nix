@@ -110,7 +110,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
-              users.${user} = import ./modules/nixos/home-manager.nix;
+              users.${user} = builtins.import ./modules/nixos/home-manager.nix;
             };
           }
           ./hosts/nixos
