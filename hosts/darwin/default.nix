@@ -1,8 +1,6 @@
 { config, pkgs, ... }:
 
-let
-  user = "%USER%";
-in
+let user = "aaccardo"; in
 
 {
   imports = [
@@ -60,6 +58,8 @@ in
         "com.apple.mouse.tapBehavior" = 1;
         "com.apple.sound.beep.volume" = 0.0;
         "com.apple.sound.beep.feedback" = 0;
+	
+        "com.apple.trackpad.scaling" = 2.0;
       };
 
       dock = {
@@ -67,7 +67,7 @@ in
         show-recents = false;
         launchanim = true;
         orientation = "bottom";
-        tilesize = 48;
+        tilesize = 64;
       };
 
       finder = {
@@ -75,8 +75,12 @@ in
       };
 
       trackpad = {
-        Clicking = 1;
-        TrackpadThreeFingerDrag = 1;
+        Clicking = true;
+        TrackpadThreeFingerDrag = true;
+      };
+
+      ".GlobalPreferences" = {
+        "com.apple.mouse.scaling" = 2.0;
       };
 
       CustomUserPreferences = {
@@ -90,6 +94,14 @@ in
           TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
           TrackpadTwoFingerDoubleTapGesture = 1;
           TrackpadFourFingerPinchGesture = 2;
+        };
+
+        "com.apple.dock" = {
+            showAppExposeGestureEnabled = true;
+        };
+
+        "~/Library/Preferences/ByHost/com.apple.controlcenter.plist" = {
+          BatteryShowPercentage = 1;
         };
       };
     };

@@ -3,8 +3,6 @@
 with pkgs;
 [
   # General packages for development and system management
-  _1password
-  _1password-gui
   bash-completion
   bat
   coreutils

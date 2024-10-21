@@ -1,7 +1,7 @@
-{ config, pkgs, lib, home-manager, ... }:
+{ config, pkgs, lib, home-manager, mac-app-util, ... }:
 
 let
-  user = "%USER%";
+  user = "aaccardo";
   sharedFiles = builtins.import ../shared/files.nix { inherit config pkgs; };
   additionalFiles = builtins.import ./files.nix { inherit user config pkgs; };
 in
@@ -20,7 +20,11 @@ in
   homebrew = {
     enable = true;
     casks = pkgs.callPackage ./casks.nix {};
-    onActivation.cleanup = "uninstall";
+    onActivation = {
+      cleanup = "zap";
+      autoUpdate = true;
+      upgrade = true;
+    };
 
     # These app IDs are from using the mas CLI app
     # mas = mac app store
@@ -32,10 +36,11 @@ in
     # If you have previously added these apps to your Mac App Store profile (but not installed them on this system),
     # you may receive an error message "Redownload Unavailable with This Apple ID".
     # This message is safe to ignore. (https://github.com/dustinlyons/nixos-config/issues/83)
-    # masApps = {
+    masApps = {
+      "1password-safari" = 1569813296;
       # "1password" = 1333542190;
       # "wireguard" = 1451685025;
-    # };
+    };
   };
 
   # Enable home-manager
@@ -51,12 +56,12 @@ in
         ];
         stateVersion = "24.05";
       };
+      
+      imports = [
+        mac-app-util.homeManagerModules.default
+      ];
+
       programs = lib.mkMerge [
-        {
-          git = {
-            ignores = [ ".DS_Store" ];
-          };
-        }
         (builtins.import ../shared/home-manager.nix { inherit config pkgs lib; })
       ];
 

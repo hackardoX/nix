@@ -1,20 +1,15 @@
 { config, pkgs, lib, ... }:
 
-let user = "%USER%"; in
+let user = "aaccardo"; in
 {
   # Shared shell configuration
-  _1password = {
-    enable = true;
-  };
-
-  _1password-gui = {
-    enable = true;
-    polkitPolicyOwners = [user];
-  };
-
   zsh = {
     enable = true;
     autocd = false;
+
+    oh-my-zsh = {
+      enable = false;
+    };
 
     initExtraFirst = ''
       if [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
@@ -23,7 +18,6 @@ let user = "%USER%"; in
       fi
 
       # Define variables for directories
-      export PATH=$HOME/.pnpm-packages/bin:$HOME/.pnpm-packages:$PATH
       export PATH=$HOME/.npm-packages/bin:$HOME/bin:$PATH
       export PATH=$HOME/.local/share/bin:$PATH
 
@@ -66,10 +60,10 @@ let user = "%USER%"; in
     includes = [
       {
         condition = "gitdir:~/Github/";
-        path = ~/Github/.gitconfig;
+        path = "/Users/${user}/Github/.gitconfig";
       }
     ];
-    ignores = [ "*.swp" ];
+    ignores = [ ".DS_Store" ];
   };
 
   ssh = {
@@ -97,11 +91,13 @@ let user = "%USER%"; in
     };
   };
 
-  zoxide = {
-    enabled = true;
-    enableBashIntegration = true;
-    enableFishIntegration = false;
-    enableNushellIntegration = false;
-    enableZshIntegration = true;
-  };
+  vscode = builtins.import ./apps/vscode.nix {};
+
+  # zoxide = {
+    # enable = true;
+    # enableBashIntegration = true;
+    # enableFishIntegration = false;
+    # enableNushellIntegration = false;
+    # enableZshIntegration = true;
+  # };
 }
