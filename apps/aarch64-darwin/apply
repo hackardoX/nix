@@ -8,22 +8,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Determine the operating system
-export OS=$(uname)
-
-# Primary network interface
-if [[ "$OS" != "Darwin" ]]; then
-  export PRIMARY_IFACE=$(ip -o -4 route show to default | awk '{print $5}')
-  echo -e "${GREEN}Found primary network interface $PRIMARY_IFACE${NC}"
-fi
-
 # Custom print function
 _print() {
-  if [[ "$OS" == "Darwin" ]]; then
-    echo -e "$1"
-  else
-    echo "$1"
-  fi
+  echo -e "$1"
 }
 
 # Custom prompt function
@@ -34,22 +21,6 @@ _prompt() {
   _print "$message"
   read -r $variable
 }
-
-ask_for_star() {
-  _print "${YELLOW}Would you like to support my work by starring my GitHub repo? yes/no [yes]: ${NC}"
-  local response
-  read -r response
-  response=${response:-yes} # Set default response to 'yes' if input is empty
-  if [[ "$response" =~ ^[Yy](es)?$ ]] || [[ -z "$response" ]]; then
-    if [[ "$OS" == "Darwin" ]]; then
-      open "https://github.com/dustinlyons/nixos-config"
-    else
-      xdg-open "https://github.com/dustinlyons/nixos-config"
-    fi
-  fi
-}
-
-ask_for_star
 
 # Fetch username from the system
 export USERNAME=$(whoami)
@@ -78,47 +49,10 @@ if [[ -z "$GIT_NAME" ]]; then
   _prompt "${YELLOW}Please enter your name: ${NC}" GIT_NAME
 fi
 
-select_boot_disk() {
-  local disks
-  local _boot_disk
-
-  _print "${YELLOW}Available disks:${NC}"
-  disks=$(lsblk -nd --output NAME,SIZE | grep -v loop)
-  echo "$disks"
-
-  # Warning message for data deletion
-  _print "${RED}WARNING: All data on the chosen disk will be erased during the installation!${NC}"
-  _prompt "${YELLOW}Please enter the name of your boot disk (e.g., sda, nvme0n1). Do not include the full path ("/dev/"): ${NC}" _boot_disk
-
-  # Confirmation for disk selection to prevent accidental data loss
-  _print "${YELLOW}You have selected $_boot_disk as the boot disk. This will delete everything on this disk. Are you sure? (Y/N): ${NC}"
-  read -r confirmation
-  if [[ "$confirmation" =~ ^[Yy]$ ]]; then
-    export BOOT_DISK=$_boot_disk
-  else
-    _print "${RED}Disk selection cancelled by the user. Please run the script again to select the correct disk.${NC}"
-    exit 1
-  fi
-}
-
-# Set hostname and find primary disk if this is NixOS
-if [[ "$OS" != "Darwin" ]]; then
-  _prompt "${YELLOW}Please enter a hostname for the system: ${NC}" HOST_NAME
-  export HOST_NAME
-  select_boot_disk
-fi
-
 confirm_details() {
   _print "${GREEN}Username: $USERNAME"
   _print "Email: $GIT_EMAIL"
   _print "Name: $GIT_NAME${NC}"
-
-  if([[ "$OS" != "Darwin" ]]); then
-    _print "${GREEN}Primary interface: $PRIMARY_IFACE"
-    _print "Boot disk: $BOOT_DISK"
-    _print "Hostname: $HOST_NAME${NC}"
-  fi
-
   _prompt "${YELLOW}Is this correct? yes/no: ${NC}" choice
 
   case "$choice" in
@@ -142,20 +76,9 @@ confirm_details
 replace_tokens() {
   local file="$1"
   if [[ $(basename $1) != "apply" ]]; then
-    if [[ "$OS" == "Darwin" ]]; then
-      # macOS
-      LC_ALL=C LANG=C sed -i '' -e "s/%USER%/$USERNAME/g" "$file"
-      LC_ALL=C LANG=C sed -i '' -e "s/%EMAIL%/$GIT_EMAIL/g" "$file"
-      LC_ALL=C LANG=C sed -i '' -e "s/%NAME%/$GIT_NAME/g" "$file"
-    else
-      # Linux or other
-      sed -i -e "s/%USER%/$USERNAME/g" "$file"
-      sed -i -e "s/%EMAIL%/$GIT_EMAIL/g" "$file"
-      sed -i -e "s/%NAME%/$GIT_NAME/g" "$file"
-      sed -i -e "s/%INTERFACE%/$PRIMARY_IFACE/g" "$file"
-      sed -i -e "s/%DISK%/$BOOT_DISK/g" "$file"
-      sed -i -e "s/%HOST%/$HOST_NAME/g" "$file"
-    fi
+    LC_ALL=C LANG=C sed -i '' -e "s/%USER%/$USERNAME/g" "$file"
+    LC_ALL=C LANG=C sed -i '' -e "s/%EMAIL%/$GIT_EMAIL/g" "$file"
+    LC_ALL=C LANG=C sed -i '' -e "s/%NAME%/$GIT_NAME/g" "$file"
   fi
 }
 

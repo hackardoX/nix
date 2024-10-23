@@ -1,14 +1,17 @@
 { config, pkgs, ... }:
 
-let user = "aaccardo"; in
-
+let
+  user = "aaccardo";
+in
 {
-  imports = [
-    ../../modules/darwin/home-manager.nix
-    ../../modules/shared
-  ];
-
-  services.nix-daemon.enable = true;
+  nixpkgs = {
+    config = {
+      allowUnfree = true;
+      allowBroken = false;
+      allowInsecure = false;
+      allowUnsupportedSystem = false;
+    };
+  };
 
   nix = {
     package = pkgs.nix;
@@ -35,75 +38,88 @@ let user = "aaccardo"; in
       options = "--delete-older-than 30d";
     };
 
+    optimise.automatic = true;
+
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
   };
 
-  # system.checks.verifyNixPath = false;
+  services.nix-daemon.enable = true;
 
-  environment.systemPackages = builtins.import ../../modules/shared/packages.nix { inherit pkgs; };
+  # environment.systemPackages = builtins.import ../../modules/shared/packages.nix { inherit pkgs; };
 
-  system = {
-    stateVersion = 4;
+  security.pam.enableSudoTouchIdAuth = true;
 
-    defaults = {
-      NSGlobalDomain = {
-        AppleShowAllExtensions = true;
-        ApplePressAndHoldEnabled = false;
+  # system = {
+  #   stateVersion = 4;
 
-        KeyRepeat = 2; # Values: 120, 90, 60, 30, 12, 6, 2
-        InitialKeyRepeat = 15; # Values: 120, 94, 68, 35, 25, 15
+  # defaults = {
+  #   NSGlobalDomain = {
+  #     AppleShowAllExtensions = true;
+  #     ApplePressAndHoldEnabled = false;
 
-        "com.apple.mouse.tapBehavior" = 1;
-        "com.apple.sound.beep.volume" = 0.0;
-        "com.apple.sound.beep.feedback" = 0;
-	
-        "com.apple.trackpad.scaling" = 2.0;
-      };
+  #     KeyRepeat = 2; # Values: 120, 90, 60, 30, 12, 6, 2
+  #     InitialKeyRepeat = 15; # Values: 120, 94, 68, 35, 25, 15
 
-      dock = {
-        autohide = false;
-        show-recents = false;
-        launchanim = true;
-        orientation = "bottom";
-        tilesize = 64;
-      };
+  #     "com.apple.mouse.tapBehavior" = 1;
+  #     "com.apple.sound.beep.volume" = 0.0;
+  #     "com.apple.sound.beep.feedback" = 0;
 
-      finder = {
-        _FXShowPosixPathInTitle = false;
-      };
+  #     "com.apple.trackpad.scaling" = 2.0;
+  #   };
 
-      trackpad = {
-        Clicking = true;
-        TrackpadThreeFingerDrag = true;
-      };
+  #   dock = {
+  #     autohide = false;
+  #     show-recents = false;
+  #     launchanim = true;
+  #     orientation = "bottom";
+  #     tilesize = 64;
+  #   };
 
-      ".GlobalPreferences" = {
-        "com.apple.mouse.scaling" = 2.0;
-      };
+  #   finder = {
+  #     _FXShowPosixPathInTitle = false;
+  #   };
 
-      CustomUserPreferences = {
-        "com.apple.AppleMultitouchTrackpad" = {
-          TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
-          TrackpadTwoFingerDoubleTapGesture = 1;
-          TrackpadFourFingerPinchGesture = 2;
-        };
+  #   trackpad = {
+  #     Clicking = true;
+  #     TrackpadThreeFingerDrag = true;
+  #   };
 
-        "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
-          TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
-          TrackpadTwoFingerDoubleTapGesture = 1;
-          TrackpadFourFingerPinchGesture = 2;
-        };
+  #   ".GlobalPreferences" = {
+  #     "com.apple.mouse.scaling" = 2.0;
+  #   };
 
-        "com.apple.dock" = {
-            showAppExposeGestureEnabled = true;
-        };
+  #   CustomUserPreferences = {
+  #     "com.apple.AppleMultitouchTrackpad" = {
+  #       TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
+  #       TrackpadTwoFingerDoubleTapGesture = 1;
+  #       TrackpadFourFingerPinchGesture = 2;
+  #     };
 
-        "~/Library/Preferences/ByHost/com.apple.controlcenter.plist" = {
-          BatteryShowPercentage = 1;
-        };
-      };
-    };
+  #     "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
+  #       TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
+  #       TrackpadTwoFingerDoubleTapGesture = 1;
+  #       TrackpadFourFingerPinchGesture = 2;
+  #     };
+
+  #     "com.apple.dock" = {
+  #       showAppExposeGestureEnabled = true;
+  #     };
+
+  #     "~/Library/Preferences/ByHost/com.apple.controlcenter.plist" = {
+  #       BatteryShowPercentage = 1;
+  #     };
+  #   };
+  # };
+  # };
+
+  time.timeZone = "America/New_York";
+
+  users.users.${user} = {
+    name = "${user}";
+    home = "/Users/${user}";
+    isHidden = false;
+    shell = pkgs.zsh;
   };
 }
