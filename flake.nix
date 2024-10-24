@@ -7,6 +7,18 @@
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    custom-home-manager = {
+      url = "path:modules/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    custom-homebrew = {
+      url = "path:modules/homebrew";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    custom-dock = {
+      url = "path:modules/dock";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -14,11 +26,14 @@
       self,
       darwin,
       nixpkgs,
+      custom-home-manager,
+      custom-homebrew,
+      custom-dock,
     }@inputs:
     let
       user = "aaccardo";
       darwinSystems = [ "aarch64-darwin" ];
-      # forAllSystems = f: nixpkgs.lib.genAttrs (darwinSystems) f;
+      forAllSystems = f: nixpkgs.lib.genAttrs (darwinSystems) f;
       # mkDevShell =
       #   system:
       #   let
@@ -60,21 +75,19 @@
     in
     {
       # devShell = forAllSystems mkDevShell;
-      apps = nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
-      darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (
+      apps = forAllSystems mkDarwinApps;
+      darwinConfigurations = forAllSystems (
         system:
         darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = inputs ++ {
-            inherit user system;
+          specialArgs = inputs // {
+            inherit user;
           };
           modules = [
             ./hosts/darwin
-          ];
-          imports = [
-            ./modules/home-manager/custom-home-manager.nix
-            ./modules/homebrew/custom-homebrew.nix
-            ./modules/dock/custom-dock.nix
+            custom-home-manager.darwinModules.${system}.custom-home-manager
+            custom-homebrew.darwinModules.${system}.custom-homebrew
+            custom-dock.darwinModules.${system}.custom-dock
           ];
         }
       );

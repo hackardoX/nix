@@ -51,6 +51,8 @@ in
 
   security.pam.enableSudoTouchIdAuth = true;
 
+  system.stateVersion = 5;
+
   # system = {
   #   stateVersion = 4;
 
