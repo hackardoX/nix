@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -e -u
 
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
@@ -8,8 +8,18 @@ NC='\033[0m'
 SYSTEM_TYPE="aarch64-darwin"
 FLAKE_SYSTEM="darwinConfigurations.${SYSTEM_TYPE}.system"
 
+echo "${YELLOW}Updating local flakes...${NC}"
+flake_manifest=$(nix flake metadata --json)
+local_flakes=$(echo $flake_manifest | jq -r '.locks.nodes | to_entries | map(select(.value.original.type == "path").key)[]')
+
+for flake in $local_flakes; do
+  echo "Updating local flake: $flake"
+  nix flake update $flake
+done
+echo "${YELLOW}Finished updating all local flakes.${NC}"
+
 echo "${YELLOW}Starting build...${NC}"
-nix --extra-experimental-features 'nix-command flakes' build .#$FLAKE_SYSTEM $@
+nix --extra-experimental-features 'nix-command flakes' build .#$FLAKE_SYSTEM $@ --show-trace
 
 echo "${YELLOW}Cleaning up...${NC}"
 unlink ./result

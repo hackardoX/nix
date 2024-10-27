@@ -5,9 +5,8 @@ in
 {
   zsh = {
     enable = true;
-    enableCompletion = false;
-    promptInit = "";
-    variables = {
+    # enableCompletion = false;
+    localVariables = {
       HISTIGNORE = "pwd:ls:cd:eza:bat:z";
       EDITOR = "code --wait";
       VISUAL = "code --wait";
@@ -22,7 +21,7 @@ in
         # Define variables for directories
         export PATH=$HOME/.local/share/bin:$PATH
       ''
-      + functions
+      + functions;
     shellAliases = builtins.import ../files/aliases.nix;
   };
 }

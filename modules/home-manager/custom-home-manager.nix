@@ -16,19 +16,20 @@ home-manager.darwinModules.home-manager {
     users.${user} =
       {
         pkgs,
+        ...
       }:
       let
-        enumerate =
-          dir:
-          builtins.map (file: pkgs.callPackage (dir + "/" + file) { }) (
-            builtins.attrNames (builtins.readDir dir)
-          );
+        enumerate = 
+          dir: builtins.foldl' (allPrograms: program: allPrograms // program) {} 
+            (builtins.map (file: builtins.import (builtins.concatStringsSep "/" [dir file]) { inherit user; }) 
+              (builtins.attrNames (builtins.readDir dir)));
       in
       {
         home = {
           packages = builtins.map (pkgName: pkgs.${pkgName}) builtins.import ./packages.nix;
           file = builtins.import ./files;
           stateVersion = "24.05";
+          enableDebugInfo = true;
         };
 
         imports = [

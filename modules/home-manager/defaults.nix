@@ -28,6 +28,12 @@
       tilesize = 64;
       showAppExposeGestureEnabled = true;
     };
+
+    "dev.warp.Warp-Stable" = {
+      AliasExpansionBannerSeen = true;
+      AliasExpansionEnabled = true;
+      TelemetryEnabled = false;
+    };
   };
 
   currentHostDefaults = {

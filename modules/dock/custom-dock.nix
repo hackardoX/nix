@@ -42,15 +42,9 @@ let
     );
   apps = builtins.import ./applications.nix { inherit pkgs config user; };
   wantURIs = lib.concatMapStrings (entry: "${entryURI entry.path}\n") apps;
-  createEntries = lib.concatMapStrings (
-    entry:
-    if lib.hasSuffix "spacer" entry.type then
-      "${pkgs.dockutil}/bin/dockutil --no-restart --add '' --type ${entry.type} --section ${entry.section}\n"
-    else if entry.type == "folder" then
-      "${pkgs.dockutil}/bin/dockutil --no-restart --add '${entry.path}' --view ${entry.view} --display ${entry.display}\n"
-    else
-      "${pkgs.dockutil}/bin/dockutil --no-restart --add '${entry.path}' --section ${entry.section} ${entry.options}\n"
-  ) apps;
+  createEntries = lib.concatMapStrings
+    (entry: "${pkgs.dockutil}/bin/dockutil --no-restart --add '${entry.path}' --section ${entry.section} ${entry.options}\n")
+    apps;
 in
 {
   system.activationScripts.postUserActivation.text = ''
