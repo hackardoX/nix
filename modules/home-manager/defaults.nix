@@ -15,12 +15,16 @@
       TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
       TrackpadTwoFingerDoubleTapGesture = 1;
       TrackpadFourFingerPinchGesture = 2;
+      Clicking = true;
+      TrackpadThreeFingerDrag = true;
     };
 
     "com.apple.driver.AppleBluetoothMultitouch.trackpad" = {
       TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
       TrackpadTwoFingerDoubleTapGesture = 1;
       TrackpadFourFingerPinchGesture = 2;
+      Clicking = true;
+      TrackpadThreeFingerDrag = true;
     };
 
     "com.apple.dock" = {
@@ -33,6 +37,21 @@
       AliasExpansionBannerSeen = true;
       AliasExpansionEnabled = true;
       TelemetryEnabled = false;
+    };
+
+    "com.apphousekitchen.aldente-pro" = {
+      LaunchAtLogin__hasMigrated = 1;
+      SUEnableAutomaticChecks = 1;
+      SUHasLaunchedBefore = 1;
+      chargeVal = 70;
+      checkForUpdates = 1;
+      launchAtLogin = 1;
+      showDockIcon = 0;
+      showGUIonStartup = 1;
+    };
+
+    "com.apple.Safari" = {
+      IncludeDevelopMenu = true;
     };
   };
 

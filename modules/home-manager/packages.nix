@@ -1,38 +1,42 @@
+{ pkgs }:
+with pkgs; 
 [
   # General packages for development and system management
-  "bash-completion"
-  "bat"
-  "coreutils"
-  "eza"
-  "killall"
-  "openssh"
-  "sqlite"
-  "vscode"
-  "warp-terminal"
-  "wget"
-  "zip"
-  "zoxide"
+  aldente
+  bash-completion
+  bat
+  coreutils
+  eza
+  killall
+  openssh
+  raycast
+  sqlite
+  vscode
+  warp-terminal
+  wget
+  zip
+  zoxide
 
   # Cloud-related tools and SDKs
-  "docker"
-  "docker-compose"
+  docker
+  docker-compose
 
   # Media-related packages
-  "spotify"
+  spotify
 
   # Node.js development tools
-  "nodePackages.npm"
-  "nodePackages.prettier"
-  "nodejs"
+  nodePackages.npm
+  nodePackages.prettier
+  nodejs
 
   # Text and terminal utilities
-  "fd"
-  "jetbrains-mono"
-  "jq"
-  "tree"
-  "unzip"
+  fd
+  jetbrains-mono
+  jq
+  tree
+  unzip
 
   # Python packages
-  "python312"
-  "python312Packages.poetry-core"
+  python312
+  python312Packages.poetry-core
 ]

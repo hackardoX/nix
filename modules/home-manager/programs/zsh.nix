@@ -22,6 +22,6 @@ in
         export PATH=$HOME/.local/share/bin:$PATH
       ''
       + functions;
-    shellAliases = builtins.import ../files/aliases.nix;
+    shellAliases = builtins.import ./files/aliases.nix;
   };
 }

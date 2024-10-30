@@ -29,6 +29,7 @@
           inherit
             home-manager
             mac-app-util
+            system
             ;
         };
       };

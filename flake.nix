@@ -86,8 +86,8 @@
           modules = [
             ./hosts/darwin
             custom-home-manager.darwinModules.${system}.custom-home-manager
-            # custom-homebrew.darwinModules.${system}.custom-homebrew
-            # custom-dock.darwinModules.${system}.custom-dock
+            custom-homebrew.darwinModules.${system}.custom-homebrew
+            custom-dock.darwinModules.${system}.custom-dock
           ];
         }
       );

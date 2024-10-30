@@ -1,5 +1,4 @@
-{ config, pkgs, ... }:
-
+{ config, pkgs, lib, ... }:
 let
   user = "aaccardo";
 in
@@ -47,11 +46,36 @@ in
 
   services.nix-daemon.enable = true;
 
-  # environment.systemPackages = builtins.import ../../modules/shared/packages.nix { inherit pkgs; };
-
   security.pam.enableSudoTouchIdAuth = true;
 
   system.stateVersion = 5;
+
+  system.activationScripts.extraUserActivation.enable = true;
+  system.activationScripts.extraUserActivation.text = let
+    hotkeys = [
+      64 # Spotlight
+    ];
+    disableHotKeyCommands = map (key:
+      "defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add ${toString key} '
+        <dict>
+          <key>enabled</key><false/>
+          <key>value</key>
+          <dict>
+            <key>type</key><string>standard</string>
+            <key>parameters</key>
+            <array>
+              <integer>65535</integer>
+              <integer>65535</integer>
+              <integer>0</integer>
+            </array>
+          </dict>
+        </dict>'") hotkeys;
+  in ''
+    echo >&2 "configuring hotkeys..."
+    ${lib.concatStringsSep "\n" disableHotKeyCommands}
+    # credit: https://zameermanji.com/blog/2021/6/8/applying-com-apple-symbolichotkeys-changes-instantaneously/
+    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+  '';
 
   # system = {
   #   stateVersion = 4;
