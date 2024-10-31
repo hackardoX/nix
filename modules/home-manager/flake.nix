@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    home-manager = { 
+    home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -15,7 +15,6 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       home-manager,
       mac-app-util,
@@ -23,7 +22,7 @@
     }:
     let
       darwinSystems = [ "aarch64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs (darwinSystems) f;
+      forAllSystems = f: nixpkgs.lib.genAttrs darwinSystems f;
       mkModules = system: {
         custom-home-manager = import ./custom-home-manager.nix {
           inherit

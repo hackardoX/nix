@@ -7,14 +7,18 @@ in
     enable = true;
     matchBlocks = {
       "github.com" = {
+        forwardAgent = false;
         identitiesOnly = true;
-        identityFile = [
-          "/Users/${user}/.ssh/id_github"
-        ];
+        identityFile = "/Users/${user}/.ssh/github_personal.pub";
         extraOptions = {
           IdentityAgent = _1password;
+          preferredAuthentications = "publickey";
         };
       };
     };
+    forwardAgent = true;
+    serverAliveInterval = 60;
+    controlMaster = "auto";
+    controlPersist = "30m";
   };
 }

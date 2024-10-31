@@ -33,7 +33,7 @@
     let
       user = "aaccardo";
       darwinSystems = [ "aarch64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs (darwinSystems) f;
+      forAllSystems = f: nixpkgs.lib.genAttrs darwinSystems f;
       # mkDevShell =
       #   system:
       #   let
@@ -91,5 +91,6 @@
           ];
         }
       );
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
     };
 }

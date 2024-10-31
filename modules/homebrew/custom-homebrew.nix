@@ -3,12 +3,13 @@
   homebrew-core,
   homebrew-cask,
   homebrew-bundle,
-  system
+  ...
 }:
-{ lib, user, ... }:
+{ user, ... }:
 {
   imports = [
-    nix-homebrew.darwinModules.nix-homebrew {
+    nix-homebrew.darwinModules.nix-homebrew
+    {
       nix-homebrew = {
         enable = true;
         taps = {
@@ -22,7 +23,7 @@
       };
     }
   ];
-  
+
   config = {
     homebrew = {
       enable = true;

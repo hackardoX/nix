@@ -34,8 +34,8 @@
   "gfa" = "git fetch --all --prune --jobs=10";
   "gfo" = "git fetch origin";
   "glo" = "git log --oneline --decorate";
-  "glol" = "git log --graph --pretty=\"%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'";
-  "glods" = "git log --graph --pretty=\"%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --date=short";
+  "glol" = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset'";
+  "glods" = "git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --date=short";
   "glog" = "git log --oneline --decorate --graph";
   "gloga" = "git log --oneline --decorate --graph --all";
   "gm" = "git merge";

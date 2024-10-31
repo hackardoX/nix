@@ -7,23 +7,29 @@
   user,
   pkgs,
   lib,
-  config,
   ...
-}: 
-{ 
+}:
+{
   imports = [
     home-manager.darwinModules.home-manager
-  ]; 
-  
-  config = { 
+  ];
+
+  config = {
     home-manager = {
       useGlobalPkgs = true;
       users.${user} =
         let
-          enumerate = 
-            dir: builtins.foldl' (allPrograms: program: allPrograms // program) {} 
-              (builtins.map (file: builtins.import (builtins.concatStringsSep "/" [dir file]) { inherit user; }) 
-                (builtins.attrNames (builtins.readDir dir)));
+          enumerate =
+            dir:
+            builtins.foldl' (allPrograms: program: allPrograms // program) { } (
+              builtins.map (
+                file:
+                builtins.import (builtins.concatStringsSep "/" [
+                  dir
+                  file
+                ]) { inherit user; }
+              ) (builtins.attrNames (builtins.readDir dir))
+            );
         in
         {
           imports = [
@@ -32,12 +38,8 @@
 
           home = {
             packages = builtins.import ./packages.nix { inherit pkgs; };
-            file = builtins.import ./files.nix;
+            file = builtins.import ./files.nix { inherit user lib; };
             stateVersion = "24.05";
-            keyboard = {
-              layout = "us";
-              variant = "intl";
-            };
           };
 
           programs = enumerate ./programs;

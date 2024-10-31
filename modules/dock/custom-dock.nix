@@ -42,9 +42,10 @@ let
     );
   apps = builtins.import ./applications.nix { inherit pkgs config user; };
   wantURIs = lib.concatMapStrings (entry: "${entryURI entry.path}\n") apps;
-  createEntries = lib.concatMapStrings
-    (entry: "${pkgs.dockutil}/bin/dockutil --no-restart --add '${entry.path}' --section ${entry.section} ${entry.options}\n")
-    apps;
+  createEntries = lib.concatMapStrings (
+    entry:
+    "${pkgs.dockutil}/bin/dockutil --no-restart --add '${entry.path}' --section ${entry.section} ${entry.options}\n"
+  ) apps;
 in
 {
   system.activationScripts.postUserActivation.text = ''

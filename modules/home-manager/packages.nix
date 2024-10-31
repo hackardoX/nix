@@ -1,5 +1,5 @@
 { pkgs }:
-with pkgs; 
+with pkgs;
 [
   # General packages for development and system management
   aldente
@@ -28,6 +28,10 @@ with pkgs;
   nodePackages.npm
   nodePackages.prettier
   nodejs
+
+  # Nix development tools
+  nixfmt-rfc-style
+  nixd
 
   # Text and terminal utilities
   fd
