@@ -17,6 +17,7 @@ in
   };
 
   nix = {
+    enable = true;
     package = pkgs.nix;
     settings = {
       trusted-users = [
@@ -31,7 +32,6 @@ in
     };
 
     gc = {
-      user = "root";
       automatic = true;
       interval = {
         Weekday = 0;
@@ -48,9 +48,7 @@ in
     '';
   };
 
-  services.nix-daemon.enable = true;
-
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   system.stateVersion = 5;
 
