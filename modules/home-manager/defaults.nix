@@ -38,6 +38,8 @@ in
       autohide = false;
       tilesize = 64;
       showAppExposeGestureEnabled = true;
+      show-recents = false;
+      size-immutable = true;
     };
 
     dev.warp.Warp-Stable = {

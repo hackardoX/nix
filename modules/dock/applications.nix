@@ -42,6 +42,6 @@
   {
     path = "${config.users.users.${user}.home}/downloads";
     section = "others";
-    options = "--sort name --view grid --display stack";
+    options = "--sort dateadded --view fan --display stack";
   }
 ]

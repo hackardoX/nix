@@ -12,7 +12,6 @@ with pkgs;
   raycast
   sqlite
   vscode
-  warp-terminal
   wget
   zip
   zoxide
