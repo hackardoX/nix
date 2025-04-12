@@ -11,10 +11,10 @@ in
       ApplePressAndHoldEnabled = false;
       KeyRepeat = 2;
       InitialKeyRepeat = 15;
-      com.apple.mouse.tapBehavior = 1;
-      com.apple.sound.beep.volume = 0.0;
-      com.apple.sound.beep.feedback = 0;
-      com.apple.trackpad.scaling = 2.5;
+      "com.apple.mouse.tapBehavior" = 1;
+      "com.apple.sound.beep.volume" = 0.0;
+      "com.apple.sound.beep.feedback" = 0;
+      "com.apple.trackpad.scaling" = 2.5;
       AppleICUForce24HourTime = true;
     };
 
@@ -54,7 +54,7 @@ in
       LaunchAtLogin__hasMigrated = 1;
       SUEnableAutomaticChecks = 1;
       SUHasLaunchedBefore = 1;
-      chargeVal = 75;
+      chargeVal = 80;
       checkForUpdates = 1;
       launchAtLogin = 1;
       showDockIcon = 0;

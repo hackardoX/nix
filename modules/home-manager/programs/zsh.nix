@@ -5,7 +5,6 @@ in
 {
   zsh = {
     enable = true;
-    # enableCompletion = false;
     localVariables = {
       HISTIGNORE = "pwd:ls:cd:eza:bat:z";
       EDITOR = "code --wait";

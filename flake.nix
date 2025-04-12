@@ -34,24 +34,6 @@
       user = "aaccardo";
       darwinSystems = [ "aarch64-darwin" ];
       forAllSystems = f: nixpkgs.lib.genAttrs darwinSystems f;
-      # mkDevShell =
-      #   system:
-      #   let
-      #     pkgs = nixpkgs.legacyPackages.${system};
-      #   in
-      #   {
-      #     default =
-      #       with pkgs;
-      #       mkShell {
-      #         nativeBuildInputs = with pkgs; [
-      #           bashInteractive
-      #           git
-      #         ];
-      #         shellHook = ''
-      #           export EDITOR=vim
-      #         '';
-      #       };
-      #   };
       mkApp = scriptName: system: {
         type = "app";
         program = "${
@@ -74,7 +56,6 @@
       };
     in
     {
-      # devShell = forAllSystems mkDevShell;
       apps = forAllSystems mkDarwinApps;
       darwinConfigurations = forAllSystems (
         system:

@@ -48,7 +48,7 @@
             let
               allDefaults = builtins.import ./defaults.nix;
             in
-            {
+            builtins.trace "targets.darwin: ${builtins.toJSON allDefaults}" {
               defaults = allDefaults.defaults;
               currentHostDefaults = allDefaults.currentHostDefaults;
             };
