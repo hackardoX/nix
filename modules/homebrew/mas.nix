@@ -10,4 +10,5 @@
 # This message is safe to ignore. (https://github.com/dustinlyons/nixos-config/issues/83)
 {
   "1password-safari" = 1569813296;
+  "adguard for safari" = 1440147259;
 }
