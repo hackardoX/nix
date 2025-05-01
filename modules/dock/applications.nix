@@ -5,22 +5,22 @@
 }:
 [
   {
-    path = "/Applications/Safari.app/";
+    path = "/Applications/Safari.app";
     section = "apps";
     options = "";
   }
   {
-    path = "/System/Applications/Mail.app/";
+    path = "/System/Applications/Mail.app";
     section = "apps";
     options = "";
   }
   {
-    path = "/System/Applications/Calendar.app/";
+    path = "/System/Applications/Calendar.app";
     section = "apps";
     options = "";
   }
   {
-    path = "/System/Applications/System Settings.app/";
+    path = "/System/Applications/System Settings.app";
     section = "apps";
     options = "";
   }
@@ -30,7 +30,7 @@
     options = "";
   }
   {
-    path = "${pkgs.warp-terminal}/Applications/Warp.app/";
+    path = "/System/Volumes/Data/Applications/Warp.app";
     section = "apps";
     options = "";
   }
