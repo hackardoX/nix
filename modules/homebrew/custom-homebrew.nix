@@ -26,14 +26,15 @@
 
   config = {
     homebrew = {
-      enable = true;
+      brews = builtins.import ./brews.nix;
       casks = builtins.import ./casks.nix;
+      enable = true;
+      masApps = builtins.import ./mas.nix;
       onActivation = {
         cleanup = "zap";
         autoUpdate = true;
         upgrade = true;
       };
-      masApps = builtins.import ./mas.nix;
     };
   };
 }
