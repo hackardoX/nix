@@ -20,7 +20,9 @@ in
         # Define variables for directories
         export PATH=$HOME/.local/share/bin:$PATH
       ''
-      + functions;
+      + "\n"
+      + functions
+      + "\n";
     shellAliases = builtins.import ./files/aliases.nix;
   };
 }

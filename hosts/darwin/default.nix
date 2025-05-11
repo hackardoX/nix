@@ -52,8 +52,7 @@ in
 
   system.stateVersion = 5;
 
-  system.activationScripts.extraUserActivation.enable = true;
-  system.activationScripts.extraUserActivation.text =
+  system.activationScripts.disableSpotlightHotKey.text =
     let
       hotkeys = [
         64 # Spotlight
@@ -82,6 +81,20 @@ in
       # credit: https://zameermanji.com/blog/2021/6/8/applying-com-apple-symbolichotkeys-changes-instantaneously/
       /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     '';
+
+  system.activationScripts.updateNixIcon.text =
+    let
+      icon = ./nix-mac-icon.rsrc;
+    in
+    ''
+      Rez -append ${icon} -o $"~/nix/Icon\r"
+      SetFile -a C /nix
+      SetFile -a V $"/nix/Icon\r"
+    '';
+
+  system.activationScripts.createScreenshotFolder.text = ''
+    mkdir -p ~/Pictures/Screenshots
+  '';
 
   time.timeZone = "Europe/Paris";
 

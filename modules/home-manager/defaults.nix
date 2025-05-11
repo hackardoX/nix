@@ -69,6 +69,11 @@ in
       ShowDate = 0;
     };
 
+    com.apple.screencapture = {
+      location = "~/Pictures/Screenshots";
+      "location-last" = "~/Pictures/Screenshots";
+    };
+
     com.apple.HIToolbox = {
       AppleCurrentKeyboardLayoutInputSourceID = "com.apple.keylayout.${keyboard.name}";
       AppleInputSourceHistory = [

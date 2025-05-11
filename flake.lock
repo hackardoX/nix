@@ -80,7 +80,7 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-tyMHXLE6AaPXl4m3++lyek7yvdLRELUUlzS73V3Jxkw=",
+        "narHash": "sha256-gT363pfucuzjAYCM7qkLGXS/Efuj23ekjNrZ50qz4fM=",
         "path": "modules/homebrew",
         "type": "path"
       },
