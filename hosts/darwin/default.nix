@@ -1,11 +1,9 @@
 {
   pkgs,
   lib,
+  user,
   ...
 }:
-let
-  user = "aaccardo";
-in
 {
   nixpkgs = {
     config = {
@@ -52,7 +50,8 @@ in
 
   system.stateVersion = 5;
 
-  system.activationScripts.disableSpotlightHotKey.text =
+  system.activationScripts.postUserActivation.enable = true;
+  system.activationScripts.postUserActivation.text =
     let
       hotkeys = [
         64 # Spotlight
@@ -80,21 +79,10 @@ in
       ${lib.concatStringsSep "\n" disableHotKeyCommands}
       # credit: https://zameermanji.com/blog/2021/6/8/applying-com-apple-symbolichotkeys-changes-instantaneously/
       /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-    '';
 
-  system.activationScripts.updateNixIcon.text =
-    let
-      icon = ./nix-mac-icon.rsrc;
-    in
-    ''
-      Rez -append ${icon} -o $"~/nix/Icon\r"
-      SetFile -a C /nix
-      SetFile -a V $"/nix/Icon\r"
+      echo >&2 "creating screenshots folder..."
+      mkdir -p /Users/${user}/Pictures/Screenshots
     '';
-
-  system.activationScripts.createScreenshotFolder.text = ''
-    mkdir -p ~/Pictures/Screenshots
-  '';
 
   time.timeZone = "Europe/Paris";
 

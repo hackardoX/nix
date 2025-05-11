@@ -70,8 +70,8 @@ in
     };
 
     com.apple.screencapture = {
-      location = "~/Pictures/Screenshots";
-      "location-last" = "~/Pictures/Screenshots";
+      location = "~/Pictures/Screenshots/";
+      "location-last" = "~/Pictures/Screenshots/";
     };
 
     com.apple.HIToolbox = {
