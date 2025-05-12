@@ -69,6 +69,14 @@ in
       ShowDate = 0;
     };
 
+    com.apple.finder = {
+      ShowPathbar = 1;
+      ShowSidebar = 1;
+      ShowStatusBar = 1;
+      FXDefaultSearchScope = "SCcf";
+      
+    };
+
     com.apple.screencapture = {
       location = "~/Pictures/Screenshots/";
       "location-last" = "~/Pictures/Screenshots/";
