@@ -11,6 +11,9 @@
   [core]
       sshCommand = "ssh -F ~/.ssh/config"
 
+  [init]
+      defaultBranch = main
+
   [gpg]
       format = ssh
 

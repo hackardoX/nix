@@ -1,9 +1,9 @@
 [
   # Stremio dependencies
+  "ffmpeg"
+  "icu4c@75"
   "mpv"
   "node"
-  "qt@5"
-  "ffmpeg"
   "openssl@3"
-  "icu4c@75"
+  "qt@5"
 ]

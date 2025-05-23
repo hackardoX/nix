@@ -43,6 +43,7 @@ in
     };
 
     dev.warp.Warp-Stable = {
+      AddedSubshellCommands="[\\\\\"nix develop\\\\\"]";
       AliasExpansionBannerSeen = "true";
       AliasExpansionEnabled = "true";
       Notifications = "{\"mode\":\"Enabled\",\"is_long_running_enabled\":true,\"long_running_threshold\":{\"secs\":30,\"nanos\":0},\"is_password_prompt_enabled\":true}";

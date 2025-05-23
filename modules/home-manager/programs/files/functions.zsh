@@ -61,5 +61,5 @@ function git_main_branch() {
 }
 
 function shell() {
-  nix-shell '<nixpkgs>' -A "$1"
+  nix develop --command "$SHELL" "$@"
 }

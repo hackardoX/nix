@@ -17,16 +17,10 @@ with pkgs;
   zoxide
 
   # Cloud-related tools and SDKs
-  docker
-  docker-compose
+  podman
 
   # Media-related packages
   spotify
-
-  # Node.js development tools
-  nodePackages.npm
-  nodePackages.prettier
-  nodejs
 
   # Nix development tools
   nixfmt-rfc-style
@@ -40,6 +34,7 @@ with pkgs;
   unzip
 
   # Python packages
-  python312
-  python312Packages.poetry-core
+  python313
+  python313Packages.poetry-core
+  uv
 ]

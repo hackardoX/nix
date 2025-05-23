@@ -18,7 +18,10 @@ in
         fi
 
         # Define variables for directories
-        export PATH=$HOME/.local/share/bin:$PATH
+        export PATH=$HOME/.local/share/bin:$HOME/.local/bin:$PATH
+
+        # ------------ WARP Subshells --------------
+        printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh"}}\x9c'
       ''
       + "\n"
       + functions
