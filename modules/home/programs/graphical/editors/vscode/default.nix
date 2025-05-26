@@ -153,7 +153,7 @@ in
             "[csharp]" = {
               "editor.defaultFormatter" = "ms-dotnettools.csharp";
             };
-            "[dockerfile]" = {
+            "[dockerfile]" = mkIf config.${namespace}.suites.development.dockerEnable {
               "editor.defaultFormatter" = "ms-azuretools.vscode-docker";
             };
             "[gitconfig]" = {

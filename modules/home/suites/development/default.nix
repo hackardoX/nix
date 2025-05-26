@@ -7,18 +7,40 @@
   ...
 }:
 let
-  inherit (lib) mkIf mkDefault mkEnableOption;
-  inherit (lib.${namespace}) enabled;
+  inherit (lib)
+    mkIf
+    mkDefault
+    mkEnableOption
+    types
+    ;
+  inherit (lib.${namespace}) enabled mkOpt;
+
+  tokenExports =
+    lib.optionalString osConfig.${namespace}.security.sops.enable # Bash
+      ''
+        if [ -f ${config.sops.secrets.ANTHROPIC_API_KEY.path} ]; then
+          ANTHROPIC_API_KEY="$(cat ${config.sops.secrets.ANTHROPIC_API_KEY.path})"
+          export ANTHROPIC_API_KEY
+        fi
+        if [ -f ${config.sops.secrets.AZURE_OPENAI_API_KEY.path} ]; then
+          AZURE_OPENAI_API_KEY="$(cat ${config.sops.secrets.AZURE_OPENAI_API_KEY.path})"
+          export AZURE_OPENAI_API_KEY
+        fi
+        if [ -f ${config.sops.secrets.OPENAI_API_KEY.path} ]; then
+          OPENAI_API_KEY="$(cat ${config.sops.secrets.OPENAI_API_KEY.path})"
+          export OPENAI_API_KEY
+        fi
+        if [ -f ${config.sops.secrets.TAVILY_API_KEY.path} ]; then
+          TAVILY_API_KEY="$(cat ${config.sops.secrets.TAVILY_API_KEY.path})"
+          export TAVILY_API_KEY
+        fi
+      '';
 
   cfg = config.${namespace}.suites.development;
 in
 {
-  options.${namespace}.suites.development = {
-    enable = mkEnableOption "common development configuration";
-    dockerEnable = mkEnableOption "docker development configuration";
-    nixEnable = mkEnableOption "nix development configuration";
-    sqlEnable = mkEnableOption "sql development configuration";
-    aiEnable = mkEnableOption "ai development configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/development/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {
@@ -72,12 +94,6 @@ in
           ncs = ''f(){ nix build "nixpkgs#$1" --no-link && nix path-info --recursive --closure-size --human-readable $(nix-build --no-out-link '<nixpkgs>' -A "$1"); }; f'';
           ncsnc = ''f(){ nix build ".#nixosConfigurations.$1.config.system.build.toplevel" --no-link && nix path-info --recursive --closure-size --human-readable $(nix eval --raw ".#nixosConfigurations.$1.config.system.build.toplevel.outPath"); }; f'';
           ncsdc = ''f(){ nix build ".#darwinConfigurations.$1.config.system.build.toplevel" --no-link && nix path-info --recursive --closure-size --human-readable $(nix eval --raw ".#darwinConfigurations.$1.config.system.build.toplevel.outPath"); }; f'';
-          # NOTE: vim-add 'owner/repo'
-          vim-add = ''nix run nixpkgs#vimPluginsUpdater add'';
-          # NOTE: vim-update 'plugin-name'
-          vim-update = ''nix run nixpkgs#vimPluginsUpdater update'';
-          vim-update-all = ''nix run nixpkgs#vimPluginsUpdater -- --github-token=$(echo $GITHUB_TOKEN)'';
-          lua-update-all = ''nix run nixpkgs#luarocks-packages-updater -- --github-token=$(echo $GITHUB_TOKEN)'';
 
           # Home-Manager
           hmd = ''nix build -L .#docs-html && ${
@@ -110,8 +126,24 @@ in
           tools = {
             act = mkDefault enabled;
             gh = mkDefault enabled;
+            git = {
+              enable = mkDefault true;
+              includes = mkDefault [ ];
+              signByDefault = mkDefault true;
+              signingKey = mkDefault "${config.home.homeDirectory}/.ssh/id_ed25519";
+              userName = mkDefault cfg.git.user;
+              userEmail = mkDefault cfg.git.email;
+              _1password = mkDefault (config.${namespace}.programs.terminal.tools._1password.enable);
+            };
             jq = mkDefault enabled;
+            # jujutsu = mkDefault enabled;
             prisma.enable = mkDefault cfg.sqlEnable;
+            ssh = {
+              enable = mkDefault true;
+              authorizedKeys = mkDefault cfg.ssh.authorizedKeys;
+              extraConfig = mkDefault "";
+              port = mkDefault 2222;
+            };
           };
         };
       };

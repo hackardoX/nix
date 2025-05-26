@@ -13,13 +13,4 @@ in
   options = import (lib.snowfall.fs.get-file "shared/suites-options/games/default.nix") {
     inherit lib namespace;
   };
-
-  config = mkIf cfg.enable {
-    homebrew = {
-      casks = [
-        # "moonlight"
-        # "steam"
-      ];
-    };
-  };
 }

@@ -12,6 +12,11 @@ let
   cfg = config.${namespace}.user;
 in
 {
+  # TODO: refactor this to use the shared user module
+  # options = import (lib.snowfall.fs.get-file "shared/user/default.nix") {
+  #   inherit config lib pkgs namespace;
+  # };
+
   options.${namespace}.user = {
     name = mkOpt types.str "aaccardo" "The user account.";
     email = mkOpt types.str "andry93mail@gmail.com" "The email of the user.";

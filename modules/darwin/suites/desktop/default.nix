@@ -10,8 +10,8 @@ let
   cfg = config.${namespace}.suites.desktop;
 in
 {
-  options.${namespace}.suites.desktop = {
-    enable = lib.mkEnableOption "common desktop configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/desktop/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {

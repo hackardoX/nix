@@ -10,8 +10,8 @@ let
   cfg = config.${namespace}.suites.video;
 in
 {
-  options.${namespace}.suites.video = {
-    enable = lib.mkEnableOption "video configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/video/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {

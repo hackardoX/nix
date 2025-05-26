@@ -22,11 +22,9 @@ let
 
   authorizedKeys = [ ];
 
-  allowedSigners = [
-    "10788630+andrea11@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB"
-  ];
-
-  other-hosts = lib.filterAttrs (_key: host: (host.config.${namespace}.user.name or null) != null) (inputs.self.darwinConfigurations or { });
+  other-hosts = lib.filterAttrs (_key: host: (host.config.${namespace}.user.name or null) != null) (
+    inputs.self.darwinConfigurations or { }
+  );
 
   other-hosts-config = lib.foldl' (
     acc: name:
@@ -56,7 +54,6 @@ in
   options.${namespace}.programs.terminal.tools.ssh = with types; {
     enable = lib.mkEnableOption "ssh support";
     authorizedKeys = mkOpt (listOf str) authorizedKeys "The public keys to apply.";
-    allowedSigners = mkOpt (listOf str) allowedSigners "The allowed signers to apply.";
     extraConfig = mkOpt str "" "Extra configuration to apply.";
     port = mkOpt port 2222 "The port to listen on (in addition to 22).";
   };
@@ -107,7 +104,6 @@ in
           (builtins.attrNames other-hosts);
 
       file = {
-        ".ssh/allowed_signers".text = builtins.concatStringsSep "\n" cfg.allowedSigners;
         ".ssh/authorized_keys".text = builtins.concatStringsSep "\n" cfg.authorizedKeys;
       };
     };

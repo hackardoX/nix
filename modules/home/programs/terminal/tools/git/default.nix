@@ -11,7 +11,6 @@ let
     types
     mkEnableOption
     mkIf
-    mkForce
     getExe'
     ;
   inherit (lib.${namespace}) mkOpt enabled;
@@ -19,7 +18,6 @@ let
 
   cfg = config.${namespace}.programs.terminal.tools.git;
 
-  aliases = import ./aliases.nix;
   ignores = import ./ignores.nix;
   shell-aliases = import ./shell-aliases.nix { inherit config lib pkgs; };
 
@@ -66,30 +64,9 @@ in
         package = pkgs.gitFull;
 
         inherit (cfg) includes userName userEmail;
-        inherit (aliases) aliases;
         inherit (ignores) ignores;
 
         maintenance.enable = true;
-
-        delta = {
-          enable = true;
-
-          options = {
-            dark = true;
-            # FIXME: module should accept a mergable list be composable
-            features = mkForce "decorations side-by-side navigate catppuccin-macchiato";
-            line-numbers = true;
-            navigate = true;
-            side-by-side = true;
-          };
-        };
-
-        difftastic = {
-          enableAsDifftool = !config.programs.kitty.enable;
-
-          background = "dark";
-          display = "inline";
-        };
 
         extraConfig = {
           branch.sort = "-committerdate";
@@ -100,6 +77,14 @@ in
             );
 
             useHttpPath = true;
+          };
+
+          column = {
+            ui = "auto";
+          };
+
+          core = mkIf config.${namespace}.programs.graphical.editors.vscode.enable {
+            editor = "code --wait --new-window";
           };
 
           fetch = {
@@ -163,8 +148,6 @@ in
       # Merge helper
       mergiraf = enabled;
 
-      bash.initExtra = tokenExports;
-      fish.shellInit = tokenExports;
       zsh.initContent = tokenExports;
     };
 

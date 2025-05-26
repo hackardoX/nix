@@ -26,15 +26,13 @@ let
       "/home/${cfg.name}";
 in
 {
-  options.${namespace}.user = {
-    enable = mkOpt types.bool false "Whether to configure the user account.";
-    email = mkOpt types.str "andry93.mail@gmail.com" "The email of the user.";
-    fullName = mkOpt types.str "Andrea Accardo" "The full name of the user.";
-    home = mkOpt (types.nullOr types.str) home-directory "The user's home directory.";
-    icon =
-      mkOpt (types.nullOr types.package) pkgs.${namespace}.user-icon
-        "The profile picture to use for the user.";
-    name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name "The user account.";
+  options = import (lib.snowfall.fs.get-file "shared/user/default.nix") {
+    inherit
+      config
+      lib
+      pkgs
+      namespace
+      ;
   };
 
   config = mkIf cfg.enable (mkMerge [

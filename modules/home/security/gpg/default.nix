@@ -47,7 +47,7 @@ in
     };
 
     programs = {
-      zsh.initContent = ''
+      zsh.initContent = '' # Bash
         export GPG_TTY="$(tty)"
         export SSH_AUTH_SOCK=$(${getExe' pkgs.gnupg "gpgconf"} --list-dirs agent-ssh-socket)
 

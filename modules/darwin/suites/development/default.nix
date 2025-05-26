@@ -11,10 +11,8 @@ let
   cfg = config.${namespace}.suites.development;
 in
 {
-  options.${namespace}.suites.development = {
-    enable = mkEnableOption "common development configuration";
-    dockerEnable = mkBoolOpt true "Whether or not to enable docker development configuration.";
-    aiEnable = mkEnableOption "ai development configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/development/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {

@@ -11,8 +11,8 @@ let
   cfg = config.${namespace}.suites.common;
 in
 {
-  options.${namespace}.suites.common = {
-    enable = lib.mkEnableOption "common configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/common/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {

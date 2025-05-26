@@ -7,20 +7,17 @@
 let
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.user;
+  suites = import (lib.snowfall.fs.get-file "shared/profiles/Andrea-MacBook-Air/default.nix") {
+    inherit config lib namespace;
+  };
 in
 {
   aaccardo = {
+    inherit (suites) suites;
+    
     user = {
       enable = true;
       inherit (config.snowfallorg.user) name;
-    };
-
-    programs = {
-      terminal = {
-        tools = {
-          ssh = enabled;
-        };
-      };
     };
 
     services = {
@@ -29,19 +26,6 @@ in
         defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
         sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
       };
-    };
-
-    suites = {
-      common = enabled;
-      development = {
-        enable = true;
-        aiEnable = true;
-        dockerEnable = true;
-        nixEnable = true;
-        sqlEnable = true;
-      };
-      music = enabled;
-      networking = enabled;
     };
 
     theme.catppuccin = enabled;

@@ -6,14 +6,13 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
-  inherit (lib.${namespace}) enabled;
+  inherit (lib) mkDefault mkIf;
 
   cfg = config.${namespace}.suites.business;
 in
 {
-  options.${namespace}.suites.business = {
-    enable = lib.mkEnableOption "business configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/business/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {
@@ -23,7 +22,10 @@ in
       programs = {
         terminal = {
           tools = {
-            _1password-cli = lib.mkDefault enabled;
+            _1password = {
+              enable = mkDefault true;
+              enableSshSocket = mkDefault true;
+            };
           };
         };
       };

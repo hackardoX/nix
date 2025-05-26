@@ -11,8 +11,8 @@ let
   cfg = config.${namespace}.suites.networking;
 in
 {
-  options.${namespace}.suites.networking = {
-    enable = lib.mkEnableOption "networking configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/networking/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {

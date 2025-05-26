@@ -10,8 +10,8 @@ let
   cfg = config.${namespace}.suites.art;
 in
 {
-  options.${namespace}.suites.art = {
-    enable = lib.mkEnableOption "art configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/art/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {

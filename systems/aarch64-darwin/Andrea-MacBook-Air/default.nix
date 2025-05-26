@@ -6,11 +6,15 @@
 }:
 let
   inherit (lib.${namespace}) enabled;
-
   cfg = config.${namespace}.user;
+  suites = import (lib.snowfall.fs.get-file "shared/profiles/Andrea-MacBook-Air/default.nix") {
+    inherit config lib namespace;
+  };
 in
 {
   aaccardo = {
+    inherit (suites) suites;
+
     security = {
       sudo = enabled;
       sops = {
@@ -18,16 +22,6 @@ in
         sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
         defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
       };
-    };
-
-    suites = {
-      common = enabled;
-      development = enabled;
-      networking = enabled;
-    };
-
-    tools = {
-      homebrew = enabled;
     };
   };
 

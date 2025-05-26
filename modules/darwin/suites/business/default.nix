@@ -10,8 +10,8 @@ let
   cfg = config.${namespace}.suites.business;
 in
 {
-  options.${namespace}.suites.business = {
-    enable = lib.mkEnableOption "business configuration";
+  options = import (lib.snowfall.fs.get-file "shared/suites-options/business/default.nix") {
+    inherit lib namespace;
   };
 
   config = mkIf cfg.enable {
