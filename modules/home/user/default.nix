@@ -1,0 +1,120 @@
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}:
+let
+  inherit (lib)
+    types
+    mkIf
+    mkDefault
+    mkMerge
+    getExe
+    ;
+  inherit (lib.${namespace}) mkOpt enabled;
+
+  cfg = config.${namespace}.user;
+
+  home-directory =
+    if cfg.name == null then
+      null
+    else if pkgs.stdenv.hostPlatform.isDarwin then
+      "/Users/${cfg.name}"
+    else
+      "/home/${cfg.name}";
+in
+{
+  options.${namespace}.user = {
+    enable = mkOpt types.bool false "Whether to configure the user account.";
+    email = mkOpt types.str "andry93.mail@gmail.com" "The email of the user.";
+    fullName = mkOpt types.str "Andrea Accardo" "The full name of the user.";
+    home = mkOpt (types.nullOr types.str) home-directory "The user's home directory.";
+    icon =
+      mkOpt (types.nullOr types.package) pkgs.${namespace}.user-icon
+        "The profile picture to use for the user.";
+    name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name "The user account.";
+  };
+
+  config = mkIf cfg.enable (mkMerge [
+    {
+      assertions = [
+        {
+          assertion = cfg.name != null;
+          message = "${namespace}.user.name must be set";
+        }
+        {
+          assertion = cfg.home != null;
+          message = "${namespace}.user.home must be set";
+        }
+      ];
+
+      home = {
+        file =
+          {
+            "Desktop/.keep".text = "";
+            "Documents/.keep".text = "";
+            "Downloads/.keep".text = "";
+            "Music/.keep".text = "";
+            "Pictures/.keep".text = "";
+            "Videos/.keep".text = "";
+          }
+          // lib.optionalAttrs (cfg.icon != null) {
+            ".face".source = cfg.icon;
+            ".face.icon".source = cfg.icon;
+            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
+          };
+
+        homeDirectory = mkDefault cfg.home;
+
+        shellAliases = {
+          # nix specific aliases
+          cleanup = "sudo nix-collect-garbage --delete-older-than 3d && nix-collect-garbage -d";
+          bloat = "nix path-info -Sh /run/current-system";
+          curgen = "sudo nix-env --list-generations --profile /nix/var/nix/profiles/system";
+          gc-check = "nix-store --gc --print-roots | egrep -v \"^(/nix/var|/run/\w+-system|\{memory|/proc)\"";
+          repair = "nix-store --verify --check-contents --repair";
+          nixnuke = ''
+            # Kill nix-daemon and nix processes first
+            sudo pkill -9 -f "nix-(daemon|store|build)" || true
+
+            # Find and kill all nixbld processes
+            for pid in $(ps -axo pid,user | ${getExe pkgs.gnugrep} -E '[_]?nixbld[0-9]+' | ${getExe pkgs.gawk} '{print $1}'); do
+              sudo kill -9 "$pid" 2>/dev/null || true
+            done
+
+            # Restart nix-daemon based on platform
+            if [ "$(uname)" = "Darwin" ]; then
+              sudo launchctl kickstart -k system/org.nixos.nix-daemon
+            else
+              sudo systemctl restart nix-daemon.service
+            fi
+          '';
+          flake = "nix flake";
+          run = "nix run";
+          search = "nix search";
+          shell = "nix shell";
+          nix = "nix -vL";
+          hmvar-reload = ''__HM_ZSH_SESS_VARS_SOURCED=0 source "/etc/profiles/per-user/${config.${namespace}.user.name}/etc/profile.d/hm-session-vars.sh"'';
+
+          # File management
+          wget = "${getExe pkgs.wget} -c ";
+
+          # Navigation shortcuts
+          ".." = "cd ..";
+          "..." = "cd ../..";
+          "...." = "cd ../../..";
+          "....." = "cd ../../../..";
+          "......" = "cd ../../../../..";
+          myipv4 = "${getExe pkgs.curl} api.ipify.org";
+          myipv6 = "${getExe pkgs.curl} api6.ipify.org";
+        };
+
+        username = mkDefault cfg.name;
+      };
+
+      programs.home-manager = enabled;
+    }
+  ]);
+}

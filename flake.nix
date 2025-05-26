@@ -1,77 +1,152 @@
 {
-  description = "Starter Configuration for MacOS and NixOS";
-
+  description = "A very basic flake";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     darwin = {
-      url = "github:LnL7/nix-darwin/master";
+      url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    custom-home-manager = {
-      url = "path:modules/home-manager";
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        # Optional inputs removed
+        gitignore.follows = "";
+        flake-compat.follows = "";
+      };
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    custom-homebrew = {
-      url = "path:modules/homebrew";
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+    # mac-app-util = {
+    #   url = "github:hraban/mac-app-util";
+    # };
+    nix-homebrew = {
+      url = "github:zhaofengli/nix-homebrew";
+    };
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    custom-dock = {
-      url = "path:modules/dock";
+    nix-vscode-extensions = {
+      url = "github:nix-community/nix-vscode-extensions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixpkgs = {
+      url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    };
+    snowfall-lib = {
+      url = "github:snowfallorg/lib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    stylix = {
+      url = "github:danth/stylix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        git-hooks.follows = "git-hooks";
+        home-manager.follows = "home-manager";
+        # Optional inputs removed
+        flake-compat.follows = "";
+      };
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs =
-    {
-      self,
-      darwin,
-      nixpkgs,
-      custom-home-manager,
-      custom-homebrew,
-      custom-dock,
-    }@inputs:
+    inputs:
     let
-      user = "aaccardo";
-      darwinSystems = [ "aarch64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs darwinSystems f;
-      mkApp = scriptName: system: {
-        type = "app";
-        program = "${
-          (nixpkgs.legacyPackages.${system}.writeScriptBin scriptName ''
-            #!/usr/bin/env bash
-            PATH=${nixpkgs.legacyPackages.${system}.git}/bin:$PATH
-            echo "Running ${scriptName} for ${system}"
-            exec ${self}/apps/${system}/${scriptName}
-          '')
-        }/bin/${scriptName}";
-      };
-      mkDarwinApps = system: {
-        "apply" = mkApp "apply" system;
-        "build" = mkApp "build" system;
-        "build-switch" = mkApp "build-switch" system;
-        "copy-keys" = mkApp "copy-keys" system;
-        "create-keys" = mkApp "create-keys" system;
-        "check-keys" = mkApp "check-keys" system;
-        "rollback" = mkApp "rollback" system;
+      inherit (inputs) nix-vscode-extensions snowfall-lib treefmt-nix;
+
+      lib = snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
+
+        snowfall = {
+          meta = {
+            name = "setup-flake";
+            title = "My custom MacOS configuration flake";
+          };
+
+          namespace = "aaccardo";
+        };
       };
     in
-    {
-      apps = forAllSystems mkDarwinApps;
-      darwinConfigurations = forAllSystems (
-        system:
-        darwin.lib.darwinSystem {
-          inherit system;
-          specialArgs = inputs // {
-            inherit user;
-          };
-          modules = [
-            ./hosts/darwin
-            custom-home-manager.darwinModules.${system}.custom-home-manager
-            custom-homebrew.darwinModules.${system}.custom-homebrew
-            custom-dock.darwinModules.${system}.custom-dock
-          ];
-        }
-      );
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
+    lib.mkFlake {
+      channels-config = {
+        # allowBroken = true;
+        allowUnfree = true;
+        # showDerivationWarnings = [ "maintainerless" ];
+        permittedInsecurePackages = [ ];
+      };
+
+      overlays = [
+        nix-vscode-extensions.overlays.default
+      ];
+
+      homes.modules = with inputs; [
+        catppuccin.homeModules.catppuccin
+        nix-index-database.hmModules.nix-index
+        sops-nix.homeManagerModules.sops
+      ];
+
+      systems.modules = {
+        darwin = with inputs; [
+          nix-homebrew.darwinModules.nix-homebrew
+          (
+            {
+              config,
+              namespace,
+              ...
+            }:
+            {
+              nix-homebrew = {
+                inherit (config.${namespace}.tools.homebrew) enable;
+                user = config.${namespace}.user.name;
+                taps = {
+                  "homebrew/homebrew-core" = homebrew-core;
+                  "homebrew/homebrew-cask" = homebrew-cask;
+                };
+                mutableTaps = false;
+                autoMigrate = true;
+              };
+            }
+          )
+          sops-nix.darwinModules.sops
+          stylix.darwinModules.stylix
+        ];
+      };
+
+      templates = {
+        next-js.description = "NextJS template";
+        node.description = "Node template";
+        python.description = "Python template";
+        react.description = "React template";
+        snowfall.description = "Snowfall-lib template";
+      };
+
+      deploy = lib.mkDeploy { inherit (inputs) self; };
+
+      outputs-builder = channels: {
+        formatter = treefmt-nix.lib.mkWrapper channels.nixpkgs ./treefmt.nix;
+      };
     };
 }

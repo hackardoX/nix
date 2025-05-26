@@ -1,9 +1,0 @@
-[
-  "1password"
-  "1password-cli"
-  "microsoft-excel"
-  "microsoft-powerpoint"
-  "microsoft-word"
-  "warp"
-  "whatsapp"
-]
