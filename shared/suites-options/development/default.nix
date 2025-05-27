@@ -34,6 +34,13 @@ in
         ];
         description = "List of SSH public keys to be added to authorized_keys";
       };
+      allowed_signers = mkOption {
+        type = types.listOf types.str;
+        example = [
+          "<custom>@<email>.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy..."
+        ];
+        description = "List of SSH allowed signers";
+      };
     };
   };
 }

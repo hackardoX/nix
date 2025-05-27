@@ -17,11 +17,11 @@ in
 
     security = {
       sudo = enabled;
-      sops = {
-        enable = false;
-        sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-        defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
-      };
+      # sops = {
+      #   enable = false;
+      #   sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+      #   defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
+      # };
     };
   };
 

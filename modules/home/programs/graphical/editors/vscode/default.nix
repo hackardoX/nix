@@ -240,6 +240,9 @@ in
                 bradlc.vscode-tailwindcss
               ];
           };
+          "Smart Editor" = {
+            extensions = commonExtensions;
+          };
           Python = {
             extensions =
               with pkgs.vscode-marketplace;

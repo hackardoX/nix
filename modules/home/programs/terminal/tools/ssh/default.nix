@@ -20,8 +20,6 @@ let
   user = config.users.users.${config.${namespace}.user.name};
   user-id = builtins.toString user.uid;
 
-  authorizedKeys = [ ];
-
   other-hosts = lib.filterAttrs (_key: host: (host.config.${namespace}.user.name or null) != null) (
     inputs.self.darwinConfigurations or { }
   );
@@ -53,7 +51,8 @@ in
 {
   options.${namespace}.programs.terminal.tools.ssh = with types; {
     enable = lib.mkEnableOption "ssh support";
-    authorizedKeys = mkOpt (listOf str) authorizedKeys "The public keys to apply.";
+    authorizedKeys = mkOpt (listOf str) [] "The public keys to apply.";
+    allowed_signers = mkOpt (listOf str) [] "The allowed signers to apply.";
     extraConfig = mkOpt str "" "Extra configuration to apply.";
     port = mkOpt port 2222 "The port to listen on (in addition to 22).";
   };
@@ -105,6 +104,7 @@ in
 
       file = {
         ".ssh/authorized_keys".text = builtins.concatStringsSep "\n" cfg.authorizedKeys;
+        ".ssh/allowed_signers".text = builtins.concatStringsSep "\n" cfg.allowed_signers;
       };
     };
   };

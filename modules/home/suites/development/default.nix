@@ -96,12 +96,7 @@ in
           ncsdc = ''f(){ nix build ".#darwinConfigurations.$1.config.system.build.toplevel" --no-link && nix path-info --recursive --closure-size --human-readable $(nix eval --raw ".#darwinConfigurations.$1.config.system.build.toplevel.outPath"); }; f'';
 
           # Home-Manager
-          hmd = ''nix build -L .#docs-html && ${
-            if pkgs.stdenv.hostPlatform.isDarwin then
-              "open -a /Applications/Firefox\\ Developer\\ Edition.app"
-            else
-              lib.getExe config.programs.firefox.package
-          } result/share/doc/home-manager/index.xhtml'';
+          hmd = ''nix build -L .#docs-html ${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "&& open result/share/doc/home-manager/index.xhtml"}'';
           hmt = ''f(){ nix-build -j auto --show-trace --pure --option allow-import-from-derivation false tests -A build."$1"; }; f'';
           hmtf = ''f(){ nix build -L --option allow-import-from-derivation false --reference-lock-file flake.lock "./tests#test-$1"; }; f'';
           hmts = ''f(){ nix build -L --option allow-import-from-derivation false --reference-lock-file flake.lock "./tests#test-$1" && nix path-info -rSh ./result; }; f'';
@@ -124,6 +119,12 @@ in
 
         terminal = {
           tools = {
+            _1password = {
+              plugins = with pkgs; [
+                gh
+                hcloud
+              ];
+            };
             act = mkDefault enabled;
             gh = mkDefault enabled;
             git = {
@@ -141,6 +142,7 @@ in
             ssh = {
               enable = mkDefault true;
               authorizedKeys = mkDefault cfg.ssh.authorizedKeys;
+              allowed_signers = mkDefault cfg.ssh.allowed_signers;
               extraConfig = mkDefault "";
               port = mkDefault 2222;
             };

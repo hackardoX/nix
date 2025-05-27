@@ -24,15 +24,14 @@ in
 
       age = {
         inherit (cfg) sshKeyPaths;
-
         keyFile = "${config.users.users.${config.${namespace}.user.name}.home}/.config/sops/age/keys.txt";
       };
-    };
 
-    sops.secrets = {
-      # "khanelimac_khaneliman_ssh_key" = {
-      #   sopsFile = lib.snowfall.fs.get-file "secrets/khanelimac/khaneliman/default.yaml";
-      # };
+      secrets = {
+        "aaccardo_ssh_key" = {
+          sopsFile = lib.snowfall.fs.get-file "secrets/aaccardo/default.yaml";
+        };
+      };
     };
   };
 }

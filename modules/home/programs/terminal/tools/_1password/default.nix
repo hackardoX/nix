@@ -6,7 +6,13 @@
   ...
 }:
 let
-  inherit (lib) mkEnableOption mkIf optionalString;
+  inherit (lib)
+    mkEnableOption
+    mkIf
+    optionalString
+    types
+    ;
+  inherit (lib.${namespace}) mkOpt;
 
   cfg = config.${namespace}.programs.terminal.tools._1password;
 in
@@ -14,6 +20,7 @@ in
   options.${namespace}.programs.terminal.tools._1password = {
     enable = mkEnableOption "1password";
     enableSshSocket = mkEnableOption "ssh-agent socket";
+    plugins = mkOpt (types.listOf types.package) [ ] "1Password shell plugins";
   };
 
   config = mkIf cfg.enable {
@@ -24,10 +31,29 @@ in
     ];
 
     programs = {
-      ssh.extraConfig = optionalString cfg.enableSshSocket ''
+      _1password-shell-plugins = mkIf (cfg.plugins != [ ]) {
+        inherit (cfg) plugins;
+        enable = true;
+      };
+
+      ssh.extraConfig = mkIf cfg.enableSshSocket ''
         Host *
           AddKeysToAgent yes
           IdentityAgent ~/.1password/agent.sock
+      '';
+    };
+
+    home.file = mkIf cfg.enableSshSocket {
+      ".1password/agent.sock" = {
+        source = config.lib.file.mkOutOfStoreSymlink "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+      };
+
+      ".config/1Password/ssh/agent.toml".text = ''
+        [[ssh-keys]]
+        vault = "Development"
+
+        [[ssh-keys]]
+        vault = "Private"
       '';
     };
   };

@@ -1,6 +1,10 @@
 {
   description = "A very basic flake";
   inputs = {
+    _1password-shell-plugins = {
+      url = "github:1Password/shell-plugins";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -46,6 +50,10 @@
     };
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    };
+    opnix = {
+      url = "github:brizzbuzz/opnix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     snowfall-lib = {
       url = "github:snowfallorg/lib";
@@ -103,8 +111,10 @@
       ];
 
       homes.modules = with inputs; [
+        inputs._1password-shell-plugins.hmModules.default
         catppuccin.homeModules.catppuccin
         nix-index-database.hmModules.nix-index
+        opnix.homeManagerModules.default
         sops-nix.homeManagerModules.sops
       ];
 

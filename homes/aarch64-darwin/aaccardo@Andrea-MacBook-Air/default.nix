@@ -20,13 +20,20 @@ in
       inherit (config.snowfallorg.user) name;
     };
 
-    services = {
-      sops = {
-        enable = false;
-        defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
-        sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
-      };
-    };
+    # security = {
+    #   opnix = {
+    #     enable = mkDefault true;
+    #     secrets = mkDefault [ ];
+    #   };
+    # };
+
+    # services = {
+    #   sops = {
+    #     enable = false;
+    #     defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
+    #     sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
+    #   };
+    # };
 
     theme.catppuccin = enabled;
   };
