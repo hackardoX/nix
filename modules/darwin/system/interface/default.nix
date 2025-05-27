@@ -127,6 +127,11 @@ in
           ]
           ++ [
             "/System/Applications/System Settings.app"
+            {
+              spacer = {
+                small = true;
+              };
+            }
           ];
       };
 
