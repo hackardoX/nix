@@ -32,7 +32,7 @@ writeShellApplication {
     zenity
   ];
 
-  text = # bash
+  text = # Bash
     ''
       readonly TMP_FILE_UNOPTIMIZED="/tmp/recording_unoptimized.gif"
       readonly TMP_PALETTE_FILE="/tmp/palette.png"

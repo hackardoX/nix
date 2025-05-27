@@ -5,7 +5,7 @@ stdenvNoCC.mkDerivation {
 
   dontUnpack = true;
 
-  installPhase = # bash
+  installPhase = # Bash
     ''
       cp $src $out
     '';

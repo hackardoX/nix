@@ -84,7 +84,7 @@
     dad = "!curl https://icanhazdadjoke.com/ && echo";
 
     # Fix corrupt git repo
-    fix = # bash
+    fix = # Bash
       "!f() {
             find .git/objects/ -type f -empty | xargs rm
             git fetch -p
@@ -96,14 +96,14 @@
     pullf = "!bash - c \"git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)\"";
 
     ### Pull only the current branch and dont update refs of all remotes
-    pullhead = # bash
+    pullhead = # Bash
       "!f() {                                                                \
 	          local b=$${1:-$(git rev-parse --abbrev-ref HEAD)};                              \
 	          git pull origin $b;                                                             \
           }; f";
 
     ### Blow up local branch and repull from remote
-    smash = # bash
+    smash = # Bash
       "!f() {                                                                   \
 	          local b=$${1:-$(git rev-parse --abbrev-ref HEAD)};                              \
 	          echo 'Are you sure you want to run this? It will delete your current '$b'.';    \
@@ -115,7 +115,7 @@
           }; f";
 
     ### Rebase current branch off master
-    rbm = # bash
+    rbm = # Bash
       "!f() {                                                                \
 	          local b=$${1:-$(git rev-parse --abbrev-ref HEAD)};                              \
 	          echo 'Are you sure you want to run this? It will delete your current '$b'.';    \
@@ -127,7 +127,7 @@
           }; f";
 
     ### Rebase current branch off develop
-    rbd = # bash
+    rbd = # Bash
       "!f() {                                                                \
 	          local b=$${1:-$(git rev-parse --abbrev-ref HEAD)};                              \
 	          echo 'Are you sure you want to run this? It will delete your current '$b'.';    \
@@ -147,7 +147,7 @@
     # Example: git bd -a
     # Example: git bd -a -20
     # Example: git bd -a20
-    bd = # bash
+    bd = # Bash
       "!f() {                                                 \
             case $1 in                                                      \
                 -a) refs='--'; shift;;                                      \
@@ -181,7 +181,7 @@
     #         less -RFX;                                                                      \
     # }; f";
 
-    fetch-pr = # bash
+    fetch-pr = # Bash
       "!f() { \
             git remote get-url $1 >/dev/null 2>&1 || { printf >&2 'Usage: git fetch-pr <remote> [<pr-number>]\n'; exit 1; }; \
             pr=$2; \
@@ -189,7 +189,7 @@
             git fetch $1 '+refs/pull/$pr/head:refs/remotes/$1/pr/$pr';\
           }; f";
 
-    stash-staged = # bash
+    stash-staged = # Bash
       "!f() { : git stash ;                                                                               \
             staged=$(git diff --staged --unified=0);                                                                              \
             unstaged=$(git diff --unified=0);                                                                                     \
@@ -208,7 +208,7 @@
                 };                                                                                                                \
             }; f";
 
-    stash-unstaged = # bash
+    stash-unstaged = # Bash
       "!f() { : git stash ;                                                                             \
             staged=$(git diff --staged --unified=0);                                                                              \
             unstaged=$(git diff --unified=0);                                                                                     \

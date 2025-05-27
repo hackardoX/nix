@@ -28,7 +28,7 @@ in
 
         autocd = true;
 
-        completionInit = # bash
+        completionInit = # Bash
           ''
             # Load compinit
             autoload -U compinit
