@@ -11,7 +11,6 @@ let
     types
     mkEnableOption
     mkIf
-    getExe'
     ;
   inherit (lib.${namespace}) mkOpt enabled;
   inherit (config.${namespace}) user;
@@ -19,7 +18,6 @@ let
   cfg = config.${namespace}.programs.terminal.tools.git;
 
   ignores = import ./ignores.nix;
-  shell-aliases = import ./shell-aliases.nix { inherit config lib pkgs; };
 
   tokenExports =
     lib.optionalString osConfig.${namespace}.security.sops.enable # Bash
@@ -33,12 +31,17 @@ let
       '';
 in
 {
+  imports = [
+    ./shellAliases.nix
+    ./shellFunctions.nix
+  ];
+
   options.${namespace}.programs.terminal.tools.git = {
     enable = mkEnableOption "Git";
     includes = mkOpt (types.listOf types.attrs) [ ] "Git includeIf paths and conditions.";
     signByDefault = mkOpt types.bool true "Whether to sign commits by default.";
     signingKey =
-      mkOpt types.str "${config.home.homeDirectory}/.ssh/id_ed25519"
+      mkOpt types.str "${config.home.homeDirectory}/.ssh/id_ed25519.pub"
         "The key ID to sign commits with.";
     userName = mkOpt types.str user.fullName "The name to configure git with.";
     userEmail = mkOpt types.str user.email "The email to configure git with.";
@@ -47,15 +50,13 @@ in
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      bfg-repo-cleaner
       git-absorb
       git-crypt
       git-filter-repo
       git-lfs
-      gitflow
+      # gitflow
       gitleaks
       gitlint
-      tig
     ];
 
     programs = {
@@ -71,13 +72,13 @@ in
         extraConfig = {
           branch.sort = "-committerdate";
 
-          credential = {
-            helper = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin (
-              getExe' config.programs.git.package "git-credential-osxkeychain"
-            );
+          # credential = {
+          #   helper = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin (
+          #     getExe' config.programs.git.package "git-credential-osxkeychain"
+          #   );
 
-            useHttpPath = true;
-          };
+          #   useHttpPath = true;
+          # };
 
           column = {
             ui = "auto";
@@ -90,10 +91,6 @@ in
           fetch = {
             prune = true;
           };
-
-          "gpg \"ssh\"".program = mkIf cfg._1password (
-            lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "${pkgs._1password-gui}/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-          );
 
           init = {
             defaultBranch = "main";
@@ -127,7 +124,7 @@ in
           };
         };
 
-        hooks = {
+        hooks = mkIf (!cfg._1password) {
           prepare-commit-msg = lib.getExe (
             pkgs.writeShellScriptBin "prepare-commit-msg" ''
               echo "Signing off commit"
@@ -141,6 +138,9 @@ in
         signing = {
           key = cfg.signingKey;
           format = "ssh";
+          signer = mkIf cfg._1password (
+            lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "${pkgs._1password-gui}/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+          );
           inherit (cfg) signByDefault;
         };
       };
@@ -149,10 +149,6 @@ in
       mergiraf = enabled;
 
       zsh.initContent = tokenExports;
-    };
-
-    home = {
-      inherit (shell-aliases) shellAliases;
     };
 
     sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {

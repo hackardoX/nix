@@ -68,14 +68,11 @@ in
             eza = mkDefault enabled;
             git = mkDefault enabled;
             nh = mkDefault enabled;
-            ssh = mkDefault enabled;
             topgrade = mkDefault enabled;
             zoxide = mkDefault enabled;
           };
         };
       };
-
-      services = { };
 
       system.input.enable = lib.mkDefault pkgs.stdenv.hostPlatform.isDarwin;
     };

@@ -19,9 +19,7 @@ in
       enable = true;
       package = pkgs.eza;
 
-      enableBashIntegration = true;
       enableZshIntegration = true;
-      enableFishIntegration = true;
 
       extraOptions = [
         "--group-directories-first"

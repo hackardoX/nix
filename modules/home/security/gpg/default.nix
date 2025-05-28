@@ -47,18 +47,19 @@ in
     };
 
     programs = {
-      zsh.initContent = '' # Bash
-        export GPG_TTY="$(tty)"
-        export SSH_AUTH_SOCK=$(${getExe' pkgs.gnupg "gpgconf"} --list-dirs agent-ssh-socket)
+      zsh.initContent = ''
+        # Bash
+               export GPG_TTY="$(tty)"
+               export SSH_AUTH_SOCK=$(${getExe' pkgs.gnupg "gpgconf"} --list-dirs agent-ssh-socket)
 
-        ${getExe' pkgs.coreutils "timeout"} ${builtins.toString cfg.agentTimeout} ${getExe' pkgs.gnupg "gpgconf"} --launch gpg-agent
-        gpg_agent_timeout_status=$?
+               ${getExe' pkgs.coreutils "timeout"} ${builtins.toString cfg.agentTimeout} ${getExe' pkgs.gnupg "gpgconf"} --launch gpg-agent
+               gpg_agent_timeout_status=$?
 
-        if [ "$gpg_agent_timeout_status" = 124 ]; then
-          # Command timed out...
-          echo "GPG Agent timed out..."
-          echo 'Run "gpgconf --launch gpg-agent" to try and launch it again.'
-        fi
+               if [ "$gpg_agent_timeout_status" = 124 ]; then
+                 # Command timed out...
+                 echo "GPG Agent timed out..."
+                 echo 'Run "gpgconf --launch gpg-agent" to try and launch it again.'
+               fi
       '';
     };
   };

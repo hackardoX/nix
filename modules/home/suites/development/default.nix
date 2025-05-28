@@ -10,31 +10,8 @@ let
   inherit (lib)
     mkIf
     mkDefault
-    mkEnableOption
-    types
     ;
-  inherit (lib.${namespace}) enabled mkOpt;
-
-  tokenExports =
-    lib.optionalString osConfig.${namespace}.security.sops.enable # Bash
-      ''
-        if [ -f ${config.sops.secrets.ANTHROPIC_API_KEY.path} ]; then
-          ANTHROPIC_API_KEY="$(cat ${config.sops.secrets.ANTHROPIC_API_KEY.path})"
-          export ANTHROPIC_API_KEY
-        fi
-        if [ -f ${config.sops.secrets.AZURE_OPENAI_API_KEY.path} ]; then
-          AZURE_OPENAI_API_KEY="$(cat ${config.sops.secrets.AZURE_OPENAI_API_KEY.path})"
-          export AZURE_OPENAI_API_KEY
-        fi
-        if [ -f ${config.sops.secrets.OPENAI_API_KEY.path} ]; then
-          OPENAI_API_KEY="$(cat ${config.sops.secrets.OPENAI_API_KEY.path})"
-          export OPENAI_API_KEY
-        fi
-        if [ -f ${config.sops.secrets.TAVILY_API_KEY.path} ]; then
-          TAVILY_API_KEY="$(cat ${config.sops.secrets.TAVILY_API_KEY.path})"
-          export TAVILY_API_KEY
-        fi
-      '';
+  inherit (lib.${namespace}) enabled disabled;
 
   cfg = config.${namespace}.suites.development;
 in
@@ -126,23 +103,23 @@ in
               ];
             };
             act = mkDefault enabled;
-            gh = mkDefault enabled;
+            gh = mkDefault disabled;
             git = {
               enable = mkDefault true;
               includes = mkDefault [ ];
               signByDefault = mkDefault true;
-              signingKey = mkDefault "${config.home.homeDirectory}/.ssh/id_ed25519";
+              signingKey = mkDefault "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
               userName = mkDefault cfg.git.user;
               userEmail = mkDefault cfg.git.email;
-              _1password = mkDefault (config.${namespace}.programs.terminal.tools._1password.enable);
+              _1password = mkDefault config.${namespace}.programs.terminal.tools._1password.enable;
             };
             jq = mkDefault enabled;
             # jujutsu = mkDefault enabled;
             prisma.enable = mkDefault cfg.sqlEnable;
             ssh = {
-              enable = mkDefault true;
+              enable = true;
               authorizedKeys = mkDefault cfg.ssh.authorizedKeys;
-              allowed_signers = mkDefault cfg.ssh.allowed_signers;
+              allowedSigners = mkDefault cfg.ssh.allowedSigners;
               extraConfig = mkDefault "";
               port = mkDefault 2222;
             };

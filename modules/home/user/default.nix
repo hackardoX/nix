@@ -7,23 +7,14 @@
 }:
 let
   inherit (lib)
-    types
     mkIf
     mkDefault
     mkMerge
     getExe
     ;
-  inherit (lib.${namespace}) mkOpt enabled;
+  inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.user;
-
-  home-directory =
-    if cfg.name == null then
-      null
-    else if pkgs.stdenv.hostPlatform.isDarwin then
-      "/Users/${cfg.name}"
-    else
-      "/home/${cfg.name}";
 in
 {
   options = import (lib.snowfall.fs.get-file "shared/user/default.nix") {

@@ -9,7 +9,6 @@ let
   inherit (lib)
     mkEnableOption
     mkIf
-    optionalString
     types
     ;
   inherit (lib.${namespace}) mkOpt;

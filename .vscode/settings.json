@@ -1,3 +1,4 @@
 {
-	"nixEnvSelector.nixFile": "${workspaceFolder}/treefmt.nix"
+	"nix.formatterPath": ["nix", "treefmt", "--stdin", "{file}"],
+	"nixEnvSelector.nixFile": "${workspaceFolder}/flake.nix"
 }

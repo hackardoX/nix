@@ -28,7 +28,7 @@ in
   networking = {
     computerName = "Andrea's MacBook Air";
     hostName = "Andrea-MacBook-Air";
-    localHostName = "Andrea-MacBook-Air.local";
+    localHostName = "Andrea-MacBook-Air";
 
     knownNetworkServices = [
       "Wi-Fi"
@@ -41,12 +41,6 @@ in
   nix.settings = {
     cores = 8;
     max-jobs = 3;
-  };
-
-  users.users.${cfg.name} = {
-    openssh = {
-      authorizedKeys.keys = [ ];
-    };
   };
 
   system = {

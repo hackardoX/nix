@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib.${namespace}) enabled;
-  cfg = config.${namespace}.user;
   suites = import (lib.snowfall.fs.get-file "shared/profiles/Andrea-MacBook-Air/default.nix") {
     inherit config lib namespace;
   };
@@ -14,7 +13,7 @@ in
 {
   aaccardo = {
     inherit (suites) suites;
-    
+
     user = {
       enable = true;
       inherit (config.snowfallorg.user) name;

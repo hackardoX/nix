@@ -5,7 +5,6 @@
 }:
 let
   inherit (lib) mkEnableOption mkOption types;
-  inherit (lib.${namespace}) mkBoolOpt;
 in
 {
   ${namespace}.suites.development = {
@@ -34,7 +33,7 @@ in
         ];
         description = "List of SSH public keys to be added to authorized_keys";
       };
-      allowed_signers = mkOption {
+      allowedSigners = mkOption {
         type = types.listOf types.str;
         example = [
           "<custom>@<email>.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy..."

@@ -40,9 +40,9 @@ in
         homebrew = mkDefault enabled;
       };
 
-      services = {
-        openssh = mkDefault enabled;
-      };
+      # services = {
+      #  openssh = mkDefault enabled;
+      # };
 
       system = {
         fonts = mkDefault enabled;

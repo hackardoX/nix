@@ -32,5 +32,12 @@ in
         AutocompleteSymbols = "false";
       };
     };
+
+    programs.zsh.initContent = lib.mkAfter ''
+
+      # Auto-Warpify
+        [[ "$-" == *i* ]] && printf 'P$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh", "uname": "Darwin" }}�'
+
+    '';
   };
 }

@@ -1,7 +1,6 @@
 {
   mkShell,
   pkgs,
-  namespace,
   ...
 }:
 mkShell {
@@ -27,7 +26,8 @@ mkShell {
   ];
 
   shellHook = ''
-    echo 🔨 Welcome to ${namespace}
+
+    echo 🔨 Nix DevShell
 
 
   '';

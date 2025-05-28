@@ -66,7 +66,7 @@ in
         show-recents = false;
         showhidden = false;
         static-only = false;
-        tilesize = 50;
+        tilesize = 64;
 
         # Hot corners
         # Possible values:

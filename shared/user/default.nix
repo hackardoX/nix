@@ -9,7 +9,7 @@ let
   inherit (lib) types;
   inherit (lib.${namespace}) mkOpt;
 
-  name = config.snowfallorg.user.name;
+  inherit (config.snowfallorg.user) name;
 
   home-directory =
     if name == null then

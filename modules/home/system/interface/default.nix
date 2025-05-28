@@ -18,10 +18,7 @@ in
     targets.darwin = {
       defaults = {
         "com.apple.dock" = {
-          autohide = false;
-          tilesize = 64;
           showAppExposeGestureEnabled = true;
-          show-recents = false;
           size-immutable = true;
         };
 

@@ -37,6 +37,7 @@ in
             with pkgs.vscode-marketplace;
             [
               adpyke.codesnap
+              arrterian.nix-env-selector
               catppuccin.catppuccin-vsc
               catppuccin.catppuccin-vsc-icons
               christian-kohler.path-intellisense
@@ -46,9 +47,10 @@ in
               github.vscode-pull-request-github
               gruntfuggly.todo-tree
               irongeek.vscode-env
+              jnoortheen.nix-ide
+              mkhl.direnv
               ms-vscode-remote.remote-ssh
               ms-vsliveshare.vsliveshare
-              pinage404.nix-extension-pack
               usernamehw.errorlens
               yy0931.gitconfig-lsp
               yzhang.markdown-all-in-one
@@ -100,7 +102,7 @@ in
             "editor.bracketPairColorization.enabled" = true;
             "editor.fontLigatures" =
               "'calt', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08', 'ss09', 'ss10', 'dlig', 'liga'";
-            "editor.fontSize" = lib.mkDefault 16;
+            "editor.fontSize" = lib.mkDefault 12;
             "editor.formatOnPaste" = true;
             "editor.formatOnSave" = true;
             "editor.formatOnType" = false;
@@ -120,6 +122,10 @@ in
             "terminal.integrated.defaultProfile.linux" = "zsh";
             "terminal.integrated.enableBell" = false;
             "terminal.integrated.gpuAcceleration" = "on";
+
+            # Nix
+            "nixEnvSelector.suggestion" = true;
+            "nixEnvSelector.useFlakes" = true;
 
             # Workbench
             "workbench.editor.tabCloseButton" = "left";
@@ -194,6 +200,7 @@ in
                 xaver.clang-format
                 llvm-vs-code-extensions.vscode-clangd
               ];
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
           };
           Java = {
             extensions =
@@ -239,9 +246,11 @@ in
                 richie5um2.vscode-sort-json
                 bradlc.vscode-tailwindcss
               ];
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
           };
-          "Smart Editor" = {
+          Editor = {
             extensions = commonExtensions;
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
           };
           Python = {
             extensions =
@@ -253,6 +262,7 @@ in
                 njpwerner.autodocstring
                 charliermarsh.ruff
               ];
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
           };
           Rust = {
             extensions =
@@ -261,6 +271,7 @@ in
               ++ [
                 rust-lang.rust-analyzer
               ];
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
           };
         };
     };

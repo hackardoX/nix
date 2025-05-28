@@ -40,6 +40,7 @@ in
                       "CORRECT"              # try to correct the spelling of commands
                       "EXTENDED_HISTORY"     # save each command’s beginning timestamp and the duration to the history file
                       "HIST_FCNTL_LOCK"      # use system’s fcntl call to lock the history file
+                      "HIST_NO_STORE"        # do not store history commands
                       "HIST_REDUCE_BLANKS"   # remove superfluous blanks
                       "HIST_SAVE_NO_DUPS"    # older commands that duplicate newer ones are omitted
                       "HIST_VERIFY"          # don’t execute the line directly; instead perform history expansion and reload the line into the editing buffer
@@ -52,7 +53,7 @@ in
                       "NOTIFY"               # report the status of background jobs immediately
                       "PROMPT_SUBST"         # allow substitutions as part of prompt format string
                       # NOTE: causing weird unicode escape in prompt in kitty
-                      # "SH_WORD_SPLIT"        # perform field splitting on unquoted parameter expansions
+                      "SH_WORD_SPLIT"        # perform field splitting on unquoted parameter expansions
                       "MULTIOS"              # perform implicit tees or cats when multiple redirections are attempted
                       "NOFLOWCONTROL"        # Disable Ctrl-S and Ctrl-Q flow control
                   )

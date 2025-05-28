@@ -77,7 +77,9 @@ in
               maxJobs = 4;
               speedFactor = 3;
               supportedFeatures = supportedFeatures ++ [ "apple-virt" ];
-              sshKey = lib.mkIf config.${namespace}.security.sops.enable config.sops.secrets.aaccardo_ssh_key.path;
+              sshKey =
+                lib.mkIf config.${namespace}.security.sops.enable
+                  config.sops.secrets.aaccardo_ssh_key.path;
             }
           ];
 
