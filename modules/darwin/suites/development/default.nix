@@ -5,7 +5,8 @@
   ...
 }:
 let
-  inherit (lib) mkIf optionals;
+  inherit (lib) mkDefault mkIf optionals;
+  inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.suites.development;
 in
@@ -20,6 +21,16 @@ in
 
       masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
         # "Xcode" = 497799835;
+      };
+    };
+
+    ${namespace} = {
+      programs = {
+        terminal = {
+          tools = {
+            ssh = mkDefault enabled;
+          };
+        };
       };
     };
   };

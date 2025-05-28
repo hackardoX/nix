@@ -41,7 +41,7 @@ in
     includes = mkOpt (types.listOf types.attrs) [ ] "Git includeIf paths and conditions.";
     signByDefault = mkOpt types.bool true "Whether to sign commits by default.";
     signingKey =
-      mkOpt types.str "${config.home.homeDirectory}/.ssh/id_ed25519.pub"
+      mkOpt types.str "${config.home.homeDirectory}/.ssh/git_signature.pub"
         "The key ID to sign commits with.";
     userName = mkOpt types.str user.fullName "The name to configure git with.";
     userEmail = mkOpt types.str user.email "The email to configure git with.";
@@ -123,8 +123,8 @@ in
             ];
           };
 
-          "url \"git@github.com:$1/\"" = {
-            insteadOf = "https://github.com/(.*)/";
+          "url \"ssh://git@\"" = {
+            insteadOf = "https://";
           };
         };
 

@@ -32,7 +32,7 @@ in
       age = {
         generateKey = true;
         keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
-        sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519.pub" ] ++ cfg.sshKeyPaths;
+        sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/git_signature.pub" ] ++ cfg.sshKeyPaths;
       };
 
       secrets = {

@@ -17,12 +17,20 @@ let
 
   cfg = config.${namespace}.programs.terminal.tools.ssh;
 
-  user = config.users.users.${config.${namespace}.user.name};
+  user = config.${namespace}.user.name;
   user-id = builtins.toString user.uid;
 
   other-hosts = lib.filterAttrs (_key: host: (host.config.${namespace}.user.name or null) != null) (
     inputs.self.darwinConfigurations or { }
   );
+
+  github-host-config = {
+    "github.com" = {
+      forwardAgent = false;
+      identitiesOnly = true;
+      identityFile = "/Users/${user}/.ssh/github.pub";
+    };
+  };
 
   other-hosts-config = lib.foldl' (
     acc: name:
@@ -61,9 +69,13 @@ in
     programs.ssh = {
       enable = true;
 
+      serverAliveInterval = 60;
+      controlMaster = "auto";
+      controlPersist = "30m";
+
       addKeysToAgent = "yes";
       forwardAgent = true;
-      matchBlocks = other-hosts-config;
+      matchBlocks = github-host-config // other-hosts-config;
 
       extraConfig =
         ''

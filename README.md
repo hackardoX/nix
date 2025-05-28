@@ -15,7 +15,7 @@
 </a>
 </p>
 
-Welcome to my personal Nix configuration repository. This repository 
+Welcome to my personal Nix configuration repository. This repository
 contains my NixOS and Nixpkgs configurations for MacOS.
 
 ## Table of Contents
@@ -42,13 +42,17 @@ follow the installation instruction on
 # New machine without git
 nix-shell -p git
 
-# Clone 
+# Clone
 git clone https://github.com/andrea11/nix.git
 cd nix
 
 # First run without nix-darwin:
 nix run github:lnl7/nix-darwin#darwin-rebuild -- switch --flake github:andrea11/nix
+# or
+nix build github:andrea11/nix#darwinConfigurations.Andrea-MacBook-Air.system
+sudo ./result/sw/bin/darwin-rebuild switch --flake .#Andrea-MacBook-Air
 
+# Subsequent runs:
 darwin-rebuild switch --flake .
 
  # Direnv
@@ -84,7 +88,7 @@ Here's an overview of what my Nix configuration offers:
   your local machine.
 
 - **Utilize opnix or sops-nix**: Secret management with
-  [opnix](https://github.com/brizzbuzz/opnix) or [sops-nix](https://github.com/Mic92/sops-nix) 
+  [opnix](https://github.com/brizzbuzz/opnix) or [sops-nix](https://github.com/Mic92/sops-nix)
   for secure and encrypted handling of sensitive information.
 
 ## Customization
@@ -138,5 +142,5 @@ Suites are employed in both `homes` and `systems`: instead of manually enabling 
 Other configurations from where I learned and copied:
 
 - [dustinlyons/nixos-config](https://github.com/dustinlyons/nixos-config) *Initial starting point*
-- [khaneliman/khanelinix](https://github.com/khaneliman/khanelinix) **Main 
+- [khaneliman/khanelinix](https://github.com/khaneliman/khanelinix) **Main
   inspiration**

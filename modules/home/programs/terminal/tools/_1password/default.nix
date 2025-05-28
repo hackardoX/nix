@@ -38,7 +38,8 @@ in
       ssh.extraConfig = mkIf cfg.enableSshSocket ''
         Host *
           AddKeysToAgent yes
-          IdentityAgent ~/.1password/agent.sock
+          IdentityAgent /Users/${config.${namespace}.user.name}/.1password/agent.sock
+          PreferredAuthentications publickey
       '';
     };
 

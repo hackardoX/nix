@@ -108,7 +108,7 @@ in
               enable = mkDefault true;
               includes = mkDefault [ ];
               signByDefault = mkDefault true;
-              signingKey = mkDefault "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
+              signingKey = mkDefault "${config.home.homeDirectory}/.ssh/git_signature.pub";
               userName = mkDefault cfg.git.user;
               userEmail = mkDefault cfg.git.email;
               _1password = mkDefault config.${namespace}.programs.terminal.tools._1password.enable;
