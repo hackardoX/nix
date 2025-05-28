@@ -122,6 +122,10 @@ in
               "/etc/nix-darwin"
             ];
           };
+
+          "url \"git@github.com:$1/\"" = {
+            insteadOf = "https://github.com/(.*)/";
+          };
         };
 
         hooks = mkIf (!cfg._1password) {

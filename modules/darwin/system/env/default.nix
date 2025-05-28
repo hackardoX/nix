@@ -50,29 +50,30 @@ in
         "/usr/bin"
       ];
 
-      variables =
-        let
-          pagerArgs = [
-            "--RAW-CONTROL-CHARS" # Only allow colors.
-            "--wheel-lines=5"
-            "--LONG-PROMPT"
-            "--no-vbell"
-            " --wordwrap" # Wrap lines at spaces.
-          ];
-        in
-        {
-          SYSTEMD_PAGERSECURE = "true";
-          PAGER = "less -FR";
-          LESS = lib.concatStringsSep " " pagerArgs;
-          SYSTEMD_LESS = lib.concatStringsSep " " (
-            pagerArgs
-            ++ [
-              "--quit-if-one-screen"
-              "--chop-long-lines"
-              "--no-init" # Keep content after quit.
-            ]
-          );
-        };
+    # TODO: Any flags that should be set?
+    #   variables =
+    #     let
+    #       pagerArgs = [
+    #         "--RAW-CONTROL-CHARS" # Only allow colors.
+    #         "--wheel-lines=5"
+    #         "--LONG-PROMPT"
+    #         "--no-vbell"
+    #         " --wordwrap" # Wrap lines at spaces.
+    #       ];
+    #     in
+    #     {
+    #       SYSTEMD_PAGERSECURE = "true";
+    #       PAGER = "less -FR";
+    #       LESS = lib.concatStringsSep " " pagerArgs;
+    #       SYSTEMD_LESS = lib.concatStringsSep " " (
+    #         pagerArgs
+    #         ++ [
+    #           "--quit-if-one-screen"
+    #           "--chop-long-lines"
+    #           "--no-init" # Keep content after quit.
+    #         ]
+    #       );
+    #     };
     };
   };
 }
