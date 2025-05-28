@@ -117,7 +117,6 @@ in
               ]
           ++ lib.optionals hmCfg.${namespace}.suites.development.enable [
             "${pkgs.vscode}/Applications/Visual Studio Code.app"
-            "${pkgs.bruno}/Applications/Bruno.app"
             "/System/Volumes/Data/Applications/Warp.app"
             {
               spacer = {

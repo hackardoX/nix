@@ -73,21 +73,6 @@ in
         done
         echo master
       }
-
-      ${lib.optionalString config.${namespace}.programs.terminal.shell.zsh.enable
-        ''
-          function nix() {
-            if [[ "$1" == "develop" ]]; then
-              # Remove 'develop' from the arguments list
-              shift
-              # Execute 'nix develop' with the remaining arguments and append '-c pkgs.zsh'
-              command nix develop "$@" -c ${pkgs.zsh}
-            else
-              # Execute any other 'nix' command normally
-              command nix "$@"
-            fi
-          }
-      ''}
     '';
   };
 }

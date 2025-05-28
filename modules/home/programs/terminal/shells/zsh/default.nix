@@ -85,55 +85,55 @@ in
           package = pkgs.zsh-syntax-highlighting;
         };
 
-        initContent = lib.mkMerge [
-          (lib.mkOrder 450 # Bash
-            ''
-              # Prevent the command from being written to history before it's
-              # executed; save it to LASTHIST instead.  Write it to history
-              # in precmd.
-              #
-              # called before a history line is saved.  See zshmisc(1).
-              # function zshaddhistory() {
-              #   # Remove line continuations since otherwise a "\" will eventually
-              #   # get written to history with no newline.
-              #   LASTHIST=''${1//\\$'\n'/}
-              #   # Return value 2: "... the history line will be saved on the internal
-              #   # history list, but not written to the history file".
-              #   return 2
-              # }
+        # initContent = lib.mkMerge [
+        #   (lib.mkOrder 450 # Bash
+        #     ''
+        #       # Prevent the command from being written to history before it's
+        #       # executed; save it to LASTHIST instead.  Write it to history
+        #       # in precmd.
+        #       #
+        #       # called before a history line is saved.  See zshmisc(1).
+        #       function zshaddhistory() {
+        #         # Remove line continuations since otherwise a "\" will eventually
+        #         # get written to history with no newline.
+        #         LASTHIST=''${1//\\$'\n'/}
+        #         # Return value 2: "... the history line will be saved on the internal
+        #         # history list, but not written to the history file".
+        #         return 2
+        #       }
 
-              # zsh hook called before the prompt is printed.  See zshmisc(1).
-              # function precmd() {
-                  # Write the last command if successful, using the history buffered by
-                  # zshaddhistory().
-              #     if [[ $? == 0 && -n ''${LASTHIST//[[:space:]\n]/} && -n $HISTFILE ]] ; then
-              #       print -sr -- ''${=''${LASTHIST%%'\n'}}
-              #     fi
-              #   }
+        #       # zsh hook called before the prompt is printed.  See zshmisc(1).
+        #       function precmd() {
+        #         # Write the last command if successful, using the history buffered by
+        #         # zshaddhistory().
+        #         if [[ $? == 0 && -n ''${LASTHIST//[[:space:]\n]/} && -n $HISTFILE ]] ; then
+        #           print -sr -- ''${=''${LASTHIST%%'\n'}}
+        #         fi
+        #       }
 
-              # Do this early so fast-syntax-highlighting can wrap and override this
-              # if autoload history-search-end; then
-              #   zle -N history-beginning-search-backward-end history-search-end
-              #   zle -N history-beginning-search-forward-end  history-search-end
-              # fi
+        #       # Do this early so fast-syntax-highlighting can wrap and override this
+        #       if autoload history-search-end; then
+        #         zle -N history-beginning-search-backward-end history-search-end
+        #         zle -N history-beginning-search-forward-end  history-search-end
+        #       fi
 
-              # source <(${lib.getExe config.programs.fzf.package} --zsh)
-              # source ${config.programs.git.package}/share/git/contrib/completion/git-prompt.sh
-            ''
-          )
+        #       source <(${lib.getExe config.programs.fzf.package} --zsh)
+        #       source ${config.programs.git.package}/share/git/contrib/completion/git-prompt.sh
+        #     ''
+        #   )
 
-          # Bash
-          # (lib.mkOrder 600 ''
-          # # binds, zsh modules and everything else
-          # ${fileContents ./rc/binds.zsh}
-          # ${fileContents ./rc/modules.zsh}
-          # ${fileContents ./rc/fzf-tab.zsh}
-          # ${fileContents ./rc/misc.zsh}
-          # '')
+        #   # Bash
+        #   # (lib.mkOrder 600 ''
+        #   # # binds, zsh modules and everything else
+        #   # ${fileContents ./rc/binds.zsh}
+        #   # ${fileContents ./rc/modules.zsh}
+        #   # ${fileContents ./rc/fzf-tab.zsh}
+        #   # ${fileContents ./rc/misc.zsh}
+        #   # '')
 
-          # Should be last thing to run
-          # (lib.mkOrder 5000 (lib.optionalString config.programs.fastfetch.enable "fastfetch"))
-        ];
+        #   # Should be last thing to run
+        #   # (lib.mkOrder 5000 (lib.optionalString config.programs.fastfetch.enable "fastfetch"))
+        # ];
 
         # plugins = [
         # {

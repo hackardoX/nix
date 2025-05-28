@@ -80,11 +80,6 @@ in
               sudo systemctl restart nix-daemon.service
             fi
           '';
-          flake = "nix flake";
-          run = "nix run";
-          search = "nix search";
-          shell = "nix shell";
-          nix = "nix -vL";
           hmvar-reload = ''__HM_ZSH_SESS_VARS_SOURCED=0 source "/etc/profiles/per-user/${config.${namespace}.user.name}/etc/profile.d/hm-session-vars.sh"'';
 
           # File management
@@ -104,6 +99,21 @@ in
       };
 
       programs.home-manager = enabled;
+
+      programs.zsh.initContent = lib.mkIf (config.${namespace}.programs.terminal.shell.zsh.enable)
+        ''
+          function nix() {
+            if [[ "$1" == "develop" ]]; then
+              # Remove 'develop' from the arguments list
+              shift
+              # Execute 'nix develop' with the remaining arguments and append '-c pkgs.zsh'
+              command nix develop "$@" -c ${lib.getExe pkgs.zsh}
+            else
+              # Execute any other 'nix' command normally
+              command nix "$@"
+            fi
+          }
+      '';
     }
   ]);
 }
