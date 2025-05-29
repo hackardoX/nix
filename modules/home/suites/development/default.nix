@@ -41,6 +41,7 @@ in
           nix-bisect
           nix-diff
           nix-fast-build
+          nixfmt-rfc-style
           nix-health
           nix-index
           nix-output-monitor
@@ -49,6 +50,7 @@ in
           nixpkgs-lint-community
           nixpkgs-review
           nurl
+          treefmt
         ]
         ++ lib.optionals osConfig.${namespace}.tools.homebrew.masEnable [
           mas

@@ -146,11 +146,9 @@
       };
 
       templates = {
-        # next-js.description = "NextJS template";
-        # node.description = "Node template";
-        # python.description = "Python template";
-        # react.description = "React template";
-        # snowfall.description = "Snowfall-lib template";
+        next-js.description = "NextJS template";
+        node.description = "Node template";
+        python.description = "Python template";
       };
 
       deploy = lib.mkDeploy { inherit (inputs) self; };

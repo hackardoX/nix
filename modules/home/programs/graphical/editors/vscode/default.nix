@@ -133,8 +133,18 @@ in
             "workbench.list.smoothScrolling" = true;
             "workbench.panel.defaultLocation" = "right";
             "workbench.startupEditor" = "none";
+            "workbench.editor.tabActionLocation" = "left";
+
+            # Search
+            "search.exclude" = {
+              "**/.direnv/**" = true;
+              "**/node_modules/**" = true;
+            };
 
             # Miscellaneous
+            "accessibility.signals.terminalBell" = {
+              "sound" = "off";
+            };
             "breadcrumbs.enabled" = true;
             "explorer.confirmDelete" = false;
             "files.trimTrailingWhitespace" = true;
@@ -176,6 +186,9 @@ in
             };
             "[lua]" = {
               "editor.defaultFormatter" = "yinfei.luahelper";
+            };
+            "[nix]" = {
+              "editor.defaultFormatter" = "jnoortheen.nix-ide";
             };
             "[shellscript]" = {
               "editor.defaultFormatter" = "foxundermoon.shell-format";
@@ -232,7 +245,7 @@ in
               }
             );
           };
-          NextJS = {
+          Javascript = {
             extensions =
               with pkgs.vscode-marketplace;
               commonExtensions
@@ -246,7 +259,17 @@ in
                 richie5um2.vscode-sort-json
                 bradlc.vscode-tailwindcss
               ];
-            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            userSettings = lib.mkIf cfg.declarativeConfig (
+              commonSettings
+              // {
+                "[json]" = {
+                  "editor.defaultFormatter" = "biome";
+                };
+                "[javascript]" = {
+                  "editor.defaultFormatter" = "biome";
+                };
+              }
+            );
           };
           Editor = {
             extensions = commonExtensions;
