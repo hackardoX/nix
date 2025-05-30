@@ -1,8 +1,8 @@
 {
   description = "A very basic flake";
   inputs = {
-    _1password-shell-plugins = {
-      url = "github:1Password/shell-plugins";
+    op-shell-plugins = {
+      url = "github:1password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     catppuccin = {
@@ -111,7 +111,7 @@
       ];
 
       homes.modules = with inputs; [
-        inputs._1password-shell-plugins.hmModules.default
+        inputs.op-shell-plugins.hmModules.default
         catppuccin.homeModules.catppuccin
         nix-index-database.hmModules.nix-index
         opnix.homeManagerModules.default

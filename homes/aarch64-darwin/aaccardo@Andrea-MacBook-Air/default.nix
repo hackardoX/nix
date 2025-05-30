@@ -19,12 +19,17 @@ in
       inherit (config.snowfallorg.user) name;
     };
 
-    # security = {
-    #   opnix = {
-    #     enable = mkDefault true;
-    #     secrets = mkDefault [ ];
-    #   };
-    # };
+    security = {
+      opnix = {
+        enable = false;
+        secrets = [
+          {
+            path = ".ssh/github.pub";
+            reference = "op://Development/ssh-keys/Github Authorisation";
+          }
+        ];
+      };
+    };
 
     # services = {
     #   sops = {

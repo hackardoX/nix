@@ -17,6 +17,26 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions =
+      let
+        # TODO: This is a safeguard for now, but we should probably
+        # Registry does not allow keys starting with a number or symbols
+        invalidFlakes = (
+          builtins.attrNames (
+            lib.filterAttrs (
+              name: value: builtins.isNull (builtins.match "^[A-Za-z].*" name)
+            ) config.nix.registry
+
+          )
+        );
+      in
+      [
+        {
+          assertion = builtins.length invalidFlakes == 0;
+          message = "Registry contains a flake with an invalid name (first character must be a letter): ${builtins.toJSON invalidFlakes}";
+        }
+      ];
+
     # faster rebuilding
     documentation = {
       doc = disabled;
@@ -73,7 +93,7 @@ in
               systems = [
                 "aarch64-darwin"
               ];
-              hostName = "Andrea-MacBook-Air.local";
+              hostName = "Andrea-MacBook-Air";
               maxJobs = 4;
               speedFactor = 3;
               supportedFeatures = supportedFeatures ++ [ "apple-virt" ];
@@ -86,8 +106,6 @@ in
         checkConfig = true;
         distributedBuilds = true;
 
-        # This will additionally add your inputs to the system's legacy channels
-        # Making legacy nix commands consistent as well
         nixPath = lib.mapAttrsToList (key: _: "${key}=flake:${key}") config.nix.registry;
 
         optimise.automatic = true;
@@ -154,7 +172,6 @@ in
             "/System/Library/Frameworks"
             "/System/Library/PrivateFrameworks"
             "/usr/lib"
-
             "/private/tmp"
             "/private/var/tmp"
             "/usr/bin/env"

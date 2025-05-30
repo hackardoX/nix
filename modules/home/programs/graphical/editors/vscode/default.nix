@@ -41,6 +41,7 @@ in
               catppuccin.catppuccin-vsc
               catppuccin.catppuccin-vsc-icons
               christian-kohler.path-intellisense
+              esbenp.prettier-vscode
               formulahendry.auto-close-tag
               formulahendry.auto-rename-tag
               github.vscode-github-actions
@@ -66,7 +67,7 @@ in
             # Color theme
             "workbench.colorTheme" = lib.mkDefault "Catppuccin Macchiato";
             "catppuccin.accentColor" = lib.mkDefault "mauve";
-            "workbench.iconTheme" = "vscode-icons";
+            "workbench.iconTheme" = lib.mkDefault "Catppuccin Macchiato";
 
             # TODO: Handle font config with stylix
             # Font family
@@ -120,7 +121,7 @@ in
             "terminal.integrated.automationShell.linux" = "nix-shell";
             "terminal.integrated.cursorBlinking" = true;
             "terminal.integrated.defaultProfile.linux" = "zsh";
-            "terminal.integrated.enableBell" = false;
+            "terminal.integrated.enableVisualBell" = false;
             "terminal.integrated.gpuAcceleration" = "on";
 
             # Nix
@@ -175,15 +176,15 @@ in
             "[gitconfig]" = {
               "editor.defaultFormatter" = "yy0931.gitconfig-lsp";
             };
-            "[html]" = {
-              "editor.defaultFormatter" = "vscode.html-language-features";
-            };
-            "[javascript]" = {
-              "editor.defaultFormatter" = "vscode.typescript-language-features";
-            };
-            "[json]" = {
-              "editor.defaultFormatter" = "vscode.json-language-features";
-            };
+            # "[html]" = {
+            #   "editor.defaultFormatter" = "vscode.html-language-features";
+            # };
+            # "[javascript]" = {
+            #   "editor.defaultFormatter" = "vscode.typescript-language-features";
+            # };
+            # "[json]" = {
+            #   "editor.defaultFormatter" = "vscode.json-language-features";
+            # };
             "[lua]" = {
               "editor.defaultFormatter" = "yinfei.luahelper";
             };

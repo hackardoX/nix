@@ -13,6 +13,8 @@ let
     ;
   inherit (lib.${namespace}) mkOpt;
 
+  _1passwordOriginalSocketPath = "${config.home.homeDirectory}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+  _1passwordSymLinkSocketPath = "${config.home.homeDirectory}/.1password/agent.sock";
   cfg = config.${namespace}.programs.terminal.tools._1password;
 in
 {
@@ -29,6 +31,10 @@ in
       _1password-gui
     ];
 
+    home.sessionVariables = mkIf cfg.enableSshSocket {
+      SSH_AUTH_SOCK = "${_1passwordSymLinkSocketPath}";
+    };
+
     programs = {
       _1password-shell-plugins = mkIf (cfg.plugins != [ ]) {
         inherit (cfg) plugins;
@@ -38,14 +44,14 @@ in
       ssh.extraConfig = mkIf cfg.enableSshSocket ''
         Host *
           AddKeysToAgent yes
-          IdentityAgent /Users/${config.${namespace}.user.name}/.1password/agent.sock
+          IdentityAgent ${_1passwordSymLinkSocketPath}
           PreferredAuthentications publickey
       '';
     };
 
     home.file = mkIf cfg.enableSshSocket {
-      ".1password/agent.sock" = {
-        source = config.lib.file.mkOutOfStoreSymlink "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+      "${_1passwordSymLinkSocketPath}" = {
+        source = config.lib.file.mkOutOfStoreSymlink _1passwordOriginalSocketPath;
       };
 
       ".config/1Password/ssh/agent.toml".text = ''
