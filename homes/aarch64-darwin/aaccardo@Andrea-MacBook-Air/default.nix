@@ -25,7 +25,11 @@ in
         secrets = [
           {
             path = ".ssh/github.pub";
-            reference = "op://Development/ssh-keys/Github Authorisation";
+            reference = "op://Development/Github Authorisation/public key";
+          }
+          {
+            path = ".ssh/git_signature.pub";
+            reference = "op://Development/Github Signature/public key";
           }
         ];
       };
