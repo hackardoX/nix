@@ -38,6 +38,7 @@ in
         ]
         ++ lib.optionals cfg.nixEnable [
           nh
+          nixd
           nix-bisect
           nix-diff
           nix-fast-build
