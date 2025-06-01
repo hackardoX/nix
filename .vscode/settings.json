@@ -1,3 +1,18 @@
 {
-	"nixEnvSelector.nixFile": "${workspaceFolder}/flake.nix"
+  "nixEnvSelector.nixFile": "${workspaceFolder}/flake.nix",
+  "nix.serverSettings": {
+    "nixd": {
+      "nixpkgs": {
+        "expr": "import (builtins.getFlake (builtins.toString ./.)).inputs.nixpkgs {}"
+      },
+      "options": {
+        "home-manager": {
+          "expr": "(builtins.getFlake (builtins.toString ./.)).darwinConfigurations.Andrea-MacBook-Air.options.home-manager.users.type.getSubOptions []"
+        },
+        "nix-darwin": {
+          "expr": "(builtins.getFlake (builtins.toString ./.)).darwinConfigurations.Andrea-MacBook-Air.options"
+        }
+      }
+    }
+  }
 }

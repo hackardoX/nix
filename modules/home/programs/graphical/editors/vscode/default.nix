@@ -128,24 +128,12 @@ in
             "nixEnvSelector.suggestion" = true;
             "nixEnvSelector.useFlakes" = true;
             "nix.enableLanguageServer" = true;
+            "nix.formatterPath" = "nixfmt";
             "nix.serverPath" = "nixd";
             "nix.serverSettings" = {
               "nixd" = {
                 "formatting" = {
                   "command" = [ "nixfmt" ];
-                };
-                "nixpkgs" = {
-                  "expr" = "import (builtins.getFlake (builtins.toString ./.)).inputs.nixpkgs {}";
-                };
-                "options" = {
-                  "home-manager" = {
-                    "expr" =
-                      "(builtins.getFlake (builtins.toString ./.)).darwinConfigurations.Andrea-MacBook-Air.options.home-manager.users.type.getSubOptions []";
-                  };
-                  "nix-darwin" = {
-                    "expr" =
-                      "(builtins.getFlake (builtins.toString ./.)).darwinConfigurations.Andrea-MacBook-Air.options";
-                  };
                 };
               };
             };
