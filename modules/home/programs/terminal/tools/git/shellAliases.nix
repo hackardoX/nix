@@ -25,15 +25,15 @@ in
       "gbD" = "git branch --delete --force";
       "gbgd" =
         "git branch --no-color -vv | grep \": gone\]\" | awk '\"'\"'{print $1}'\"'\"' | xargs git branch -d";
-      "gc" = "git commit --verbose";
-      "gc!" = "git commit --verbose --amend";
-      "gcn!" = "git commit --verbose --no-edit --amend";
-      "gca" = "git commit --verbose --all";
-      "gca!" = "git commit --verbose --all --amend";
-      "gcan!" = "git commit --verbose --all --no-edit --amend";
-      "gcans!" = "git commit --verbose --all --signoff --no-edit --amend";
+      "gc" = "git commit --signoff --verbose";
+      "gc!" = "git commit --signoff --verbose --amend";
+      "gcn!" = "git commit --signoff --verbose --no-edit --amend";
+      "gca" = "git commit --signoff --verbose --all";
+      "gca!" = "git commit --signoff --verbose --all --amend";
+      "gcan!" = "git commit --signoff --verbose --all --no-edit --amend";
+      "gcans!" = "git commit --signoff --verbose --all --signoff --no-edit --amend";
       "gcl" = "git clone --recurse-submodules";
-      "gcmsg" = "git commit --message";
+      "gcmsg" = "git commit --signoff --message";
       "gcp" = "git cherry-pick";
       "gcpa" = "git cherry-pick --abort";
       "gcpc" = "git cherry-pick --continue";
