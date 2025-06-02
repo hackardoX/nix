@@ -51,7 +51,7 @@ in
         # ${fileContents ./rc/comp.zsh}
         #   '';
 
-        # dotDir = ".config/zsh";
+        dotDir = ".config/zsh";
         # enableCompletion = true;
 
         history = {

@@ -211,7 +211,7 @@ in
         in
         {
           default = {
-            extensions = [ ];
+            extensions = commonExtensions;
             enableUpdateCheck = lib.mkIf cfg.declarativeConfig false;
             enableExtensionUpdateCheck = lib.mkIf cfg.declarativeConfig false;
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
@@ -282,8 +282,8 @@ in
               }
             );
           };
-          Editor = {
-            extensions = commonExtensions;
+          Minimal = {
+            extensions = [ ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
           };
           Python = {
