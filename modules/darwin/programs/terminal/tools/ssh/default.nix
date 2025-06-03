@@ -86,7 +86,7 @@ in
     ${namespace} = {
       home.extraOptions = {
         programs.zsh.shellAliases = lib.foldl (
-          aliases: system: aliases // { "ssh-${system}" = "ssh ${system} -t tmux a"; }
+          aliases: system: aliases // { "ssh-${system}" = "ssh ${system}"; }
         ) { } (builtins.attrNames other-hosts);
       };
     };

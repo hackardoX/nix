@@ -124,7 +124,7 @@ in
               authorizedKeys = mkDefault cfg.ssh.authorizedKeys;
               allowedSigners = mkDefault cfg.ssh.allowedSigners;
               extraConfig = mkDefault "";
-              port = mkDefault 2222;
+              port = mkDefault 22;
             };
           };
         };
