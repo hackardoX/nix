@@ -21,7 +21,9 @@ in
         email = "10788630+andrea11@users.noreply.github.com";
       };
       ssh = {
-        authorizedKeys = [ ];
+        authorizedKeys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323"
+        ];
         allowedSigners = [
           "10788630+andrea11@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB"
         ];

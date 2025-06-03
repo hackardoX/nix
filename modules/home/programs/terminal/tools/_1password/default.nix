@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib)
+
     mkEnableOption
     mkIf
     types
@@ -42,10 +43,8 @@ in
       };
 
       ssh.extraConfig = mkIf cfg.enableSshSocket ''
-        Host *
-          AddKeysToAgent yes
-          IdentityAgent ${_1passwordSymLinkSocketPath}
-          PreferredAuthentications publickey
+        IdentityAgent ${_1passwordSymLinkSocketPath}
+        PreferredAuthentications publickey
       '';
     };
 
