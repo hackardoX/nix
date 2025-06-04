@@ -59,6 +59,7 @@ in
 
           shell = {
             zsh = mkDefault enabled;
+            bash = mkDefault enabled;
           };
 
           tools = {

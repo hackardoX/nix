@@ -24,20 +24,25 @@ in
 
     targets.darwin.defaults = {
       dev.warp.Warp-Stable = {
-        AddedSubshellCommands = "[\\\\\"nix develop\\\\\"]";
+        AddedSubshellCommands = ''[\\"nix develop\\"]'';
         AliasExpansionBannerSeen = "true";
         AliasExpansionEnabled = "true";
-        Notifications = "{\"mode\":\"Enabled\",\"is_long_running_enabled\":true,\"long_running_threshold\":{\"secs\":30,\"nanos\":0},\"is_password_prompt_enabled\":true}";
-        TelemetryEnabled = "false";
         AutocompleteSymbols = "false";
+        Notifications = ''"{\\"mode\\":\\"Enabled\\",\\"is_long_running_enabled\\":true,\\"long_running_threshold\\":{\\"secs\\":30,\\"nanos\\":0},\\"is_password_prompt_enabled\\":true}"'';
+        TelemetryEnabled = "false";
+        Theme = ''"{\\"Custom\\":{\\"name\\":\\"Catppuccin Macchiato\\",\\"path\\":\\"/Users/aaccardo/.warp/themes/catppuccin_macchiato.yaml\\"}}"'';
+        UseSshTmuxWrapper = true;
       };
     };
 
     programs.zsh.initContent = lib.mkAfter ''
-
       # Auto-Warpify
-        [[ "$-" == *i* ]] && printf 'P$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh", "uname": "Darwin" }}�'
+      [[ "$-" == *i* ]] && printf 'P$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "zsh", "uname": "Darwin" }}�'
+    '';
 
+    programs.bash.bashrcExtra = lib.mkAfter ''
+      # Auto-Warpify
+      [[ "$-" == *i* ]] && printf 'P$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "bash", "uname": "Darwin" }}ú'
     '';
   };
 }

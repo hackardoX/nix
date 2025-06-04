@@ -128,6 +128,13 @@ in
             };
           };
         };
+
+        virtualisation = {
+          podman = {
+            enable = mkDefault cfg.dockerEnable;
+            overrideDockerSocket = true;
+          };
+        };
       };
 
       services.ollama.enable = mkDefault (cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin);

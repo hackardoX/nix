@@ -12,12 +12,12 @@ let
   ) (inputs.self.darwinConfigurations or { });
 
   other-hosts = {
-    "Oracle-Cloud-a1-flex.4ocpu.24gb" = {
+    "oracle_cloud_a1-flex.4ocpu.24gb" = {
       hostname = "89.168.58.86";
       user = "ubuntu";
       forwardAgent = true;
     };
-    "github.com" = {
+    "github_authorisation" = {
       forwardAgent = false;
       identitiesOnly = true;
     };
