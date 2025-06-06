@@ -32,7 +32,6 @@ in
     authorizedKeys = mkOpt (listOf str) [ ] "The public keys to apply.";
     allowedSigners = mkOpt (listOf str) [ ] "The allowed signers to apply.";
     extraConfig = mkOpt str "" "Extra configuration to apply.";
-    port = mkOpt port 2222 "The port to listen on (in addition to 22).";
   };
 
   config = mkIf cfg.enable {
@@ -46,6 +45,7 @@ in
       addKeysToAgent = "yes";
       forwardAgent = true;
       matchBlocks = hosts-config;
+      hashKnownHosts = true;
 
       extraConfig =
         ''
@@ -84,6 +84,7 @@ in
       file = {
         ".ssh/authorized_keys".text = builtins.concatStringsSep "\n" cfg.authorizedKeys;
         ".ssh/allowed_signers".text = builtins.concatStringsSep "\n" cfg.allowedSigners;
+        # ".ssh/known_hosts".text = builtins.concatStringsSep "\n" cfg.knownHosts;
       };
     };
   };

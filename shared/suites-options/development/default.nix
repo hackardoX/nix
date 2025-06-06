@@ -32,6 +32,7 @@ in
           "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC..."
         ];
         description = "List of SSH public keys to be added to authorized_keys";
+        default = [ ];
       };
       allowedSigners = mkOption {
         type = types.listOf types.str;
@@ -39,6 +40,7 @@ in
           "<custom>@<email>.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy..."
         ];
         description = "List of SSH allowed signers";
+        default = [ ];
       };
     };
   };

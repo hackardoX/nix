@@ -21,7 +21,7 @@ in
 
     security = {
       opnix = {
-        enable = false;
+        enable = true;
         secrets = [
           {
             path = ".ssh/github_authorisation.pub";

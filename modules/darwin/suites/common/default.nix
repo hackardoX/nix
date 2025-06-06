@@ -2,6 +2,7 @@
   config,
   lib,
   namespace,
+  pkgs,
   ...
 }:
 let
@@ -52,9 +53,11 @@ in
       };
     };
 
-    # system.activationScripts.postActivation.text = lib.mkIf pkgs.stdenv.hostPlatform.isAarch64 ''
-    #   echo "Installing Rosetta..."
-    #   softwareupdate --install-rosetta --agree-to-license
-    # '';
+    system.activationScripts.postActivation.text =
+      lib.mkIf (pkgs.stdenv.hostPlatform.isAarch64 && cfg.rosettaEnable)
+        ''
+          echo "Installing Rosetta..."
+          softwareupdate --install-rosetta --agree-to-license
+        '';
   };
 }

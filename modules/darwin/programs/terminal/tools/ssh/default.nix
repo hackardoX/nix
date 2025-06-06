@@ -10,57 +10,27 @@ let
 
   cfg = config.${namespace}.programs.terminal.tools.ssh;
 
-  user = config.users.users.${config.${namespace}.user.name};
-  user-id = builtins.toString user.uid;
+  hosts-config = import ./hosts.nix {
+    inherit
+      config
+      lib
+      inputs
+      namespace
+      ;
+  };
 
-  darwinConfigurations = inputs.self.darwinConfigurations or { };
-
-  ## NOTE This is the cause of evaluating all configurations per system
-  ## TODO: Find a more elegant way that doesn't require bloating eval complications
-  other-hosts = lib.filterAttrs (
-    _key: host: (host.config.${namespace}.user.name or null) != null
-  ) darwinConfigurations;
-
-  other-hosts-config = lib.concatMapStringsSep "\n" (
-    name:
-    let
-      remote = other-hosts.${name};
-      remote-user-name = remote.config.${namespace}.user.name;
-      remote-user-id = builtins.toString remote.config.users.users.${remote-user-name}.uid;
-
-      forward-gpg =
-        lib.optionalString (config.programs.gnupg.agent.enable && remote.config.programs.gnupg.agent.enable)
-          ''
-            RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
-            RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
-          '';
-      port-expr =
-        if builtins.hasAttr name inputs.self.darwinConfigurations then
-          "Port ${builtins.toString cfg.port}"
-        else
-          "";
-    in
-    ''
-      Host ${name}
-        Hostname ${name}.local
-        User ${remote-user-name}
-        ForwardAgent yes
-        ${port-expr}
-        ${forward-gpg}
-    ''
-  ) (builtins.attrNames other-hosts);
 in
 {
   options.${namespace}.programs.terminal.tools.ssh = {
     enable = lib.mkEnableOption "ssh support";
     extraConfig = mkOpt lib.types.str "" "Extra configuration to apply.";
-    port = mkOpt lib.types.port 2222 "The port to listen on (in addition to 22).";
   };
 
-  config = lib.mkIf cfg.enable {
+  # TODO: Always disabled for now. Decide later if this should be removed.
+  config = lib.mkIf (cfg.enable && false) {
     programs.ssh = {
       extraConfig = ''
-        ${other-hosts-config}
+        ${lib.concatStringsSep "\n" (map (host: host.config) (builtins.attrValues hosts-config))}
 
         ${cfg.extraConfig}
       '';
@@ -87,9 +57,8 @@ in
       home.extraOptions = {
         programs.zsh.shellAliases = lib.foldl (
           aliases: system: aliases // { "ssh-${system}" = "ssh ${system}"; }
-        ) { } (builtins.attrNames other-hosts);
+        ) { } (builtins.attrNames hosts-config);
       };
     };
-
   };
 }

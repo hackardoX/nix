@@ -26,8 +26,9 @@ in
         with pkgs;
         [
           bat
-          bruno
-          bruno-cli
+          # TODO: this is blocking the darwin build. Need to figure out why.
+          # bruno
+          # bruno-cli
           direnv
           eza
           openssh
@@ -124,7 +125,6 @@ in
               authorizedKeys = mkDefault cfg.ssh.authorizedKeys;
               allowedSigners = mkDefault cfg.ssh.allowedSigners;
               extraConfig = mkDefault "";
-              port = mkDefault 22;
             };
           };
         };

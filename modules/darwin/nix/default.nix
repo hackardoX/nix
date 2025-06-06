@@ -21,13 +21,11 @@ in
       let
         # TODO: This is a safeguard for now, but we should probably
         # Registry does not allow keys starting with a number or symbols
-        invalidFlakes = (
-          builtins.attrNames (
-            lib.filterAttrs (
-              name: value: builtins.isNull (builtins.match "^[A-Za-z].*" name)
-            ) config.nix.registry
+        invalidFlakes = builtins.attrNames (
+          lib.filterAttrs (
+            name: _value: builtins.isNull (builtins.match "^[A-Za-z].*" name)
+          ) config.nix.registry
 
-          )
         );
       in
       [

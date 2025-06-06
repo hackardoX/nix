@@ -16,6 +16,7 @@ let
       hostname = "89.168.58.86";
       user = "ubuntu";
       forwardAgent = true;
+      identitiesOnly = true;
     };
     "github_authorisation" = {
       forwardAgent = false;
@@ -56,7 +57,7 @@ let
         user = remote-user-name;
         forwardAgent = true;
         identityFile = "/Users/${config.${namespace}.user.name}/.ssh/${name}.pub";
-        port = config.${namespace}.programs.terminal.tools.ssh.port;
+        identitiesOnly = true;
         remoteForwards =
           lib.optionals (config.services.gpg-agent.enable && remote.config.services.gpg-agent.enable)
             [
