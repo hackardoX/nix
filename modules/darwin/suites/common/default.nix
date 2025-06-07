@@ -13,7 +13,7 @@ let
 in
 {
   options = import (lib.snowfall.fs.get-file "shared/suites-options/common/default.nix") {
-    inherit lib namespace;
+    inherit config lib namespace;
   };
 
   config = mkIf cfg.enable {
@@ -41,13 +41,16 @@ in
         homebrew = mkDefault enabled;
       };
 
-      # services = {
-      #  openssh = mkDefault enabled;
-      # };
+      services = {
+        openssh = {
+          enable = true;
+          authorizedKeys = mkDefault cfg.openssh.authorizedKeys;
+          authorizedKeyFiles = mkDefault cfg.openssh.authorizedKeyFiles;
+        };
+      };
 
       system = {
         fonts = mkDefault enabled;
-        # input = mkDefault enabled;
         interface = mkDefault enabled;
         networking = mkDefault enabled;
       };

@@ -1,37 +1,40 @@
 {
   config,
   lib,
-  inputs,
   namespace,
   pkgs,
   ...
 }:
 let
   inherit (lib)
-    getExe'
-    types
-    mkIf
     foldl
+    getExe'
+    mkIf
+    types
     ;
-  inherit (lib.${namespace}) mkOpt;
+  inherit (lib.${namespace}) mkOpt mkOpt';
 
   cfg = config.${namespace}.programs.terminal.tools.ssh;
-
-  hosts-config = import ./hosts.nix {
-    inherit
-      config
-      lib
-      inputs
-      namespace
-      ;
-  };
 in
 {
   options.${namespace}.programs.terminal.tools.ssh = with types; {
     enable = lib.mkEnableOption "ssh support";
-    authorizedKeys = mkOpt (listOf str) [ ] "The public keys to apply.";
-    allowedSigners = mkOpt (listOf str) [ ] "The allowed signers to apply.";
-    extraConfig = mkOpt str "" "Extra configuration to apply.";
+    authorizedKeys = mkOpt (listOf types.str) [ ] "The public keys to apply.";
+    allowedSigners = mkOpt (listOf types.str) [ ] "The allowed signers to apply.";
+    knownHosts = mkOpt (listOf types.str) [ ] "The known hosts to apply.";
+    extraConfig = mkOpt types.str "" "Extra configuration to apply.";
+    hosts = mkOpt (types.attrsOf (
+      types.submodule {
+        options = {
+          hostname = mkOpt' types.str "The hostname to connect to.";
+          user = mkOpt' types.str "The user to connect as.";
+          forwardAgent = mkOpt' types.bool "Whether to forward the authentication agent.";
+          identitiesOnly = mkOpt' types.bool "Whether to use only the specified identities.";
+          identityFile = mkOpt' types.str "The identity file to use.";
+          port = mkOpt' types.int "The port to connect to.";
+        };
+      }
+    )) { } "Additional SSH hosts configuration.";
   };
 
   config = mkIf cfg.enable {
@@ -44,7 +47,7 @@ in
 
       addKeysToAgent = "yes";
       forwardAgent = true;
-      matchBlocks = hosts-config;
+      matchBlocks = cfg.hosts;
       hashKnownHosts = true;
 
       extraConfig =
@@ -79,12 +82,18 @@ in
           # Bash
           ''sudo ${getExe' pkgs.findutils "find"} /etc/ssh -type f -name "*.pub" -exec chmod 644 {} \;''
         ];
-      } (builtins.attrNames hosts-config);
+      } (builtins.attrNames cfg.hosts);
 
       file = {
-        ".ssh/authorized_keys".text = builtins.concatStringsSep "\n" cfg.authorizedKeys;
-        ".ssh/allowed_signers".text = builtins.concatStringsSep "\n" cfg.allowedSigners;
-        # ".ssh/known_hosts".text = builtins.concatStringsSep "\n" cfg.knownHosts;
+        ".ssh/authorized_keys" = mkIf (cfg.authorizedKeys != [ ]) {
+          text = builtins.concatStringsSep "\n" cfg.authorizedKeys;
+        };
+        ".ssh/allowed_signers" = mkIf (cfg.allowedSigners != [ ]) {
+          text = builtins.concatStringsSep "\n" cfg.allowedSigners;
+        };
+        ".ssh/known_hosts" = mkIf (cfg.knownHosts != [ ]) {
+          text = builtins.concatStringsSep "\n" cfg.knownHosts;
+        };
       };
     };
   };

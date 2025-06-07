@@ -151,7 +151,7 @@
         python.description = "Python template";
       };
 
-      deploy = lib.mkDeploy { inherit (inputs) self; };
+      # deploy = lib.mkDeploy { inherit (inputs) self; };
 
       outputs-builder = channels: {
         formatter = treefmt-nix.lib.mkWrapper channels.nixpkgs ./treefmt.nix;

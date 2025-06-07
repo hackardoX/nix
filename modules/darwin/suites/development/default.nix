@@ -32,10 +32,6 @@ in
           };
         };
       };
-
-      services = {
-        openssh = mkDefault enabled;
-      };
     };
   };
 }

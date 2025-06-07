@@ -10,7 +10,7 @@ let
 
   cfg = config.${namespace}.programs.terminal.tools.ssh;
 
-  hosts-config = import ./hosts.nix {
+  myHosts = import ./hosts.nix {
     inherit
       config
       lib
@@ -23,41 +23,60 @@ in
 {
   options.${namespace}.programs.terminal.tools.ssh = {
     enable = lib.mkEnableOption "ssh support";
+    knownHosts = mkOpt (lib.types.attrsOf (
+      lib.types.submodule {
+        options = {
+          hostNames = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            description = "List of host names.";
+            example = [ "github.com" ];
+          };
+          publicKey = lib.mkOption {
+            type = lib.types.str;
+            description = "Public key for the host.";
+            example = "ssh-rsa AAAAB...";
+          };
+          publicKeyFile = lib.mkOption {
+            type = lib.types.str;
+            description = "Path to the public key file for the host.";
+            example = "/Users/user/.ssh/id_rsa.pub";
+          };
+        };
+      }
+    )) { } "Known hosts.";
     extraConfig = mkOpt lib.types.str "" "Extra configuration to apply.";
   };
 
   # TODO: Always disabled for now. Decide later if this should be removed.
   config = lib.mkIf (cfg.enable && false) {
+    assertions = [
+      {
+        assertion = lib.all (
+          host:
+          let
+            hasPublicKey = host.publicKey != null;
+            hasPublicKeyFile = host.publicKeyFile != null;
+          in
+          !(hasPublicKey && hasPublicKeyFile)
+        ) cfg.knownHosts;
+        message = "Each known host must have either a publicKey or a publicKeyFile, but not both.";
+      }
+    ];
     programs.ssh = {
+      inherit (cfg) knownHosts;
+
       extraConfig = ''
-        ${lib.concatStringsSep "\n" (map (host: host.config) (builtins.attrValues hosts-config))}
+        ${lib.concatStringsSep "\n" (map (host: host.config) (builtins.attrValues myHosts))}
 
         ${cfg.extraConfig}
       '';
-
-      knownHosts = lib.mapAttrs (_: lib.mkForce) {
-        github-ssh-ed25519 = {
-          hostNames = [ "github.com" ];
-          publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
-        };
-
-        github-ssh-rsa = {
-          hostNames = [ "github.com" ];
-          publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=";
-        };
-
-        github-ecdsa-sha2 = {
-          hostNames = [ "github.com" ];
-          publicKey = "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=";
-        };
-      };
     };
 
     ${namespace} = {
       home.extraOptions = {
         programs.zsh.shellAliases = lib.foldl (
           aliases: system: aliases // { "ssh-${system}" = "ssh ${system}"; }
-        ) { } (builtins.attrNames hosts-config);
+        ) { } (builtins.attrNames myHosts);
       };
     };
   };

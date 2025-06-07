@@ -17,13 +17,25 @@ in
   options.${namespace}.services.openssh = with types; {
     enable = lib.mkEnableOption "OpenSSH support";
     authorizedKeys = mkOpt (listOf str) [ ] "The public keys to apply.";
+    authorizedKeyFiles = mkOpt (listOf str) [ ] "The public keys to apply.";
     extraConfig = mkOpt str "" "Extra configuration to apply.";
-    port = mkOpt port 2222 "The port to listen on (in addition to 22).";
+    port = mkOpt port 22 "The port to listen on.";
   };
 
   config = mkIf cfg.enable {
     services.openssh = {
       enable = true;
+      extraConfig = ''
+        Port ${toString cfg.port}
+        PasswordAuthentication no
+        PermitRootLogin no
+      '';
+      # If it does not work, add ChallengeResponseAuthentication yes
+    };
+
+    users.users.${config.${namespace}.user.name}.openssh.authorizedKeys = {
+      keys = cfg.authorizedKeys;
+      keyFiles = cfg.authorizedKeyFiles;
     };
   };
 }

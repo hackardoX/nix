@@ -6,14 +6,14 @@
 }:
 
 let
-  my-other-hosts = lib.filterAttrs (
-    _key: host: (host.config.${namespace}.user.name or null) != null
-  ) (inputs.self.darwinConfigurations or { });
-  my-other-hosts-config = lib.foldl' (
+  myHosts = lib.filterAttrs (_key: host: (host.config.${namespace}.user.name or null) != null) (
+    inputs.self.darwinConfigurations or { }
+  );
+  myHostsConfig = lib.foldl' (
     acc: name:
     let
-      remote = my-other-hosts.${name};
-      remote-user-name = remote.config.${namespace}.user.name;
+      remote = myHosts.${name};
+      remoteUserName = remote.config.${namespace}.user.name;
     in
     acc
     // {
@@ -21,11 +21,11 @@ let
         config = ''
           Host ${name}
           Hostname ${name}.local
-          User ${remote-user-name}
+          User ${remoteUserName}
           ForwardAgent yes
         '';
       };
     }
-  ) { } (builtins.attrNames my-other-hosts);
+  ) { } (builtins.attrNames myHosts);
 in
-my-other-hosts-config
+myHostsConfig

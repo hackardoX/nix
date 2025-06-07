@@ -133,7 +133,9 @@ in
             "nix.serverSettings" = {
               "nixd" = {
                 "formatting" = {
-                  "command" = [ "nixfmt" ];
+                  "command" = [
+                    "nixfmt"
+                  ];
                 };
               };
             };

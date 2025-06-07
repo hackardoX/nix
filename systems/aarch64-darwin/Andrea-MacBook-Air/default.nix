@@ -1,6 +1,7 @@
 {
-  lib,
   config,
+  inputs,
+  lib,
   namespace,
   ...
 }:
@@ -8,7 +9,12 @@ let
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.user;
   suites = import (lib.snowfall.fs.get-file "shared/profiles/Andrea-MacBook-Air/default.nix") {
-    inherit config lib namespace;
+    inherit
+      config
+      inputs
+      lib
+      namespace
+      ;
   };
 in
 {

@@ -91,7 +91,7 @@ in
               systems = [
                 "aarch64-darwin"
               ];
-              hostName = "Andrea-MacBook-Air";
+              hostName = "Andrea-MacBook-Air.local";
               maxJobs = 4;
               speedFactor = 3;
               supportedFeatures = supportedFeatures ++ [ "apple-virt" ];

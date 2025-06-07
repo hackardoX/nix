@@ -14,7 +14,7 @@ let
 in
 {
   options = import (lib.snowfall.fs.get-file "shared/suites-options/common/default.nix") {
-    inherit lib namespace;
+    inherit config lib namespace;
   };
 
   config = mkIf cfg.enable {
@@ -37,10 +37,11 @@ in
         fd
         killall
         lsof
+        openssh
         tldr
+        tree
         unzip
         wget
-        tree
         wikiman
       ]
       ++ lib.optionals osConfig.${namespace}.tools.homebrew.masEnable [

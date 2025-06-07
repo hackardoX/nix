@@ -31,7 +31,6 @@ in
           # bruno-cli
           direnv
           eza
-          openssh
           vscode
           wget
           zip
@@ -122,9 +121,8 @@ in
             prisma.enable = mkDefault cfg.sqlEnable;
             ssh = {
               enable = true;
-              authorizedKeys = mkDefault cfg.ssh.authorizedKeys;
               allowedSigners = mkDefault cfg.ssh.allowedSigners;
-              extraConfig = mkDefault "";
+              hosts = mkDefault cfg.ssh.hosts;
             };
           };
         };
