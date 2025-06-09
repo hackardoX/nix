@@ -44,15 +44,19 @@ in
               esbenp.prettier-vscode
               formulahendry.auto-close-tag
               formulahendry.auto-rename-tag
+              foxundermoon.shell-format
               github.vscode-github-actions
               github.vscode-pull-request-github
               gruntfuggly.todo-tree
               irongeek.vscode-env
               jnoortheen.nix-ide
               mkhl.direnv
+              ms-azuretools.vscode-docker
               ms-vscode-remote.remote-ssh
               ms-vsliveshare.vsliveshare
+              redhat.vscode-xml
               usernamehw.errorlens
+              yinfei.luahelper
               yy0931.gitconfig-lsp
               yzhang.markdown-all-in-one
             ]
@@ -67,7 +71,7 @@ in
             # Color theme
             "workbench.colorTheme" = lib.mkDefault "Catppuccin Macchiato";
             "catppuccin.accentColor" = lib.mkDefault "mauve";
-            "workbench.iconTheme" = lib.mkDefault "Catppuccin Macchiato";
+            "workbench.iconTheme" = lib.mkDefault "catppuccin-macchiato";
 
             # TODO: Handle font config with stylix
             # Font family

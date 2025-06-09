@@ -44,7 +44,7 @@ in
 
       ssh.extraConfig = mkIf cfg.enableSshSocket ''
         IdentityAgent ${_1passwordSymLinkSocketPath}
-        PreferredAuthentications publickey
+        PreferredAuthentications publickey,keyboard-interactive
       '';
     };
 
