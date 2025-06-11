@@ -4,7 +4,7 @@
   ...
 }:
 {
-  options = import (lib.snowfall.fs.get-file "shared/suites-options/games/default.nix") {
+  options = import (lib.snowfall.fs.get-file "modules/shared/suites-options/games/default.nix") {
     inherit lib namespace;
   };
 }

@@ -16,9 +16,11 @@ let
   cfg = config.${namespace}.suites.development;
 in
 {
-  options = import (lib.snowfall.fs.get-file "shared/suites-options/development/default.nix") {
-    inherit lib namespace;
-  };
+  options =
+    import (lib.snowfall.fs.get-file "modules/shared/suites-options/development/default.nix")
+      {
+        inherit lib namespace;
+      };
 
   config = mkIf cfg.enable {
     home = {

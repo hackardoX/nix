@@ -11,6 +11,7 @@ let
     types
     mkEnableOption
     mkIf
+    mkOption
     ;
   inherit (lib.${namespace}) mkOpt enabled;
   inherit (config.${namespace}) user;
@@ -40,15 +41,25 @@ in
     enable = mkEnableOption "Git";
     includes = mkOpt (types.listOf types.attrs) [ ] "Git includeIf paths and conditions.";
     signByDefault = mkOpt types.bool true "Whether to sign commits by default.";
-    signingKey =
-      mkOpt types.str "${config.home.homeDirectory}/.ssh/git_signature.pub"
-        "The key ID to sign commits with.";
+    signingKey = mkOption {
+      type = types.str;
+      description = "The key ID to sign commits with.";
+      example = "${config.home.homeDirectory}/.ssh/git_signature.pub";
+      default = null;
+    };
     userName = mkOpt types.str user.fullName "The name to configure git with.";
     userEmail = mkOpt types.str user.email "The email to configure git with.";
     _1password = lib.mkEnableOption "1Password integration";
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.signByDefault == true && cfg.signingKey != null;
+        message = "Git signing key must be set.";
+      }
+    ];
+
     home.packages = with pkgs; [
       git-absorb
       git-crypt

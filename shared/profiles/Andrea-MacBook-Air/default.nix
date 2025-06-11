@@ -10,7 +10,7 @@ let
   hosts = {
     "oracle_cloud_a1-flex.4ocpu.24gb" = {
       forwardAgent = true;
-      hostname = "89.168.41.118";
+      hostname = "141.253.108.198";
       identitiesOnly = true;
       user = "ubuntu";
     };

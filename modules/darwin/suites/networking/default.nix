@@ -11,7 +11,7 @@ let
   cfg = config.${namespace}.suites.networking;
 in
 {
-  options = import (lib.snowfall.fs.get-file "shared/suites-options/networking/default.nix") {
+  options = import (lib.snowfall.fs.get-file "modules/shared/suites-options/networking/default.nix") {
     inherit lib namespace;
   };
 

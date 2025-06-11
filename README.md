@@ -132,7 +132,7 @@ customize your Nix environment while maintaining flexibility and modularity.
 
 Each module comes with its own set of options. To streamline the composition of these modules, we utilize what we refer to as `suites`, which allow for the simultaneous activation of a group of modules. These `suites` function similarly to facades in programming languages: depending on a specific role within a suite (such as development), certain tools will be automatically installed.
 
-To prevent redundancy, the options for suites are defined in the `/shared/suites-options/` directory and are imported into both the `darwin` and `home` suite modules.
+To prevent redundancy, the options for suites are defined in the `/modules/shared/suites-options/` directory and are imported into both the `darwin` and `home` suite modules.
 
 Suites are employed in both `homes` and `systems`: instead of manually enabling individual modules, only suites are managed. The collection of suites enabled for a particular home and system is defined as a `profile`, and these profiles are located in `/shared/profiles/<system-name>`.
 

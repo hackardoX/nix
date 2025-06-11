@@ -12,7 +12,7 @@ let
   cfg = config.${namespace}.suites.common;
 in
 {
-  options = import (lib.snowfall.fs.get-file "shared/suites-options/common/default.nix") {
+  options = import (lib.snowfall.fs.get-file "modules/shared/suites-options/common/default.nix") {
     inherit config lib namespace;
   };
 

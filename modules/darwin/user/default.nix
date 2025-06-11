@@ -13,7 +13,7 @@ let
 in
 {
   # TODO: refactor this to use the shared user module
-  # options = import (lib.snowfall.fs.get-file "shared/user/default.nix") {
+  # options = import (lib.snowfall.fs.get-file "modules/shared/user/default.nix") {
   #   inherit config lib pkgs namespace;
   # };
 

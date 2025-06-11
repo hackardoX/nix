@@ -10,7 +10,7 @@ let
   cfg = config.${namespace}.suites.business;
 in
 {
-  options = import (lib.snowfall.fs.get-file "shared/suites-options/business/default.nix") {
+  options = import (lib.snowfall.fs.get-file "modules/shared/suites-options/business/default.nix") {
     inherit lib namespace;
   };
 

@@ -17,7 +17,7 @@ let
   cfg = config.${namespace}.user;
 in
 {
-  options = import (lib.snowfall.fs.get-file "shared/user/default.nix") {
+  options = import (lib.snowfall.fs.get-file "modules/shared/user/default.nix") {
     inherit
       config
       lib
