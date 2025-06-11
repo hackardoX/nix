@@ -29,8 +29,8 @@ in
         Port ${toString cfg.port}
         PasswordAuthentication no
         PermitRootLogin no
+        ChallengeResponseAuthentication yes
       '';
-      # If it does not work, add ChallengeResponseAuthentication yes
     };
 
     users.users.${config.${namespace}.user.name}.openssh.authorizedKeys = {
