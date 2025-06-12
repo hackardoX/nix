@@ -214,6 +214,18 @@ in
               "editor.defaultFormatter" = "redhat.vscode-xml";
             };
           };
+          commonKeyBindings = [
+            {
+              key = "ctrl+cmd+i";
+              command = "";
+              when = "!chatSetupHidden";
+            }
+            {
+              key = "shift+cmd+i";
+              command = "";
+              when = "config.chat.agent.enabled && !chatSetupHidden";
+            }
+          ];
         in
         {
           default = {
@@ -231,6 +243,7 @@ in
                 llvm-vs-code-extensions.vscode-clangd
               ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Java = {
             extensions =
@@ -261,6 +274,7 @@ in
                 };
               }
             );
+            keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Javascript = {
             extensions =
@@ -287,10 +301,12 @@ in
                 };
               }
             );
+            keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Minimal = {
             extensions = [ ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Python = {
             extensions =
@@ -303,6 +319,7 @@ in
                 charliermarsh.ruff
               ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Rust = {
             extensions =
@@ -312,6 +329,7 @@ in
                 rust-lang.rust-analyzer
               ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
         };
     };
