@@ -30,5 +30,6 @@ in
       mkOpt (types.nullOr types.package) pkgs.${namespace}.user-icon
         "The profile picture to use for the user.";
     name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name "The user account.";
+    uid = mkOpt (types.nullOr types.int) 501 "The uid for the user account.";
   };
 }

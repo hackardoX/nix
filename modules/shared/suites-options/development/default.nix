@@ -10,7 +10,18 @@ in
   ${namespace}.suites.development = {
     enable = mkEnableOption "common development configuration";
     aiEnable = mkEnableOption "ai development configuration";
-    dockerEnable = mkEnableOption "docker development configuration";
+    containerization = {
+      enable = mkEnableOption "containerization development configuration";
+      variant = mkOption {
+        type = types.enum [
+          "podman"
+          "docker"
+        ];
+        default = "docker";
+        description = "Container manager to use";
+        example = "docker";
+      };
+    };
     nixEnable = mkEnableOption "nix development configuration";
     sqlEnable = mkEnableOption "sql development configuration";
     git = {

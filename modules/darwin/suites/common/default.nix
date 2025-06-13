@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) mkIf mkDefault;
+  inherit (lib) mkIf;
   inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.suites.common;
@@ -17,7 +17,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    programs.zsh.enable = mkDefault true;
+    programs.zsh.enable = true;
 
     homebrew = {
       brews = [
@@ -33,31 +33,31 @@ in
         };
       };
 
-      nix = mkDefault enabled;
+      nix = enabled;
 
-      programs.terminal.tools.ssh = mkDefault enabled;
+      programs.terminal.tools.ssh = enabled;
 
       tools = {
-        homebrew = mkDefault enabled;
+        homebrew = enabled;
       };
 
       services = {
         openssh = {
           enable = true;
-          authorizedKeys = mkDefault cfg.openssh.authorizedKeys;
-          authorizedKeyFiles = mkDefault cfg.openssh.authorizedKeyFiles;
+          authorizedKeys = cfg.openssh.authorizedKeys;
+          authorizedKeyFiles = cfg.openssh.authorizedKeyFiles;
         };
       };
 
       system = {
-        fonts = mkDefault enabled;
-        interface = mkDefault enabled;
-        networking = mkDefault enabled;
+        fonts = enabled;
+        interface = enabled;
+        networking = enabled;
       };
     };
 
     system.activationScripts.postActivation.text =
-      lib.mkIf (pkgs.stdenv.hostPlatform.isAarch64 && cfg.rosettaEnable)
+      lib.mkIf (pkgs.stdenv.hostPlatform.isAarch64 && cfg.rosetta.enable)
         ''
           echo "Installing Rosetta..."
           softwareupdate --install-rosetta --agree-to-license

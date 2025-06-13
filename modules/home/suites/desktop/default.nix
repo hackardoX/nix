@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) mkDefault mkIf;
+  inherit (lib) mkIf;
   inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.suites.desktop;
@@ -22,7 +22,7 @@ in
     ];
 
     ${namespace}.programs.graphical.apps = {
-      aldente = mkDefault enabled;
+      aldente = enabled;
     };
   };
 }

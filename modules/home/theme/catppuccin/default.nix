@@ -7,14 +7,13 @@
 }:
 let
   inherit (lib)
+    mkDefault
     mkEnableOption
     mkIf
     mkMerge
     mkOption
     types
     ;
-
-  inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.theme.catppuccin;
 in
@@ -68,7 +67,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    catppuccin = enabled;
+    catppuccin = {
+      inherit (cfg) accent flavor;
+      enable = mkDefault true;
+    };
 
     home = {
       file = mkMerge [

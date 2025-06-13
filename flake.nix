@@ -111,8 +111,9 @@
       ];
 
       homes.modules = with inputs; [
-        inputs.op-shell-plugins.hmModules.default
         catppuccin.homeModules.catppuccin
+        inputs.op-shell-plugins.hmModules.default
+        # mac-app-util.homeManagerModules.default
         nix-index-database.hmModules.nix-index
         opnix.homeManagerModules.default
         sops-nix.homeManagerModules.sops
@@ -120,6 +121,7 @@
 
       systems.modules = {
         darwin = with inputs; [
+          # mac-app-util.darwinModules.default
           nix-homebrew.darwinModules.nix-homebrew
           (
             {

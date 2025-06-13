@@ -60,7 +60,7 @@ in
               yy0931.gitconfig-lsp
               yzhang.markdown-all-in-one
             ]
-            ++ lib.optionals config.${namespace}.suites.development.dockerEnable [
+            ++ lib.optionals config.${namespace}.suites.development.containerization.enable [
               ms-azuretools.vscode-docker
               ms-vscode-remote.remote-containers
             ]
@@ -137,9 +137,7 @@ in
             "nix.serverSettings" = {
               "nixd" = {
                 "formatting" = {
-                  "command" = [
-                    "nixfmt"
-                  ];
+                  "command" = [ "nixfmt" ];
                 };
               };
             };
@@ -186,7 +184,7 @@ in
             "[csharp]" = {
               "editor.defaultFormatter" = "ms-dotnettools.csharp";
             };
-            "[dockerfile]" = mkIf config.${namespace}.suites.development.dockerEnable {
+            "[dockerfile]" = mkIf config.${namespace}.suites.development.containerization.enable {
               "editor.defaultFormatter" = "ms-azuretools.vscode-docker";
             };
             "[gitconfig]" = {

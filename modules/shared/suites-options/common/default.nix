@@ -10,7 +10,9 @@ in
 {
   ${namespace}.suites.common = {
     enable = lib.mkEnableOption "common configuration";
-    rosettaEnable = lib.mkEnableOption "enable rosetta";
+    rosetta = {
+      enable = lib.mkEnableOption "enable rosetta";
+    };
     openssh = {
       enable = lib.mkEnableOption "enable openssh";
       authorizedKeys = lib.mkOption {

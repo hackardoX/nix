@@ -7,7 +7,7 @@
   ...
 }:
 let
-  inherit (lib) mkIf mkDefault;
+  inherit (lib) mkIf;
   inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.suites.common;
@@ -53,37 +53,37 @@ in
         terminal = {
           emulators = {
             warp = {
-              enable = mkDefault true;
-              default = mkDefault true;
+              enable = true;
+              default = true;
             };
           };
 
           shell = {
-            zsh = mkDefault enabled;
-            bash = mkDefault enabled;
+            zsh = enabled;
+            bash = enabled;
           };
 
           tools = {
-            bat = mkDefault enabled;
-            comma = mkDefault enabled;
-            direnv = mkDefault enabled;
-            eza = mkDefault enabled;
-            git = mkDefault enabled;
-            nh = mkDefault enabled;
-            topgrade = mkDefault enabled;
-            zoxide = mkDefault enabled;
+            bat = enabled;
+            comma = enabled;
+            direnv = enabled;
+            eza = enabled;
+            git = enabled;
+            nh = enabled;
+            topgrade = enabled;
+            zoxide = enabled;
           };
         };
       };
 
-      system.input.enable = lib.mkDefault pkgs.stdenv.hostPlatform.isDarwin;
+      system.input.enable = pkgs.stdenv.hostPlatform.isDarwin;
     };
 
     programs = {
       # FIXME: breaks zsh aliases
-      # pay-respects = mkDefault enabled;
+      # pay-respects =  enabled;
       readline = {
-        enable = mkDefault true;
+        enable = true;
 
         extraConfig = ''
           set completion-ignore-case on

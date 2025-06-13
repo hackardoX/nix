@@ -9,7 +9,6 @@
 let
   inherit (lib)
     mkIf
-    mkDefault
     ;
   inherit (lib.${namespace}) enabled disabled;
 
@@ -95,7 +94,7 @@ in
       programs = {
         graphical = {
           editors = {
-            vscode = mkDefault enabled;
+            vscode = enabled;
           };
         };
 
@@ -107,37 +106,38 @@ in
                 hcloud
               ];
             };
-            act = mkDefault enabled;
-            gh = mkDefault disabled;
+            act = enabled;
+            gh = disabled;
             git = {
-              enable = mkDefault true;
-              includes = mkDefault [ ];
-              signByDefault = mkDefault true;
-              signingKey = mkDefault "${config.home.homeDirectory}/.ssh/git_signature.pub";
-              userName = mkDefault cfg.git.user;
-              userEmail = mkDefault cfg.git.email;
-              _1password = mkDefault config.${namespace}.programs.terminal.tools._1password.enable;
+              enable = true;
+              includes = [ ];
+              signByDefault = true;
+              signingKey = "${config.home.homeDirectory}/.ssh/git_signature.pub";
+              userName = cfg.git.user;
+              userEmail = cfg.git.email;
+              _1password = config.${namespace}.programs.terminal.tools._1password.enable;
             };
-            jq = mkDefault enabled;
-            # jujutsu = mkDefault enabled;
-            prisma.enable = mkDefault cfg.sqlEnable;
+            jq = enabled;
+            # jujutsu = enabled;
+            prisma.enable = cfg.sqlEnable;
             ssh = {
               enable = true;
-              allowedSigners = mkDefault cfg.ssh.allowedSigners;
-              hosts = mkDefault cfg.ssh.hosts;
+              allowedSigners = cfg.ssh.allowedSigners;
+              hosts = cfg.ssh.hosts;
             };
           };
         };
 
-        virtualisation = {
+        containerization = {
           podman = {
-            enable = mkDefault cfg.dockerEnable;
+            enable = cfg.containerization.enable && cfg.containerization.variant == "podman";
+            rosetta = config.${namespace}.suites.common.rosetta.enable;
             overrideDockerSocket = true;
           };
         };
       };
 
-      services.ollama.enable = mkDefault (cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin);
+      services.ollama.enable = (cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin);
     };
 
     # sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {

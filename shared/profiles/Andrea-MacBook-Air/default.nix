@@ -10,7 +10,7 @@ let
   hosts = {
     "oracle_cloud_a1-flex.4ocpu.24gb" = {
       forwardAgent = true;
-      hostname = "141.253.108.198";
+      hostname = "89.168.42.226";
       identitiesOnly = true;
       user = "ubuntu";
     };
@@ -44,11 +44,15 @@ in
         # TODO: impossible to use keys from outside the flake repo. Find a way to solve this
         # authorizedKeyFiles = (lib.map (host: "/Users/${user}/.ssh/${host}.pub") myHosts);
       };
+      rosetta.enable = false;
     };
     development = {
       enable = true;
       aiEnable = true;
-      dockerEnable = true;
+      containerization = {
+        enable = true;
+        variant = "podman";
+      };
       nixEnable = true;
       sqlEnable = true;
       git = {

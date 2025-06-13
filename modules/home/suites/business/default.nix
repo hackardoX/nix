@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) mkDefault mkIf;
+  inherit (lib) mkIf;
 
   cfg = config.${namespace}.suites.business;
 in
@@ -23,8 +23,8 @@ in
         terminal = {
           tools = {
             _1password = {
-              enable = mkDefault true;
-              enableSshSocket = mkDefault true;
+              enable = true;
+              enableSshSocket = true;
             };
           };
         };
