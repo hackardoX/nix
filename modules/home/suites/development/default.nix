@@ -130,9 +130,13 @@ in
 
         containerization = {
           podman = {
-            enable = cfg.containerization.enable && cfg.containerization.variant == "podman";
+            enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
             rosetta = config.${namespace}.suites.common.rosetta.enable;
             overrideDockerSocket = true;
+aliasDocker = true;
+          };
+          docker = {
+            enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;
           };
         };
       };

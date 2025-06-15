@@ -18,6 +18,7 @@ in
     enable = mkEnableOption "podman";
     autoStart = mkBoolOpt true "Whether or not to start the podman machine on startup.";
     rosetta = mkBoolOpt false "Whether or not to use rosetta.";
+    aliasDocker = mkBoolOpt false "Whether or not to alias docker to podman.";
     overrideDockerSocket = mkBoolOpt false "Whether or not to override the docker socket.";
   };
 
@@ -53,6 +54,10 @@ in
 
       sessionVariables = lib.mkIf cfg.overrideDockerSocket {
         DOCKER_HOST = "unix://${podmanSymLinkSocketPath}";
+      };
+
+      shellAliases = lib.mkIf cfg.aliasDocker {
+        docker = "podman";
       };
     };
 

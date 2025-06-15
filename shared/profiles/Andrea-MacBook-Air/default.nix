@@ -51,7 +51,7 @@ in
       aiEnable = true;
       containerization = {
         enable = true;
-        variant = "podman";
+        variants = [ "podman" ];
       };
       nixEnable = true;
       sqlEnable = true;

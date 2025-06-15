@@ -5,6 +5,10 @@
 }:
 let
   inherit (lib) mkEnableOption mkOption types;
+  allowedVariants = [
+    "podman"
+    "docker"
+  ];
 in
 {
   ${namespace}.suites.development = {
@@ -12,14 +16,16 @@ in
     aiEnable = mkEnableOption "ai development configuration";
     containerization = {
       enable = mkEnableOption "containerization development configuration";
-      variant = mkOption {
-        type = types.enum [
-          "podman"
-          "docker"
-        ];
-        default = "docker";
-        description = "Container manager to use";
-        example = "docker";
+      variants = mkOption {
+        type = types.listOf (
+          types.enum [
+            "podman"
+            "docker"
+          ]
+        );
+        default = [ ];
+        description = "Container managers to use";
+        example = [ "docker" ];
       };
     };
     nixEnable = mkEnableOption "nix development configuration";

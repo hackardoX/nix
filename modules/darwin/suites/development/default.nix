@@ -20,7 +20,9 @@ in
   config = mkIf cfg.enable {
     homebrew = {
       casks =
-        optionals (cfg.containerization.enable && cfg.containerization.variant == "docker") [ "docker" ]
+        optionals (cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants) [
+          "docker"
+        ]
         ++ optionals cfg.aiEnable [ "ollamac" ];
 
       masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
