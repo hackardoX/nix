@@ -12,6 +12,10 @@ let
   cfg = config.${namespace}.programs.graphical.editors.vscode;
 in
 {
+  imports = [
+    ./continue.dev.nix
+  ];
+
   options.${namespace}.programs.graphical.editors.vscode = {
     enable = mkEnableOption "Whether or not to enable vscode";
     declarativeConfig = mkBoolOpt true "Whether or not to enable declarative vscode configuration";
@@ -33,40 +37,41 @@ in
 
       profiles =
         let
-          commonExtensions =
-            with pkgs.vscode-marketplace;
+          commonExtensions = pkgs.nix4vscode.forVscode (
             [
-              adpyke.codesnap
-              arrterian.nix-env-selector
-              catppuccin.catppuccin-vsc
-              catppuccin.catppuccin-vsc-icons
-              christian-kohler.path-intellisense
-              esbenp.prettier-vscode
-              formulahendry.auto-close-tag
-              formulahendry.auto-rename-tag
-              foxundermoon.shell-format
-              github.vscode-github-actions
-              github.vscode-pull-request-github
-              gruntfuggly.todo-tree
-              irongeek.vscode-env
-              jnoortheen.nix-ide
-              mkhl.direnv
-              ms-azuretools.vscode-docker
-              ms-vscode-remote.remote-ssh
-              ms-vsliveshare.vsliveshare
-              redhat.vscode-xml
-              usernamehw.errorlens
-              yinfei.luahelper
-              yy0931.gitconfig-lsp
-              yzhang.markdown-all-in-one
+              "1password.op-vscode"
+              "adpyke.codesnap"
+              "arrterian.nix-env-selector"
+              "catppuccin.catppuccin-vsc"
+              "catppuccin.catppuccin-vsc-icons"
+              "christian-kohler.path-intellisense"
+              "esbenp.prettier-vscode"
+              "formulahendry.auto-close-tag"
+              "formulahendry.auto-rename-tag"
+              "foxundermoon.shell-format"
+              "github.vscode-github-actions"
+              "github.vscode-pull-request-github"
+              "gruntfuggly.todo-tree"
+              "irongeek.vscode-env"
+              "jnoortheen.nix-ide"
+              "mkhl.direnv"
+              "ms-azuretools.vscode-docker"
+              "ms-vscode-remote.remote-ssh"
+              "ms-vsliveshare.vsliveshare"
+              "redhat.vscode-xml"
+              "usernamehw.errorlens"
+              "yinfei.luahelper"
+              "yy0931.gitconfig-lsp"
+              "yzhang.markdown-all-in-one"
             ]
             ++ lib.optionals config.${namespace}.suites.development.containerization.enable [
-              ms-azuretools.vscode-docker
-              ms-vscode-remote.remote-containers
+              "ms-azuretools.vscode-docker"
+              "ms-vscode-remote.remote-containers"
             ]
             ++ lib.optionals config.${namespace}.suites.development.aiEnable [
-              continue.continue
-            ];
+              "continue.continue"
+            ]
+          );
           commonSettings = {
             # Color theme
             "workbench.colorTheme" = lib.mkDefault "Catppuccin Macchiato";
@@ -211,6 +216,9 @@ in
             "[xml]" = {
               "editor.defaultFormatter" = "redhat.vscode-xml";
             };
+
+            # AI
+            "continue.telemetryEnabled" = mkIf config.${namespace}.suites.development.aiEnable false;
           };
           commonKeyBindings = [
             {
@@ -234,21 +242,19 @@ in
           };
           C = {
             extensions =
-              with pkgs.vscode-marketplace;
               commonExtensions
-              ++ [
-                xaver.clang-format
-                llvm-vs-code-extensions.vscode-clangd
+              ++ pkgs.nix4vscode.forVscode [
+                "xaver.clang-format"
+                "llvm-vs-code-extensions.vscode-clangd"
               ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
             keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Java = {
             extensions =
-              with pkgs.vscode-marketplace;
               commonExtensions
-              ++ [
-                vscjava.vscode-java-pack
+              ++ pkgs.nix4vscode.forVscode [
+                "vscjava.vscode-java-pack"
               ];
             userSettings = lib.mkIf cfg.declarativeConfig (
               commonSettings
@@ -276,17 +282,16 @@ in
           };
           Javascript = {
             extensions =
-              with pkgs.vscode-marketplace;
               commonExtensions
-              ++ [
-                biomejs.biome
-                dbaeumer.vscode-eslint
-                ecmel.vscode-html-css
-                wix.vscode-import-cost
-                orta.vscode-jest
-                rvest.vs-code-prettier-eslint
-                richie5um2.vscode-sort-json
-                bradlc.vscode-tailwindcss
+              ++ pkgs.nix4vscode.forVscode [
+                "biomejs.biome"
+                "dbaeumer.vscode-eslint"
+                "ecmel.vscode-html-css"
+                "wix.vscode-import-cost"
+                "orta.vscode-jest"
+                "rvest.vs-code-prettier-eslint"
+                "richie5um2.vscode-sort-json"
+                "bradlc.vscode-tailwindcss"
               ];
             userSettings = lib.mkIf cfg.declarativeConfig (
               commonSettings
@@ -308,23 +313,21 @@ in
           };
           Python = {
             extensions =
-              with pkgs.vscode-marketplace;
               commonExtensions
-              ++ [
-                ms-python.python
-                ms-toolsai.jupyter
-                njpwerner.autodocstring
-                charliermarsh.ruff
+              ++ pkgs.nix4vscode.forVscode [
+                "ms-python.python"
+                "ms-toolsai.jupyter"
+                "njpwerner.autodocstring"
+                "charliermarsh.ruff"
               ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
             keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Rust = {
             extensions =
-              with pkgs.vscode-marketplace;
               commonExtensions
-              ++ [
-                rust-lang.rust-analyzer
+              ++ pkgs.nix4vscode.forVscode [
+                "rust-lang.rust-analyzer"
               ];
             userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
             keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;

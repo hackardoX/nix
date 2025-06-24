@@ -68,12 +68,9 @@ in
           nrapa = ''${lib.getExe pkgs.nixpkgs-review} pr $1 --systems "all" --post-result --num-parallel-evals 4 --approve-pr'';
           nrd = ''${lib.getExe pkgs.nixpkgs-review} pr $1 --systems "x86_64-darwin aarch64-darwin" --num-parallel-evals 2'';
           nrdp = ''${lib.getExe pkgs.nixpkgs-review} pr $1 --systems "x86_64-darwin aarch64-darwin" --num-parallel-evals 2 --post-result'';
-          nrl = ''${lib.getExe pkgs.nixpkgs-review} pr $1 --systems "x86_64-linux aarch64-linux" --num-parallel-evals 2'';
-          nrlp = ''${lib.getExe pkgs.nixpkgs-review} pr $1 --systems "x86_64-linux aarch64-linux" --num-parallel-evals 2 --post-result'';
           nup = ''nix-update --commit -u $1'';
           num = ''nix-shell maintainers/scripts/update.nix --argstr maintainer $1'';
           ncs = ''f(){ nix build "nixpkgs#$1" --no-link && nix path-info --recursive --closure-size --human-readable $(nix-build --no-out-link '<nixpkgs>' -A "$1"); }; f'';
-          ncsnc = ''f(){ nix build ".#nixosConfigurations.$1.config.system.build.toplevel" --no-link && nix path-info --recursive --closure-size --human-readable $(nix eval --raw ".#nixosConfigurations.$1.config.system.build.toplevel.outPath"); }; f'';
           ncsdc = ''f(){ nix build ".#darwinConfigurations.$1.config.system.build.toplevel" --no-link && nix path-info --recursive --closure-size --human-readable $(nix eval --raw ".#darwinConfigurations.$1.config.system.build.toplevel.outPath"); }; f'';
 
           # Home-Manager
@@ -82,6 +79,9 @@ in
           hmtf = ''f(){ nix build -L --option allow-import-from-derivation false --reference-lock-file flake.lock "./tests#test-$1"; }; f'';
           hmts = ''f(){ nix build -L --option allow-import-from-derivation false --reference-lock-file flake.lock "./tests#test-$1" && nix path-info -rSh ./result; }; f'';
           hmt-repl = ''nix repl --reference-lock-file flake.lock ./tests'';
+
+          # Kamal
+          kamal = ''f() { [[ " $* " =~ ( -c|--config-file(=| ) ) ]] && command kamal "$@" || command kamal "$@" --config-file ./.kamal/deploy.yml; }; f'';
         }
         // { };
     };
@@ -133,7 +133,8 @@ in
             enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
             rosetta = config.${namespace}.suites.common.rosetta.enable;
             overrideDockerSocket = true;
-aliasDocker = true;
+            aliasDocker = true;
+            autoStart = true;
           };
           docker = {
             enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;

@@ -23,6 +23,7 @@ in
     enable = mkEnableOption "1password";
     enableSshSocket = mkEnableOption "ssh-agent socket";
     plugins = mkOpt (types.listOf types.package) [ ] "1Password shell plugins";
+    enableAliases = mkOpt types.bool true "aliases";
   };
 
   config = mkIf cfg.enable {
@@ -60,6 +61,10 @@ in
         [[ssh-keys]]
         vault = "Private"
       '';
+    };
+
+    home.shellAliases = mkIf cfg.enableAliases {
+      openv = "f() { op run --env-file=.env -- \"$@\"; }; f";
     };
   };
 }

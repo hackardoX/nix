@@ -44,10 +44,14 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-vscode-extensions = {
-      url = "github:nix-community/nix-vscode-extensions";
+    nix4vscode = {
+      url = "github:nix-community/nix4vscode";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # nix-vscode-extensions = {
+    #   url = "github:nix-community/nix-vscode-extensions";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
     };
@@ -82,7 +86,7 @@
   outputs =
     inputs:
     let
-      inherit (inputs) nix-vscode-extensions snowfall-lib treefmt-nix;
+      inherit (inputs) nix4vscode snowfall-lib treefmt-nix;
 
       lib = snowfall-lib.mkLib {
         inherit inputs;
@@ -107,7 +111,7 @@
       };
 
       overlays = [
-        nix-vscode-extensions.overlays.default
+        nix4vscode.overlays.forVscode
       ];
 
       homes.modules = with inputs; [

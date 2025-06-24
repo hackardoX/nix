@@ -77,6 +77,7 @@ in
         }) hosts;
       };
     };
+    desktop = enabled;
     music = enabled;
   };
 }

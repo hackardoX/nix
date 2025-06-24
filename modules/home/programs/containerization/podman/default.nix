@@ -16,7 +16,7 @@ in
 {
   options.${namespace}.programs.containerization.podman = {
     enable = mkEnableOption "podman";
-    autoStart = mkBoolOpt true "Whether or not to start the podman machine on startup.";
+    autoStart = mkBoolOpt false "Whether or not to start the podman machine on startup.";
     rosetta = mkBoolOpt false "Whether or not to use rosetta.";
     aliasDocker = mkBoolOpt false "Whether or not to alias docker to podman.";
     overrideDockerSocket = mkBoolOpt false "Whether or not to override the docker socket.";
@@ -44,11 +44,11 @@ in
           if [ -z "$(podman machine list -q)" ]; then
             run podman machine init
             echo "Podman machine initialized"
-            echo "Create docker socket symlink"
-            run sudo ln -sf "$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')" "${podmanSymLinkSocketPath}"
           else
             echo "Podman machine already initialized and started"
           fi
+          echo "Create docker socket symlink"
+          run sudo ln -sf "$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')" "${podmanSymLinkSocketPath}"
         '';
       };
 
@@ -61,18 +61,21 @@ in
       };
     };
 
+    # TODO: this does not work. The machine starts but then suddenly stops.
     launchd.agents.podman = mkIf (pkgs.stdenv.isDarwin && cfg.autoStart) {
       enable = true;
       config = {
         Label = "com.github.podman";
         ProgramArguments = [
           "${lib.getExe pkgs.podman}"
+          "--log-level"
+          "trace"
           "machine"
           "start"
         ];
         RunAtLoad = true;
-        StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/podman-helper/podman-helper.err.log";
-        StandardOutPath = "${config.home.homeDirectory}/Library/Logs/podman-helper/podman-helper.out.log";
+        StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/podman-helper/launchd-stdout.err.log";
+        StandardOutPath = "${config.home.homeDirectory}/Library/Logs/podman-helper/launchd-stdout.out.log";
       };
     };
   };
