@@ -28,7 +28,6 @@ in
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      age-plugin-1p
       _1password-cli
       _1password-gui
     ];

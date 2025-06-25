@@ -24,8 +24,7 @@
       indent_size = 4;
     };
     statix.enable = true;
-    # TODO: why this does not pass?
-    # taplo.enable = true;
+    taplo.enable = true;
     yamlfmt.enable = true;
   };
 

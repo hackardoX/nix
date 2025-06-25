@@ -5,10 +5,6 @@
 }:
 let
   inherit (lib) mkEnableOption mkOption types;
-  allowedVariants = [
-    "podman"
-    "docker"
-  ];
 in
 {
   ${namespace}.suites.development = {
