@@ -52,6 +52,7 @@ in
               "github.vscode-github-actions"
               "github.vscode-pull-request-github"
               "gruntfuggly.todo-tree"
+              "ibecker.treefmt-vscode"
               "irongeek.vscode-env"
               "jnoortheen.nix-ide"
               "mkhl.direnv"
@@ -182,7 +183,8 @@ in
             "C_Cpp.intelliSenseEngine" = "disabled";
 
             # Formatters
-            "editor.defaultFormatter" = "esbenp.prettier-vscode";
+            "treefmt.command" = "treefmt";
+            "editor.defaultFormatter" = "ibecker.treefmt-vscode";
             "[cpp]" = {
               "editor.defaultFormatter" = "xaver.clang-format";
             };

@@ -35,7 +35,7 @@
             check-yaml.enable = true;
             commitizen.enable = true;
             eslint.enable = true;
-            nixfmt-rfc-style.enable = true;
+            nixfmt.enable = true;
             sort-simple-yaml.enable = true;
             # TODO: Check when https://github.com/cachix/git-hooks.nix/pull/594 is merged
             # trufflehog.enable = true;

@@ -48,10 +48,6 @@
       url = "github:nix-community/nix4vscode";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # nix-vscode-extensions = {
-    #   url = "github:nix-community/nix-vscode-extensions";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
     };

@@ -43,7 +43,7 @@ in
           nix-bisect
           nix-diff
           nix-fast-build
-          nixfmt-rfc-style
+          nixfmt
           nix-health
           nix-index
           nix-output-monitor
