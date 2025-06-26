@@ -55,7 +55,7 @@ sudo ./result/sw/bin/darwin-rebuild switch --flake .#Andrea-MacBook-Air
 # Subsequent runs:
 darwin-rebuild switch --flake .
 
- # Direnv
+# Direnv
 flake switch
 ```
 
