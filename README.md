@@ -1,12 +1,14 @@
 <h3 align="center">
- <img src="https://avatars.githubusercontent.com/u/10788630?v=4" width="100" alt="Logo"/><br/>
- <span style="display:flex;justify-content:center;margin-top:8px;gap:4px;">
- <img src="https://upload.wikimedia.org/wikipedia/commons/c/c4/NixOS_logo.svg" height="25" /><p style="all:unset;">config for <a href="https://github.com/andrea11">Andrea11</a></p>
+ <img alt="Avatar" src="https://avatars.githubusercontent.com/u/10788630?v=4" width="100"/>
+ <br/>
+ <br/>
+ <span>
+ <img alt="NixOS" src="https://raw.githubusercontent.com/devicons/devicon/ca28c779441053191ff11710fe24a9e6c23690d6/icons/nixos/nixos-original.svg" height="20" align="center"/> Nix config for <a href="https://github.com/andrea11">Andrea11</a>
  </span>
 </h3>
 
 <p align="center">
- <a href="https://github.com/andrea11/nix/commits"><img src="https://img.shields.io/github/last-commit/andrea11/nix?colorA=363a4f&colorB=f5a97f&style=for-the-badge"></a>
+ <a href="https://github.com/andrea11/nix/commits"><img alt="Last commit" src="https://img.shields.io/github/last-commit/andrea11/nix?colorA=363a4f&colorB=f5a97f&style=for-the-badge"></a>
   <a href="https://wiki.nixos.org/wiki/Flakes" target="_blank">
  <img alt="Nix Flakes Ready" src="https://img.shields.io/static/v1?logo=nixos&logoColor=d8dee9&label=Nix%20Flakes&labelColor=5e81ac&message=Ready&color=d8dee9&style=for-the-badge">
 </a>
