@@ -6,7 +6,7 @@
 let
   gems = pkgs.bundlerEnv {
     name = "gems";
-    ruby = pkgs.ruby;
+    inherit (pkgs) ruby;
     gemfile = ./Gemfile;
     lockfile = ./Gemfile.lock;
     gemset = ./gemset.nix;

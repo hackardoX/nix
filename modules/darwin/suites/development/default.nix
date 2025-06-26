@@ -32,6 +32,14 @@ in
 
     ${namespace} = {
       programs = {
+        containerization = {
+          podman = {
+            enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
+            overrideDockerSocket = true;
+            autoStart = true;
+          };
+        };
+
         terminal = {
           tools = {
             ssh = enabled;

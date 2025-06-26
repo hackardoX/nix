@@ -55,7 +55,7 @@ in
   config = mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.signByDefault == true && cfg.signingKey != null;
+        assertion = cfg.signByDefault && cfg.signingKey != null;
         message = "Git signing key must be set.";
       }
     ];

@@ -44,8 +44,8 @@ in
       services = {
         openssh = {
           enable = true;
-          authorizedKeys = cfg.openssh.authorizedKeys;
-          authorizedKeyFiles = cfg.openssh.authorizedKeyFiles;
+          inherit (cfg.openssh) authorizedKeys;
+          inherit (cfg.openssh) authorizedKeyFiles;
         };
       };
 

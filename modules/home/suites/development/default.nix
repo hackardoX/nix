@@ -122,8 +122,8 @@ in
             prisma.enable = cfg.sqlEnable;
             ssh = {
               enable = true;
-              allowedSigners = cfg.ssh.allowedSigners;
-              hosts = cfg.ssh.hosts;
+              inherit (cfg.ssh) allowedSigners;
+              inherit (cfg.ssh) hosts;
             };
           };
         };
@@ -132,9 +132,7 @@ in
           podman = {
             enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
             rosetta = config.${namespace}.suites.common.rosetta.enable;
-            overrideDockerSocket = true;
             aliasDocker = true;
-            autoStart = true;
           };
           docker = {
             enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;
@@ -142,7 +140,7 @@ in
         };
       };
 
-      services.ollama.enable = (cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin);
+      services.ollama.enable = cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin;
     };
 
     # sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
