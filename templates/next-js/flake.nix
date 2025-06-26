@@ -1,8 +1,8 @@
 {
-  description = "NodeJS Project Template";
+  description = "NextJS Project Template";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
-    pre-commit-hooks = {
+    git-hooks = {
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -10,9 +10,9 @@
 
   outputs =
     {
-      self,
+      git-hooks,
       nixpkgs,
-      pre-commit-hooks,
+      self,
     }:
     let
       systems = [
@@ -22,13 +22,11 @@
         "aarch64-darwin"
       ];
       forEachSystem = nixpkgs.lib.genAttrs systems;
-
-      pkgsForEach = nixpkgs.legacyPackages;
     in
     {
 
       checks = forEachSystem (system: {
-        pre-commit-check = pre-commit-hooks.lib.${system}.run {
+        pre-commit-check = git-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
             biome.enable = true;
@@ -48,8 +46,51 @@
         };
       });
 
-      devShells = forEachSystem (system: {
-        default = pkgsForEach.${system}.callPackage ./shell.nix { inherit self; };
-      });
+      devShells = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = pkgs.mkShell {
+            buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
+
+            packages = with pkgs; [
+              nodejs_latest
+              nodePackages.npm
+              nodePackages.yarn
+              nodePackages.pnpm
+              biome
+              nodePackages.prettier
+              nodePackages.eslint
+              nodePackages.typescript
+            ];
+
+            shellHook = ''
+              # START INIT BLOCK
+              start_line=$(grep -n "# START INIT BLOCK" flake.nix | head -1 | cut -d: -f1)
+              end_line=$(grep -n "# END INIT BLOCK" flake.nix | tail -1 | cut -d: -f1)
+              if [ ! -d ".git" ]; then
+                echo "Initializing git repository..."
+                git init
+              fi
+              if [ ! -d "package.json" ]; then
+                echo "Initializing Next.js project..."
+                folder=$(basename "$PWD")
+                npx create-next-app@latest ./$folder --ts --tailwind --app --src-dir --turbopack --skip-install --disable-git
+                mv $folder/!(.gitignore) .
+                rm -rf $folder
+              fi
+              sed -i "''${start_line},''${end_line}d" flake.nix
+              git add --all
+              git commit --message "Initial commit"
+              # END INIT BLOCK
+              ${self.checks.${system}.pre-commit-check.shellHook}
+
+              echo 🔨 NextJS DevShell
+            '';
+          };
+        }
+      );
     };
 }

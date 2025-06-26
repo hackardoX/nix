@@ -23,7 +23,6 @@
 # misc
 .DS_Store
 *.pem
-.pre-commit-config.yaml
 
 # debug
 npm-debug.log*
@@ -40,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# pre-commit
+.pre-commit-config.yaml
