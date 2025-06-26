@@ -27,13 +27,33 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      _1password-cli
-      _1password-gui
-    ];
+    home = {
+      packages = with pkgs; [
+        _1password-cli
+        _1password-gui
+      ];
 
-    home.sessionVariables = mkIf cfg.enableSshSocket {
-      SSH_AUTH_SOCK = "${_1passwordSymLinkSocketPath}";
+      sessionVariables = mkIf cfg.enableSshSocket {
+        SSH_AUTH_SOCK = "${_1passwordSymLinkSocketPath}";
+      };
+
+      file = mkIf cfg.enableSshSocket {
+        "${_1passwordSymLinkSocketPath}" = {
+          source = config.lib.file.mkOutOfStoreSymlink _1passwordOriginalSocketPath;
+        };
+
+        ".config/1Password/ssh/agent.toml".text = ''
+          [[ssh-keys]]
+          vault = "Development"
+
+          [[ssh-keys]]
+          vault = "Private"
+        '';
+      };
+
+      shellAliases = mkIf cfg.enableAliases {
+        openv = "f() { op run --env-file=.env -- \"$@\"; }; f";
+      };
     };
 
     programs = {
@@ -46,24 +66,6 @@ in
         IdentityAgent ${_1passwordSymLinkSocketPath}
         PreferredAuthentications publickey,keyboard-interactive
       '';
-    };
-
-    home.file = mkIf cfg.enableSshSocket {
-      "${_1passwordSymLinkSocketPath}" = {
-        source = config.lib.file.mkOutOfStoreSymlink _1passwordOriginalSocketPath;
-      };
-
-      ".config/1Password/ssh/agent.toml".text = ''
-        [[ssh-keys]]
-        vault = "Development"
-
-        [[ssh-keys]]
-        vault = "Private"
-      '';
-    };
-
-    home.shellAliases = mkIf cfg.enableAliases {
-      openv = "f() { op run --env-file=.env -- \"$@\"; }; f";
     };
   };
 }
