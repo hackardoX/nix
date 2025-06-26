@@ -24,7 +24,8 @@
       indent_size = 4;
     };
     statix.enable = true;
-    taplo.enable = true;
+    # TODO: enable this if possible -> Maybe rust needed?
+    taplo.enable = false;
     yamlfmt.enable = true;
   };
 

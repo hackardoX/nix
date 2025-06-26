@@ -64,6 +64,7 @@ flake switch
 Here's an overview of what my Nix configuration offers:
 
 - **External Dependency Integrations**:
+
   - [Nixvim](https://github.com/nix-community/nixvim) neovim configuration.
   - Access the Nix User Repository (NUR) for additional packages and
     enhancements.
@@ -136,11 +137,10 @@ To prevent redundancy, the options for suites are defined in the `/modules/share
 
 Suites are employed in both `homes` and `systems`: instead of manually enabling individual modules, only suites are managed. The collection of suites enabled for a particular home and system is defined as a `profile`, and these profiles are located in `/shared/profiles/<system-name>`.
 
-
 # Resources
 
 Other configurations from where I learned and copied:
 
-- [dustinlyons/nixos-config](https://github.com/dustinlyons/nixos-config) *Initial starting point*
+- [dustinlyons/nixos-config](https://github.com/dustinlyons/nixos-config) _Initial starting point_
 - [khaneliman/khanelinix](https://github.com/khaneliman/khanelinix) **Main
   inspiration**
