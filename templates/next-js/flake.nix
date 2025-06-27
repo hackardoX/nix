@@ -83,7 +83,7 @@
               fi
               sed -i "''${start_line},''${end_line}d" flake.nix
               git add --all
-              git commit --message "Initial commit"
+              git commit --message "chore: initial commit"
               # END INIT BLOCK
               ${self.checks.${system}.pre-commit-check.shellHook}
 

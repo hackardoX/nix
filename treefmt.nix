@@ -5,7 +5,10 @@
     actionlint.enable = true;
     biome = {
       enable = true;
-      settings.formatter.formatWithErrors = true;
+      settings.formatter = {
+        formatWithErrors = true;
+        indentWidth = 2;
+      };
     };
     clang-format.enable = true;
     deadnix = {
@@ -21,7 +24,7 @@
     rustfmt.enable = true;
     shfmt = {
       enable = true;
-      indent_size = 4;
+      indent_size = 2;
     };
     statix.enable = true;
     # TODO: enable this if possible -> Maybe rust needed?

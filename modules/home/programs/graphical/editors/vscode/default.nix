@@ -197,15 +197,18 @@ in
             "[gitconfig]" = {
               "editor.defaultFormatter" = "yy0931.gitconfig-lsp";
             };
-            # "[html]" = {
-            #   "editor.defaultFormatter" = "vscode.html-language-features";
-            # };
-            # "[javascript]" = {
-            #   "editor.defaultFormatter" = "vscode.typescript-language-features";
-            # };
-            # "[json]" = {
-            #   "editor.defaultFormatter" = "vscode.json-language-features";
-            # };
+            "[html]" = {
+              "editor.defaultFormatter" = "vscode.html-language-features";
+            };
+            "[javascript]" = {
+              "editor.defaultFormatter" = "vscode.typescript-language-features";
+            };
+            "[json]" = {
+              "editor.defaultFormatter" = "vscode.json-language-features";
+            };
+            "[typescriptreact]" = {
+              "editor.defaultFormatter" = "esbenp.prettier-vscode";
+            };
             "[lua]" = {
               "editor.defaultFormatter" = "yinfei.luahelper";
             };
@@ -299,10 +302,16 @@ in
               commonSettings
               // {
                 "[json]" = {
-                  "editor.defaultFormatter" = "biome";
+                  "editor.defaultFormatter" = "biomejs.biome";
                 };
                 "[javascript]" = {
-                  "editor.defaultFormatter" = "biome";
+                  "editor.defaultFormatter" = "biomejs.biome";
+                };
+                "[typescriptreact]" = {
+                  "editor.defaultFormatter" = "biomejs.biome";
+                };
+                "[typescript]" = {
+                  "editor.defaultFormatter" = "biomejs.biome";
                 };
               }
             );

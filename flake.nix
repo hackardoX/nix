@@ -148,6 +148,7 @@
       };
 
       templates = {
+        default.description = "Default template";
         next-js.description = "NextJS template";
         node.description = "Node template";
         python.description = "Python template";

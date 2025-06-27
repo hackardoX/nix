@@ -2,6 +2,9 @@
 	"nixEnvSelector.nixFile": "${workspaceFolder}/flake.nix",
 	"nix.serverSettings": {
 		"nixd": {
+			"formatting": {
+				"command": ["nixfmt"]
+			},
 			"nixpkgs": {
 				"expr": "import (builtins.getFlake (builtins.toString ./.)).inputs.nixpkgs {}"
 			},
@@ -14,5 +17,8 @@
 				}
 			}
 		}
+	},
+	"[nix]": {
+		"editor.defaultFormatter": "ibecker.treefmt-vscode"
 	}
 }

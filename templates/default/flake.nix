@@ -1,5 +1,5 @@
 {
-  description = "NextJS Project Template";
+  description = "Blank Project Template";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
     systems.url = "github:nix-systems/default";
@@ -63,6 +63,17 @@
             ];
 
             shellHook = ''
+              # START INIT BLOCK
+              start_line=$(grep -n "# START INIT BLOCK" flake.nix | head -1 | cut -d: -f1)
+              end_line=$(grep -n "# END INIT BLOCK" flake.nix | tail -1 | cut -d: -f1)
+              if [ ! -d ".git" ]; then
+                echo "Initializing git repository..."
+                git init
+              fi
+              sed -i "''${start_line},''${end_line}d" flake.nix
+              git add --all
+              git commit --message "chore: initial commit"
+              # END INIT BLOCK
               ${self.checks.${system}.pre-commit-check.shellHook}
 
               echo 🔨 Welcome to your DevShell
