@@ -149,6 +149,7 @@
 
       templates = {
         default.description = "Default template";
+        expo.description = "Expo template";
         next-js.description = "NextJS template";
         node.description = "Node template";
         python.description = "Python template";
