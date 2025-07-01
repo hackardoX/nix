@@ -24,6 +24,25 @@ let
         description = "1Password reference in the format op://vault/item/field";
         example = "op://Personal/ssh-key/private-key";
       };
+
+      owner = lib.mkOption {
+        type = lib.types.str;
+        default = config.home.username;
+        description = "User who owns the secret file (defaults to home user)";
+      };
+
+      group = lib.mkOption {
+        type = lib.types.str;
+        default = "users";
+        description = "Group that owns the secret file";
+      };
+
+      mode = lib.mkOption {
+        type = lib.types.str;
+        default = "0600";
+        description = "File permissions in octal notation";
+        example = "0644";
+      };
     };
   };
   cfg = config.${namespace}.security.opnix;
@@ -32,7 +51,7 @@ in
 
   options.${namespace}.security.opnix = {
     enable = lib.mkEnableOption "opnix";
-    secrets = mkOpt (lib.types.listOf secretType) [ ] "List of secrets to manage with 1Password.";
+    secrets = mkOpt (lib.types.attrsOf secretType) [ ] "List of secrets to manage with 1Password.";
   };
 
   config = lib.mkIf cfg.enable {

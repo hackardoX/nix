@@ -185,42 +185,44 @@ in
             # Formatters
             "treefmt.command" = "treefmt-nix";
             "editor.defaultFormatter" = "ibecker.treefmt-vscode";
-            "[cpp]" = {
-              "editor.defaultFormatter" = "xaver.clang-format";
-            };
-            "[csharp]" = {
-              "editor.defaultFormatter" = "ms-dotnettools.csharp";
-            };
-            "[dockerfile]" = mkIf config.${namespace}.suites.development.containerization.enable {
-              "editor.defaultFormatter" = "ms-azuretools.vscode-docker";
-            };
-            "[gitconfig]" = {
-              "editor.defaultFormatter" = "yy0931.gitconfig-lsp";
-            };
-            "[html]" = {
-              "editor.defaultFormatter" = "vscode.html-language-features";
-            };
-            "[javascript]" = {
-              "editor.defaultFormatter" = "vscode.typescript-language-features";
-            };
-            "[json]" = {
-              "editor.defaultFormatter" = "vscode.json-language-features";
-            };
-            "[typescriptreact]" = {
-              "editor.defaultFormatter" = "esbenp.prettier-vscode";
-            };
-            "[lua]" = {
-              "editor.defaultFormatter" = "yinfei.luahelper";
-            };
-            "[nix]" = {
-              "editor.defaultFormatter" = "jnoortheen.nix-ide";
-            };
-            "[shellscript]" = {
-              "editor.defaultFormatter" = "foxundermoon.shell-format";
-            };
-            "[xml]" = {
-              "editor.defaultFormatter" = "redhat.vscode-xml";
-            };
+
+            # Use treefmt for all files
+            # "[cpp]" = {
+            #   "editor.defaultFormatter" = "xaver.clang-format";
+            # };
+            # "[csharp]" = {
+            #   "editor.defaultFormatter" = "ms-dotnettools.csharp";
+            # };
+            # "[dockerfile]" = mkIf config.${namespace}.suites.development.containerization.enable {
+            #   "editor.defaultFormatter" = "ms-azuretools.vscode-docker";
+            # };
+            # "[gitconfig]" = {
+            #   "editor.defaultFormatter" = "yy0931.gitconfig-lsp";
+            # };
+            # "[html]" = {
+            #   "editor.defaultFormatter" = "vscode.html-language-features";
+            # };
+            # "[javascript]" = {
+            #   "editor.defaultFormatter" = "vscode.typescript-language-features";
+            # };
+            # "[json]" = {
+            #   "editor.defaultFormatter" = "vscode.json-language-features";
+            # };
+            # "[typescriptreact]" = {
+            #   "editor.defaultFormatter" = "esbenp.prettier-vscode";
+            # };
+            # "[lua]" = {
+            #   "editor.defaultFormatter" = "yinfei.luahelper";
+            # };
+            # "[nix]" = {
+            #   "editor.defaultFormatter" = "jnoortheen.nix-ide";
+            # };
+            # "[shellscript]" = {
+            #   "editor.defaultFormatter" = "foxundermoon.shell-format";
+            # };
+            # "[xml]" = {
+            #   "editor.defaultFormatter" = "redhat.vscode-xml";
+            # };
 
             # AI
             "continue.telemetryEnabled" = mkIf config.${namespace}.suites.development.aiEnable false;
@@ -298,27 +300,7 @@ in
                 "richie5um2.vscode-sort-json"
                 "bradlc.vscode-tailwindcss"
               ];
-            userSettings = lib.mkIf cfg.declarativeConfig (
-              commonSettings
-              // {
-                "editor.codeActionsOnSave" = {
-                  "source.fixAll.biome" = "explicit";
-                  "source.organizeImports.biome" = "explicit";
-                };
-                "[json]" = {
-                  "editor.defaultFormatter" = "biomejs.biome";
-                };
-                "[javascript]" = {
-                  "editor.defaultFormatter" = "biomejs.biome";
-                };
-                "[typescriptreact]" = {
-                  "editor.defaultFormatter" = "biomejs.biome";
-                };
-                "[typescript]" = {
-                  "editor.defaultFormatter" = "biomejs.biome";
-                };
-              }
-            );
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
             keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Minimal = {
