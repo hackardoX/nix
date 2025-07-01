@@ -53,6 +53,7 @@ in
           nixpkgs-review
           nurl
           treefmt
+          pkgs.${namespace}.treefmt-nix
         ]
         ++ lib.optionals osConfig.${namespace}.tools.homebrew.masEnable [
           mas

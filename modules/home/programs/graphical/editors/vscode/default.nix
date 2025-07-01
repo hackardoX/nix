@@ -183,7 +183,7 @@ in
             "C_Cpp.intelliSenseEngine" = "disabled";
 
             # Formatters
-            "treefmt.command" = "treefmt";
+            "treefmt.command" = "treefmt-nix";
             "editor.defaultFormatter" = "ibecker.treefmt-vscode";
             "[cpp]" = {
               "editor.defaultFormatter" = "xaver.clang-format";
@@ -301,6 +301,10 @@ in
             userSettings = lib.mkIf cfg.declarativeConfig (
               commonSettings
               // {
+                "editor.codeActionsOnSave" = {
+                  "source.fixAll.biome" = "explicit";
+                  "source.organizeImports.biome" = "explicit";
+                };
                 "[json]" = {
                   "editor.defaultFormatter" = "biomejs.biome";
                 };

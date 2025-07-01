@@ -13,7 +13,7 @@ mkShell {
     nh
     statix
     sops
-    (inputs.treefmt-nix.lib.mkWrapper pkgs ../../treefmt.nix)
+    pkgs.${namespace}.treefmt-nix
   ];
 
   shellHook = ''
