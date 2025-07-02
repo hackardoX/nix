@@ -57,15 +57,11 @@ in
               #   fi
               # ''}
             }
-          }/bin/podman-manager";
+          }/bin/${name}";
           UserName = username;
           RunAtLoad = true;
-          StandardErrorPath = "${
-            config.users.users.${username}.home
-          }/Library/Logs/podman/podman-manager.err.log";
-          StandardOutPath = "${
-            config.users.users.${username}.home
-          }/Library/Logs/podman/podman-manager.out.log";
+          StandardErrorPath = "${config.users.users.${username}.home}/Library/Logs/podman/${name}.err.log";
+          StandardOutPath = "${config.users.users.${username}.home}/Library/Logs/podman/${name}.out.log";
         };
       };
   };
