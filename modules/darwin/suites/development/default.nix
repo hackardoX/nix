@@ -26,7 +26,7 @@ in
         ++ optionals cfg.aiEnable [ "ollamac" ];
 
       masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
-        # "Xcode" = 497799835;
+        "Xcode" = 497799835;
       };
     };
 

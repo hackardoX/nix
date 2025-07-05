@@ -126,6 +126,8 @@ in
             "editor.renderLineHighlight" = "all";
             "editor.smoothScrolling" = true;
             "editor.suggestSelection" = "first";
+            "editor.tabSize" = 2;
+            "editor.wordWrap" = "on";
 
             # Terminal
             "terminal.integrated.automationShell.linux" = "nix-shell";

@@ -38,7 +38,10 @@ in
       programs.terminal.tools.ssh = enabled;
 
       tools = {
-        homebrew = enabled;
+        homebrew = {
+          enable = true;
+          masEnable = true;
+        };
       };
 
       services = {

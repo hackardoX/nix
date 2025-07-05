@@ -33,11 +33,17 @@
             check-yaml.enable = true;
             commitizen.enable = true;
             eslint.enable = true;
-            nixfmt.enable = true;
-            sort-simple-yaml.enable = true;
+            nixfmt-rfc-style.enable = true;
+            sort-simple-yaml = {
+              enable = true;
+              excludes = [ "^pnpm\-lock\.ya?ml$" ];
+            };
             # TODO: Check when https://github.com/cachix/git-hooks.nix/pull/594 is merged
             # trufflehog.enable = true;
-            yamlfmt.enable = true;
+            yamlfmt = {
+              enable = true;
+              excludes = [ "^pnpm\-lock\.ya?ml$" ];
+            };
             yamllint = {
               enable = true;
               excludes = [ "^pnpm\-lock\.ya?ml$" ];

@@ -5,9 +5,13 @@
     actionlint.enable = true;
     biome = {
       enable = true;
-      settings.formatter = {
-        formatWithErrors = true;
-        indentWidth = 2;
+      settings = {
+        formatter.formatWithErrors = true;
+        css = {
+          formatter.enabled = true;
+          parser.cssModules = true;
+          linter.enabled = true;
+        };
       };
     };
     clang-format.enable = true;
@@ -44,6 +48,7 @@
       "*CODEOWNERS"
       "*LICENSE"
       "*flake.lock"
+      "*-lock.*"
       "*.conf"
       "*.gif"
       "*.ico"
@@ -55,7 +60,6 @@
       "*/config"
       # TODO: formatters?
       "*.ac"
-      "*.css" # Exclude CSS files from formatting since we use Nix template variables
       "*.csproj"
       "*.fsproj"
       "*.in"

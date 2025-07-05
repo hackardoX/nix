@@ -45,7 +45,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix4vscode = {
-      url = "github:nix-community/nix4vscode";
+      url = "github:nix-community/nix4vscode?ref=14635ccd0a9408b13f8e6815505ad3c1441b159c";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs = {
@@ -71,6 +71,7 @@
         home-manager.follows = "home-manager";
         # Optional inputs removed
         flake-compat.follows = "";
+        nur.follows = "";
       };
     };
     treefmt-nix = {
