@@ -6,7 +6,7 @@
 }:
 let
   inherit (lib) mkIf;
-  inherit (lib.${namespace}) enabled;
+  inherit (lib.${namespace}) disabled enabled;
 
   cfg = config.${namespace}.suites.networking;
 in
@@ -18,7 +18,7 @@ in
   config = mkIf cfg.enable {
     ${namespace} = {
       services = {
-        tailscale = lib.mkDefault enabled;
+        tailscale = lib.mkDefault disabled;
       };
 
       system = {
