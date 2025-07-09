@@ -191,14 +191,14 @@ in
             {
               Hour = 3;
               Minute = 15;
-              Weekday = 1;
+              # Weekday = 1;
             }
           ];
         };
 
         # Optimize nix store after cleaning
         optimise.interval = lib.lists.forEach config.nix.gc.interval (e: {
-          inherit (e) Minute Weekday;
+          inherit (e) Minute; # Weekday;
           Hour = e.Hour + 1;
         });
 
