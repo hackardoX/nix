@@ -36,7 +36,7 @@ jobs:
       - name: Setup Git
         env:
           name: ${{ steps.user-info.outputs.name || 'github-actions[bot]' }}
-          email: ${{ steps.user-info.outputs.email || '41898282+github-actions[bot]@users.noreply.github.com' }}
+          email: ${{ steps.user-info.outputs.email || '219932883+github-actions[bot]@users.noreply.github.com' }}
         run: |
           git config user.name "$name"
           git config user.email "$email"
@@ -52,9 +52,9 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token || github.token }}
           git-committer-name: ${{ steps.user-info.outputs.name || 'github-actions[bot]' }}
-          git-committer-email: ${{ steps.user-info.outputs.email || '41898282+github-actions[bot]@users.noreply.github.com' }}
+          git-committer-email: ${{ steps.user-info.outputs.email || '219932883+github-actions[bot]@users.noreply.github.com' }}
           git-author-name: ${{ steps.user-info.outputs.name || 'github-actions[bot]' }}
-          git-author-email: ${{ steps.user-info.outputs.email || '41898282+github-actions[bot]@users.noreply.github.com' }}
+          git-author-email: ${{ steps.user-info.outputs.email || '219932883+github-actions[bot]@users.noreply.github.com' }}
           pr-body: |
             Automated update by the [update-flake-lock] GitHub Action.
 
