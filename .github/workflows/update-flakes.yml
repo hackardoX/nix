@@ -66,5 +66,6 @@ jobs:
 
             [update-flake-lock]: https://github.com/DeterminateSystems/update-flake-lock
             [${{ github.run_id }}]: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          pr-title: "build(flake): update flake.lock"
           pr-labels: |
             merge-queue
