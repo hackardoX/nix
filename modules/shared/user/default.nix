@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) types;
+  inherit (lib) mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
 
   cfg = config.${namespace}.user;
@@ -22,7 +22,7 @@ let
 in
 {
   ${namespace}.user = {
-    enable = mkOpt types.bool false "Whether to configure the user account.";
+    enable = mkEnableOption "user account configuration.";
     email = mkOpt types.str "andry93.mail@gmail.com" "The email of the user.";
     fullName = mkOpt types.str "Andrea Accardo" "The full name of the user.";
     home = mkOpt (types.nullOr types.str) home-directory "The user's home directory.";

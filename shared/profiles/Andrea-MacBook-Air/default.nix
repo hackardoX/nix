@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib.${namespace}) enabled;
+  inherit (lib.${namespace}) disabled enabled;
   user = config.${namespace}.user.name; # "aaccardo";
   hosts = {
     "oracle_cloud_a1-flex.4ocpu.24gb" = {
@@ -33,6 +33,7 @@ let
 in
 {
   suites = {
+    art = disabled;
     business = enabled;
     common = {
       enable = true;
@@ -46,6 +47,7 @@ in
       };
       rosetta.enable = false;
     };
+    desktop = enabled;
     development = {
       enable = true;
       aiEnable = true;
@@ -77,7 +79,10 @@ in
         }) hosts;
       };
     };
-    desktop = enabled;
+    games = disabled;
     music = enabled;
+    networking = disabled;
+    photo = disabled;
+    video = disabled;
   };
 }

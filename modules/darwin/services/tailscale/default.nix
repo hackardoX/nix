@@ -6,14 +6,13 @@
   ...
 }:
 let
-  inherit (lib) types mkIf;
-  inherit (lib.${namespace}) mkOpt;
+  inherit (lib) mkEnableOption mkIf;
 
   cfg = config.${namespace}.services.tailscale;
 in
 {
   options.${namespace}.services.tailscale = {
-    enable = mkOpt types.bool true "Whether to enable the Nix daemon.";
+    enable = mkEnableOption "tailscale";
   };
 
   config = mkIf cfg.enable {
