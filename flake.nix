@@ -75,7 +75,7 @@
       };
     };
     treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
+      url = "github:andrea11/treefmt-nix?ref=31aa147b93b47d8bb49a0ca696e2e9342d42e82a";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
