@@ -38,6 +38,16 @@ in
             reference = "op://Development/Oracle Cloud a1-flex.4ocpu.24gb/public key";
             group = "staff";
           };
+          andreaMacBookAirPublicKey = {
+            path = ".ssh/Andrea-MacBook-Air.pub";
+            reference = "op://Development/Andrea-MacBook-Air/public key";
+            group = "staff";
+          };
+          andreaMacBookAirPrivateKey = {
+            path = ".ssh/Andrea-MacBook-Air";
+            reference = "op://Development/Andrea-MacBook-Air/private key";
+            group = "staff";
+          };
         };
       };
     };

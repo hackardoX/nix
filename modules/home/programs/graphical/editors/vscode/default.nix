@@ -302,7 +302,11 @@ in
                 "richie5um2.vscode-sort-json"
                 "bradlc.vscode-tailwindcss"
               ];
-            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings // {
+              # "biome.enabled" = false;
+              # "eslint.enable" = false;
+              "prettier.enable" = false;
+            };
             keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
           Minimal = {

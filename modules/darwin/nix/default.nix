@@ -95,9 +95,7 @@ in
               maxJobs = 4;
               speedFactor = 3;
               supportedFeatures = supportedFeatures ++ [ "apple-virt" ];
-              sshKey =
-                lib.mkIf config.${namespace}.security.sops.enable
-                  config.sops.secrets.aaccardo_ssh_key.path;
+              sshKey = "~/.ssh/Andrea-MacBook-Air";
             }
           ];
 
@@ -125,6 +123,8 @@ in
             "pipe-operators"
             "dynamic-derivations"
           ];
+          # Prevent builds failing just because we can't contact a substituter
+          fallback = true;
           flake-registry = "/etc/nix/registry.json";
           http-connections = 25;
           keep-derivations = true;
@@ -133,7 +133,7 @@ in
           log-lines = 50;
           preallocate-contents = true;
           # https://github.com/NixOS/nix/issues/12698
-          sandbox = "relaxed";
+          sandbox = "relaxed"; # to be replaced with true once fixed
           trusted-users = users;
           warn-dirty = false;
 
@@ -158,8 +158,10 @@ in
 
           trusted-public-keys = [
             "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+            "aaccardo.cachix.org-1:lonn0TzLICqhzw+srQyQsMQ4HRgrTuw2ckAQOsKDajs="
             "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
             "nixpkgs-unfree.cachix.org-1:hqvoInulhbV4nJ9yJOEr+4wxhDV4xq2d1DK7S6Nj6rs="
+            "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
           ];
 
           use-xdg-base-directories = true;

@@ -19,6 +19,7 @@ in
     programs.direnv = {
       enable = true;
       nix-direnv = enabled;
+      enableZshIntegration = config.${namespace}.programs.terminal.shell.zsh.enable;
       silent = true;
     };
   };
