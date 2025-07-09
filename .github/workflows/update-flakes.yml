@@ -9,18 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub App token
-        uses: actions/create-github-app-token@v2.0.6
-        if: vars.CI_CLIENT_ID
+        uses: actions/create-github-app-token@v2
+        if: vars.CI_APP_ID
         id: app-token
         with:
-          app-id: ${{ vars.CI_CLIENT_ID }}
+          app-id: ${{ vars.CI_APP_ID }}
           private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
           permission-issues: write
       - name: Get GitHub App user info
         id: user-info
-        if: vars.CI_CLIENT_ID
+        if: vars.CI_APP_ID
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           slug: ${{ steps.app-token.outputs.app-slug }}
