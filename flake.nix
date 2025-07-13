@@ -154,6 +154,7 @@
         next-js.description = "NextJS template";
         node.description = "Node template";
         python.description = "Python template";
+        rust.description = "Rust template";
       };
 
       # deploy = lib.mkDeploy { inherit (inputs) self; };
