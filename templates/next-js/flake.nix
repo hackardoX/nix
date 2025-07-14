@@ -6,58 +6,46 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
     {
+      flake-utils,
       git-hooks,
       nixpkgs,
       self,
     }:
-    let
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-      forEachSystem = nixpkgs.lib.genAttrs systems;
-    in
-    {
-
-      checks = forEachSystem (system: {
-        pre-commit-check = git-hooks.lib.${system}.run {
-          src = ./.;
-          hooks = {
-            biome.enable = true;
-            check-yaml.enable = true;
-            commitizen.enable = true;
-            eslint.enable = true;
-            nixfmt-rfc-style.enable = true;
-            sort-simple-yaml = {
-              enable = true;
-              excludes = [ "^pnpm\-lock\.ya?ml$" ];
-            };
-            # TODO: Check when https://github.com/cachix/git-hooks.nix/pull/594 is merged
-            # trufflehog.enable = true;
-            yamlfmt = {
-              enable = true;
-              excludes = [ "^pnpm\-lock\.ya?ml$" ];
-            };
-            yamllint = {
-              enable = true;
-              excludes = [ "^pnpm\-lock\.ya?ml$" ];
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in
+      {
+        checks = {
+          pre-commit-check = git-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              biome.enable = true;
+              check-yaml.enable = true;
+              commitizen.enable = true;
+              eslint.enable = true;
+              nixfmt-rfc-style.enable = true;
+              sort-simple-yaml = {
+                enable = true;
+                excludes = [ "^pnpm\-lock\.ya?ml$" ];
+              };
+              # TODO: Check when https://github.com/cachix/git-hooks.nix/pull/594 is merged
+              # trufflehog.enable = true;
+              yamlfmt = {
+                enable = true;
+                excludes = [ "^pnpm\-lock\.ya?ml$" ];
+              };
             };
           };
         };
-      });
 
-      devShells = forEachSystem (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
+        devShells = {
           default = pkgs.mkShell {
             buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
 
@@ -96,7 +84,7 @@
               echo 🔨 NextJS DevShell
             '';
           };
-        }
-      );
-    };
+        };
+      }
+    );
 }

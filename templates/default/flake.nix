@@ -2,10 +2,8 @@
   description = "Blank Project Template";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
-    systems.url = "github:nix-systems/default";
     flake-utils = {
       url = "github:numtide/flake-utils";
-      inputs.systems.follows = "systems";
     };
     git-hooks = {
       url = "github:cachix/git-hooks.nix";
@@ -24,7 +22,6 @@
       nixpkgs,
       self,
       treefmt-nix,
-      ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -57,7 +54,7 @@
           default = pkgs.mkShell {
             buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
 
-            packages = with pkgs; [
+            packages = [
               (treefmt-nix.lib.mkWrapper pkgs "${myNix.outPath}/treefmt.nix")
               # Add here your packages
             ];

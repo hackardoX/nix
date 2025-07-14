@@ -6,26 +6,18 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
     {
+      flake-utils,
       git-hooks,
       nixpkgs,
       self,
     }:
-    let
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-      forEachSystem = nixpkgs.lib.genAttrs systems;
-    in
-    {
-
-      checks = forEachSystem (system: {
+    flake-utils.lib.eachDefaultSystem (system: {
+      checks = {
         pre-commit-check = git-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
@@ -50,10 +42,9 @@
             };
           };
         };
-      });
+      };
 
-      devShells = forEachSystem (
-        system:
+      devShells =
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in
@@ -96,7 +87,6 @@
               echo 🔨 Expo DevShell
             '';
           };
-        }
-      );
-    };
+        };
+    });
 }
