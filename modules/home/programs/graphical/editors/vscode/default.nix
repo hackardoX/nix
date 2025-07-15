@@ -332,7 +332,9 @@ in
               ++ pkgs.nix4vscode.forVscode [
                 "rust-lang.rust-analyzer"
               ];
-            userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
+            userSettings = lib.mkIf cfg.declarativeConfig commonSettings // {
+              rust-analyzer.check.command = "clippy";
+            };
             keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
           };
         };

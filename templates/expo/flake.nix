@@ -36,10 +36,6 @@
               enable = true;
               excludes = [ "^pnpm\-lock\.ya?ml$" ];
             };
-            yamllint = {
-              enable = true;
-              excludes = [ "^pnpm\-lock\.ya?ml$" ];
-            };
           };
         };
       };
