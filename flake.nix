@@ -115,7 +115,7 @@
         catppuccin.homeModules.catppuccin
         inputs.op-shell-plugins.hmModules.default
         # mac-app-util.homeManagerModules.default
-        nix-index-database.hmModules.nix-index
+        nix-index-database.homeModules.nix-index
         opnix.homeManagerModules.default
         sops-nix.homeManagerModules.sops
       ];
