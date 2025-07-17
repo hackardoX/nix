@@ -328,11 +328,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1752623152,
-        "narHash": "sha256-cDzzxzef2CUTjCuN2nFzBIF2CGJcEIZ2H9jldN65oAM=",
+        "lastModified": 1752705504,
+        "narHash": "sha256-GUKMaOUm1XmK7y79vzCQyvxeaca9EEjW1JpNGAqdqbo=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "bdfd2f8cf66617c21bbbf5932e405913b1f2d273",
+        "rev": "de60386138df714929cc50f48932e49a1d927bb8",
         "type": "github"
       },
       "original": {
@@ -344,11 +344,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1752624085,
-        "narHash": "sha256-WtQ6LcGqHEjVZInVX0BNwrGJtzTFK9yXNCXiCgR0c0I=",
+        "lastModified": 1752709550,
+        "narHash": "sha256-pmidumFeGJ1gwI+6zIuemgyomV8TM79AV1xoBqzth2o=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "8b48bbb06de0c5510fa81f9d95c88946d0fa9efb",
+        "rev": "b3f512723459b40b088dff8f3dde89dcdb9b7a56",
         "type": "github"
       },
       "original": {
@@ -580,11 +580,11 @@
         "tinted-zed": "tinted-zed"
       },
       "locked": {
-        "lastModified": 1752598315,
-        "narHash": "sha256-pSm1BqcA6wido27VeNAi86SjpurpL84+ciAXQmrtSzk=",
+        "lastModified": 1752684057,
+        "narHash": "sha256-QRuM25aYp3n2cf59gEJE0VcIoGRX2ps8gp2mzorKodw=",
         "owner": "danth",
         "repo": "stylix",
-        "rev": "45749a791efd692c04dee4702b86a31535ed30d2",
+        "rev": "0ba0ffe94cbe20ae739c2aa8cae04cbf900bf56b",
         "type": "github"
       },
       "original": {
