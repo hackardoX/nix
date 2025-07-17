@@ -95,7 +95,7 @@ in
               maxJobs = 4;
               speedFactor = 3;
               supportedFeatures = supportedFeatures ++ [ "apple-virt" ];
-              sshKey = "~/.ssh/Andrea-MacBook-Air";
+              sshKey = "/Users/${config.${namespace}.user.name}/.ssh/Andrea-MacBook-Air";
             }
           ];
 

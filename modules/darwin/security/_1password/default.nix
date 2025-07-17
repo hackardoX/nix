@@ -33,5 +33,15 @@ in
         "1Password for Safari" = 1569813296;
       };
     };
+
+    ${namespace} = {
+      home.extraOptions = {
+        programs.zsh.initContent = mkIf cfg.openv (
+          lib.mkAfter ''
+            eval "$(openv hook zsh)"
+          ''
+        );
+      };
+    };
   };
 }
