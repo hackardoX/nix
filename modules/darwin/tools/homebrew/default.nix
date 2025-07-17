@@ -22,5 +22,22 @@ in
       HOMEBREW_NO_ANALYTICS = "1";
       HOMEBREW_NO_INSECURE_REDIRECT = "1";
     };
+
+    homebrew = {
+      enable = true;
+
+      global = {
+        brewfile = true;
+        autoUpdate = true;
+      };
+
+      onActivation = {
+        autoUpdate = true;
+        cleanup = "zap";
+        upgrade = true;
+      };
+
+      taps = builtins.attrNames config.nix-homebrew.taps;
+    };
   };
 }

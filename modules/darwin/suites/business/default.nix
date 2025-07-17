@@ -17,8 +17,6 @@ in
   config = mkIf cfg.enable {
     homebrew = {
       casks = [
-        "1password"
-        "1password-cli"
         # "fantastical"
         # "libreoffice"
         "microsoft-excel"
@@ -30,10 +28,17 @@ in
       ];
 
       masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
-        "1Password for Safari" = 1569813296;
-        "Keynote" = 409183694;
+        # "Keynote" = 409183694;
         # "Microsoft OneNote" = 784801555;
         # "Notability" = 360593530;
+      };
+    };
+
+    ${namespace} = {
+      security = {
+        _1password = {
+          enable = true;
+        };
       };
     };
   };

@@ -19,12 +19,6 @@ in
   config = mkIf cfg.enable {
     programs.zsh.enable = true;
 
-    homebrew = {
-      brews = [
-        # "bashdb"
-      ];
-    };
-
     ${namespace} = {
       home.extraOptions = {
         home.shellAliases = {
@@ -35,7 +29,17 @@ in
 
       nix = enabled;
 
-      programs.terminal.tools.ssh = enabled;
+      programs = {
+        terminal = {
+          emulators = {
+            warp = {
+              enable = true;
+            };
+          };
+
+          tools.ssh = enabled;
+        };
+      };
 
       tools = {
         homebrew = {

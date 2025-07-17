@@ -83,6 +83,7 @@ in
     music = enabled;
     networking = disabled;
     photo = disabled;
-    video = disabled;
+    social = enabled;
+    video = enabled;
   };
 }

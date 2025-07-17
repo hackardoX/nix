@@ -17,7 +17,11 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; lib.optionals stdenv.hostPlatform.isDarwin [ iina ];
+    home.packages =
+      with pkgs;
+      lib.optionals stdenv.hostPlatform.isDarwin [
+        # iina
+      ];
 
     ${namespace}.programs = {
       graphical.apps = {

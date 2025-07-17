@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  osConfig,
   pkgs,
   namespace,
   ...
@@ -54,9 +53,6 @@ in
           nurl
           treefmt
           pkgs.${namespace}.treefmt-nix
-        ]
-        ++ lib.optionals osConfig.${namespace}.tools.homebrew.masEnable [
-          mas
         ];
 
       shellAliases =
@@ -93,42 +89,6 @@ in
 
     ${namespace} = {
       programs = {
-        graphical = {
-          editors = {
-            vscode = enabled;
-          };
-        };
-
-        terminal = {
-          tools = {
-            _1password = {
-              plugins = with pkgs; [
-                gh
-                hcloud
-              ];
-            };
-            act = enabled;
-            gh = disabled;
-            git = {
-              enable = true;
-              includes = [ ];
-              signByDefault = true;
-              signingKey = "${config.home.homeDirectory}/.ssh/git_signature.pub";
-              userName = cfg.git.user;
-              userEmail = cfg.git.email;
-              _1password = config.${namespace}.programs.terminal.tools._1password.enable;
-            };
-            jq = enabled;
-            # jujutsu = enabled;
-            prisma.enable = cfg.sqlEnable;
-            ssh = {
-              enable = true;
-              inherit (cfg.ssh) allowedSigners;
-              inherit (cfg.ssh) hosts;
-            };
-          };
-        };
-
         containerization = {
           podman = {
             enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
@@ -138,6 +98,46 @@ in
           docker = {
             enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;
           };
+        };
+
+        graphical = {
+          editors = {
+            vscode = enabled;
+          };
+        };
+
+        terminal = {
+          tools = {
+            act = enabled;
+            gh = disabled;
+            git = {
+              enable = true;
+              includes = [ ];
+              signByDefault = true;
+              signingKey = "${config.home.homeDirectory}/.ssh/git_signature.pub";
+              userName = cfg.git.user;
+              userEmail = cfg.git.email;
+              _1password = config.${namespace}.security._1password.enable;
+            };
+            jq = enabled;
+            # jujutsu = enabled;
+            # prisma.enable = cfg.sqlEnable;
+            ssh = {
+              enable = true;
+              inherit (cfg.ssh) allowedSigners;
+              inherit (cfg.ssh) hosts;
+            };
+          };
+        };
+      };
+
+      security = {
+        _1password = {
+          sshSocket = true;
+          plugins = with pkgs; [
+            gh
+            hcloud
+          ];
         };
       };
 

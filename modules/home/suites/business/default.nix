@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   namespace,
   ...
 }:
@@ -16,17 +15,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ ];
-
     ${namespace} = {
-      programs = {
-        terminal = {
-          tools = {
-            _1password = {
-              enable = true;
-              enableSshSocket = true;
-            };
-          };
+      security = {
+        _1password = {
+          enable = true;
         };
       };
     };

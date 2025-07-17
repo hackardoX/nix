@@ -46,6 +46,12 @@ in
           };
         };
       };
+
+      security = {
+        _1password = {
+          openv = true;
+        };
+      };
     };
   };
 }

@@ -34,6 +34,10 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    custom-homebrew-formulas = {
+      url = "github:andrea11/homebrew-formulas";
+      flake = false;
+    };
     # mac-app-util = {
     #   url = "github:hraban/mac-app-util";
     # };
@@ -137,6 +141,7 @@
                 taps = {
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
+                  "andrea11/homebrew-formulas" = custom-homebrew-formulas;
                 };
                 mutableTaps = false;
                 autoMigrate = true;

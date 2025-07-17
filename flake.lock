@@ -104,6 +104,22 @@
         "type": "github"
       }
     },
+    "custom-homebrew-formulas": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1752659535,
+        "narHash": "sha256-fXycFzSiEI9FXWnRz79/eE13RO7pa7yitV9tNlRal8s=",
+        "owner": "andrea11",
+        "repo": "homebrew-formulas",
+        "rev": "fd381976207a835b60c7a59f4c8ca28380e47cb2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "andrea11",
+        "repo": "homebrew-formulas",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -479,6 +495,7 @@
     "root": {
       "inputs": {
         "catppuccin": "catppuccin",
+        "custom-homebrew-formulas": "custom-homebrew-formulas",
         "darwin": "darwin",
         "git-hooks": "git-hooks",
         "home-manager": "home-manager",
