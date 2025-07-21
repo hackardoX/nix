@@ -36,11 +36,19 @@ in
 
     ${namespace} = {
       home.extraOptions = {
-        programs.zsh.initContent = mkIf cfg.openv (
-          lib.mkAfter ''
+        programs = mkIf cfg.openv {
+          zsh.initContent = lib.mkAfter ''
             eval "$(openv hook zsh)"
-          ''
-        );
+          '';
+
+          bash.initExtra = lib.mkAfter ''
+            eval "$(openv hook bash)"
+          '';
+
+          fish.interactiveShellInit = lib.mkAfter ''
+            openv hook fish | source
+          '';
+        };
       };
     };
   };

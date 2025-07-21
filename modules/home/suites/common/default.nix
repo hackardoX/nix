@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) mkIf;
-  inherit (lib.${namespace}) enabled;
+  inherit (lib.${namespace}) disabled enabled;
 
   cfg = config.${namespace}.suites.common;
 in
@@ -61,6 +61,7 @@ in
           shell = {
             zsh = enabled;
             bash = enabled;
+            fish = disabled;
           };
 
           tools = {
