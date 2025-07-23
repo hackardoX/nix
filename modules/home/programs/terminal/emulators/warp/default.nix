@@ -30,7 +30,6 @@ in
         AutocompleteSymbols = "false";
         Notifications = ''"{\\"mode\\":\\"Enabled\\",\\"is_long_running_enabled\\":true,\\"long_running_threshold\\":{\\"secs\\":30,\\"nanos\\":0},\\"is_password_prompt_enabled\\":true}"'';
         TelemetryEnabled = "false";
-        Theme = ''"{\\"Custom\\":{\\"name\\":\\"Catppuccin Macchiato\\",\\"path\\":\\"${config.home.homeDirectory}/.warp/themes/catppuccin_macchiato.yaml\\"}}"'';
         UseSshTmuxWrapper = true;
       };
     };

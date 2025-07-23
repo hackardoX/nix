@@ -10,7 +10,9 @@
 		"type": "git",
 		"url": "<git-repo>"
 	},
-	"keywords": ["keywords"],
+	"keywords": [
+		"keywords"
+	],
 	"author": "NotAShelf",
 	"license": "MIT",
 	"packageManager": "pnpm@10.11.0"

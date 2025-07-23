@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   namespace,
   ...
 }:
@@ -15,9 +14,5 @@ in
     inherit lib namespace;
   };
 
-  config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      spotify
-    ];
-  };
+  config = mkIf cfg.enable { };
 }

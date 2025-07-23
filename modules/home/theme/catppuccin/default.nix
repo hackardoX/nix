@@ -10,7 +10,6 @@ let
     mkDefault
     mkEnableOption
     mkIf
-    mkMerge
     mkOption
     types
     ;
@@ -70,25 +69,49 @@ in
     catppuccin = {
       inherit (cfg) accent flavor;
       enable = mkDefault true;
+
+      vscode.profiles = builtins.listToAttrs (
+        map (name: {
+          inherit name;
+          value = { };
+        }) config.${namespace}.programs.graphical.editors.vscode.profiles
+      );
     };
 
     home = {
-      file = mkMerge [
+      file = lib.mkMerge [
         (
           let
-            warpPkg = pkgs.fetchFromGitHub {
+            warpThemePkg = pkgs.fetchFromGitHub {
               owner = "catppuccin";
               repo = "warp";
-              rev = "11295fa7aed669ca26f81ff44084059952a2b528";
-              hash = "sha256-ym5hwEBtLlFe+DqMrXR3E4L2wghew2mf9IY/1aynvAI=";
+              rev = "b6891cc339b3a1bb70a5c3063add4bdbd0455603";
+              hash = "sha256-ypzSeSWT2XfdjfdeE/lLdiRgRmxewAqiWhGp6jjF7hE=";
             };
 
-            warpStyle = "${warpPkg.outPath}/themes/catppuccin_${cfg.flavor}.yml";
+            themes = [
+              "catppuccin_macchiato"
+              "catppuccin_mocha"
+              "catppuccin_frappe"
+              "catppuccin_latte"
+            ];
+
+            makeThemeEntry = pathPrefix: theme: {
+              name = "${pathPrefix}/${theme}.yaml";
+              value.source = "${warpThemePkg.outPath}/themes/${theme}.yml";
+            };
+
+            warpThemes = builtins.listToAttrs (
+              builtins.concatLists (
+                map (theme: [
+                  (makeThemeEntry ".warp/themes" theme)
+                  (makeThemeEntry ".local/share/warp-terminal/themes" theme)
+                ]) themes
+              )
+            );
           in
-          mkIf config.${config.${namespace}.user.name}.programs.terminal.emulators.warp.enable {
-            ".warp/themes/catppuccin_${cfg.flavor}.yaml".source = warpStyle;
-            ".local/share/warp-terminal/themes/catppuccin_${cfg.flavor}.yaml".source = warpStyle;
-          }
+
+          lib.mkIf config.${config.${namespace}.user.name}.programs.terminal.emulators.warp.enable warpThemes
         )
       ];
     };

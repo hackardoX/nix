@@ -49,7 +49,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix4vscode = {
-      url = "github:nix-community/nix4vscode?ref=14635ccd0a9408b13f8e6815505ad3c1441b159c";
+      url = "github:nix-community/nix4vscode";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs = {
@@ -67,16 +67,9 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    stylix = {
-      url = "github:danth/stylix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        git-hooks.follows = "git-hooks";
-        home-manager.follows = "home-manager";
-        # Optional inputs removed
-        flake-compat.follows = "";
-        nur.follows = "";
-      };
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
@@ -118,7 +111,6 @@
       homes.modules = with inputs; [
         catppuccin.homeModules.catppuccin
         inputs.op-shell-plugins.hmModules.default
-        # mac-app-util.homeManagerModules.default
         nix-index-database.homeModules.nix-index
         opnix.homeManagerModules.default
         sops-nix.homeManagerModules.sops
@@ -149,7 +141,7 @@
             }
           )
           sops-nix.darwinModules.sops
-          stylix.darwinModules.stylix
+          spicetify-nix.darwinModules.spicetify
         ];
       };
 

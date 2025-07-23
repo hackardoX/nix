@@ -108,7 +108,7 @@ in
           ++
             lib.optionals (config.${namespace}.tools.homebrew.enable && hmCfg.${namespace}.suites.music.enable)
               [
-                "${pkgs.spotify}/Applications/Spotify.app"
+                "${config.programs.spicetify.spicedSpotify}/Applications/Spotify.app"
                 {
                   spacer = {
                     small = true;
