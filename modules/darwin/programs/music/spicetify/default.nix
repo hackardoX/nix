@@ -19,6 +19,12 @@ in
   config = lib.mkIf cfg.enable {
     programs.spicetify = {
       enable = true;
+      enabledCustomApps = with spicePkgs.apps; [
+        historyInSidebar
+        marketplace
+        ncsVisualizer
+        reddit
+      ];
       enabledExtensions = with spicePkgs.extensions; [
         hidePodcasts
         shuffle

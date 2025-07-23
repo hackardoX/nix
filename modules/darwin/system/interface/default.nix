@@ -106,7 +106,7 @@ in
             }
           ]
           ++
-            lib.optionals (config.${namespace}.tools.homebrew.enable && hmCfg.${namespace}.suites.music.enable)
+            lib.optionals (config.${namespace}.tools.homebrew.enable && config.${namespace}.suites.music.enable)
               [
                 "${config.programs.spicetify.spicedSpotify}/Applications/Spotify.app"
                 {
