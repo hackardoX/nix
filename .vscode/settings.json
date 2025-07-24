@@ -17,8 +17,5 @@
 				}
 			}
 		}
-	},
-	"[nix]": {
-		"editor.defaultFormatter": "ibecker.treefmt-vscode"
 	}
 }

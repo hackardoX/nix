@@ -73,7 +73,11 @@ in
       vscode.profiles = builtins.listToAttrs (
         map (name: {
           inherit name;
-          value = { };
+          value = {
+            settings = {
+              syncWithIconPack = false;
+            };
+          };
         }) config.${namespace}.programs.graphical.editors.vscode.profiles
       );
     };

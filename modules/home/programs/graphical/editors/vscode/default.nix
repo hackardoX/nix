@@ -6,12 +6,10 @@
   ...
 }:
 let
-  inherit (lib) mkEnableOption mkIf;
   inherit (lib.${namespace}) mkBoolOpt;
-
   cfg = config.${namespace}.programs.graphical.editors.vscode;
 
-  commonExtensions = pkgs.nix4vscode.forVscode (
+  commonExtensions =
     [
       "1password.op-vscode"
       "adpyke.codesnap"
@@ -33,6 +31,7 @@ let
       "ms-vscode-remote.remote-ssh"
       "ms-vsliveshare.vsliveshare"
       "redhat.vscode-xml"
+      "redhat.vscode-yaml"
       "usernamehw.errorlens"
       "yinfei.luahelper"
       "yy0931.gitconfig-lsp"
@@ -44,8 +43,7 @@ let
     ]
     ++ lib.optionals config.${namespace}.suites.development.aiEnable [
       "continue.continue"
-    ]
-  );
+    ];
   commonSettings = {
     # Color theme
     "workbench.iconTheme" = lib.mkDefault "catppuccin-macchiato"; # TODO: remove once https://github.com/catppuccin/nix/pull/619 merged
@@ -155,6 +153,13 @@ let
     "window.nativeTabs" = true;
     "window.restoreWindows" = "all";
     "window.titleBarStyle" = "custom";
+    "yaml.schemas" = {
+      "${config.home.homeDirectory}/.vscode/extensions/continue.continue/config-yaml-schema.json" =
+        lib.mkIf config.${namespace}.suites.development.aiEnable
+          [
+            ".continue/**/*.yaml"
+          ];
+    };
 
     # LSP
     "C_Cpp.intelliSenseEngine" = "disabled";
@@ -170,7 +175,7 @@ let
     # "[csharp]" = {
     #   "editor.defaultFormatter" = "ms-dotnettools.csharp";
     # };
-    # "[dockerfile]" = mkIf config.${namespace}.suites.development.containerization.enable {
+    # "[dockerfile]" = lib.mkIf config.${namespace}.suites.development.containerization.enable {
     #   "editor.defaultFormatter" = "ms-azuretools.vscode-docker";
     # };
     # "[gitconfig]" = {
@@ -202,7 +207,7 @@ let
     # };
 
     # AI
-    "continue.telemetryEnabled" = mkIf config.${namespace}.suites.development.aiEnable false;
+    "continue.telemetryEnabled" = lib.mkIf config.${namespace}.suites.development.aiEnable false;
   };
   commonKeyBindings = [
     {
@@ -218,27 +223,29 @@ let
   ];
   profiles = {
     default = {
-      extensions = commonExtensions;
+      extensions = pkgs.nix4vscode.forVscode commonExtensions;
       enableUpdateCheck = lib.mkIf cfg.declarativeConfig false;
       enableExtensionUpdateCheck = lib.mkIf cfg.declarativeConfig false;
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
     };
     C = {
-      extensions =
+      extensions = pkgs.nix4vscode.forVscode (
         commonExtensions
-        ++ pkgs.nix4vscode.forVscode [
+        ++ [
           "xaver.clang-format"
           "llvm-vs-code-extensions.vscode-clangd"
-        ];
+        ]
+      );
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Java = {
-      extensions =
+      extensions = pkgs.nix4vscode.forVscode (
         commonExtensions
-        ++ pkgs.nix4vscode.forVscode [
+        ++ [
           "vscjava.vscode-java-pack"
-        ];
+        ]
+      );
       userSettings = lib.mkIf cfg.declarativeConfig (
         commonSettings
         // {
@@ -264,9 +271,9 @@ let
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Javascript = {
-      extensions =
+      extensions = pkgs.nix4vscode.forVscode (
         commonExtensions
-        ++ pkgs.nix4vscode.forVscode [
+        ++ [
           "biomejs.biome"
           "dbaeumer.vscode-eslint"
           "ecmel.vscode-html-css"
@@ -275,7 +282,8 @@ let
           "rvest.vs-code-prettier-eslint"
           "richie5um2.vscode-sort-json"
           "bradlc.vscode-tailwindcss"
-        ];
+        ]
+      );
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings // {
         # "biome.enabled" = false;
         # "eslint.enable" = false;
@@ -289,24 +297,26 @@ let
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Python = {
-      extensions =
+      extensions = pkgs.nix4vscode.forVscode (
         commonExtensions
-        ++ pkgs.nix4vscode.forVscode [
+        ++ [
           "ms-python.python"
           "ms-toolsai.jupyter"
           "njpwerner.autodocstring"
           "charliermarsh.ruff"
-        ];
+        ]
+      );
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Rust = {
-      extensions =
+      extensions = pkgs.nix4vscode.forVscode (
         commonExtensions
-        ++ pkgs.nix4vscode.forVscode [
+        ++ [
           "rust-lang.rust-analyzer"
           "vadimcn.vscode-lldb"
-        ];
+        ]
+      );
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings // {
         rust-analyzer.check.command = "clippy";
       };
@@ -315,12 +325,12 @@ let
   };
 in
 {
-  imports = [
-    ./continue.dev.nix
-  ];
+  # imports = [
+  #   ./continue.dev.nix
+  # ];
 
   options.${namespace}.programs.graphical.editors.vscode = {
-    enable = mkEnableOption "Whether or not to enable vscode";
+    enable = lib.mkEnableOption "Whether or not to enable vscode";
     declarativeConfig = mkBoolOpt true "Whether or not to enable declarative vscode configuration";
     profiles = lib.mkOption {
       type = lib.types.listOf lib.types.str;
@@ -330,7 +340,7 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     home.file = {
       ".vscode/argv.json" = {
         text = builtins.toJSON {

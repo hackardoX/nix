@@ -105,7 +105,7 @@
       };
 
       overlays = [
-        nix4vscode.overlays.forVscode
+        nix4vscode.overlays.default
       ];
 
       homes.modules = with inputs; [
