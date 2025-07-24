@@ -9,41 +9,40 @@ let
   inherit (lib.${namespace}) mkBoolOpt;
   cfg = config.${namespace}.programs.graphical.editors.vscode;
 
-  commonExtensions =
-    [
-      "1password.op-vscode"
-      "adpyke.codesnap"
-      "arrterian.nix-env-selector"
-      "catppuccin.catppuccin-vsc-icons" # TODO: remove once https://github.com/catppuccin/nix/pull/619 merged
-      "christian-kohler.path-intellisense"
-      "esbenp.prettier-vscode"
-      "formulahendry.auto-close-tag"
-      "formulahendry.auto-rename-tag"
-      "foxundermoon.shell-format"
-      "github.vscode-github-actions"
-      "github.vscode-pull-request-github"
-      "gruntfuggly.todo-tree"
-      "ibecker.treefmt-vscode"
-      "irongeek.vscode-env"
-      "jnoortheen.nix-ide"
-      "mkhl.direnv"
-      "ms-azuretools.vscode-docker"
-      "ms-vscode-remote.remote-ssh"
-      "ms-vsliveshare.vsliveshare"
-      "redhat.vscode-xml"
-      "redhat.vscode-yaml"
-      "usernamehw.errorlens"
-      "yinfei.luahelper"
-      "yy0931.gitconfig-lsp"
-      "yzhang.markdown-all-in-one"
-    ]
-    ++ lib.optionals config.${namespace}.suites.development.containerization.enable [
-      "ms-azuretools.vscode-docker"
-      "ms-vscode-remote.remote-containers"
-    ]
-    ++ lib.optionals config.${namespace}.suites.development.aiEnable [
-      "continue.continue"
-    ];
+  commonExtensions = [
+    "1password.op-vscode"
+    "adpyke.codesnap"
+    "arrterian.nix-env-selector"
+    "catppuccin.catppuccin-vsc-icons" # TODO: remove once https://github.com/catppuccin/nix/pull/619 merged
+    "christian-kohler.path-intellisense"
+    "esbenp.prettier-vscode"
+    "formulahendry.auto-close-tag"
+    "formulahendry.auto-rename-tag"
+    "foxundermoon.shell-format"
+    "github.vscode-github-actions"
+    "github.vscode-pull-request-github"
+    "gruntfuggly.todo-tree"
+    "ibecker.treefmt-vscode"
+    "irongeek.vscode-env"
+    "jnoortheen.nix-ide"
+    "mkhl.direnv"
+    "ms-azuretools.vscode-docker"
+    "ms-vscode-remote.remote-ssh"
+    "ms-vsliveshare.vsliveshare"
+    "redhat.vscode-xml"
+    "redhat.vscode-yaml"
+    "usernamehw.errorlens"
+    "yinfei.luahelper"
+    "yy0931.gitconfig-lsp"
+    "yzhang.markdown-all-in-one"
+  ]
+  ++ lib.optionals config.${namespace}.suites.development.containerization.enable [
+    "ms-azuretools.vscode-docker"
+    "ms-vscode-remote.remote-containers"
+  ]
+  ++ lib.optionals config.${namespace}.suites.development.aiEnable [
+    "continue.continue"
+  ];
   commonSettings = {
     # Color theme
     "workbench.iconTheme" = lib.mkDefault "catppuccin-macchiato"; # TODO: remove once https://github.com/catppuccin/nix/pull/619 merged

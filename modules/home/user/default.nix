@@ -40,20 +40,19 @@ in
       ];
 
       home = {
-        file =
-          {
-            "Desktop/.keep".text = "";
-            "Documents/.keep".text = "";
-            "Downloads/.keep".text = "";
-            "Music/.keep".text = "";
-            "Pictures/.keep".text = "";
-            "Videos/.keep".text = "";
-          }
-          // lib.optionalAttrs (cfg.icon != null) {
-            ".face".source = cfg.icon;
-            ".face.icon".source = cfg.icon;
-            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-          };
+        file = {
+          "Desktop/.keep".text = "";
+          "Documents/.keep".text = "";
+          "Downloads/.keep".text = "";
+          "Music/.keep".text = "";
+          "Pictures/.keep".text = "";
+          "Videos/.keep".text = "";
+        }
+        // lib.optionalAttrs (cfg.icon != null) {
+          ".face".source = cfg.icon;
+          ".face.icon".source = cfg.icon;
+          "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
+        };
 
         homeDirectory = mkDefault cfg.home;
 

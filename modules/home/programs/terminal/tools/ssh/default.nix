@@ -50,11 +50,10 @@ in
       matchBlocks = cfg.hosts;
       hashKnownHosts = true;
 
-      extraConfig =
-        ''
-          StreamLocalBindUnlink yes
-        ''
-        + lib.optionalString (cfg.extraConfig != "") cfg.extraConfig;
+      extraConfig = ''
+        StreamLocalBindUnlink yes
+      ''
+      + lib.optionalString (cfg.extraConfig != "") cfg.extraConfig;
     };
 
     home = {

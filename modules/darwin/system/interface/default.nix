@@ -87,51 +87,50 @@ in
         wvous-bl-corner = 14;
         wvous-br-corner = 4;
 
-        persistent-apps =
-          [
-            "/Applications/Safari.app"
-            {
-              spacer = {
-                small = true;
-              };
-            }
-            "/System/Applications/Mail.app"
-            "/System/Applications/Calendar.app"
-            "/System/Applications/Reminders.app"
-            "/System/Applications/Messages.app"
-            {
-              spacer = {
-                small = true;
-              };
-            }
-          ]
-          ++
-            lib.optionals (config.${namespace}.tools.homebrew.enable && config.${namespace}.suites.music.enable)
-              [
-                "${config.programs.spicetify.spicedSpotify}/Applications/Spotify.app"
-                {
-                  spacer = {
-                    small = true;
-                  };
-                }
-              ]
-          ++ lib.optionals hmCfg.${namespace}.suites.development.enable [
-            "${pkgs.vscode}/Applications/Visual Studio Code.app"
-            "/System/Volumes/Data/Applications/Warp.app"
-            {
-              spacer = {
-                small = true;
-              };
-            }
-          ]
-          ++ [
-            "/System/Applications/System Settings.app"
-            {
-              spacer = {
-                small = true;
-              };
-            }
-          ];
+        persistent-apps = [
+          "/Applications/Safari.app"
+          {
+            spacer = {
+              small = true;
+            };
+          }
+          "/System/Applications/Mail.app"
+          "/System/Applications/Calendar.app"
+          "/System/Applications/Reminders.app"
+          "/System/Applications/Messages.app"
+          {
+            spacer = {
+              small = true;
+            };
+          }
+        ]
+        ++
+          lib.optionals (config.${namespace}.tools.homebrew.enable && config.${namespace}.suites.music.enable)
+            [
+              "${config.programs.spicetify.spicedSpotify}/Applications/Spotify.app"
+              {
+                spacer = {
+                  small = true;
+                };
+              }
+            ]
+        ++ lib.optionals hmCfg.${namespace}.suites.development.enable [
+          "${pkgs.vscode}/Applications/Visual Studio Code.app"
+          "/System/Volumes/Data/Applications/Warp.app"
+          {
+            spacer = {
+              small = true;
+            };
+          }
+        ]
+        ++ [
+          "/System/Applications/System Settings.app"
+          {
+            spacer = {
+              small = true;
+            };
+          }
+        ];
       };
 
       NSGlobalDomain = {

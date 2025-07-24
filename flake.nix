@@ -38,9 +38,6 @@
       url = "github:andrea11/homebrew-formulas";
       flake = false;
     };
-    # mac-app-util = {
-    #   url = "github:hraban/mac-app-util";
-    # };
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
     };
