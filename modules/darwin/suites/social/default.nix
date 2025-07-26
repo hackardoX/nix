@@ -14,5 +14,9 @@ in
     inherit lib namespace;
   };
 
-  config = mkIf cfg.enable { };
+  config = mkIf cfg.enable {
+    homebrew.casks = [
+      "whatsapp"
+    ];
+  };
 }

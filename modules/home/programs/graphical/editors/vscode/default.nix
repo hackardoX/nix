@@ -9,44 +9,48 @@ let
   inherit (lib.${namespace}) mkBoolOpt;
   cfg = config.${namespace}.programs.graphical.editors.vscode;
 
-  commonExtensions = [
-    "1password.op-vscode"
-    "adpyke.codesnap"
-    "arrterian.nix-env-selector"
-    "catppuccin.catppuccin-vsc-icons" # TODO: remove once https://github.com/catppuccin/nix/pull/619 merged
-    "christian-kohler.path-intellisense"
-    "esbenp.prettier-vscode"
-    "formulahendry.auto-close-tag"
-    "formulahendry.auto-rename-tag"
-    "foxundermoon.shell-format"
-    "github.vscode-github-actions"
-    "github.vscode-pull-request-github"
-    "gruntfuggly.todo-tree"
-    "ibecker.treefmt-vscode"
-    "irongeek.vscode-env"
-    "jnoortheen.nix-ide"
-    "mkhl.direnv"
-    "ms-azuretools.vscode-docker"
-    "ms-vscode-remote.remote-ssh"
-    "ms-vsliveshare.vsliveshare"
-    "redhat.vscode-xml"
-    "redhat.vscode-yaml"
-    "usernamehw.errorlens"
-    "yinfei.luahelper"
-    "yy0931.gitconfig-lsp"
-    "yzhang.markdown-all-in-one"
-  ]
-  ++ lib.optionals config.${namespace}.suites.development.containerization.enable [
-    "ms-azuretools.vscode-docker"
-    "ms-vscode-remote.remote-containers"
-  ]
-  ++ lib.optionals config.${namespace}.suites.development.aiEnable [
-    "continue.continue"
-  ];
+  commonExtensions =
+    pkgs.nix4vscode.forVscode [
+      "1password.op-vscode"
+      "adpyke.codesnap"
+      "arrterian.nix-env-selector"
+      "christian-kohler.path-intellisense"
+      "esbenp.prettier-vscode"
+      "formulahendry.auto-close-tag"
+      "formulahendry.auto-rename-tag"
+      "foxundermoon.shell-format"
+      "github.vscode-github-actions"
+      "github.vscode-pull-request-github"
+      "gruntfuggly.todo-tree"
+      "ibecker.treefmt-vscode"
+      "irongeek.vscode-env"
+      "jnoortheen.nix-ide"
+      "mkhl.direnv"
+      "ms-azuretools.vscode-docker"
+      "ms-vscode-remote.remote-ssh"
+      "ms-vsliveshare.vsliveshare"
+      "redhat.vscode-xml"
+      "redhat.vscode-yaml"
+      "usernamehw.errorlens"
+      "yinfei.luahelper"
+      "yy0931.gitconfig-lsp"
+      "yzhang.markdown-all-in-one"
+    ]
+    ++ lib.optionals config.${namespace}.suites.development.containerization.enable (
+      pkgs.nix4vscode.forVscode [
+        "ms-azuretools.vscode-docker"
+        "ms-vscode-remote.remote-containers"
+      ]
+    )
+    ++ lib.optionals config.${namespace}.suites.development.aiEnable (
+      pkgs.nix4vscode.forVscodePrerelease [
+        "saoudrizwan.claude-dev"
+        "continue.continue"
+        # "lee2py.aider-composer"
+      ]
+    );
   commonSettings = {
     # Color theme
-    "workbench.iconTheme" = lib.mkDefault "catppuccin-macchiato"; # TODO: remove once https://github.com/catppuccin/nix/pull/619 merged
-
     # TODO: Remove once https://github.com/catppuccin/nix/pull/442 is merged
     "window.autoDetectColorScheme" = true;
     "workbench.preferredLightColorTheme" = "Catppuccin Latte";
@@ -147,7 +151,6 @@ let
     "security.workspace.trust.enabled" = false;
     "todo-tree.filtering.includeHiddenFiles" = true;
     "typescript.updateImportsOnFileMove.enabled" = "always";
-    "vsicons.dontShowNewVersionMessage" = true;
     "window.menuBarVisibility" = "toggle";
     "window.nativeTabs" = true;
     "window.restoreWindows" = "all";
@@ -159,9 +162,6 @@ let
             ".continue/**/*.yaml"
           ];
     };
-
-    # LSP
-    "C_Cpp.intelliSenseEngine" = "disabled";
 
     # Formatters
     "treefmt.command" = "treefmt-nix";
@@ -222,29 +222,32 @@ let
   ];
   profiles = {
     default = {
-      extensions = pkgs.nix4vscode.forVscode commonExtensions;
+      extensions = commonExtensions;
       enableUpdateCheck = lib.mkIf cfg.declarativeConfig false;
       enableExtensionUpdateCheck = lib.mkIf cfg.declarativeConfig false;
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
     };
     C = {
-      extensions = pkgs.nix4vscode.forVscode (
+      extensions =
         commonExtensions
-        ++ [
+        ++ pkgs.nix4vscode.forVscode [
           "xaver.clang-format"
           "llvm-vs-code-extensions.vscode-clangd"
-        ]
+        ];
+      userSettings = lib.mkIf cfg.declarativeConfig (
+        commonSettings
+        // {
+          "C_Cpp.intelliSenseEngine" = "disabled";
+        }
       );
-      userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Java = {
-      extensions = pkgs.nix4vscode.forVscode (
+      extensions =
         commonExtensions
-        ++ [
+        ++ pkgs.nix4vscode.forVscode [
           "vscjava.vscode-java-pack"
-        ]
-      );
+        ];
       userSettings = lib.mkIf cfg.declarativeConfig (
         commonSettings
         // {
@@ -270,9 +273,9 @@ let
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Javascript = {
-      extensions = pkgs.nix4vscode.forVscode (
+      extensions =
         commonExtensions
-        ++ [
+        ++ pkgs.nix4vscode.forVscode [
           "biomejs.biome"
           "dbaeumer.vscode-eslint"
           "ecmel.vscode-html-css"
@@ -281,8 +284,7 @@ let
           "rvest.vs-code-prettier-eslint"
           "richie5um2.vscode-sort-json"
           "bradlc.vscode-tailwindcss"
-        ]
-      );
+        ];
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings // {
         # "biome.enabled" = false;
         # "eslint.enable" = false;
@@ -296,26 +298,24 @@ let
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Python = {
-      extensions = pkgs.nix4vscode.forVscode (
+      extensions =
         commonExtensions
-        ++ [
+        ++ pkgs.nix4vscode.forVscode [
           "ms-python.python"
           "ms-toolsai.jupyter"
           "njpwerner.autodocstring"
           "charliermarsh.ruff"
-        ]
-      );
+        ];
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings;
       keybindings = lib.mkIf cfg.declarativeConfig commonKeyBindings;
     };
     Rust = {
-      extensions = pkgs.nix4vscode.forVscode (
+      extensions =
         commonExtensions
-        ++ [
+        ++ pkgs.nix4vscode.forVscode [
           "rust-lang.rust-analyzer"
           "vadimcn.vscode-lldb"
-        ]
-      );
+        ];
       userSettings = lib.mkIf cfg.declarativeConfig commonSettings // {
         rust-analyzer.check.command = "clippy";
       };
@@ -324,9 +324,9 @@ let
   };
 in
 {
-  # imports = [
-  #   ./continue.dev.nix
-  # ];
+  imports = [
+    ./continue.dev.nix
+  ];
 
   options.${namespace}.programs.graphical.editors.vscode = {
     enable = lib.mkEnableOption "Whether or not to enable vscode";

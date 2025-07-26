@@ -67,7 +67,6 @@ in
       git-lfs
       # gitflow
       gitleaks
-      gitlint
     ];
 
     programs = {

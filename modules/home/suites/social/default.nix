@@ -2,7 +2,6 @@
   config,
   lib,
   namespace,
-  pkgs,
   ...
 }:
 let
@@ -15,9 +14,5 @@ in
     inherit lib namespace;
   };
 
-  config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      whatsapp-for-mac
-    ];
-  };
+  config = mkIf cfg.enable { };
 }
