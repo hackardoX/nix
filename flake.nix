@@ -115,7 +115,6 @@
 
       systems.modules = {
         darwin = with inputs; [
-          # mac-app-util.darwinModules.default
           nix-homebrew.darwinModules.nix-homebrew
           (
             {

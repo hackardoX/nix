@@ -45,9 +45,9 @@ let
     ++ lib.optionals config.${namespace}.suites.development.aiEnable (
       pkgs.nix4vscode.forVscodePrerelease [
         "saoudrizwan.claude-dev"
-        "continue.continue"
+        "continue.continue.1.1.54"
         # "lee2py.aider-composer"
-      ]
+      ] # ++ [ pkgs.vscode-extensions.continue.continue ]
     );
   commonSettings = {
     # Color theme
@@ -325,7 +325,7 @@ let
 in
 {
   imports = [
-    ./continue.dev.nix
+    ./continue
   ];
 
   options.${namespace}.programs.graphical.editors.vscode = {

@@ -1,0 +1,74 @@
+name: Continue Assistant
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
+  - provider: currentFile
+docs:
+  - name: Next.js
+    startUrl: https://nextjs.org/docs
+  - name: React
+    startUrl: https://react.dev/
+  - name: Zod
+    startUrl: https://zod.dev/
+  - name: Prisma
+    startUrl: https://www.prisma.io/docs/
+  - name: Tailwind CSS
+    startUrl: https://tailwindcss.com/docs
+  - name: React Hook Form
+    startUrl: https://react-hook-form.com/docs
+  - name: Shadcn UI
+    startUrl: https://ui.shadcn.com/docs
+models:
+  - name: Codestral
+    provider: mistral
+    model: codestral-latest
+    apiBase: https://codestral.mistral.ai/v1
+    apiKey: __CODESTRAL_API_KEY__
+    roles:
+      - chat
+      - edit
+      - apply
+      - autocomplete
+  - name: Kimi K2
+    provider: anthropic
+    model: kimi-latest
+    apiKey: __KIMI_API_KEY__
+    apiBase: https://api.moonshot.ai/anthropic/v1
+    capabilities:
+      - tool_use
+      - image_input
+    defaultCompletionOptions:
+      contextLength: 120000
+    roles:
+      - chat
+      - edit
+      - apply
+  - name: Cohere Reranker
+    provider: cohere
+    model: rerank-english-v3.0
+    apiKey: __COHERE_API_KEY__
+    roles:
+      - rerank
+rules:
+  - globs:
+      - '**/*.tsx'
+      - '**/*.ts'
+    name: Next.js Rules
+    rule: |
+      Follow Next.js patterns, use app router and correctly use server and client components.
+      - Use Tailwind v4 CSS for styling. Always sort classes following the Tailwind CSS class order.
+      - Use React Hook Form for form handling.
+      - Use Zod for validation.
+      - Use React Context for state management.
+      - Use Prisma for database access.
+      - Follow AirBnB style guide for code formatting.
+      - Use PascalCase when creating new React files. UserCard, not user-card.
+      - Use named exports when creating new react components.
+      - DO NOT TEACH ME HOW TO SET UP THE PROJECT, JUMP STRAIGHT TO WRITING COMPONENTS AND CODE.
+schema: v1
+version: 1.0.0
