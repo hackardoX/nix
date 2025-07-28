@@ -44,10 +44,10 @@ let
     )
     ++ lib.optionals config.${namespace}.suites.development.aiEnable (
       pkgs.nix4vscode.forVscodePrerelease [
-        "saoudrizwan.claude-dev"
+        # "saoudrizwan.claude-dev"
         "continue.continue.1.1.54"
         # "lee2py.aider-composer"
-      ] # ++ [ pkgs.vscode-extensions.continue.continue ]
+      ]
     );
   commonSettings = {
     # Color theme
