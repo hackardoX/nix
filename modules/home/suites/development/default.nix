@@ -3,6 +3,7 @@
   lib,
   pkgs,
   namespace,
+  osConfig,
   ...
 }:
 let
@@ -12,6 +13,23 @@ let
   inherit (lib.${namespace}) enabled disabled;
 
   cfg = config.${namespace}.suites.development;
+
+  tokenExports =
+    lib.optionalString (config.${namespace}.security.opnix.enable or false) # Bash
+      ''
+        if [ -f "${config.programs.onepassword-secrets.secretPaths.geminiApiKey}" ]; then
+          GEMINI_API_KEY="$(cat ${config.programs.onepassword-secrets.secretPaths.geminiApiKey})"
+          export GEMINI_API_KEY
+        fi
+      ''
+    +
+      lib.optionalString (osConfig.${namespace}.security.sops.enable or false) # Bash
+        ''
+          if [ -f ${config.sops.secrets.GEMINI_API_KEY.path} ]; then
+            GEMINI_API_KEY="$(cat ${config.sops.secrets.GEMINI_API_KEY}.path)"
+            export GEMINI_API_KEY
+            fi
+        '';
 in
 {
   options =
@@ -84,7 +102,9 @@ in
     };
 
     programs = {
-      # zsh.initContent = tokenExports;
+      bash.initExtra = tokenExports;
+      fish.shellInit = tokenExports;
+      zsh.initContent = tokenExports;
     };
 
     ${namespace} = {
@@ -139,24 +159,24 @@ in
             hcloud
           ];
         };
+
+        opnix.secrets = {
+          geminiApiKey = {
+            path = "secrets/.geminiApiKey";
+            reference = "op://Development/Google Gemini API/credential";
+            group = "staff";
+          };
+        };
       };
 
       services.ollama.enable = cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin;
     };
 
-    # sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
-    #   ANTHROPIC_API_KEY = {
-    #     sopsFile = lib.snowfall.fs.get-file "secrets/CORE/default.yaml";
-    #     path = "${config.home.homeDirectory}/.ANTHROPIC_API_KEY";
-    #   };
-    #   AZURE_OPENAI_API_KEY = {
-    #     sopsFile = lib.snowfall.fs.get-file "secrets/CORE/default.yaml";
-    #     path = "${config.home.homeDirectory}/.AZURE_OPENAI_API_KEY";
-    #   };
-    #   OPENAI_API_KEY = {
-    #     sopsFile = lib.snowfall.fs.get-file "secrets/CORE/default.yaml";
-    #     path = "${config.home.homeDirectory}/.OPENAI_API_KEY";
-    #   };
-    # };
+    sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
+      geminiApiKey = {
+        sopsFile = lib.snowfall.fs.get-file "secrets/aaccardo.yaml";
+        path = "${config.home.homeDirectory}/secrets/.geminiApiKey";
+      };
+    };
   };
 }

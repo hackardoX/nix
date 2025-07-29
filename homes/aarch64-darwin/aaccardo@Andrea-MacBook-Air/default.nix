@@ -48,21 +48,6 @@ in
             reference = "op://Development/Andrea-MacBook-Air/private key";
             group = "staff";
           };
-          codestralApiKey = {
-            path = ".continue/secrets/codestral_api_key";
-            reference = "op://Development/woe3hj5uqm3cog2efpl33h65e4/credential";
-            group = "staff";
-          };
-          cohereApiKey = {
-            path = ".continue/secrets/cohere_api_key";
-            reference = "op://Development/n7nfmu52z4cor4zsrkdpupxgb4/credential";
-            group = "staff";
-          };
-          kimiApiKey = {
-            path = ".continue/secrets/kimi_api_key";
-            reference = "op://Development/3z6ja6n6ghzt6s7rwnwphutktm/credential";
-            group = "staff";
-          };
         };
       };
     };

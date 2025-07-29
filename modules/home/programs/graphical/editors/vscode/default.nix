@@ -8,6 +8,7 @@
 let
   inherit (lib.${namespace}) mkBoolOpt;
   cfg = config.${namespace}.programs.graphical.editors.vscode;
+  aiEnabled = config.${namespace}.suites.development.aiEnable;
 
   commonExtensions =
     pkgs.nix4vscode.forVscode [
@@ -42,7 +43,7 @@ let
         "ms-vscode-remote.remote-containers"
       ]
     )
-    ++ lib.optionals config.${namespace}.suites.development.aiEnable (
+    ++ lib.optionals aiEnabled (
       pkgs.nix4vscode.forVscodePrerelease [
         # "saoudrizwan.claude-dev"
         "continue.continue.1.1.54"
@@ -157,7 +158,7 @@ let
     "window.titleBarStyle" = "custom";
     "yaml.schemas" = {
       "${config.home.homeDirectory}/.vscode/extensions/continue.continue/config-yaml-schema.json" =
-        lib.mkIf config.${namespace}.suites.development.aiEnable
+        lib.mkIf aiEnabled
           [
             ".continue/**/*.yaml"
           ];
@@ -206,7 +207,7 @@ let
     # };
 
     # AI
-    "continue.telemetryEnabled" = lib.mkIf config.${namespace}.suites.development.aiEnable false;
+    "continue.telemetryEnabled" = lib.mkIf aiEnabled false;
   };
   commonKeyBindings = [
     {
@@ -324,10 +325,6 @@ let
   };
 in
 {
-  imports = [
-    ./continue
-  ];
-
   options.${namespace}.programs.graphical.editors.vscode = {
     enable = lib.mkEnableOption "Whether or not to enable vscode";
     declarativeConfig = mkBoolOpt true "Whether or not to enable declarative vscode configuration";
