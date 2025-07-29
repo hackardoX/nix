@@ -21,15 +21,25 @@ let
   ignores = import ./ignores.nix;
 
   tokenExports =
-    lib.optionalString osConfig.${namespace}.security.sops.enable # Bash
+    lib.optionalString (config.${namespace}.security.opnix.enable or false) # Bash
       ''
-        if [ -f ${config.sops.secrets."github/access-token".path} ]; then
-          GITHUB_TOKEN="$(cat ${config.sops.secrets."github/access-token".path})"
+        if [ -f "${config.programs.onepassword-secrets.secretPaths.githubAccessToken}" ]; then
+          GITHUB_TOKEN="$(cat ${config.programs.onepassword-secrets.secretPaths.githubAccessToken})"
+          GH_TOKEN="$(cat ${config.programs.onepassword-secrets.secretPaths.githubAccessToken})"
           export GITHUB_TOKEN
-          GH_TOKEN="$(cat ${config.sops.secrets."github/access-token".path})"
           export GH_TOKEN
         fi
-      '';
+      ''
+    +
+      lib.optionalString osConfig.${namespace}.security.sops.enable # Bash
+        ''
+          if [ -f ${config.sops.secrets.githubAccessToken.path} ]; then
+            GITHUB_TOKEN="$(cat ${config.sops.secrets.githubAccessToken.path})"
+            export GITHUB_TOKEN
+            GH_TOKEN="$(cat ${config.sops.secrets.githubAccessToken.path})"
+            export GH_TOKEN
+          fi
+        '';
 in
 {
   imports = [
@@ -165,9 +175,35 @@ in
       zsh.initContent = tokenExports;
     };
 
+    ${namespace}.security.opnix.secrets = {
+      githubAuthorisation = {
+        path = ".ssh/github_authorisation.pub";
+        reference = "op://Development/Github Authorisation/public key";
+        group = "staff";
+      };
+      gitSignature = {
+        path = ".ssh/git_signature.pub";
+        reference = "op://Development/Git Signature/public key";
+        group = "staff";
+      };
+      githubAccessToken = {
+        path = ".config/gh/access-token";
+        reference = "op://Private/GitHub Personal Access Token/token";
+        group = "staff";
+      };
+    };
+
     sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
-      "github/access-token" = {
-        sopsFile = lib.snowfall.fs.get-file "secrets/${user}/default.yaml";
+      githubAuthorisation = {
+        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
+        path = "${config.home.homeDirectory}/.ssh/github_authorisation.pub";
+      };
+      gitSignature = {
+        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
+        path = "${config.home.homeDirectory}/.ssh/git_signature.pub";
+      };
+      githubAccessToken = {
+        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
         path = "${config.home.homeDirectory}/.config/gh/access-token";
       };
     };

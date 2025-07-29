@@ -11,6 +11,7 @@ let
     mkIf
     ;
   inherit (lib.${namespace}) enabled disabled;
+  inherit (config.${namespace}) user;
 
   cfg = config.${namespace}.suites.development;
 
@@ -174,7 +175,7 @@ in
 
     sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
       geminiApiKey = {
-        sopsFile = lib.snowfall.fs.get-file "secrets/aaccardo.yaml";
+        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
         path = "${config.home.homeDirectory}/secrets/.geminiApiKey";
       };
     };

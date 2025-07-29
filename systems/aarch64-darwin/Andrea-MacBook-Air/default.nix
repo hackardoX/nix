@@ -23,11 +23,36 @@ in
 
     security = {
       sudo = enabled;
-      # sops = {
-      #   enable = false;
-      #   sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-      #   defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
-      # };
+      sops = {
+        enable = false;
+        sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+        defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
+      };
+    };
+
+  };
+
+  services.onepassword-secrets = {
+    enable = true;
+    tokenFile = "/etc/opnix-token";
+    secrets = {
+      databasePassword = {
+        reference = "op://Homelab/Database/password";
+        owner = "postgres";
+        services = [ "postgresql" ];
+      };
+      andreaMacBookAirPublicKey = {
+        path = "/etc/ssh/Andrea-MacBook-Air.pub";
+        reference = "op://Development/Andrea-MacBook-Air/public key";
+        owner = cfg.name;
+        group = "staff";
+      };
+      andreaMacBookAirPrivateKey = {
+        path = "/etc/ssh/Andrea-MacBook-Air";
+        reference = "op://Development/Andrea-MacBook-Air/private key";
+        owner = cfg.name;
+        group = "staff";
+      };
     };
   };
 

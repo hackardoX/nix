@@ -136,6 +136,7 @@
               };
             }
           )
+          opnix.darwinModules.default
           sops-nix.darwinModules.sops
           spicetify-nix.darwinModules.spicetify
         ];
