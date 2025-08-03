@@ -11,12 +11,14 @@ let
 in
 lib.mkIf aiEnabled {
   home = {
-    file = {
-      ".continue/config.yaml".source = ./config.yaml;
-    };
-
     activation.generateContinueConfig = lib.mkIf (config.${namespace}.security.opnix.enable or false) (
       home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        mkdir -p "$HOME/.continue"
+        # Copy the template so it's a normal mutable file, not a symlink to the store
+        cp ${./config.yaml} "$HOME/.continue/config.yaml"
+        chmod u+w "$HOME/.continue/config.yaml"
+
+        # Substitute secrets
         sed -i \
           -e "s|__CODESTRAL_API_KEY__|$(<${config.programs.onepassword-secrets.secretPaths.codestralApiKey})|" \
           -e "s|__KIMI_API_KEY__|$(<${config.programs.onepassword-secrets.secretPaths.kimiApiKey})|" \

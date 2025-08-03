@@ -115,6 +115,8 @@ in
             enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
             rosetta = config.${namespace}.suites.common.rosetta.enable;
             aliasDocker = true;
+            autoStart = true;
+            machine = enabled;
           };
           docker = {
             enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;

@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) mkIf optionals;
+  inherit (lib) mkIf;
   inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.suites.development;
@@ -19,11 +19,7 @@ in
 
   config = mkIf cfg.enable {
     homebrew = {
-      casks =
-        optionals (cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants) [
-          "docker"
-        ]
-        ++ optionals cfg.aiEnable [ "ollamac" ];
+      casks = lib.optionals cfg.aiEnable [ "ollamac" ];
 
       masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
         # "Xcode" = 497799835;
@@ -33,10 +29,8 @@ in
     ${namespace} = {
       programs = {
         containerization = {
-          podman = {
-            enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
-            overrideDockerSocket = true;
-            autoStart = true;
+          orbstack = {
+            enable = cfg.containerization.enable && builtins.elem "orbstack" cfg.containerization.variants;
           };
         };
 

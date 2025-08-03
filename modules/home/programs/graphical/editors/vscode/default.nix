@@ -277,6 +277,7 @@ let
       extensions =
         commonExtensions
         ++ pkgs.nix4vscode.forVscode [
+          "antfu.iconify"
           "biomejs.biome"
           "dbaeumer.vscode-eslint"
           "ecmel.vscode-html-css"
@@ -314,6 +315,7 @@ let
       extensions =
         commonExtensions
         ++ pkgs.nix4vscode.forVscode [
+          "tamasfe.even-better-toml"
           "rust-lang.rust-analyzer"
           "vadimcn.vscode-lldb"
         ];

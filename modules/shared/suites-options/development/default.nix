@@ -17,6 +17,7 @@ in
           types.enum [
             "podman"
             "docker"
+            "orbstack"
           ]
         );
         default = [ ];

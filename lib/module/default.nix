@@ -7,7 +7,7 @@ rec {
     type: default: description:
     mkOption { inherit type default description; };
 
-  mkOpt' = type: default: mkOpt (types.nullOr type) default null;
+  mkOpt' = type: description: mkOpt (types.nullOr type) null description;
 
   mkBoolOpt = mkOpt types.bool;
 
@@ -39,4 +39,8 @@ rec {
   nested-default-attrs = mapAttrs (_key: default-attrs);
 
   nested-force-attrs = mapAttrs (_key: force-attrs);
+
+  mkOptFlag = n: v: "--${n} ${lib.escapeShellArg (toString v)}";
+
+  mkOptList = n: vs: lib.concatStringsSep " " (map (v: "--${n} ${lib.escapeShellArg v}") vs);
 }

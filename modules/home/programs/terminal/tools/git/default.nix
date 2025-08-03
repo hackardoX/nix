@@ -188,7 +188,7 @@ in
       };
       githubAccessToken = {
         path = ".config/gh/access-token";
-        reference = "op://Private/GitHub Personal Access Token/token";
+        reference = "op://Development/GitHub Personal Access Token/token";
         group = "staff";
       };
     };

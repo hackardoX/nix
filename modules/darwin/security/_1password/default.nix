@@ -38,15 +38,15 @@ in
       home.extraOptions = {
         programs = mkIf cfg.openv {
           zsh.initContent = lib.mkAfter ''
-            eval "$(openv hook zsh)"
+            eval "$(/opt/homebrew/bin/openv hook zsh)"
           '';
 
           bash.initExtra = lib.mkAfter ''
-            eval "$(openv hook bash)"
+            eval "$(/opt/homebrew/bin/openv hook bash)"
           '';
 
           fish.interactiveShellInit = lib.mkAfter ''
-            openv hook fish | source
+            /opt/homebrew/bin/openv hook fish | source
           '';
         };
       };

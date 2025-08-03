@@ -7,17 +7,25 @@
       enable = true;
       settings = {
         formatter.formatWithErrors = true;
+        assist = {
+          actions.source.useSortedAttributes = "on";
+        };
         css = {
           formatter.enabled = true;
           parser.cssModules = true;
-          linter.enabled = true;
+        };
+        linter = {
+          rules.nursery.useSortedClasses = {
+            level = "error";
+            fix = "safe";
+            options = { };
+          };
         };
       };
     };
     clang-format.enable = true;
-    deadnix = {
-      enable = true;
-    };
+    deadnix.enable = true;
+    dockfmt.enable = true;
     fantomas.enable = true;
     gofmt.enable = true;
     isort.enable = true;

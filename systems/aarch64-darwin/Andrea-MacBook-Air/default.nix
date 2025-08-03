@@ -35,12 +35,8 @@ in
   services.onepassword-secrets = {
     enable = true;
     tokenFile = "/etc/opnix-token";
+    users = [ cfg.name ];
     secrets = {
-      databasePassword = {
-        reference = "op://Homelab/Database/password";
-        owner = "postgres";
-        services = [ "postgresql" ];
-      };
       andreaMacBookAirPublicKey = {
         path = "/etc/ssh/Andrea-MacBook-Air.pub";
         reference = "op://Development/Andrea-MacBook-Air/public key";
