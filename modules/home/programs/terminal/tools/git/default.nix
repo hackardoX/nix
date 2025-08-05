@@ -82,7 +82,7 @@ in
     programs = {
       git = {
         enable = true;
-        package = pkgs.gitFull;
+        package = pkgs.git;
 
         inherit (cfg) includes userName userEmail;
         inherit (ignores) ignores;

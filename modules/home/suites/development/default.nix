@@ -160,6 +160,7 @@ in
           plugins = with pkgs; [
             gh
             hcloud
+            stripe-cli
           ];
         };
 
