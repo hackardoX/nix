@@ -32,6 +32,10 @@ in
           orbstack = {
             enable = cfg.containerization.enable && builtins.elem "orbstack" cfg.containerization.variants;
           };
+          podman = {
+            enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
+            provider = "applehv";
+          };
         };
 
         terminal = {

@@ -114,9 +114,11 @@ in
           podman = {
             enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;
             rosetta = config.${namespace}.suites.common.rosetta.enable;
-            aliasDocker = true;
             autoStart = true;
-            machine = enabled;
+            provider = "applehv";
+            machine = {
+              enable = true;
+            };
           };
           docker = {
             enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;
@@ -173,7 +175,7 @@ in
         };
       };
 
-      services.ollama.enable = cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin;
+      services.ollama.enable = false; # TODO: Temporary disable because pkgs is marked as broken cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin;
     };
 
     sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {

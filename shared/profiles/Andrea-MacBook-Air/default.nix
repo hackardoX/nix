@@ -8,11 +8,11 @@ let
   inherit (lib.${namespace}) disabled enabled;
   user = config.${namespace}.user.name; # "aaccardo";
   hosts = {
-    "oracle_cloud_a1-flex.4ocpu.24gb" = {
+    "hetzner_cloud_debian.8gb.hel1.1" = {
       forwardAgent = true;
-      hostname = "89.168.42.226";
+      hostname = "46.62.149.89";
       identitiesOnly = true;
-      user = "ubuntu";
+      user = "aaccardo";
     };
     "github_authorisation" = {
       forwardAgent = false;
@@ -53,7 +53,10 @@ in
       aiEnable = true;
       containerization = {
         enable = true;
-        variants = [ "podman" ];
+        variants = [
+          "podman"
+          "docker"
+        ];
       };
       nixEnable = true;
       sqlEnable = true;

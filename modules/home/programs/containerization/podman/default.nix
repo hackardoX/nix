@@ -22,7 +22,7 @@ let
   inherit (inputs) home-manager;
   cfg = config.${namespace}.programs.containerization.podman;
 
-  podmanSymLinkSocketPath = "/tmp/podman.sock";
+  podmanSymLinkSocketPath = "${config.home.homeDirectory}/.local/share/containers/podman/machine/podman.sock";
 
   mkInitFlags =
     settings:
@@ -31,22 +31,14 @@ let
         (lib.optional (settings.cpus != null) (mkOptFlag "cpus" settings.cpus))
         (lib.optional (settings.diskSize != null) (mkOptFlag "disk-size" "${settings.diskSize}"))
         (lib.optional (settings.memory != null) (mkOptFlag "memory" "${settings.memory}"))
-        (lib.optional (settings.imagePath != "") (mkOptFlag "image-path" settings.imagePath))
+        (lib.optional (settings.volume != [ ]) (mkOptList "volume" settings.volume))
+        (lib.optional (settings.imagePath != "") (mkOptFlag "image" settings.imagePath))
         (lib.optional (settings.ignitionPath != "") (mkOptFlag "ignition-path" settings.ignitionPath))
         (lib.optional settings.now "--now")
-        (lib.optional settings.rootful "--rootful")
         (lib.optional (settings.timezone != "") (mkOptFlag "timezone" settings.timezone))
+        (lib.optional settings.rootful "--rootful")
         (lib.optional (settings.username != "") (mkOptFlag "username" settings.username))
-        (lib.optional (settings.volumeDriver != "") (mkOptFlag "volume-driver" settings.volumeDriver))
-        (lib.optional (settings.provider != "") (mkOptFlag "provider" settings.provider))
-        (lib.optional (settings.imageVolume != "") (mkOptFlag "image-volume" settings.imageVolume))
-        (lib.optional (settings.keymap != "") (mkOptFlag "keymap" settings.keymap))
         (lib.optional (!settings.userModeNetworking) "--no-user-mode-networking")
-        (lib.optional (settings.volume != [ ]) (mkOptList "volume" settings.volume))
-        (lib.optional (settings.uidmap != [ ]) (mkOptList "uidmap" settings.uidmap))
-        (lib.optional (settings.gidmap != [ ]) (mkOptList "gidmap" settings.gidmap))
-        (lib.optional (settings.dns != [ ]) (mkOptList "dns" settings.dns))
-        (lib.optional (settings.publish != [ ]) (mkOptList "publish" settings.publish))
       ]
     );
   settingsHash = builtins.hashString "sha256" (builtins.toJSON cfg.machine.settings);
@@ -57,6 +49,11 @@ in
     rosetta = mkBoolOpt false "Whether or not to use rosetta.";
     aliasDocker = mkBoolOpt false "Whether or not to alias docker to podman.";
     autoStart = mkBoolOpt false "Whether or not to start podman machine on boot.";
+    provider = mkOpt (types.enum [
+      "qemu"
+      "applehv"
+      "libkrun"
+    ]) "" "Provider to use.";
     machine = mkOpt (types.submodule {
       options = {
         enable = mkEnableOption "podman-machine";
@@ -70,18 +67,10 @@ in
             imagePath = mkOpt types.str "" "Path to the OS image to use.";
             ignitionPath = mkOpt types.str "" "Path to a custom Ignition file.";
             now = mkBoolOpt cfg.autoStart "Start the VM immediately after init.";
-            rootful = mkBoolOpt false "Enable rootful mode.";
             timezone = mkOpt types.str "" "Set the VM timezone.";
+            rootful = mkBoolOpt false "Enable rootful mode.";
             username = mkOpt types.str "" "Username inside the VM (default core).";
-            uidmap = mkOpt (types.listOf types.str) [ ] "UID mapping in the VM.";
-            gidmap = mkOpt (types.listOf types.str) [ ] "GID mapping in the VM.";
-            volumeDriver = mkOpt types.str "" "Driver for volume mounting (virtiofs, 9p, etc).";
-            provider = mkOpt types.str "" "Provider to use (qemu or applehv).";
-            imageVolume = mkOpt types.str "" "Volume name for storing the VM image.";
             userModeNetworking = mkBoolOpt true "Enable user-mode networking (default true).";
-            dns = mkOpt (types.listOf types.str) [ ] "Custom DNS servers for the VM.";
-            publish = mkOpt (types.listOf types.str) [ ] "Publish VM ports to the host.";
-            keymap = mkOpt types.str "" "Set the VM keyboard layout.";
           };
         }) { } "Podman machine settings";
       };
@@ -96,7 +85,7 @@ in
         ".config/containers/containers.conf".text = ''
           [machine]
             rosetta=${lib.boolToString cfg.rosetta}
-            provider = "${cfg.machine.settings.provider}"
+            ${lib.optionalString (cfg.provider != "") ''provider="${cfg.provider}"''}
         '';
       };
 

@@ -23,9 +23,9 @@ in
       opnix = {
         enable = true;
         secrets = {
-          oracleCloudKey = {
-            path = ".ssh/oracle_cloud_a1-flex.4ocpu.24gb.pub";
-            reference = "op://Development/Oracle Cloud a1-flex.4ocpu.24gb/public key";
+          hetznerCloudKey = {
+            path = ".ssh/hetzner_cloud_debian.8gb.hel1.1.pub";
+            reference = "op://Development/Hetzner Cloud debian-8gb-hel1-1/public key";
             group = "staff";
           };
         };

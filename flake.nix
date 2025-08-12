@@ -9,6 +9,10 @@
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    custom-homebrew-formulas = {
+      url = "github:andrea11/homebrew-formulas";
+      flake = false;
+    };
     darwin = {
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,8 +38,8 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    custom-homebrew-formulas = {
-      url = "github:andrea11/homebrew-formulas";
+    homebrew-tap-krunkit = {
+      url = "github:slp/homebrew-krun";
       flake = false;
     };
     nix-homebrew = {
@@ -130,6 +134,7 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "andrea11/homebrew-formulas" = custom-homebrew-formulas;
+                  "slp/krunkit" = homebrew-tap-krunkit;
                 };
                 mutableTaps = false;
                 autoMigrate = true;
