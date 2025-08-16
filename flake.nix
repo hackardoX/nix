@@ -134,7 +134,7 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "andrea11/homebrew-formulas" = custom-homebrew-formulas;
-                  "slp/krunkit" = homebrew-tap-krunkit;
+                  "slp/homebrew-krunkit" = homebrew-tap-krunkit;
                 };
                 mutableTaps = false;
                 autoMigrate = true;

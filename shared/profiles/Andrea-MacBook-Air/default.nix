@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib.${namespace}) disabled enabled;
+  inherit (lib.${namespace}) disabled enabled fromBase64;
   user = config.${namespace}.user.name; # "aaccardo";
   hosts = {
     "hetzner_cloud_debian.8gb.hel1.1" = {
@@ -29,6 +29,7 @@ let
       user = "aaccardo";
     };
   };
+  email = fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
 
 in
 {
@@ -62,11 +63,11 @@ in
       sqlEnable = true;
       git = {
         user = "andrea11";
-        email = "10788630+andrea11@users.noreply.github.com";
+        inherit email;
       };
       ssh = {
         allowedSigners = [
-          "10788630+andrea11@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB"
+          "${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB"
         ];
         hosts = lib.mapAttrs (name: hostConfig: {
           identityFile = "/Users/${user}/.ssh/${name}.pub";
