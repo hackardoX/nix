@@ -24,7 +24,7 @@ jobs:
     #       system = ${{ matrix.arch }}
     # - uses: cachix/cachix-action@v12
     #   with:
-    #     name: andrea11
+    #     name: hackardoX
     #     authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     # - name: clear hostedtoolcache
     #   run: rm -rf /opt/hostedtoolcache

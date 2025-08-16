@@ -10,7 +10,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     custom-homebrew-formulas = {
-      url = "github:andrea11/homebrew-formulas";
+      url = "github:hackardox/homebrew-formulas";
       flake = false;
     };
     darwin = {
@@ -133,7 +133,7 @@
                 taps = {
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
-                  "andrea11/homebrew-formulas" = custom-homebrew-formulas;
+                  "hackardox/homebrew-formulas" = custom-homebrew-formulas;
                   "slp/homebrew-krunkit" = homebrew-tap-krunkit;
                 };
                 mutableTaps = false;

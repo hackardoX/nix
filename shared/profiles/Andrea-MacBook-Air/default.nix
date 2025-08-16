@@ -62,7 +62,7 @@ in
       nixEnable = true;
       sqlEnable = true;
       git = {
-        user = "andrea11";
+        user = "hackardoX";
         inherit email;
       };
       ssh = {

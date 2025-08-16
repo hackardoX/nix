@@ -28,7 +28,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         myNix = pkgs.fetchFromGitHub {
-          owner = "andrea11";
+          owner = "hackardoX";
           repo = "nix";
           rev = "main";
           hash = "sha256-M5XFUuL8HtOiNPdF/xsrkqKTTCnVb03ok+DxWjKKrd0=";

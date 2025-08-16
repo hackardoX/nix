@@ -21,7 +21,7 @@ in
   config = mkIf cfg.enable {
     homebrew = {
       brews = mkIf cfg.openv [
-        "andrea11/homebrew-formulas/openv"
+        "hackardoX/homebrew-formulas/openv"
       ];
 
       casks = [
