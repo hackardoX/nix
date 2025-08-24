@@ -50,6 +50,7 @@ in
           # bruno-cli
           direnv
           eza
+          google-chrome
           vscode
           wget
           zip
