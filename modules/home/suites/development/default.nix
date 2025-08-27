@@ -119,10 +119,21 @@ in
             provider = "applehv";
             machine = {
               enable = true;
+              settings = {
+                diskSize = 30;
+              };
             };
           };
           docker = {
             enable = cfg.containerization.enable && builtins.elem "docker" cfg.containerization.variants;
+            contexts = [
+              {
+                name = "podman";
+                description = "Context used to connect to podman socket";
+                docker = "host=unix://${config.${namespace}.programs.containerization.podman.currentSocket}";
+                default = true;
+              }
+            ];
           };
         };
 

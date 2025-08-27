@@ -28,9 +28,9 @@ let
     settings:
     lib.concatStringsSep " " (
       lib.flatten [
-        (lib.optional (settings.cpus != null) (mkOptFlag "cpus" settings.cpus))
-        (lib.optional (settings.diskSize != null) (mkOptFlag "disk-size" "${settings.diskSize}"))
-        (lib.optional (settings.memory != null) (mkOptFlag "memory" "${settings.memory}"))
+        (lib.optional (settings.cpus != null) (mkOptFlag "cpus" "${toString settings.cpus}"))
+        (lib.optional (settings.diskSize != null) (mkOptFlag "disk-size" "${toString settings.diskSize}"))
+        (lib.optional (settings.memory != null) (mkOptFlag "memory" "${toString settings.memory}"))
         (lib.optional (settings.volume != [ ]) (mkOptList "volume" settings.volume))
         (lib.optional (settings.imagePath != "") (mkOptFlag "image" settings.imagePath))
         (lib.optional (settings.ignitionPath != "") (mkOptFlag "ignition-path" settings.ignitionPath))
@@ -47,7 +47,6 @@ in
   options.${namespace}.programs.containerization.podman = {
     enable = mkEnableOption "podman";
     rosetta = mkBoolOpt false "Whether or not to use rosetta.";
-    aliasDocker = mkBoolOpt false "Whether or not to alias docker to podman.";
     autoStart = mkBoolOpt false "Whether or not to start podman machine on boot.";
     provider = mkOpt (types.enum [
       "qemu"
@@ -75,6 +74,12 @@ in
         }) { } "Podman machine settings";
       };
     }) { } "Podman machine";
+    currentSocket = lib.mkOption {
+      type = types.str;
+      readOnly = true;
+      description = "Path to the current podman machine socket";
+      default = podmanSymLinkSocketPath;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -87,10 +92,6 @@ in
             rosetta=${lib.boolToString cfg.rosetta}
             ${lib.optionalString (cfg.provider != "") ''provider="${cfg.provider}"''}
         '';
-      };
-
-      shellAliases = lib.mkIf cfg.aliasDocker {
-        docker = "podman";
       };
 
       activation.podman-init = mkIf cfg.machine.enable (
@@ -126,6 +127,18 @@ in
           fi
 
           echo "Podman machine ${cfg.machine.name} is up-to-date."
+
+          # Always update the symlink to ensure it's current
+          echo "Updating podman socket symlink..."
+          ACTUAL_SOCKET_PATH=$(${pkgs.podman}/bin/podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' ${cfg.machine.name} 2>/dev/null || echo "")
+          if [ -n "$ACTUAL_SOCKET_PATH" ] && [ -S "$ACTUAL_SOCKET_PATH" ]; then
+            mkdir -p "$(dirname "${podmanSymLinkSocketPath}")"
+            rm -f "${podmanSymLinkSocketPath}"
+            ln -fs "$ACTUAL_SOCKET_PATH" "${podmanSymLinkSocketPath}"
+            echo "Symlink updated: ${podmanSymLinkSocketPath} -> $ACTUAL_SOCKET_PATH"
+          else
+            echo "Warning: Could not find valid socket path for ${cfg.machine.name}"
+          fi
         ''
       );
     };
@@ -166,20 +179,39 @@ in
                   runtimeInputs = [ pkgs.podman ];
                   text = ''
                     #!/bin/sh
-                    PODMAN_SOCKET_PATH=$(${pkgs.podman}/bin/podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')
-                    if [ -z "$PODMAN_SOCKET_PATH" ]; then
-                      echo "Podman socket path not found"
-                      exit 1
-                    fi
-                    if [ ! -e "${podmanSymLinkSocketPath}" ] && ln -fs "$PODMAN_SOCKET_PATH" "${podmanSymLinkSocketPath}"; then
-                      echo "Symlink created: ${podmanSymLinkSocketPath} -> $PODMAN_SOCKET_PATH"
-                    fi
+                    echo "Starting podman socket symlink service..."
+
+                    # Function to update symlink
+                    update_symlink() {
+                      PODMAN_SOCKET_PATH=$(${pkgs.podman}/bin/podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' ${cfg.machine.name} 2>/dev/null || echo "")
+                      if [ -n "$PODMAN_SOCKET_PATH" ] && [ -S "$PODMAN_SOCKET_PATH" ]; then
+                        mkdir -p "$(dirname "${podmanSymLinkSocketPath}")"
+                        if [ ! -L "${podmanSymLinkSocketPath}" ] || [ "$(readlink "${podmanSymLinkSocketPath}")" != "$PODMAN_SOCKET_PATH" ]; then
+                          rm -f "${podmanSymLinkSocketPath}"
+                          ln -fs "$PODMAN_SOCKET_PATH" "${podmanSymLinkSocketPath}"
+                          echo "Symlink updated: ${podmanSymLinkSocketPath} -> $PODMAN_SOCKET_PATH"
+                        fi
+                        return 0
+                      else
+                        echo "Podman socket not found or not accessible"
+                        return 1
+                      fi
+                    }
+
+                    # Initial update
+                    update_symlink
+
+                    # Keep monitoring and updating (runs every 30 seconds)
+                    while true; do
+                      sleep 30
+                      update_symlink || echo "Failed to update symlink, will retry..."
+                    done
                   '';
                 }
               }/bin/${podmanLinkName}"
             ];
             RunAtLoad = true;
-            KeepAlive = false;
+            KeepAlive = true; # Changed to true to keep it running
             StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/podman/${podmanLinkName}.err.log";
             StandardOutPath = "${config.home.homeDirectory}/Library/Logs/podman/${podmanLinkName}.out.log";
           };
