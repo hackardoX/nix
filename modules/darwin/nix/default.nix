@@ -154,6 +154,7 @@ in
             "https://cache.nixos.org"
             "https://nix-community.cachix.org"
             "https://nixpkgs-unfree.cachix.org"
+            "https://numtide.cachix.org"
           ];
 
           trusted-public-keys = [

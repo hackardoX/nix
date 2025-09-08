@@ -40,16 +40,18 @@ in
   config = mkIf cfg.enable {
     programs.ssh = {
       enable = true;
-
-      serverAliveInterval = 60;
-      controlMaster = "auto";
-      controlPersist = "30m";
-
-      addKeysToAgent = "yes";
-      forwardAgent = true;
-      matchBlocks = cfg.hosts;
-      hashKnownHosts = true;
-
+      enableDefaultConfig = false;
+      matchBlocks = {
+        "*" = {
+          addKeysToAgent = "yes";
+          controlMaster = "auto";
+          controlPersist = "30m";
+          forwardAgent = true;
+          hashKnownHosts = true;
+          serverAliveInterval = 60;
+        };
+      }
+      // cfg.hosts;
       extraConfig = ''
         StreamLocalBindUnlink yes
       ''

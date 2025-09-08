@@ -42,6 +42,7 @@ in
         reference = "op://Development/Andrea-MacBook-Air/public key";
         owner = cfg.name;
         group = "staff";
+        mode = "0644";
       };
       andreaMacBookAirPrivateKey = {
         path = "/etc/ssh/Andrea-MacBook-Air";

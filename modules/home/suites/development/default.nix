@@ -121,6 +121,7 @@ in
               enable = true;
               settings = {
                 diskSize = 30;
+                memory = 6144;
               };
             };
           };
