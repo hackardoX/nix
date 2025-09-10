@@ -95,7 +95,7 @@ in
               maxJobs = 4;
               speedFactor = 3;
               supportedFeatures = supportedFeatures ++ [ "apple-virt" ];
-              sshKey = "/Users/${config.${namespace}.user.name}/.ssh/Andrea-MacBook-Air";
+              sshKey = config.services.onepassword-secrets.secretPaths.andreaMacBookAirPrivateKey;
             }
           ];
 

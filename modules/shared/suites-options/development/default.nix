@@ -25,8 +25,30 @@ in
         example = [ "docker" ];
       };
     };
-    nixEnable = mkEnableOption "nix development configuration";
-    sqlEnable = mkEnableOption "sql development configuration";
+    extraOpnixSecrets = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            path = mkOption {
+              type = types.str;
+              description = "Path to the secret file";
+              example = "secrets/.geminiApiKey";
+            };
+            reference = mkOption {
+              type = types.str;
+              description = "Reference to the secret in 1Password";
+              example = "op://Development/Google Gemini API/credential";
+            };
+            group = mkOption {
+              type = types.str;
+              description = "Group to which the secret belongs";
+              example = "staff";
+            };
+          };
+        }
+      );
+      default = { };
+    };
     git = {
       user = mkOption {
         type = types.str;
@@ -39,6 +61,8 @@ in
         example = "john@example.com";
       };
     };
+    nixEnable = mkEnableOption "nix development configuration";
+    sqlEnable = mkEnableOption "sql development configuration";
     ssh = {
       authorizedKeys = mkOption {
         type = types.listOf types.str;
@@ -56,10 +80,8 @@ in
       };
       knownHosts = mkOption {
         type = types.listOf types.str;
-        description = "List of SSH known hosts";
-        example = [
-          "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy..."
-        ];
+        description = "Known hosts.";
+        example = [ "example.com" ];
       };
       hosts = mkOption {
         type = types.attrsOf (

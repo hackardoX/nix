@@ -11,8 +11,6 @@ git-hooks.lib.${pkgs.system}.run {
   hooks = {
     clang-tidy.enable = true;
     commitizen.enable = true;
-    # TODO: see how enable this even if sops is disable
-    pre-commit-hook-ensure-sops.enable = false;
     treefmt = {
       enable = true;
       settings.fail-on-change = false;

@@ -3,7 +3,6 @@
   lib,
   pkgs,
   namespace,
-  osConfig,
   ...
 }:
 let
@@ -11,7 +10,6 @@ let
     mkIf
     ;
   inherit (lib.${namespace}) enabled disabled;
-  inherit (config.${namespace}) user;
 
   cfg = config.${namespace}.suites.development;
 
@@ -22,15 +20,7 @@ let
           GEMINI_API_KEY="$(cat ${config.programs.onepassword-secrets.secretPaths.geminiApiKey})"
           export GEMINI_API_KEY
         fi
-      ''
-    +
-      lib.optionalString (osConfig.${namespace}.security.sops.enable or false) # Bash
-        ''
-          if [ -f ${config.sops.secrets.GEMINI_API_KEY.path} ]; then
-            GEMINI_API_KEY="$(cat ${config.sops.secrets.GEMINI_API_KEY}.path)"
-            export GEMINI_API_KEY
-            fi
-        '';
+      '';
 in
 {
   options =
@@ -162,8 +152,7 @@ in
             # prisma.enable = cfg.sqlEnable;
             ssh = {
               enable = true;
-              inherit (cfg.ssh) allowedSigners;
-              inherit (cfg.ssh) hosts;
+              inherit (cfg.ssh) allowedSigners hosts knownHosts;
             };
           };
         };
@@ -179,7 +168,7 @@ in
           ];
         };
 
-        opnix.secrets = {
+        opnix.secrets = cfg.extraOpnixSecrets // {
           geminiApiKey = {
             path = "secrets/.geminiApiKey";
             reference = "op://Development/Google Gemini API/credential";
@@ -189,13 +178,6 @@ in
       };
 
       services.ollama.enable = false; # TODO: Temporary disable because pkgs is marked as broken cfg.aiEnable && pkgs.stdenv.hostPlatform.isDarwin;
-    };
-
-    sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
-      geminiApiKey = {
-        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
-        path = "${config.home.homeDirectory}/secrets/.geminiApiKey";
-      };
     };
   };
 }

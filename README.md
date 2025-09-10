@@ -90,8 +90,8 @@ Here's an overview of what my Nix configuration offers:
   This ensures efficient builds and reduces the need to build dependencies on
   your local machine.
 
-- **Utilize opnix or sops-nix**: Secret management with
-  [opnix](https://github.com/brizzbuzz/opnix) or [sops-nix](https://github.com/Mic92/sops-nix)
+- **Utilize opnix**: Secret management with
+  [opnix](https://github.com/brizzbuzz/opnix)
   for secure and encrypted handling of sensitive information.
 
 ## Customization

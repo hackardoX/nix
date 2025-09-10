@@ -28,17 +28,19 @@ in
             reference = "op://Development/Hetzner Cloud debian-8gb-hel1-1/public key";
             group = "staff";
           };
+          andreaMacBookAirPublicKey = {
+            path = ".ssh/Andrea-MacBook-Air.pub";
+            reference = "op://Development/Andrea-MacBook-Air/public key";
+            group = "staff";
+          };
+          andreaMacBookAirPrivateKey = {
+            path = ".ssh/Andrea-MacBook-Air";
+            reference = "op://Development/Andrea-MacBook-Air/private key";
+            group = "staff";
+          };
         };
       };
     };
-
-    # services = {
-    #   sops = {
-    #     enable = false;
-    #     defaultSopsFile = lib.snowfall.fs.get-file "secrets/${cfg.name}/default.yaml";
-    #     sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
-    #   };
-    # };
 
     theme.catppuccin = enabled;
   };

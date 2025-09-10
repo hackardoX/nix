@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib) mkIf;
-  inherit (lib.${namespace}) enabled;
 
   cfg = config.${namespace}.suites.development;
 in
@@ -19,6 +18,10 @@ in
 
   config = mkIf cfg.enable {
     homebrew = {
+      brews = [
+        # "fuse-overlayfs"
+      ];
+
       casks = lib.optionals cfg.aiEnable [ "ollamac" ];
 
       masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
@@ -40,7 +43,10 @@ in
 
         terminal = {
           tools = {
-            ssh = enabled;
+            ssh = {
+              inherit (cfg.ssh) knownHosts;
+              enable = true;
+            };
           };
         };
       };

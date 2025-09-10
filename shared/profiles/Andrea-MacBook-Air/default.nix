@@ -6,25 +6,24 @@
 }:
 let
   inherit (lib.${namespace}) disabled enabled fromBase64;
-  user = config.${namespace}.user.name; # "aaccardo";
   hosts = {
     "hetzner_cloud_debian.8gb.hel1.1" = {
       forwardAgent = true;
       hostname = "46.62.149.89";
+      identityFile = config.programs.onepassword-secrets.secretPaths.hetznerCloudKey;
       identitiesOnly = true;
       user = "aaccardo";
     };
     "github_authorisation" = {
+      hostname = "github.com";
       forwardAgent = false;
+      identityFile = config.programs.onepassword-secrets.secretPaths.githubAuthorisation;
       identitiesOnly = true;
     };
-    # TODO: Find a way to automate this. It does not work right now
-    # myHosts = (
-    #   _key: host: (host.config.${namespace}.user.name or null) != null
-    # ) (inputs.self.darwinConfigurations or { });
     "Andrea-MacBook-Air" = {
       forwardAgent = true;
       hostname = "Andrea-MacBook-Air.local";
+      identityFile = config.programs.onepassword-secrets.secretPaths.andreaMacBookAirPublicKey;
       identitiesOnly = true;
       user = "aaccardo";
     };
@@ -59,28 +58,29 @@ in
           "docker"
         ];
       };
-      nixEnable = true;
-      sqlEnable = true;
       git = {
         user = "hackardoX";
         inherit email;
       };
+      nixEnable = true;
+      sqlEnable = true;
       ssh = {
         allowedSigners = [
           "${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB"
         ];
-        hosts = lib.mapAttrs (name: hostConfig: {
-          identityFile = "/Users/${user}/.ssh/${name}.pub";
+        hosts = lib.mapAttrs (_name: hostConfig: {
+          identityFile = lib.mkIf (hostConfig ? identityFile) hostConfig.identityFile;
           hostname = lib.mkIf (hostConfig ? hostname) hostConfig.hostname;
           user = lib.mkIf (hostConfig ? user) hostConfig.user;
           forwardAgent = lib.mkIf (hostConfig ? forwardAgent) hostConfig.forwardAgent;
           identitiesOnly = lib.mkIf (hostConfig ? identitiesOnly) hostConfig.identitiesOnly;
           port = lib.mkIf (hostConfig ? port) hostConfig.port;
         }) hosts;
-        knownHosts = lib.mapAttrs (name: hostConfig: {
-          hostNames = if (hostConfig ? hostname) then [ hostConfig.hostname ] else [ ];
-          publicKeyFile = "/Users/${user}/.ssh/${name}.pub";
-        }) hosts;
+        knownHosts = lib.flatten (
+          lib.mapAttrsToList (
+            _name: hostConfig: if hostConfig ? hostname then [ hostConfig.hostname ] else [ ]
+          ) hosts
+        );
       };
     };
     games = disabled;

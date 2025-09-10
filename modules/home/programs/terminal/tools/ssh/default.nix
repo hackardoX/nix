@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   namespace,
   pkgs,
@@ -13,6 +14,7 @@ let
     types
     ;
   inherit (lib.${namespace}) mkOpt mkOpt';
+  inherit (inputs) home-manager;
 
   cfg = config.${namespace}.programs.terminal.tools.ssh;
 in
@@ -21,7 +23,7 @@ in
     enable = lib.mkEnableOption "ssh support";
     authorizedKeys = mkOpt (listOf types.str) [ ] "The public keys to apply.";
     allowedSigners = mkOpt (listOf types.str) [ ] "The allowed signers to apply.";
-    knownHosts = mkOpt (listOf types.str) [ ] "The known hosts to apply.";
+    knownHosts = mkOpt (listOf types.str) [ ] "Known hosts.";
     extraConfig = mkOpt types.str "" "Extra configuration to apply.";
     hosts = mkOpt (types.attrsOf (
       types.submodule {
@@ -92,10 +94,37 @@ in
         ".ssh/allowed_signers" = mkIf (cfg.allowedSigners != [ ]) {
           text = builtins.concatStringsSep "\n" cfg.allowedSigners;
         };
-        ".ssh/known_hosts" = mkIf (cfg.knownHosts != [ ]) {
-          text = builtins.concatStringsSep "\n" cfg.knownHosts;
-        };
       };
+
+      activation.generateKnownHosts = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        PATH=${pkgs.openssh}/bin:$PATH
+        known_hosts_file="$HOME/.ssh/known_hosts"
+        temp_file="$(mktemp)"
+
+        # Ensure .ssh directory exists
+        mkdir -p "$HOME/.ssh"
+
+        # Clear temp file
+        > "$temp_file"
+
+        # Process each hostname
+        ${lib.concatMapStringsSep "\n" (hostname: ''
+          echo "Scanning ${hostname}..."
+          ssh-keyscan -H "${hostname}" >> "$temp_file" || echo "Failed to scan ${hostname}" >&2
+        '') cfg.knownHosts}
+
+        # Remove empty lines and duplicates, then update known_hosts
+        if [[ -s "$temp_file" ]]; then
+          grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
+          chmod 644 "$known_hosts_file"
+          echo "Updated SSH known_hosts with entries from ${toString (lib.length cfg.knownHosts)} hostnames"
+        else
+          echo "No SSH keys were successfully scanned"
+        fi
+
+        # Cleanup
+        rm "$temp_file"
+      '';
     };
   };
 }

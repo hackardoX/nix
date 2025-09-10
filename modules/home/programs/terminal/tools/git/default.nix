@@ -3,7 +3,6 @@
   lib,
   pkgs,
   namespace,
-  osConfig,
   ...
 }:
 let
@@ -29,17 +28,7 @@ let
           export GITHUB_TOKEN
           export GH_TOKEN
         fi
-      ''
-    +
-      lib.optionalString osConfig.${namespace}.security.sops.enable # Bash
-        ''
-          if [ -f ${config.sops.secrets.githubAccessToken.path} ]; then
-            GITHUB_TOKEN="$(cat ${config.sops.secrets.githubAccessToken.path})"
-            export GITHUB_TOKEN
-            GH_TOKEN="$(cat ${config.sops.secrets.githubAccessToken.path})"
-            export GH_TOKEN
-          fi
-        '';
+      '';
 in
 {
   imports = [
@@ -190,21 +179,6 @@ in
         path = ".config/gh/access-token";
         reference = "op://Development/GitHub Personal Access Token/token";
         group = "staff";
-      };
-    };
-
-    sops.secrets = lib.mkIf osConfig.${namespace}.security.sops.enable {
-      githubAuthorisation = {
-        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
-        path = "${config.home.homeDirectory}/.ssh/github_authorisation.pub";
-      };
-      gitSignature = {
-        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
-        path = "${config.home.homeDirectory}/.ssh/git_signature.pub";
-      };
-      githubAccessToken = {
-        sopsFile = lib.snowfall.fs.get-file "secrets/${user}.yaml";
-        path = "${config.home.homeDirectory}/.config/gh/access-token";
       };
     };
   };

@@ -64,10 +64,6 @@
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -114,7 +110,6 @@
         inputs.op-shell-plugins.hmModules.default
         nix-index-database.homeModules.nix-index
         opnix.homeManagerModules.default
-        sops-nix.homeManagerModules.sops
       ];
 
       systems.modules = {
@@ -142,7 +137,6 @@
             }
           )
           opnix.darwinModules.default
-          sops-nix.darwinModules.sops
           spicetify-nix.darwinModules.spicetify
         ];
       };

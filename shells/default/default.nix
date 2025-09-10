@@ -12,7 +12,6 @@ mkShell {
     deadnix
     nh
     statix
-    sops
     pkgs.${namespace}.treefmt-nix
   ];
 

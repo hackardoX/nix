@@ -173,11 +173,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1757443987,
-        "narHash": "sha256-T7E4CIsZBUzrUcPRyTG9FA2xd48MtbQ/HpIaaCfwZwc=",
+        "lastModified": 1757529548,
+        "narHash": "sha256-If5AT3dPXH0BM+q+pwyZvtWLTmlqJmGW6IDZ2MqlGRU=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "d587e11cef9caa9484ed090eddc55f4c56908342",
+        "rev": "e0154ae41614e32a443c43ee51eee9eed3ad9a48",
         "type": "github"
       },
       "original": {
@@ -189,11 +189,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1757460511,
-        "narHash": "sha256-1eORIDyhrf1uca1qBOaNtOM28RBziI+C9bGnXpVZb3I=",
+        "lastModified": 1757544749,
+        "narHash": "sha256-ofRrwbBoJP+0WE15uHVJS6dIogVaF3Nl0YkSaMsmXr8=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "9f2939c42010f61c76c35a2dc88c2dbc8486e618",
+        "rev": "cf2410122ddc9ea91e2da998476e436ba0ad5a0f",
         "type": "github"
       },
       "original": {
@@ -205,11 +205,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1757462198,
-        "narHash": "sha256-cR20T3N+5phTdYJrHhwheXPKxoD1U77dHlYK6lVPRQU=",
+        "lastModified": 1757545128,
+        "narHash": "sha256-OvqhBYxclUz8j6U7CCUB7xVA4y/RTDQgPixe2Nwdwaw=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "5bd8c00759d82155600c1c7afdd1c296d2665eee",
+        "rev": "b71e7f8840bff916cc631c0137da258ebd5129d2",
         "type": "github"
       },
       "original": {
@@ -280,11 +280,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1757382856,
-        "narHash": "sha256-GskDXah+lwxuHBQSsCgmU6tqC6GsD77jm1S8ObVVHH8=",
+        "lastModified": 1757499573,
+        "narHash": "sha256-QIYJnjwIEkIUL2KTObd+XOtHPvzatU710RA5f16K7sU=",
         "owner": "nix-community",
         "repo": "nix4vscode",
-        "rev": "5221bbdeeb7e70713c294de2f445482bb8ea54e0",
+        "rev": "e41fccb508e1e98ecc323c4f4105bc3f2be52085",
         "type": "github"
       },
       "original": {
@@ -368,7 +368,6 @@
         "op-shell-plugins": "op-shell-plugins",
         "opnix": "opnix",
         "snowfall-lib": "snowfall-lib",
-        "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "treefmt-nix": "treefmt-nix"
       }
@@ -392,26 +391,6 @@
       "original": {
         "owner": "snowfallorg",
         "repo": "lib",
-        "type": "github"
-      }
-    },
-    "sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1757449901,
-        "narHash": "sha256-qwN8nYdSRnmmyyi+uR6m4gXnVktmy5smG1MOrSFD8PI=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "3b4a369df9dd6ee171a7ea4448b50e2528faf850",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
         "type": "github"
       }
     },
