@@ -25,30 +25,6 @@ in
         example = [ "docker" ];
       };
     };
-    extraOpnixSecrets = mkOption {
-      type = types.attrsOf (
-        types.submodule {
-          options = {
-            path = mkOption {
-              type = types.str;
-              description = "Path to the secret file";
-              example = "secrets/.geminiApiKey";
-            };
-            reference = mkOption {
-              type = types.str;
-              description = "Reference to the secret in 1Password";
-              example = "op://Development/Google Gemini API/credential";
-            };
-            group = mkOption {
-              type = types.str;
-              description = "Group to which the secret belongs";
-              example = "staff";
-            };
-          };
-        }
-      );
-      default = { };
-    };
     git = {
       user = mkOption {
         type = types.str;

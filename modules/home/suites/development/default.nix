@@ -168,7 +168,7 @@ in
           ];
         };
 
-        opnix.secrets = cfg.extraOpnixSecrets // {
+        opnix.secrets = {
           geminiApiKey = {
             path = "secrets/.geminiApiKey";
             reference = "op://Development/Google Gemini API/credential";

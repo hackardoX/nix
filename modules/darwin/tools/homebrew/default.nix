@@ -31,8 +31,6 @@ in
         autoUpdate = true;
       };
 
-      greedyCasks = true;
-
       onActivation = {
         autoUpdate = true;
         cleanup = "zap";
