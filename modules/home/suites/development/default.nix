@@ -40,7 +40,6 @@ in
           # bruno-cli
           direnv
           eza
-          google-chrome
           vscode
           wget
           zip
@@ -170,7 +169,7 @@ in
 
         opnix.secrets = {
           geminiApiKey = {
-            path = "secrets/.geminiApiKey";
+            path = ".secrets/.geminiApiKey";
             reference = "op://Development/Google Gemini API/credential";
             group = "staff";
           };

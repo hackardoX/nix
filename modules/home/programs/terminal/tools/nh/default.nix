@@ -23,7 +23,7 @@ in
         enable = true;
       };
 
-      flake = "${config.home.homeDirectory}/${config.${namespace}.user.name}";
+      flake = "${config.home.homeDirectory}/Github/nix";
     };
 
     home = {
