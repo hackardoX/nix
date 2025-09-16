@@ -12,7 +12,7 @@ in
 {
   options.${namespace}.programs.terminal.emulators.warp = {
     enable = mkEnableOption "warp";
-    default = mkBoolOpt true "Whether to set Warp as the session EDITOR";
+    default = mkBoolOpt false "Whether to set Warp as the session EDITOR";
   };
 
   config = mkIf cfg.enable {

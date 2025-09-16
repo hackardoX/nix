@@ -134,8 +134,13 @@ in
         };
 
         terminal = {
+          emulators = {
+            ghostty = enabled;
+          };
+
           tools = {
             act = enabled;
+            carapace = enabled;
             gh = disabled;
             git = {
               enable = true;
@@ -153,6 +158,9 @@ in
               enable = true;
               inherit (cfg.ssh) allowedSigners hosts knownHosts;
             };
+            starship = enabled;
+            topgrade = enabled;
+            zellij = enabled;
           };
         };
       };

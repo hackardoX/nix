@@ -34,6 +34,7 @@ in
 
         # Nerd Fonts
         cascadia-code
+        jetbrains-mono
         monaspace
         nerd-fonts.symbols-only
       ] "Custom font packages to install.";

@@ -71,7 +71,6 @@ in
             eza = enabled;
             git = enabled;
             nh = enabled;
-            topgrade = enabled;
             zoxide = enabled;
           };
         };
