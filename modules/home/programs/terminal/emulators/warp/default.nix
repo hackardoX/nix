@@ -6,22 +6,14 @@
 }:
 let
   inherit (lib) mkEnableOption mkIf;
-  inherit (lib.${namespace}) mkBoolOpt;
   cfg = config.${namespace}.programs.terminal.emulators.warp;
 in
 {
   options.${namespace}.programs.terminal.emulators.warp = {
     enable = mkEnableOption "warp";
-    default = mkBoolOpt false "Whether to set Warp as the session EDITOR";
   };
 
   config = mkIf cfg.enable {
-    home = {
-      sessionVariables = {
-        EDITOR = mkIf cfg.default "warp";
-      };
-    };
-
     targets.darwin.defaults = {
       dev.warp.Warp-Stable = {
         AddedSubshellCommands = ''[\\"nix develop\\"]'';

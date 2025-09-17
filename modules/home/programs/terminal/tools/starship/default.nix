@@ -27,8 +27,9 @@ in
           symbol = " ";
         };
         character = {
-          vicmd_symbol = "[N] >>>";
+          vicmd_symbol = "[←](bold green)";
           success_symbol = "[➜](bold green)";
+          error_symbol = "[✗](bold red)";
         };
         command_timeout = 1000;
         directory.substitutions."~/tests/starship-custom" = "work-project";

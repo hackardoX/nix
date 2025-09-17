@@ -18,7 +18,6 @@ in
     homebrew = {
       casks = [
         # "bitwarden"
-        # "ghostty"
         # "gpg-suite"
         # "hammerspoon"
         # "launchcontrol"

@@ -1,4 +1,10 @@
 # Configure menu selection for completion options in all contexts
+# zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+# Colorize the menu selection
+# zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+# Group commands by category
+# zstyle ':completion:*:git:*' group-order 'main commands' 'alias commands' 'external commands'
+# Configure menu selection for completion options in all contexts
 # (indicated by the wildcard `*`)
 zstyle ':completion:*' menu select
 
@@ -96,3 +102,5 @@ zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR"
 zstyle ':completion:*' path-completion false
 
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+
+compdef _zbnc_zsh_better_npm_completion pnpm

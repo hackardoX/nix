@@ -140,7 +140,8 @@ in
 
           tools = {
             act = enabled;
-            carapace = enabled;
+            carapace = disabled;
+            fzf = enabled;
             gh = disabled;
             git = {
               enable = true;
@@ -154,12 +155,14 @@ in
             jq = enabled;
             # jujutsu = enabled;
             # prisma.enable = cfg.sqlEnable;
+            pay-respects = enabled;
             ssh = {
               enable = true;
               inherit (cfg.ssh) allowedSigners hosts knownHosts;
             };
             starship = enabled;
             topgrade = enabled;
+            yazi = enabled;
             zellij = enabled;
           };
         };

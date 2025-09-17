@@ -33,7 +33,7 @@ in
         terminal = {
           emulators = {
             warp = {
-              enable = true;
+              enable = false;
             };
           };
 

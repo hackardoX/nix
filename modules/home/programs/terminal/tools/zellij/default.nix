@@ -25,6 +25,8 @@ in
           };
         };
 
+        default_mode = "locked";
+        show_startup_tips = false;
         "keybinds clear-defaults=true" = {
           normal = {
             "unbind \"Ctrl p\"" = [ ];

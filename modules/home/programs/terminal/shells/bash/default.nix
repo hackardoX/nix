@@ -18,10 +18,6 @@ in
     programs.bash = {
       enable = true;
       enableCompletion = true;
-
-      initExtra = lib.optionalString config.programs.fastfetch.enable ''
-        fastfetch
-      '';
     };
   };
 }

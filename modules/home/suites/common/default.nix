@@ -53,8 +53,7 @@ in
         terminal = {
           emulators = {
             warp = {
-              enable = true;
-              default = true;
+              enable = false;
             };
           };
 
@@ -80,8 +79,6 @@ in
     };
 
     programs = {
-      # FIXME: breaks zsh aliases
-      # pay-respects =  enabled;
       readline = {
         enable = true;
 

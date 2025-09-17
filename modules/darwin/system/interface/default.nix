@@ -116,7 +116,7 @@ in
             ]
         ++ lib.optionals hmCfg.${namespace}.suites.development.enable [
           "${pkgs.vscode}/Applications/Visual Studio Code.app"
-          "/System/Volumes/Data/Applications/Warp.app"
+          "${pkgs.ghostty-bin}/Applications/Ghostty.app"
           {
             spacer = {
               small = true;
