@@ -100,6 +100,9 @@ in
 
     ${namespace} = {
       programs = {
+        android = {
+          enable = cfg.mobileEnable;
+        };
         containerization = {
           podman = {
             enable = cfg.containerization.enable && builtins.elem "podman" cfg.containerization.variants;

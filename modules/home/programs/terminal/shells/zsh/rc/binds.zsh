@@ -4,4 +4,9 @@ bindkey '^u' autosuggest-toggle
 bindkey '^L' vi-forward-word
 bindkey '^k' up-line-or-search
 bindkey '^j' down-line-or-search
-bindkey -r "^[x"
+
+function zvm_after_init() {
+    # Completely remove ESC key bindings
+    bindkey -M viins -r "^["
+    bindkey -M vicmd -r "^["
+}

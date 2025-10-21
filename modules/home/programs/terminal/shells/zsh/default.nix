@@ -17,6 +17,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    home.packages = [ pkgs.zsh-completions ];
+
     programs = {
       zsh = {
         enable = true;
@@ -79,37 +81,25 @@ in
           package = pkgs.zsh-syntax-highlighting;
         };
 
-        initContent = lib.mkMerge [
-          (lib.mkOrder 450 # Bash
-            ''
-              source ${config.programs.git.package}/share/git/contrib/completion/git-prompt.sh
-            ''
-          )
-
+        initContent =
           # Bash
-          (lib.mkOrder 600 ''
+          lib.mkOrder 600 ''
             # binds, zsh modules and everything else
             ${fileContents ./rc/binds.zsh}
             ${fileContents ./rc/fzf-tab.zsh}
-          '')
-        ];
+          '';
 
         plugins = [
           # Must be before plugins that wrap widgets, such as zsh-autosuggestions or fast-syntax-highlighting
           {
             name = "fzf-tab";
-            file = "share/fzf-tab/fzf-tab.plugin.zsh";
             src = pkgs.zsh-fzf-tab;
-          }
-          {
-            name = "zsh-fzf-history-search";
-            file = "share/zsh-fzf-history-search/zsh-fzf-history-search.plugin.zsh";
-            src = pkgs.zsh-fzf-history-search;
+            file = "share/fzf-tab/fzf-tab.plugin.zsh";
           }
           {
             name = "zsh-nix-shell";
-            file = "share/zsh-nix-shell/nix-shell.plugin.zsh";
             src = pkgs.zsh-nix-shell;
+            file = "share/zsh-nix-shell/nix-shell.plugin.zsh";
           }
           {
             name = "zsh-vi-mode";
@@ -118,13 +108,23 @@ in
           }
           {
             name = "zsh-autosuggestions";
-            file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
             src = pkgs.zsh-autosuggestions;
+            file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
           }
           {
-            name = "zsh-better-npm-completion";
-            file = "share/zsh-better-npm-completion";
-            src = pkgs.zsh-better-npm-completion;
+            name = "zsh-completion-sync";
+            src = pkgs.fetchFromGitHub {
+              owner = "BronzeDeer";
+              repo = "zsh-completion-sync";
+              rev = "v0.3.3";
+              sha256 = "GTW4nLVW1/09aXNnZJuKs12CoalzWGKB79VsQ2a2Av4=";
+            };
+            file = "zsh-completion-sync.plugin.zsh";
+          }
+          {
+            name = "zsh-fzf-history-search";
+            src = pkgs.zsh-fzf-history-search;
+            file = "share/zsh-fzf-history-search/zsh-fzf-history-search.plugin.zsh";
           }
         ];
       };

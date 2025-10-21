@@ -22,11 +22,19 @@ in
         # "fuse-overlayfs"
       ];
 
-      casks = lib.optionals cfg.aiEnable [ "ollamac" ];
+      casks =
+        lib.optionals cfg.aiEnable [ "ollamac" ]
+        ++ lib.optionals cfg.mobileEnable [
+          "android-studio"
+          "expo-orbit"
+        ];
 
-      masApps = mkIf config.${namespace}.tools.homebrew.masEnable {
-        # "Xcode" = 497799835;
-      };
+      masApps = lib.mkIf config.${namespace}.tools.homebrew.masEnable (
+        { }
+        // lib.optionalAttrs cfg.mobileEnable {
+          "Xcode" = 497799835;
+        }
+      );
     };
 
     ${namespace} = {

@@ -51,6 +51,7 @@ in
     development = {
       enable = true;
       aiEnable = true;
+      mobileEnable = true;
       containerization = {
         enable = true;
         variants = [

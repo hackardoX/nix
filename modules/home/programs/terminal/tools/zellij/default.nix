@@ -17,6 +17,8 @@ in
   config = mkIf cfg.enable {
     programs.zellij = {
       enable = true;
+      enableBashIntegration = true;
+      enableFishIntegration = true;
       enableZshIntegration = true;
       settings = {
         ui = {
@@ -25,7 +27,8 @@ in
           };
         };
 
-        default_mode = "locked";
+        # Waiting for https://github.com/zellij-org/zellij/issues/3998 to be solved
+        #  default_mode = "locked";
         show_startup_tips = false;
         "keybinds clear-defaults=true" = {
           normal = {
@@ -561,7 +564,7 @@ in
         };
 
         on_force_close = "detach";
-        simplified_ui = true;
+        # simplified_ui = true;
         pane_frames = false;
       };
     };

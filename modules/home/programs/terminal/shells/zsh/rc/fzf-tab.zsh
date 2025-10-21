@@ -17,5 +17,5 @@ zstyle ':fzf-tab:complete:cd:*'       popup-pad 20 0
 zstyle ':completion:*'                file-sort modification
 zstyle ':completion:*:eza'            sort false
 zstyle ':completion:files'            sort false
-
-# zstyle ':fzf-tab:*'                   query-string ''
+# solve carapace issues (https://github.com/carapace-sh/carapace-bin/issues/417)
+zstyle ':fzf-tab:*'                   query-string prefix first

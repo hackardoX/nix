@@ -1,6 +1,10 @@
 {
   description = "A very basic flake";
   inputs = {
+    android-nixpkgs = {
+      url = "github:tadfisher/android-nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -77,7 +81,7 @@
   outputs =
     inputs:
     let
-      inherit (inputs) nix4vscode snowfall-lib treefmt-nix;
+      inherit (inputs) snowfall-lib treefmt-nix;
 
       lib = snowfall-lib.mkLib {
         inherit inputs;
@@ -101,7 +105,7 @@
         permittedInsecurePackages = [ ];
       };
 
-      overlays = [
+      overlays = with inputs; [
         nix4vscode.overlays.default
       ];
 

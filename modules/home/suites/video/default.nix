@@ -17,11 +17,9 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages =
-      with pkgs;
-      lib.optionals stdenv.hostPlatform.isDarwin [
-        # iina
-      ];
+    home.packages = with pkgs; [
+      openshot-qt
+    ];
 
     ${namespace}.programs = {
       graphical.apps = {

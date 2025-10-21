@@ -102,5 +102,3 @@ zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR"
 zstyle ':completion:*' path-completion false
 
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-
-compdef _zbnc_zsh_better_npm_completion pnpm

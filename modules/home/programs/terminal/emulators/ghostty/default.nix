@@ -17,7 +17,6 @@ in
   config = mkIf cfg.enable {
     programs.ghostty = {
       enable = true;
-      installVimSyntax = true;
       settings = {
         font-size = 14;
         background-blur-radius = 20;
@@ -30,6 +29,9 @@ in
         ];
       };
       package = pkgs.ghostty-bin;
+      enableBashIntegration = true;
+      enableFishIntegration = true;
+      enableZshIntegration = true;
     };
   };
 }

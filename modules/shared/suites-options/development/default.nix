@@ -10,6 +10,7 @@ in
   ${namespace}.suites.development = {
     enable = mkEnableOption "common development configuration";
     aiEnable = mkEnableOption "ai development configuration";
+    mobileEnable = mkEnableOption "mobile development configuration";
     containerization = {
       enable = mkEnableOption "containerization development configuration";
       variants = mkOption {
