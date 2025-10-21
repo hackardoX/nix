@@ -19,8 +19,10 @@ in
     signingKey =
       mkOpt types.str "${config.home.homeDirectory}/.ssh/git_signature.pub"
         "The key ID to sign commits with.";
-    userName = mkOpt types.str user.fullName "The name to configure jujutsu with.";
-    userEmail = mkOpt types.str user.email "The email to configure jujutsu with.";
+    user = {
+      name = mkOpt types.str user.fullName "The name to configure jujutsu with.";
+      email = mkOpt types.str user.email "The email to configure jujutsu with.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -32,10 +34,7 @@ in
         package = pkgs.jujutsu;
 
         settings = {
-          user = {
-            name = cfg.userName;
-            email = cfg.userEmail;
-          };
+          inherit user;
           fetch = {
             prune = true;
           };

@@ -252,10 +252,10 @@ let
         commonSettings
         // {
           # LSP
-          "java.jdt.ls.java.home" = "${pkgs.jdk24}/lib/openjdk";
+          "java.jdt.ls.java.home" = "${pkgs.jdk25}/lib/openjdk";
           "java.configuration.runtimes" = [
             "${pkgs.jdk8}/lib/openjdk"
-            "${pkgs.jdk24}/lib/openjdk"
+            "${pkgs.jdk25}/lib/openjdk"
           ];
           "redhat.telemetry.enabled" = false;
 
