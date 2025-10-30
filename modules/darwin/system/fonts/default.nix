@@ -48,7 +48,7 @@ in
       LOG_ICONS = "true";
     };
     fonts = {
-      packages = with pkgs; cfg.fonts;
+      packages = cfg.fonts;
     };
 
     system = {

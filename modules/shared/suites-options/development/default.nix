@@ -28,14 +28,20 @@ in
     };
     git = {
       user = mkOption {
-        type = types.str;
-        description = "Git username for commits";
-        example = "johndoe";
-      };
-      email = mkOption {
-        type = types.str;
-        description = "Git email for commits";
-        example = "john@example.com";
+        type = types.submodule {
+          options = {
+            name = mkOption {
+              type = types.str;
+              description = "Git username for commits";
+              example = "johndoe";
+            };
+            email = mkOption {
+              type = types.str;
+              description = "Git email for commits";
+              example = "john@example.com";
+            };
+          };
+        };
       };
     };
     nixEnable = mkEnableOption "nix development configuration";

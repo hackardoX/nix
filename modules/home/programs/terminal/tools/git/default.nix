@@ -46,8 +46,22 @@ in
       example = "${config.home.homeDirectory}/.ssh/git_signature.pub";
       default = null;
     };
-    userName = mkOpt types.str user.fullName "The name to configure git with.";
-    userEmail = mkOpt types.str user.email "The email to configure git with.";
+    user = mkOption {
+      type = types.submodule {
+        options = {
+          name = mkOption {
+            type = types.str;
+            description = "Git username for commits";
+            example = "johndoe";
+          };
+          email = mkOption {
+            type = types.str;
+            description = "Git email for commits";
+            example = "john@example.com";
+          };
+        };
+      };
+    };
     _1password = lib.mkEnableOption "1Password integration";
   };
 
@@ -72,77 +86,79 @@ in
       git = {
         enable = true;
         package = pkgs.git;
+        inherit (cfg) includes;
+        settings = {
+          inherit (cfg) user;
+          extraConfig = {
+            branch.sort = "-committerdate";
 
-        inherit (cfg) includes userName userEmail;
+            # credential = {
+            #   helper = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin (
+            #     getExe' config.programs.git.package "git-credential-osxkeychain"
+            #   );
+
+            #   useHttpPath = true;
+            # };
+
+            column = {
+              ui = "auto";
+            };
+
+            core = mkIf config.${namespace}.programs.graphical.editors.vscode.enable {
+              editor = "code --wait --new-window";
+            };
+
+            fetch = {
+              prune = true;
+            };
+
+            init = {
+              defaultBranch = "main";
+            };
+
+            lfs = enabled;
+
+            pull = {
+              rebase = true;
+            };
+
+            push = {
+              autoSetupRemote = true;
+              default = "current";
+            };
+
+            rerere = {
+              enabled = true;
+            };
+
+            rebase = {
+              autoStash = true;
+            };
+
+            safe = {
+              directory = [
+                "~/${namespace}/"
+                "/etc/nixos"
+                "/etc/nix-darwin"
+              ];
+            };
+
+            "url \"ssh://git@\"" = {
+              insteadOf = "https://";
+            };
+          };
+        };
+
         inherit (ignores) ignores;
 
         maintenance.enable = true;
-
-        extraConfig = {
-          branch.sort = "-committerdate";
-
-          # credential = {
-          #   helper = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin (
-          #     getExe' config.programs.git.package "git-credential-osxkeychain"
-          #   );
-
-          #   useHttpPath = true;
-          # };
-
-          column = {
-            ui = "auto";
-          };
-
-          core = mkIf config.${namespace}.programs.graphical.editors.vscode.enable {
-            editor = "code --wait --new-window";
-          };
-
-          fetch = {
-            prune = true;
-          };
-
-          init = {
-            defaultBranch = "main";
-          };
-
-          lfs = enabled;
-
-          pull = {
-            rebase = true;
-          };
-
-          push = {
-            autoSetupRemote = true;
-            default = "current";
-          };
-
-          rerere = {
-            enabled = true;
-          };
-
-          rebase = {
-            autoStash = true;
-          };
-
-          safe = {
-            directory = [
-              "~/${namespace}/"
-              "/etc/nixos"
-              "/etc/nix-darwin"
-            ];
-          };
-
-          "url \"ssh://git@\"" = {
-            insteadOf = "https://";
-          };
-        };
 
         hooks = mkIf (!cfg._1password) {
           prepare-commit-msg = lib.getExe (
             pkgs.writeShellScriptBin "prepare-commit-msg" ''
               echo "Signing off commit"
               ${lib.getExe config.programs.git.package} interpret-trailers --if-exists doNothing --trailer \
-                "Signed-off-by: ${cfg.userName} <${cfg.userEmail}>" \
+                "Signed-off-by: ${cfg.user.name} <${cfg.user.email}>" \
                 --in-place "$1"
             ''
           );

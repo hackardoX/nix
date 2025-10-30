@@ -147,12 +147,11 @@ in
             fzf = enabled;
             gh = disabled;
             git = {
+              inherit (cfg.git) user;
               enable = true;
               includes = [ ];
               signByDefault = true;
               signingKey = "${config.home.homeDirectory}/.ssh/git_signature.pub";
-              userName = cfg.git.user;
-              userEmail = cfg.git.email;
               _1password = config.${namespace}.security._1password.enable;
             };
             jq = enabled;

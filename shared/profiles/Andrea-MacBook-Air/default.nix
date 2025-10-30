@@ -29,7 +29,6 @@ let
     };
   };
   email = fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
-
 in
 {
   suites = {
@@ -51,7 +50,7 @@ in
     development = {
       enable = true;
       aiEnable = true;
-      mobileEnable = true;
+      mobileEnable = false;
       containerization = {
         enable = true;
         variants = [
@@ -60,8 +59,10 @@ in
         ];
       };
       git = {
-        user = "hackardoX";
-        inherit email;
+        user = {
+          inherit email;
+          name = "hackardoX";
+        };
       };
       nixEnable = true;
       sqlEnable = true;

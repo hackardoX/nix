@@ -25,7 +25,8 @@ in
 
       extraPackages = with pkgs.bat-extras; [
         batdiff
-        batgrep
+        # TODO: wait for https://github.com/NixOS/nixpkgs/issues/454391 to be fixed
+        # batgrep
         batman
         batpipe
         batwatch
