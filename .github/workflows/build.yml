@@ -1,0 +1,23 @@
+name: Build
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  builds:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: DeterminateSystems/nix-installer-action@v21
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - uses: cachix/cachix-action@v16
+        with:
+          name: hackardo
+          authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
+      - name: MacOS Build
+        if: matrix.os == 'macos-latest'
+        run: "nix run github:lnl7/nix-darwin#darwin-rebuild -- build --flake .#Andrea-MacBook-Air"
+      - name: Upload MacOS Build
+        run: cachix push hackardo ./result*
