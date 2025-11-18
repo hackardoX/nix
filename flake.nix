@@ -47,8 +47,7 @@
       flake = false;
     };
     nix-homebrew = {
-      # TODO: revert to "github:zhaofengli/nix-homebrew" when https://github.com/zhaofengli/nix-homebrew/pull/117/files is merged
-      url = "github:yeradon/nix-homebrew";
+      url = "github:zhaofengli/nix-homebrew";
     };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";

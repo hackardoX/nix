@@ -300,15 +300,15 @@
         "brew-src": "brew-src"
       },
       "locked": {
-        "lastModified": 1761750471,
+        "lastModified": 1761927470,
         "narHash": "sha256-KsFDGRGD8j1R6TvJ4HkebKsh3HXLY0XazanLrhO3wqE=",
-        "owner": "yeradon",
+        "owner": "zhaofengli",
         "repo": "nix-homebrew",
-        "rev": "5a9a0141b8f8b554f6ffc1362bdbad3113c32b69",
+        "rev": "3cae36b3a17b09a66435291619dce8cf2c4728ca",
         "type": "github"
       },
       "original": {
-        "owner": "yeradon",
+        "owner": "zhaofengli",
         "repo": "nix-homebrew",
         "type": "github"
       }
