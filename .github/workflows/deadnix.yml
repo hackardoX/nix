@@ -1,8 +1,8 @@
-name: Dead code analysis
+name: Deadnix
 on: pull_request
 jobs:
   deadnix:
-    name: Deadnix
+    name: Dead code analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

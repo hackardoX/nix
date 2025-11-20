@@ -1,15 +1,14 @@
-name: Check
+name: Flake check
 on: pull_request
 jobs:
   checks:
-    name: Check expressions on ${{ matrix.arch }}
+    name: Flake checks on ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
         arch: [aarch64-darwin]
-    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v5
       - name: Check Nix flake inputs

@@ -27,7 +27,7 @@ repository:
   allow_squash_merge: true
   # Either `true` to allow merging pull requests with a merge commit, or `false`
   # to prevent merging pull requests with merge commits.
-  allow_merge_commit: true
+  allow_merge_commit: false
   # Either `true` to allow rebase-merging pull requests, or `false` to prevent
   # rebase-merging.
   allow_rebase_merge: true
@@ -41,7 +41,7 @@ repository:
   enable_vulnerability_alerts: true
 # Labels: define labels for Issues and Pull Requests
 #
-labels:
+labels: null
 # NOTE: leave that up to the https://github.com/numtide/.github repo
 #   - name: bug
 #     color: CC0000
@@ -57,7 +57,7 @@ labels:
 #     new_name: first-timers-only
 
 # Milestones: define milestones for Issues and Pull Requests
-milestones:
+milestones: null
 #   - title: milestone-title
 #     description: milestone-description
 #     # The state of the milestone. Either `open` or `closed`
@@ -65,7 +65,7 @@ milestones:
 
 # Collaborators: give specific users access to this repository.
 # See https://docs.github.com/en/rest/reference/repos#add-a-repository-collaborator for available options
-collaborators:
+collaborators: null
 # Note: `permission` is only valid on organization-owned repositories.
 # The permission to grant the collaborator. Can be one of:
 # * `pull` - can pull, but not push to or administer this repository.
@@ -76,7 +76,7 @@ collaborators:
 # permission: push
 
 # See https://docs.github.com/en/rest/reference/teams#add-or-update-team-repository-permissions for available options
-teams:
+teams: null
 # The permission to grant the team. Can be one of:
 # * `pull` - can pull, but not push to or administer this repository.
 # * `push` - can pull and push, but not administer this repository.
@@ -98,20 +98,20 @@ branches:
         # # Blocks merge until code owners have reviewed.
         require_code_owner_reviews: true
         # # Specify which users and teams can dismiss pull request reviews. Pass an empty dismissal_restrictions object to disable. User and team dismissal_restrictions are only available for organization-owned repositories. Omit this parameter for personal repositories.
-        # dismissal_restrictions:
-        #   users: []
-        #   teams: []
+        dismissal_restrictions:
+          users: []
+          teams: []
       # Required. Require status checks to pass before merging. Set to null to disable
       required_status_checks:
         # Required. Require branches to be up to date before merging.
         strict: true
         # Required. The list of status checks to require in order to merge into this branch
         contexts:
+          - Build on macos-latest
+          - Flake checks on aarch64-darwin
           - Dead code analysis
-          - Check
-          - Build
-          - Lint Nix code
-          - Formatting Check
+          - Formatting checks
+          - Lint checks
       # Required. Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: true
       required_linear_history: true
@@ -119,9 +119,6 @@ branches:
       required_signatures: true
       # Required. Restrict who can push to this branch. Team and user restrictions are only available for organization-owned repositories. Set to null to disable.
       restrictions:
-      # apps:  []
-      # users: []
-      # teams: []
-actions:
-  default_workflow_permissions: "write"
-  can_approve_pull_request_reviews": true
+        apps: []
+        users: []
+        teams: []

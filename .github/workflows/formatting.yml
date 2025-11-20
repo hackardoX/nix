@@ -1,8 +1,8 @@
-name: Formatting Check
+name: Formatting
 on: pull_request
 jobs:
   checks:
-    name: Check expressions
+    name: Formatting checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

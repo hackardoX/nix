@@ -1,8 +1,8 @@
+name: Lint
 on: pull_request
-name: Lint Nix code
 jobs:
   statix:
-    name: Lint code
+    name: Lint checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
