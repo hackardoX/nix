@@ -4,9 +4,9 @@ permissions:
   contents: write
   pull-requests: write
 jobs:
-  dependabot:
+  auto-merge-pr:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'nix-update-flakes' }}
+    if: ${{ github.actor == 'nix-update-flakes[bot]' }}
     steps:
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"

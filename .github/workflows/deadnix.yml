@@ -1,5 +1,5 @@
 name: Dead code analysis
-on: [push, workflow_dispatch]
+on: pull_request
 jobs:
   deadnix:
     name: Deadnix
