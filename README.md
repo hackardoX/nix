@@ -146,3 +146,4 @@ Other configurations from where I learned and copied:
 - [dustinlyons/nixos-config](https://github.com/dustinlyons/nixos-config) _Initial starting point_
 - [khaneliman/khanelinix](https://github.com/khaneliman/khanelinix) **Main
   inspiration**
+- [mightyiam/infra](https://github.com/mightyiam/infra) _For the refactor using dendritic pattern_
