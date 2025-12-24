@@ -76,6 +76,13 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs = {
+        flake-parts.follows = "flake-parts";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
     nix4vscode = {
       url = "github:nix-community/nix4vscode";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -94,6 +101,14 @@
       url = "github:brizzbuzz/opnix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    refjump-nvim = {
+      flake = false;
+      url = "github:mawkler/refjump.nvim";
+    };
+    smart-scrolloff-nvim = {
+      flake = false;
+      url = "github:tonymajestro/smart-scrolloff.nvim";
+    };
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -104,6 +119,10 @@
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    vim-autoread = {
+      flake = false;
+      url = "github:djoshea/vim-autoread/24061f84652d768bfb85d222c88580b3af138dab";
     };
   };
 
