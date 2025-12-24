@@ -1,0 +1,28 @@
+{ self, config, ... }:
+{
+  flake.modules.nixos.base = {
+    system.autoUpgrade = {
+      enable = self ? rev;
+      flake = config.flake.meta.uri;
+      upgrade = false;
+      dates = "03:00";
+      rebootWindow = {
+        lower = "02:00";
+        upper = "04:00";
+      };
+    };
+  };
+
+  flake.modules.darwin.base = {
+    system.defaults = {
+      CustomUserPreferences = {
+        "com.apple.SoftwareUpdate" = {
+          AutomaticCheckEnabled = true;
+          AutomaticDownload = 1;
+          CriticalUpdateInstall = 1;
+          ScheduleFrequency = 1;
+        };
+      };
+    };
+  };
+}
