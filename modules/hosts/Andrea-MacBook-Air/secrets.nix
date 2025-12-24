@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.base = {
+  configurations.homeManager.Andrea-MacBook-Air.module = {
     security = {
       opnix = {
         enable = true;
