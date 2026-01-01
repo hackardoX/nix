@@ -13,6 +13,13 @@
     };
   };
 
+  flake.modules.darwin.base = {
+    programs = {
+      _1password-gui.enable = true;
+      _1password.enable = true;
+    };
+  };
+
   flake.modules.homeManager.base =
     { config, pkgs, ... }:
     let
@@ -22,11 +29,6 @@
     {
       imports = [ inputs.op-shell-plugins.hmModules.default ];
       home = {
-        packages = with pkgs; [
-          _1password-cli
-          _1password-gui
-        ];
-
         sessionVariables = {
           SSH_AUTH_SOCK = "${_1passwordSymLinkSocketPath}";
         };

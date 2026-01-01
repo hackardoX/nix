@@ -28,7 +28,7 @@
 
     programs = {
       carapace = {
-        enable = true;
+        enable = false;
         enableBashIntegration = true;
         enableZshIntegration = true;
         enableFishIntegration = true;
