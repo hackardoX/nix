@@ -2,17 +2,25 @@
 {
   imports = [ inputs.treefmt-nix.flakeModule ];
 
-  perSystem =
-    { pkgs, ... }:
-    {
-      treefmt = {
-        enable = true;
-        settings.fail-on-change = false;
-        packageOverrides.treefmt = pkgs.treefmt-nix;
+  perSystem = {
+    treefmt = {
+      projectRootFile = "flake.nix";
+      programs = {
+        prettier.enable = true;
+        shfmt.enable = true;
       };
-
-      pre-commit.settings.hooks.treefmt.enable = true;
+      settings = {
+        on-unmatched = "fatal";
+        global.excludes = [
+          "*.jpg"
+          "*.png"
+          "LICENSE"
+        ];
+      };
     };
+
+    pre-commit.settings.hooks.treefmt.enable = true;
+  };
 
   flake.modules.nixvim.base = {
     plugins = {
