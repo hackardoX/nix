@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  inputs,
   ...
 }:
 let
@@ -15,51 +16,12 @@ let
         host.config.services.openssh.publicKey
       ])
     );
-  knownHosts =
-    myReachableHosts
-    # |> lib.mapAttrs (
-    #   _name: host: {
-    #     hostNames = [ host.config.networking.fqdn ];
-    #     inherit (host.config.services.openssh) publicKey;
-    #   }
-    # )
-    |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
+  knownHosts = myReachableHosts |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
   email = config.flake.meta.users.hackardo.email;
 in
 {
-  flake.modules.darwin.base =
-    { pkgs, ... }:
-    {
-      system.activationScripts.postActivation.text = lib.mkAfter ''
-        PATH=${pkgs.openssh}/bin:$PATH
-        known_hosts_file="/etc/ssh/ssh_known_hosts"
-        temp_file="$(mktemp)"
-
-        # Ensure /etc/ssh directory exists
-        mkdir -p "/etc/ssh"
-
-        # Process each hostname
-        ${lib.concatMapStringsSep "\n" (hostname: ''
-          echo "Scanning ${hostname}..."
-          ssh-keyscan -H "${hostname}" >> "$temp_file" || echo "Failed to scan ${hostname}" >&2
-        '') knownHosts}
-
-        # Remove empty lines and duplicates, then update known_hosts
-        if [[ -s "$temp_file" ]]; then
-          grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
-          chmod 644 "$known_hosts_file"
-          echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
-        else
-          echo "No SSH keys were successfully scanned"
-        fi
-
-        # Cleanup
-        rm "$temp_file"
-      '';
-    };
-
   flake.modules.homeManager.base =
-    { config, ... }:
+    { config, pkgs, ... }:
     {
       options.ssh = {
         extraConfig = lib.mkOption {
@@ -173,36 +135,30 @@ in
               ${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB
             '';
 
-            # activation.generateKnownHosts = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            #   PATH=${pkgs.openssh}/bin:$PATH
-            #   known_hosts_file="$HOME/.ssh/known_hosts"
-            #   temp_file="$(mktemp)"
-
-            #   # Ensure .ssh directory exists
-            #   mkdir -p "$HOME/.ssh"
-
-            #   # Clear temp file
-            #   > "$temp_file"
-
-            #   # Process each hostname
-            #   ${lib.concatMapStringsSep "\n" (hostname: ''
-            #     echo "Scanning ${hostname}..."
-            #     ssh-keyscan -H "${hostname}" >> "$temp_file" || echo "Failed to scan ${hostname}" >&2
-            #   '') knownHosts}
-
-            #   # Remove empty lines and duplicates, then update known_hosts
-            #   if [[ -s "$temp_file" ]]; then
-            #     grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
-            #     chmod 644 "$known_hosts_file"
-            #     echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
-            #   else
-            #     echo "No SSH keys were successfully scanned"
-            #   fi
-
-            #   # Cleanup
-            #   rm "$temp_file"
-            # '';
           };
+
+          activation.generateKnownHosts = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            PATH=${pkgs.openssh}/bin:$PATH
+            known_hosts_file="$HOME/.ssh/known_hosts"
+            temp_file="$(mktemp)"
+
+            mkdir -p "$HOME/.ssh"
+
+            ${lib.concatMapStringsSep "\n" (hostname: ''
+              echo "Scanning ${hostname}..."
+              ssh-keyscan -H "${hostname}" >> "$temp_file" || echo "Failed to scan ${hostname}" >&2
+            '') knownHosts}
+
+            if [[ -s "$temp_file" ]]; then
+              grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
+              chmod 644 "$known_hosts_file"
+              echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
+            else
+              echo "No SSH keys were successfully scanned"
+            fi
+
+            rm "$temp_file"
+          '';
         };
       };
     };

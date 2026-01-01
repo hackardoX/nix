@@ -17,20 +17,31 @@
         nixos.base = sshSettings;
         darwin.base = sshSettings;
         homeManager.base =
-          { pkgs, ... }:
+          { config, pkgs, ... }:
           {
-            programs.gh = {
-              # package = pkgs.gh.overrideAttrs (oldAttrs: {
-              #   buildInputs = oldAttrs.buildInputs or [ ] ++ [ pkgs.makeWrapper ];
-              #   postInstall = oldAttrs.postInstall or "" + ''
-              #     wrapProgram $out/bin/gh --unset GITHUB_TOKEN
-              #   '';
-              # });
-              enable = true;
-              settings.git_protocol = "ssh";
-            };
+            config = {
+              programs.gh = {
+                # package = pkgs.gh.overrideAttrs (oldAttrs: {
+                #   buildInputs = oldAttrs.buildInputs or [ ] ++ [ pkgs.makeWrapper ];
+                #   postInstall = oldAttrs.postInstall or "" + ''
+                #     wrapProgram $out/bin/gh --unset GITHUB_TOKEN
+                #   '';
+                # });
+                enable = true;
+                settings.git_protocol = "ssh";
+              };
 
-            home.packages = with pkgs; [ gh-dash ];
+              home.packages = with pkgs; [ gh-dash ];
+
+              ssh.extraHosts = {
+                "github.com" = {
+                  hostname = "github.com";
+                  forwardAgent = false;
+                  identityFile = config.programs.onepassword-secrets.secretPaths.githubAuthorisation;
+                  identitiesOnly = true;
+                };
+              };
+            };
           };
       };
   };

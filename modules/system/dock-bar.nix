@@ -73,8 +73,7 @@
               };
             }
           ]
-          ++ lib.optionals (config.programs.ghostty.enable or false) [
-            # "${pkgs.vscode}/Applications/Visual Studio Code.app"
+          ++ [
             "${pkgs.ghostty-bin}/Applications/Ghostty.app"
             {
               spacer = {
