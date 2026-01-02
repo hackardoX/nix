@@ -4,7 +4,7 @@
     imports = with config.flake.modules.darwin; [
       base
       # dev
-      # media
+      media
       # password-manager
     ];
   };
