@@ -5,7 +5,7 @@
       base
       # dev
       media
-      # password-manager
+      password-manager
     ];
   };
 }

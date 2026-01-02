@@ -1,26 +1,19 @@
 { inputs, ... }:
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.password-manager = {
     homebrew = {
-      # casks = [
-      #   "1password"
-      #   "1password-cli"
-      # ];
-
       masApps = {
         "1Password for Safari" = 1569813296;
       };
     };
-  };
 
-  flake.modules.darwin.base = {
     programs = {
       _1password-gui.enable = true;
       _1password.enable = true;
     };
   };
 
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.password-manager =
     { config, pkgs, ... }:
     let
       _1passwordOriginalSocketPath = "${config.home.homeDirectory}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
