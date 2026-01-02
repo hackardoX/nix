@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.gui.programs.zsh.initContent = ''
+  flake.modules.homeManager.base.programs.zsh.initContent = ''
     precmd() {
       local cwd
       cwd=''${PWD/#$HOME/\~}
