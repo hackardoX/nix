@@ -3,11 +3,10 @@
     plugins.yazi = {
       enable = true;
       settings = {
-        open_for_directories = false;
-        keymaps = {
-          show_help = "<f1>";
-        };
+        open_for_directories = true;
       };
+      # More details: https://github.com/mikavilpas/yazi.nvim/issues/802
+      luaConfig.pre = ''vim.g.loaded_netrwPlugin = 1'';
     };
 
     keymaps = [
@@ -32,7 +31,7 @@
       }
       {
         mode = "n";
-        key = "<c-up>";
+        key = "<leader>+";
         action = "<cmd>Yazi toggle<cr>";
         options = {
           desc = "Resume the last yazi session";

@@ -9,9 +9,14 @@
           enable = true;
           enableZshIntegration = true;
           settings = {
-            sync_frequency = "15m";
             dialect = "uk";
+            enter_accept = true;
+            filter_mode = "workspace";
             key_path = config.programs.onepassword-secrets.secretPaths.atuinKey;
+            keymap_mode = "auto";
+            style = "auto";
+            sync_frequency = "15m";
+            workspaces = true;
           };
         };
 
