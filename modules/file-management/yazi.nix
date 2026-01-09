@@ -6,6 +6,15 @@
       programs.yazi = {
         enable = true;
         enableZshIntegration = true;
+
+        initLua = ''
+          require("full-border"):setup()
+        '';
+
+        plugins = {
+          inherit (pkgs.yaziPlugins) full-border;
+        };
+
         settings = {
           opener = {
             open = [
