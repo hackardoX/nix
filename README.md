@@ -34,6 +34,7 @@ can download and install it from the official
 [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer).
 
 ### Clone this repository to your local machine
+
 ```bash
 # New machine without git
 nix-shell -p git
@@ -67,7 +68,6 @@ Here's an overview of what my Nix configuration offers:
   modular structure.
 
 - **External Dependency Integrations**:
-
   - [Nixvim](https://github.com/nix-community/nixvim) for Neovim configuration.
   - Access the Nix User Repository (NUR) for additional packages and
     enhancements.
@@ -110,6 +110,7 @@ Learn more at the
 [dendritic pattern documentation](https://github.com/mightyiam/dendritic).
 
 ### Directory Structure
+
 ```
 .
 ├── flake.nix              # Main flake entry point

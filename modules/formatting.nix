@@ -14,6 +14,8 @@
         global.excludes = [
           "*.jpg"
           "*.png"
+          ".github/CODEOWNERS"
+          "*.zsh" # TODO: Find a formatter or transform to nix file
           "LICENSE"
         ];
       };

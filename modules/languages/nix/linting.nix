@@ -1,11 +1,9 @@
 {
-  perSystem = {
-    treefmt.programs = {
-      nixf-diagnose.enable = true;
+  perSystem.treefmt.programs = {
+    nixf-diagnose.enable = true;
 
-      statix = {
-        enable = true;
-      };
+    statix = {
+      enable = true;
     };
   };
 }
