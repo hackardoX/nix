@@ -213,6 +213,7 @@
 
   nixConfig = {
     # abort-on-warn = true;
+    extra-experimental-features = [ "pipe-operators" ];
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
