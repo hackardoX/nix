@@ -1,11 +1,17 @@
 {
   flake.modules = {
-    nixvim.base.plugins.lsp.servers.nixd.enable = true;
+    nixvim.base.plugins.lsp.servers = {
+      nixd.enable = true;
+      statix.enable = true;
+    };
 
     homeManager.base =
       { pkgs, ... }:
       {
-        home.packages = [ pkgs.nixd ];
+        home.packages = with pkgs; [
+          nixd
+          statix
+        ];
       };
   };
 }
