@@ -2,7 +2,10 @@
 {
   imports = [ inputs.git-hooks.flakeModule ];
 
-  perSystem = {
-    pre-commit.check.enable = true;
-  };
+  perSystem =
+    { config, ... }:
+    {
+      make-shells.default.shellHook = config.pre-commit.installationScript;
+      pre-commit.check.enable = true;
+    };
 }
