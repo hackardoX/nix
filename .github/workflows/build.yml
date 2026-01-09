@@ -17,6 +17,9 @@ jobs:
       #   with:
       #     hatchet-protocol: "holster"
       - uses: DeterminateSystems/nix-installer-action@v21
+        with:
+          extra-conf: |-
+            extra-experimental-features = pipe-operators
       - uses: DeterminateSystems/magic-nix-cache-action@v13
       - uses: cachix/cachix-action@v16
         with:
