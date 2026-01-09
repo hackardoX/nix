@@ -12,6 +12,7 @@
             dialect = "uk";
             enter_accept = true;
             filter_mode = "workspace";
+            inline_height = 12;
             key_path = config.programs.onepassword-secrets.secretPaths.atuinKey;
             keymap_mode = "auto";
             style = "auto";

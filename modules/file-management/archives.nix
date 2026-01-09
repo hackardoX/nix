@@ -32,7 +32,7 @@
             mimeTypes
             |> map (mime: {
               inherit mime;
-              run = lib.getExe pkgs.ouch;
+              run = "ouch";
             });
 
           opener.extract = [

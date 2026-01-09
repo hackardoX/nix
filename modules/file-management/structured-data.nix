@@ -1,5 +1,4 @@
-{ lib, ... }:
-{
+_: {
   flake.modules.homeManager.base =
     { pkgs, ... }:
     {
@@ -30,7 +29,7 @@
               in
               map (ext: {
                 url = "*.${ext}";
-                run = lib.getExe pkgs.duckdb;
+                run = "duckdb";
                 multi = false;
               }) multiFileTypes;
 
@@ -48,7 +47,7 @@
               in
               map (ext: {
                 url = "*.${ext}";
-                run = lib.getExe pkgs.duckdb;
+                run = "duckdb";
               }) fileTypes;
           };
         };

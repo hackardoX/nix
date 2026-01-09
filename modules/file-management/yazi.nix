@@ -12,7 +12,7 @@
         '';
 
         plugins = {
-          inherit (pkgs.yaziPlugins) full-border;
+          inherit (pkgs.yaziPlugins) full-border piper;
         };
 
         settings = {
