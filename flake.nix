@@ -1,12 +1,9 @@
 {
-  description = "A very basic flake";
+  description = "My flake";
+  inputs.self.submodules = true;
   inputs = {
     android-nixpkgs = {
       url = "github:tadfisher/android-nixpkgs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    op-shell-plugins = {
-      url = "github:1password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     catppuccin = {
@@ -21,6 +18,22 @@
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs = {
+        flake-compat.follows = "";
+        # utils.follows = "flake-utils";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
     git-hooks = {
       url = "github:cachix/git-hooks.nix";
       inputs = {
@@ -34,17 +47,27 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    homebrew-core = {
-      url = "github:homebrew/homebrew-core";
-      flake = false;
-    };
     homebrew-cask = {
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
-    homebrew-tap-krunkit = {
-      url = "github:slp/homebrew-krun";
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
       flake = false;
+    };
+    import-tree = {
+      url = "github:vic/import-tree";
+    };
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote";
+      inputs = {
+        pre-commit.follows = "git-hooks";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+    make-shell = {
+      url = "github:nicknovitski/make-shell";
+      inputs.flake-compat.follows = "";
     };
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
@@ -53,6 +76,13 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs = {
+        flake-parts.follows = "flake-parts";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
     nix4vscode = {
       url = "github:nix-community/nix4vscode";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -60,25 +90,44 @@
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
     };
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+    };
+    op-shell-plugins = {
+      url = "github:1password/shell-plugins";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     opnix = {
       url = "github:brizzbuzz/opnix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    snowfall-lib = {
-      url = "github:snowfallorg/lib";
-      inputs.nixpkgs.follows = "nixpkgs";
+    refjump-nvim = {
+      flake = false;
+      url = "github:mawkler/refjump.nvim";
+    };
+    smart-scrolloff-nvim = {
+      flake = false;
+      url = "github:tonymajestro/smart-scrolloff.nvim";
     };
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    systems = {
+      url = "github:nix-systems/default";
+    };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vim-autoread = {
+      flake = false;
+      url = "github:djoshea/vim-autoread/24061f84652d768bfb85d222c88580b3af138dab";
+    };
   };
 
-  outputs =
+  /*
+    outputs =
     inputs:
     let
       inherit (inputs) snowfall-lib treefmt-nix;
@@ -160,4 +209,12 @@
         formatter = treefmt-nix.lib.mkWrapper channels.nixpkgs ./treefmt.nix;
       };
     };
+  */
+
+  nixConfig = {
+    # abort-on-warn = true;
+    extra-experimental-features = [ "pipe-operators" ];
+  };
+
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }

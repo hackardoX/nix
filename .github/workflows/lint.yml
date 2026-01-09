@@ -2,6 +2,7 @@ name: Lint
 on: pull_request
 jobs:
   statix:
+    if: ${{ false }} # TODO: Wait for pipe operator statix support (https://github.com/oppiliappan/statix/issues/139)
     name: Lint checks
     runs-on: ubuntu-latest
     steps:
