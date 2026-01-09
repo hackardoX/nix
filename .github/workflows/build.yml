@@ -13,9 +13,9 @@ jobs:
         os: [macos-latest]
     steps:
       - uses: actions/checkout@v6
-      - uses: wimpysworld/nothing-but-nix@main
-        with:
-          hatchet-protocol: "holster"
+      # - uses: wimpysworld/nothing-but-nix@main
+      #   with:
+      #     hatchet-protocol: "holster"
       - uses: DeterminateSystems/nix-installer-action@v21
       - uses: DeterminateSystems/magic-nix-cache-action@v13
       - uses: cachix/cachix-action@v16
