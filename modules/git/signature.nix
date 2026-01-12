@@ -20,6 +20,9 @@
           signer = "${pkgs._1password-gui}/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
           signByDefault = true;
         };
+        settings = {
+          gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+        };
       };
     };
 }
