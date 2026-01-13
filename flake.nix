@@ -4,7 +4,10 @@
   inputs = {
     android-nixpkgs = {
       url = "github:tadfisher/android-nixpkgs";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        flake-utils.follows = "flake-utils";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
     catppuccin = {
       url = "github:catppuccin/nix";
@@ -22,13 +25,17 @@
       url = "github:serokell/deploy-rs";
       inputs = {
         flake-compat.follows = "";
-        # utils.follows = "flake-utils";
+        utils.follows = "flake-utils";
         nixpkgs.follows = "nixpkgs";
       };
     };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
     };
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -81,11 +88,15 @@
       inputs = {
         flake-parts.follows = "flake-parts";
         nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
       };
     };
     nix4vscode = {
       url = "github:nix-community/nix4vscode";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
     };
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -95,11 +106,17 @@
     };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
     };
     opnix = {
       url = "github:brizzbuzz/opnix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        flake-utils.follows = "flake-utils";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
     refjump-nvim = {
       flake = false;
@@ -111,7 +128,10 @@
     };
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
     };
     systems = {
       url = "github:nix-systems/default";
