@@ -24,7 +24,7 @@
         onepassword-secrets.secrets = {
           atuinKey = {
             path = ".secrets/.atuinkey";
-            reference = "op://development/atuin/key";
+            reference = "op://Development/Atuin/key";
             group = "staff";
           };
         };

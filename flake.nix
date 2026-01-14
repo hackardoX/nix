@@ -1,6 +1,5 @@
 {
   description = "My flake";
-  inputs.self.submodules = true;
   inputs = {
     android-nixpkgs = {
       url = "github:tadfisher/android-nixpkgs";
