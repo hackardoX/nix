@@ -50,9 +50,9 @@ in
                   default = null;
                 };
                 identitiesOnly = lib.mkOption {
-                  type = lib.types.nullOr lib.types.bool;
+                  type = lib.types.bool;
                   description = "Whether to use only the specified identities.";
-                  default = null;
+                  default = true;
                 };
                 identityFile = lib.mkOption {
                   type = lib.types.nullOr lib.types.str;
