@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.nixvim.base.globals =
+  flake.modules.nixvim.dev.globals =
     [
       "mapleader"
       "maplocalleader"

@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.plugins.nvim-surround.enable = true;
+  flake.modules.nixvim.dev.plugins.nvim-surround.enable = true;
 }

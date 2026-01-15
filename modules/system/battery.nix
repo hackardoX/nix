@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.laptop =
     { pkgs, ... }:
     lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       home.packages = [

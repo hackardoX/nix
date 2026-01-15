@@ -17,7 +17,7 @@
 
   config.flake = {
     darwinConfigurations = lib.flip lib.mapAttrs config.configurations.darwin (
-      _name: { module }: inputs.darwin.lib.darwinSystem { modules = [ module ]; }
+      _name: { module, ... }: inputs.darwin.lib.darwinSystem { modules = [ module ]; }
     );
 
     checks =

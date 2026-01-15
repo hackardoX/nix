@@ -7,27 +7,30 @@
       name = "hetzner-homelab";
       uid = 501;
       authorizedKeys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu"
       ];
     };
 
     modules = {
       nixos.hetzner =
-        { pkgs, ... }:
+        nixosArgs@{ pkgs, ... }:
         {
           users = {
             mutableUsers = false;
             users = {
-              hetzner = {
+              ${config.flake.meta.users.hetzner.name} = {
                 inherit (config.flake.meta.users.hetzner) description;
                 isNormalUser = true;
                 shell = pkgs.zsh;
-                hashedPasswordFile = config.programs.onepassword-secrets.secretPaths.hetznerUserPasswor or null;
+                hashedPasswordFile =
+                  nixosArgs.config.home-manager.users.${config.flake.meta.users.hetzner.name}.programs.onepassword-secrets.secretPaths.hetznerUserPassword;
                 extraGroups = [
                   "wheel"
                 ];
                 openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
               };
+
+              root.hashedPassword = "!";
             };
           };
         };

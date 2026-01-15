@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.nixvim.base.plugins.lualine = {
+  flake.modules.nixvim.dev.plugins.lualine = {
     enable = true;
     settings =
       let

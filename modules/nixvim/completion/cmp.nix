@@ -1,5 +1,5 @@
 {
-  flake.modules.nixvim.base.plugins = {
+  flake.modules.nixvim.dev.plugins = {
     cmp = {
       enable = true;
       settings = {

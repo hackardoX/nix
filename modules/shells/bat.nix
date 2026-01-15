@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.shell =
     { pkgs, ... }:
     {
       programs.bat = {

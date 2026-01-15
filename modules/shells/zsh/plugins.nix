@@ -1,6 +1,7 @@
+{ lib, ... }:
 {
-  flake.modules.homeManager.base =
-    { pkgs, ... }:
+  flake.modules.homeManager.shell =
+    { config, pkgs, ... }:
     {
       programs.zsh = {
         plugins = [
@@ -40,6 +41,8 @@
             };
             file = "zsh-completion-sync.plugin.zsh";
           }
+        ]
+        ++ lib.optionals (!config.programs.atuin.enable) [
           # Fuzzy search through command history using fzf
           {
             name = "zsh-fzf-history-search";

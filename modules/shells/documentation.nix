@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.base.programs = {
+  flake.modules.homeManager.dev.programs = {
     tealdeer = {
       enable = true;
       settings.display.use_pager = true;

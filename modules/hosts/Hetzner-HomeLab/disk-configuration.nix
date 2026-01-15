@@ -9,11 +9,12 @@
             type = "gpt";
             partitions = {
               boot = {
+                name = "boot";
                 size = "1M";
                 type = "EF02";
-                priority = 1;
               };
               ESP = {
+                name = "esp";
                 size = "512M";
                 type = "EF00";
                 content = {
@@ -22,12 +23,50 @@
                   mountpoint = "/boot";
                 };
               };
-              root = {
+              luks = {
                 size = "100%";
                 content = {
-                  type = "filesystem";
-                  format = "ext4";
-                  mountpoint = "/";
+                  type = "luks";
+                  name = "nixos";
+                  passwordFile = "/tmp/disk.key";
+                  settings = {
+                    allowDiscards = true;
+                    bypassWorkqueues = true;
+                  };
+                  content = {
+                    type = "btrfs";
+                    extraArgs = [
+                      "-L"
+                      "nixos"
+                      "-f"
+                    ];
+                    subvolumes =
+                      let
+                        btrfsopt = [
+                          "compress=zstd"
+                          "noatime"
+                          "ssd"
+                        ];
+                      in
+                      {
+                        "@root" = {
+                          mountpoint = "/";
+                          mountOptions = btrfsopt;
+                        };
+                        "@home" = {
+                          mountpoint = "/home";
+                          mountOptions = btrfsopt;
+                        };
+                        "@nix" = {
+                          mountpoint = "/nix";
+                          mountOptions = btrfsopt;
+                        };
+                        "@data" = {
+                          mountpoint = "/data";
+                          mountOptions = btrfsopt;
+                        };
+                      };
+                  };
                 };
               };
             };

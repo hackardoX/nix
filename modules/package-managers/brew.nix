@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.darwin.base =
+  flake.modules.darwin.laptop =
     { config, ... }:
     {
       imports = [

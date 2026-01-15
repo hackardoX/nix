@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.plugins.diffview.enable = true;
+  flake.modules.nixvim.dev.plugins.diffview.enable = true;
 }
