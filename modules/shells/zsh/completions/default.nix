@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base.programs.zsh = {
+  flake.modules.homeManager.shell.programs.zsh = {
     completionInit = # Bash
       ''
         autoload -U compinit

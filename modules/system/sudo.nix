@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base.security = {
+  flake.modules.darwin.laptop.security = {
     pam.services = {
       sudo_local = {
         reattach = true;

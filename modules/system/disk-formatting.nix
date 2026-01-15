@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.nixos.hetzner = {
+  flake.modules.nixos.base = {
     imports = [ inputs.disko.nixosModules.disko ];
   };
 }

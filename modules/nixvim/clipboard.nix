@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.clipboard.register = "unnamedplus";
+  flake.modules.nixvim.dev.clipboard.register = "unnamedplus";
 }

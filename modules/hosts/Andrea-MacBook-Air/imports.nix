@@ -3,9 +3,11 @@
   configurations.darwin.Andrea-MacBook-Air.module = {
     imports = with config.flake.modules.darwin; [
       base
-      # dev
-      media
+      dev
+      laptop
       password-manager
+      shell
+      theme
     ];
   };
 }

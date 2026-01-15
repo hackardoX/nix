@@ -16,17 +16,11 @@
       {
         nixos.base = sshSettings;
         darwin.base = sshSettings;
-        homeManager.base =
+        homeManager.dev =
           { config, pkgs, ... }:
           {
             config = {
               programs.gh = {
-                # package = pkgs.gh.overrideAttrs (oldAttrs: {
-                #   buildInputs = oldAttrs.buildInputs or [ ] ++ [ pkgs.makeWrapper ];
-                #   postInstall = oldAttrs.postInstall or "" + ''
-                #     wrapProgram $out/bin/gh --unset GITHUB_TOKEN
-                #   '';
-                # });
                 enable = true;
                 settings.git_protocol = "ssh";
               };
@@ -37,7 +31,7 @@
                 "github.com" = {
                   hostname = "github.com";
                   forwardAgent = false;
-                  identityFile = config.programs.onepassword-secrets.secretPaths.githubAuthorisation;
+                  identityFile = config.programs.onepassword-secrets.secretPaths.githubAuthorisationPublicKey;
                   identitiesOnly = true;
                 };
               };

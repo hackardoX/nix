@@ -1,6 +1,6 @@
-{ lib, ... }:
+{ config, ... }:
 {
   configurations.darwin.Andrea-MacBook-Air.module = {
-    system.primaryUser = lib.mkForce "aaccardo"; # config.flake.meta.hackardo.name;
+    system.primaryUser = config.flake.meta.users.hackardo.name;
   };
 }

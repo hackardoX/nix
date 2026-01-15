@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.base = {
+  flake.modules.homeManager.dev = {
     programs = {
       difftastic = {
         options.background = "dark";

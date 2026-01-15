@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.nixvim.base.plugins.lsp.keymaps = {
+  flake.modules.nixvim.dev.plugins.lsp.keymaps = {
     lspBuf = {
       K = "hover";
       "<C-k>" = "signature_help";

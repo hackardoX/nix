@@ -1,5 +1,5 @@
 {
-  flake.modules.nixvim.base.keymaps =
+  flake.modules.nixvim.dev.keymaps =
     map
       (key: {
         inherit key;

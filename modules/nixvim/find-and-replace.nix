@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.nixvim.base =
+  flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
       plugins.grug-far = {

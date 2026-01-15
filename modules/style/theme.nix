@@ -3,23 +3,12 @@
   ...
 }:
 {
-  flake.modules.homeManager.base = {
+  flake.modules.homeManager.theme = {
     imports = [ inputs.catppuccin.homeModules.catppuccin ];
     catppuccin = {
       enable = true;
       accent = "blue";
       flavor = "macchiato";
-
-      # vscode.profiles = builtins.listToAttrs (
-      #   map (name: {
-      #     inherit name;
-      #     value = {
-      #       settings = {
-      #         syncWithIconPack = false;
-      #       };
-      #     };
-      #   }) config.vscode.profiles
-      # );
     };
   };
 }

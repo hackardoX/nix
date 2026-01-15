@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.laptop =
     { osConfig, pkgs, ... }:
     lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       targets.darwin = {

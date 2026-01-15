@@ -1,3 +1,3 @@
 {
-  flake.modules.homeManager.base.programs.zsh.syntaxHighlighting.enable = true;
+  flake.modules.homeManager.shell.programs.zsh.syntaxHighlighting.enable = true;
 }

@@ -5,7 +5,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.dev =
     hmArgs@{ pkgs, ... }:
     let
       # Ideally:
@@ -14,7 +14,7 @@
       nixvim = inputs.nixvim.legacyPackages.${pkgs.stdenv.hostPlatform.system}.makeNixvimWithModule {
         inherit pkgs;
         extraSpecialArgs.homeConfig = hmArgs.config;
-        module = config.flake.modules.nixvim.base;
+        module = config.flake.modules.nixvim.dev;
       };
     in
     {

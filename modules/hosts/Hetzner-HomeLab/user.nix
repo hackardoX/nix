@@ -1,6 +1,6 @@
-{ config, lib, ... }:
+{ config, ... }:
 {
   configurations.nixos.Hetzner-HomeLab.module = {
-    system.primaryUser = lib.mkForce config.flake.meta.users.hetzner.name;
+    system.primaryUser = config.flake.meta.users.hetzner.name;
   };
 }

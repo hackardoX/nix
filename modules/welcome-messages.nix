@@ -1,6 +1,6 @@
 {
   flake.modules = {
-    nixvim.base = {
+    nixvim.dev = {
       extraConfigLua =
         # lua
         ''

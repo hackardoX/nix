@@ -11,11 +11,9 @@ let
 in
 {
   flake.modules = {
-    nixos.base = polyModule;
-
-    darwin.base = polyModule;
-
-    homeManager.base =
+    nixos.shell = polyModule;
+    darwin.shell = polyModule;
+    homeManager.shell =
       { pkgs, ... }:
       {
         home = {

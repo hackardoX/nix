@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base.homebrew.casks = [
+  flake.modules.darwin.laptop.homebrew.casks = [
     "whatsapp"
   ];
 }

@@ -1,3 +1,3 @@
 {
-  flake.modules.homeManager.base.programs.zsh.autocd = true;
+  flake.modules.homeManager.shell.programs.zsh.autocd = true;
 }

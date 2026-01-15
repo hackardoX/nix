@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.laptop = {
     networking = {
       dns = [
         # Cloudflare DNS
@@ -18,5 +18,9 @@
         blockAllIncoming = true;
       };
     };
+  };
+
+  flake.modules.nixos.homelab = {
+    networking.firewall.allowedTCPPorts = [ 22 ];
   };
 }

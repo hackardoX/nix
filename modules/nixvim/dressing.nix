@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.plugins.dressing.enable = true;
+  flake.modules.nixvim.dev.plugins.dressing.enable = true;
 }

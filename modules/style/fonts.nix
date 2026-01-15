@@ -21,14 +21,14 @@
   };
 
   config.flake.modules = {
-    darwin.base =
+    darwin.dev =
       { pkgs, ... }:
       {
         fonts.packages = [ pkgs.nerd-fonts.${config.fonts.default.name} ];
         system.defaults.NSGlobalDomain.AppleFontSmoothing = 1;
       };
 
-    homeManager.base =
+    homeManager.dev =
       { pkgs, ... }:
       {
         home.packages = [ pkgs.nerd-fonts.${config.fonts.default.name} ];

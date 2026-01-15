@@ -1,5 +1,5 @@
 {
-  flake.modules.nixvim.base.plugins.telescope.keymaps = {
+  flake.modules.nixvim.dev.plugins.telescope.keymaps = {
     "<leader>ff" = {
       action = "find_files";
     };

@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.dev =
     { pkgs, ... }:
     {
       programs.git.settings.init.templateDir =

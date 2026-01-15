@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.homeManager.base = {
+  flake.modules.homeManager.dev = {
     imports = [ inputs.nix-index-database.homeModules.nix-index ];
     programs = {
       nix-index = {

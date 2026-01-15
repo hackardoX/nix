@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.colorschemes.catppuccin.enable = true;
+  flake.modules.nixvim.dev.colorschemes.catppuccin.enable = true;
 }

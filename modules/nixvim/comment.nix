@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.plugins.comment.enable = true;
+  flake.modules.nixvim.dev.plugins.comment.enable = true;
 }

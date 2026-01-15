@@ -56,6 +56,26 @@ darwin-rebuild switch --flake .
 nh darwin switch
 ```
 
+## Remote Deployment
+
+For NixOS nodes (like Hetzner VPS), I use [nixos-anywhere](https://github.com/nix-community/nixos-anywhere) for the initial unattended installation and [deploy-rs](https://github.com/serokell/deploy-rs) for subsequent updates.
+
+### Initial Provisioning
+
+To install NixOS on a fresh machine (ensure the machine is in a Rescue/Live environment with SSH access):
+
+```bash
+nix run github:nix-community/nixos-anywhere -- --flake .#<nix_host> --build-on remote <user>@<ip_address>
+```
+
+### Updates
+
+Once provisioned, deploy changes safely using deploy-rs:
+
+```bash
+nix run github:serokell/deploy-rs .#<nix_host>
+```
+
 ## Features
 
 Here's an overview of what my Nix configuration offers:
@@ -69,8 +89,9 @@ Here's an overview of what my Nix configuration offers:
 
 - **External Dependency Integrations**:
   - [Nixvim](https://github.com/nix-community/nixvim) for Neovim configuration.
-  - Access the Nix User Repository (NUR) for additional packages and
-    enhancements.
+  - [Catppuccin](https://github.com/catppuccin/nix) for consistent, high-quality system-wide theming.
+  - [Git-hooks](https://github.com/cachix/pre-commit-hooks.nix) for automated commit validation (Commitizen, Sign-offs).
+  - [Treefmt-nix](https://github.com/numtide/treefmt-nix) for a unified formatting interface.
 
 - **macOS Support**: Seamlessly configure and manage Nix on macOS using
   [nix-darwin](https://github.com/LnL7/nix-darwin).
@@ -87,6 +108,8 @@ Here's an overview of what my Nix configuration offers:
 
 - **Secret Management**: Secure handling of sensitive information with
   [opnix](https://github.com/brizzbuzz/opnix).
+
+- **Remote Deployment**: Easily deploy Nix configuration with [deploy-rs](https://github.com/serokell/deploy-rs)
 
 ## Architecture
 

@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.darwin.media =
+  flake.modules.darwin.laptop =
     { pkgs, ... }:
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.system};

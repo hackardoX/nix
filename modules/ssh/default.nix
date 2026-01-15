@@ -6,8 +6,7 @@
 }:
 let
   myReachableHosts =
-    # config.flake.nixosConfigurations // config.flake.darwinConfigurations
-    config.flake.darwinConfigurations
+    (config.flake.nixosConfigurations or { }) // (config.flake.darwinConfigurations or { })
     |> lib.filterAttrs (
       _name: host:
       !(lib.any isNull [
@@ -20,7 +19,7 @@ let
   email = config.flake.meta.users.hackardo.email;
 in
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.dev =
     { config, pkgs, ... }:
     {
       options.ssh = {
@@ -93,10 +92,19 @@ in
           enableDefaultConfig = false;
           matchBlocks =
             myReachableHosts
+            # TODO: Do I need this block?
             |> lib.mapAttrsToList (
               _name: host: {
                 "${host.config.networking.fqdn}" = {
-                  identityFile = "~/.ssh/keys/infra_ed25519";
+                  hostname = host.config.networking.fqdn;
+                  identityFile =
+                    let
+                      name = lib.replaceStrings [ "-" ] [ "" ] host.config.networking.hostName;
+                      secretName = lib.toLower (lib.substring 0 1 name) + lib.substring 1 (-1) name + "PublicKey";
+                    in
+                    config.programs.onepassword-secrets.secretPaths.${secretName};
+                  port = builtins.head host.config.services.openssh.ports;
+                  user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
                 };
               }
             )
