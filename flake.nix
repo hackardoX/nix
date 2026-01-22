@@ -18,7 +18,7 @@
       flake = false;
     };
     darwin = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
+      url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     deploy-rs = {
@@ -29,11 +29,8 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-    determinate = {
-      url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
-    };
     disko = {
-      url = "https://flakehub.com/f/nix-community/disko/1";
+      url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils = {
@@ -41,11 +38,11 @@
       inputs.systems.follows = "systems";
     };
     flake-parts = {
-      url = "https://flakehub.com/f/hercules-ci/flake-parts/0.1";
+      url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
     git-hooks = {
-      url = "https://flakehub.com/f/cachix/git-hooks.nix/0.1";
+      url = "github:cachix/git-hooks.nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         # Optional inputs removed
@@ -54,7 +51,7 @@
       };
     };
     home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     homebrew-cask = {
@@ -69,7 +66,7 @@
       url = "github:vic/import-tree";
     };
     lanzaboote = {
-      url = "https://flakehub.com/f/nix-community/lanzaboote/1";
+      url = "github:nix-community/lanzaboote";
       inputs = {
         pre-commit.follows = "git-hooks";
         nixpkgs.follows = "nixpkgs";
@@ -94,11 +91,18 @@
         systems.follows = "systems";
       };
     };
+    nix4vscode = {
+      url = "github:nix-community/nix4vscode";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
+    };
     nixpkgs = {
-      url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
+      url = "github:nixos/nixpkgs?ref=nixos-unstable";
     };
     nixos-hardware = {
-      url = "github:NixOS/nixos-hardware/master";
+      url = "github:NixOS/nixos-hardware";
     };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
@@ -133,7 +137,7 @@
       url = "github:nix-systems/default";
     };
     treefmt-nix = {
-      url = "https://flakehub.com/f/numtide/treefmt-nix/0.1";
+      url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     vim-autoread = {
@@ -142,10 +146,95 @@
     };
   };
 
-  # nixConfig = {
-  #   abort-on-warn = true;
-  #   extra-experimental-features = [ "pipe-operators" ];
-  # };
+  /*
+    outputs =
+    inputs:
+    let
+      inherit (inputs) snowfall-lib treefmt-nix;
+
+      lib = snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
+
+        snowfall = {
+          meta = {
+            name = "setup-flake";
+            title = "My custom MacOS configuration flake";
+          };
+
+          namespace = "aaccardo";
+        };
+      };
+    in
+    lib.mkFlake {
+      channels-config = {
+        # allowBroken = true;
+        allowUnfree = true;
+        # showDerivationWarnings = [ "maintainerless" ];
+        permittedInsecurePackages = [ ];
+      };
+
+      overlays = with inputs; [
+        nix4vscode.overlays.default
+      ];
+
+      homes.modules = with inputs; [
+        catppuccin.homeModules.catppuccin
+        inputs.op-shell-plugins.hmModules.default
+        nix-index-database.homeModules.nix-index
+        opnix.homeManagerModules.default
+      ];
+
+      systems.modules = {
+        darwin = with inputs; [
+          nix-homebrew.darwinModules.nix-homebrew
+          (
+            {
+              config,
+              namespace,
+              ...
+            }:
+            {
+              nix-homebrew = {
+                inherit (config.${namespace}.tools.homebrew) enable;
+                user = config.${namespace}.user.name;
+                taps = {
+                  "homebrew/homebrew-core" = homebrew-core;
+                  "homebrew/homebrew-cask" = homebrew-cask;
+                  "hackardox/homebrew-formulas" = custom-homebrew-formulas;
+                  "slp/homebrew-krunkit" = homebrew-tap-krunkit;
+                };
+                mutableTaps = false;
+                autoMigrate = true;
+              };
+            }
+          )
+          opnix.darwinModules.default
+          spicetify-nix.darwinModules.spicetify
+        ];
+      };
+
+      templates = {
+        default.description = "Default template";
+        expo.description = "Expo template";
+        next-js.description = "NextJS template";
+        node.description = "Node template";
+        python.description = "Python template";
+        rust.description = "Rust template";
+      };
+
+      # deploy = lib.mkDeploy { inherit (inputs) self; };
+
+      outputs-builder = channels: {
+        formatter = treefmt-nix.lib.mkWrapper channels.nixpkgs ./treefmt.nix;
+      };
+    };
+  */
+
+  nixConfig = {
+    # abort-on-warn = true;
+    extra-experimental-features = [ "pipe-operators" ];
+  };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }
