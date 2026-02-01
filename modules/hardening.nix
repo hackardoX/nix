@@ -1,50 +1,8 @@
 { lib, ... }:
-let
-  basicHardeningPresets = {
-    ProtectSystem = "strict";
-    ProtectHome = true;
-    PrivateTmp = true;
-    NoNewPrivileges = true;
-    ProtectKernelTunables = true;
-    ProtectKernelModules = true;
-    ProtectKernelLogs = true;
-    ProtectControlGroups = true;
-    ProtectProc = "invisible";
-    ProcSubset = "pid";
-  };
-
-  strictHardeningPreset = basicHardeningPresets.basic // {
-    PrivateNetwork = true;
-    PrivateDevices = true;
-    PrivateUsers = true;
-    CapabilityBoundingSet = "";
-    AmbientCapabilities = "";
-    SystemCallFilter = "@system-service";
-    SystemCallArchitectures = "native";
-    MemoryDenyWriteExecute = true;
-    LockPersonality = true;
-    RestrictRealtime = true;
-    RestrictSUIDSGID = true;
-  };
-in
 {
   flake.modules.nixos.hardening =
     { config, ... }:
     {
-      options.systemd.hardeningPresets = {
-        basic = lib.mkOption {
-          type = lib.types.attrs;
-          default = basicHardeningPresets;
-          readonly = true;
-        };
-
-        strict = lib.mkOption {
-          type = lib.types.attrs;
-          default = strictHardeningPreset;
-          readonly = true;
-        };
-      };
-
       config = {
         networking.firewall.enable = true;
 
@@ -121,19 +79,5 @@ in
       };
     };
 
-  flake.modules.darwin.hardening = {
-    options.systemd.hardeningPresets = {
-      basic = lib.mkOption {
-        type = lib.types.attrs;
-        default = basicHardeningPresets;
-        readonly = true;
-      };
-
-      strict = lib.mkOption {
-        type = lib.types.attrs;
-        default = strictHardeningPreset;
-        readonly = true;
-      };
-    };
-  }; # TODO: create an hardening for darwin as well
+  flake.modules.darwin.hardening = { }; # TODO: create an hardening for darwin as well
 }

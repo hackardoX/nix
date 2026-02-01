@@ -14,7 +14,12 @@
               inherit pkgs;
               modules = [
                 config.flake.modules.homeManager.base
-                { home.stateVersion = "24.11"; }
+                {
+                  home.stateVersion = "24.11";
+                  _module.args.osConfig = {
+                    system.primaryUser = "check-user";
+                  };
+                }
               ];
             };
           in

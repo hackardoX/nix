@@ -76,7 +76,6 @@ let
 
         allowed-users = users;
         trusted-users = users;
-        builders-use-substitutes = true;
         download-buffer-size = 500000000;
         http-connections = 25;
         preallocate-contents = true;
@@ -119,28 +118,8 @@ let
           "/usr/bin/env"
         ];
       };
-      linux-builder = {
-        enable = true;
-        systems = [
-          "x86_64-linux"
-          "aarch64-linux"
-        ];
-        config.boot.binfmt.emulatedSystems = [ "x86_64-linux" ];
-        ephemeral = true;
-        maxJobs = 4;
-        config = {
-          virtualisation = {
-            darwin-builder = {
-              diskSize = 40 * 1024;
-              memorySize = 8 * 1024;
-            };
-            cores = 6;
-          };
-        };
-      };
     };
   };
-
 in
 {
   flake.modules.nixos.base = nixConfigBase;

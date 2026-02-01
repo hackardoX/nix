@@ -1,4 +1,9 @@
-{ lib, ... }:
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
 {
   options = {
     configurations.nixos = lib.mkOption {
@@ -53,4 +58,46 @@
       );
     };
   };
+
+  config.flake.deploy.nodes =
+    let
+      nixosNodes =
+        config.configurations.nixos or { }
+        |> lib.filterAttrs (_name: cfg: cfg.deploy != null)
+        |> lib.mapAttrs (
+          name: cfg:
+          let
+            nixosConfig = config.flake.nixosConfigurations.${name};
+            system = nixosConfig.config.nixpkgs.hostPlatform.system;
+          in
+          {
+            hostname = cfg.deploy.hostname;
+            profiles.system = {
+              sshUser = cfg.deploy.sshUser;
+              user = nixosConfig.config.system.primaryUser;
+              path = inputs.deploy-rs.lib.${system}.activate.nixos nixosConfig;
+            };
+          }
+        );
+
+      darwinNodes =
+        config.configurations.darwin or { }
+        |> lib.filterAttrs (_name: cfg: cfg.deploy != null)
+        |> lib.mapAttrs (
+          name: cfg:
+          let
+            darwinConfig = config.flake.darwinConfigurations.${name};
+            system = darwinConfig.config.nixpkgs.hostPlatform.system;
+          in
+          {
+            hostname = cfg.deploy.hostname;
+            profiles.system = {
+              sshUser = cfg.deploy.sshUser;
+              user = darwinConfig.config.system.primaryUser;
+              path = inputs.deploy-rs.lib.${system}.activate.darwin darwinConfig;
+            };
+          }
+        );
+    in
+    nixosNodes // darwinNodes;
 }
