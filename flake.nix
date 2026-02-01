@@ -21,7 +21,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     deploy-rs = {
-      url = "github:serokell/deploy-rs";
+      url = "github:szlend/deploy-rs?ref=7edf1f4fd866fc5718aa5358dc720f4ee90909e3"; # TODO: Revert to "github:serokell/deploy-rs" when https://github.com/serokell/deploy-rs/pull/359 is merged
       inputs = {
         flake-compat.follows = "";
         utils.follows = "flake-utils";
@@ -143,96 +143,6 @@
       flake = false;
       url = "github:djoshea/vim-autoread/24061f84652d768bfb85d222c88580b3af138dab";
     };
-  };
-
-  /*
-    outputs =
-    inputs:
-    let
-      inherit (inputs) snowfall-lib treefmt-nix;
-
-      lib = snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
-
-        snowfall = {
-          meta = {
-            name = "setup-flake";
-            title = "My custom MacOS configuration flake";
-          };
-
-          namespace = "aaccardo";
-        };
-      };
-    in
-    lib.mkFlake {
-      channels-config = {
-        # allowBroken = true;
-        allowUnfree = true;
-        # showDerivationWarnings = [ "maintainerless" ];
-        permittedInsecurePackages = [ ];
-      };
-
-      overlays = with inputs; [
-        nix4vscode.overlays.default
-      ];
-
-      homes.modules = with inputs; [
-        catppuccin.homeModules.catppuccin
-        inputs.op-shell-plugins.hmModules.default
-        nix-index-database.homeModules.nix-index
-        opnix.homeManagerModules.default
-      ];
-
-      systems.modules = {
-        darwin = with inputs; [
-          nix-homebrew.darwinModules.nix-homebrew
-          (
-            {
-              config,
-              namespace,
-              ...
-            }:
-            {
-              nix-homebrew = {
-                inherit (config.${namespace}.tools.homebrew) enable;
-                user = config.${namespace}.user.name;
-                taps = {
-                  "homebrew/homebrew-core" = homebrew-core;
-                  "homebrew/homebrew-cask" = homebrew-cask;
-                  "hackardox/homebrew-formulas" = custom-homebrew-formulas;
-                  "slp/homebrew-krunkit" = homebrew-tap-krunkit;
-                };
-                mutableTaps = false;
-                autoMigrate = true;
-              };
-            }
-          )
-          opnix.darwinModules.default
-          spicetify-nix.darwinModules.spicetify
-        ];
-      };
-
-      templates = {
-        default.description = "Default template";
-        expo.description = "Expo template";
-        next-js.description = "NextJS template";
-        node.description = "Node template";
-        python.description = "Python template";
-        rust.description = "Rust template";
-      };
-
-      # deploy = lib.mkDeploy { inherit (inputs) self; };
-
-      outputs-builder = channels: {
-        formatter = treefmt-nix.lib.mkWrapper channels.nixpkgs ./treefmt.nix;
-      };
-    };
-  */
-
-  nixConfig = {
-    # abort-on-warn = true;
-    extra-experimental-features = [ "pipe-operators" ];
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);

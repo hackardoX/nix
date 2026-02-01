@@ -4,7 +4,7 @@
     meta.users.hetzner = {
       email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
       description = "Hetzner HomeLab";
-      name = "hetzner-homelab";
+      name = "hetzner";
       uid = 501;
       authorizedKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu"
@@ -23,7 +23,7 @@
                 isNormalUser = true;
                 shell = pkgs.zsh;
                 hashedPasswordFile =
-                  nixosArgs.config.home-manager.users.${config.flake.meta.users.hetzner.name}.programs.onepassword-secrets.secretPaths.hetznerUserPassword;
+                  nixosArgs.config.home-manager.users.${config.flake.meta.users.hetzner.name}.programs.onepassword-secrets.secretPaths.hetznerHashedUserPassword;
                 extraGroups = [
                   "wheel"
                 ];
@@ -31,6 +31,13 @@
               };
 
               root.hashedPassword = "!";
+            };
+          };
+          home-manager.users.${config.flake.meta.users.hetzner.name}.programs.onepassword-secrets.secrets = {
+            hetznerHashedUserPassword = {
+              path = ".secrets/.password";
+              reference = "op://Development/Hetzner HomeLab/hashed user password";
+              group = "staff";
             };
           };
         };

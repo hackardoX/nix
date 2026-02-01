@@ -14,7 +14,6 @@
           enable = true;
           extraArgs = "--keep-since 1w --keep 2";
         };
-
         flake = "${config.home.homeDirectory}/Github/nix";
       };
 
