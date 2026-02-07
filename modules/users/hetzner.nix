@@ -23,7 +23,7 @@
                 isNormalUser = true;
                 shell = pkgs.zsh;
                 hashedPasswordFile =
-                  nixosArgs.config.home-manager.users.${config.flake.meta.users.hetzner.name}.programs.onepassword-secrets.secretPaths.hetznerHashedUserPassword;
+                  nixosArgs.config.services.onepassword-secrets.secretPaths.hetznerHashedUserPassword;
                 extraGroups = [
                   "wheel"
                 ];
@@ -33,9 +33,9 @@
               root.hashedPassword = "!";
             };
           };
-          home-manager.users.${config.flake.meta.users.hetzner.name}.programs.onepassword-secrets.secrets = {
+          services.onepassword-secrets.secrets = {
             hetznerHashedUserPassword = {
-              path = ".secrets/.password";
+              path = "/etc/.secrets/.hetzner_password";
               reference = "op://Development/Hetzner HomeLab/hashed user password";
               group = "staff";
             };

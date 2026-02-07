@@ -82,6 +82,9 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-mineral = {
+      url = "github:cynicsketch/nix-mineral";
+    };
     nixvim = {
       url = "github:nix-community/nixvim";
       inputs = {
