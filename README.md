@@ -144,3 +144,6 @@ Configurations that inspired this setup:
   Initial starting point
 - [khaneliman/khanelinix](https://github.com/khaneliman/khanelinix) -
   Configuration inspiration
+
+Documentation:
+- [dendritic pattern](https://github.com/Doc-Steve/dendritic-design-with-flake-parts)
