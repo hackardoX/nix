@@ -2,8 +2,11 @@
 {
   configurations.nixos.Hetzner-HomeLab = {
     deploy = {
-      hostname = "135.181.200.250";
+      hostname = "hetzner-homelab";
       sshUser = config.flake.meta.users.hetzner.name;
+      remoteBuild = true;
+      interactiveSudo = true;
+      user = "root";
     };
   };
 }

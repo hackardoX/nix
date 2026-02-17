@@ -34,7 +34,7 @@
           };
         };
       };
-      # kernelParams = [ "ip=dhcp" ];
+      kernelParams = [ "ip=dhcp" ];
     };
     services.openssh.enable = true;
   };

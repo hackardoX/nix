@@ -1,13 +1,13 @@
 {
   description = "My flake";
   inputs = {
-    android-nixpkgs = {
-      url = "github:tadfisher/android-nixpkgs";
-      inputs = {
-        flake-utils.follows = "flake-utils";
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
+    # android-nixpkgs = {
+    #   url = "github:tadfisher/android-nixpkgs";
+    #   inputs = {
+    #     flake-utils.follows = "flake-utils";
+    #     nixpkgs.follows = "nixpkgs";
+    #   };
+    # };
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,7 +21,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     deploy-rs = {
-      url = "github:szlend/deploy-rs?ref=7edf1f4fd866fc5718aa5358dc720f4ee90909e3"; # TODO: Revert to "github:serokell/deploy-rs" when https://github.com/serokell/deploy-rs/pull/359 is merged
+      url = "github:serokell/deploy-rs";
       inputs = {
         flake-compat.follows = "";
         utils.follows = "flake-utils";
@@ -84,6 +84,11 @@
     };
     nix-mineral = {
       url = "github:cynicsketch/nix-mineral";
+      inputs = {
+        flake-compat.follows = "";
+        flake-parts.follows = "flake-parts";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
     nixvim = {
       url = "github:nix-community/nixvim";
@@ -93,13 +98,13 @@
         systems.follows = "systems";
       };
     };
-    nix4vscode = {
-      url = "github:nix-community/nix4vscode";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-      };
-    };
+    # nix4vscode = {
+    #   url = "github:nix-community/nix4vscode";
+    #   inputs = {
+    #     nixpkgs.follows = "nixpkgs";
+    #     systems.follows = "systems";
+    #   };
+    # };
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
     };

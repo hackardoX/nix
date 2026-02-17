@@ -5,18 +5,16 @@
       inputs.nix-mineral.nixosModules.nix-mineral
     ];
 
-    nix-mineral = {
-      enable = true;
-      preset = "compatibility";
-    };
+    # nix-mineral = {
+    #   enable = true;
+    #   preset = "compatibility";
+    # };
 
     networking.firewall = {
       enable = true;
       allowedTCPPorts = [ ];
       allowedUDPPorts = [ ];
     };
-
-    systemd.coredump.enable = false;
 
     services = {
       openssh = {

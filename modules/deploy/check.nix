@@ -1,12 +1,15 @@
 {
   config,
   inputs,
+  lib,
   ...
 }:
 {
   perSystem =
-    { system, ... }:
+    { pkgs, system, ... }:
     {
-      checks = inputs.deploy-rs.lib.${system}.deployChecks config.flake.deploy or { };
+      checks = lib.optionalAttrs pkgs.stdenv.isLinux (
+        inputs.deploy-rs.lib.${system}.deployChecks config.flake.deploy or { }
+      );
     };
 }

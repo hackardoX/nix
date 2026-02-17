@@ -26,6 +26,7 @@
                   nixosArgs.config.services.onepassword-secrets.secretPaths.hetznerHashedUserPassword;
                 extraGroups = [
                   "wheel"
+                  "onepassword-secrets"
                 ];
                 openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
               };
@@ -37,7 +38,7 @@
             hetznerHashedUserPassword = {
               path = "/etc/.secrets/.hetzner_password";
               reference = "op://Development/Hetzner HomeLab/hashed user password";
-              group = "staff";
+              group = "wheel";
             };
           };
         };
