@@ -10,23 +10,9 @@
       type = lib.types.lazyAttrsOf (
         lib.types.submodule {
           options.deploy = lib.mkOption {
-            type = lib.types.nullOr (
-              lib.types.submodule {
-                options = {
-                  hostname = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Hostname or IP to deploy to";
-                  };
-                  sshUser = lib.mkOption {
-                    type = lib.types.str;
-                    default = "root";
-                    description = "SSH user for deployment";
-                  };
-                };
-              }
-            );
+            type = lib.types.nullOr lib.types.attrs;
             default = null;
-            description = "Deploy configuration for this host";
+            description = "All deploy-rs options";
           };
         }
       );
@@ -36,23 +22,9 @@
       type = lib.types.lazyAttrsOf (
         lib.types.submodule {
           options.deploy = lib.mkOption {
-            type = lib.types.nullOr (
-              lib.types.submodule {
-                options = {
-                  hostname = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Hostname or IP to deploy to";
-                  };
-                  sshUser = lib.mkOption {
-                    type = lib.types.str;
-                    default = "root";
-                    description = "SSH user for deployment";
-                  };
-                };
-              }
-            );
+            type = lib.types.nullOr lib.types.attrs;
             default = null;
-            description = "Deploy configuration for this host";
+            description = "All deploy-rs options";
           };
         }
       );
@@ -73,10 +45,9 @@
           {
             hostname = cfg.deploy.hostname;
             profiles.system = {
-              sshUser = cfg.deploy.sshUser;
-              user = nixosConfig.config.system.primaryUser;
               path = inputs.deploy-rs.lib.${system}.activate.nixos nixosConfig;
-            };
+            }
+            // cfg.deploy;
           }
         );
 
@@ -92,10 +63,9 @@
           {
             hostname = cfg.deploy.hostname;
             profiles.system = {
-              sshUser = cfg.deploy.sshUser;
-              user = darwinConfig.config.system.primaryUser;
               path = inputs.deploy-rs.lib.${system}.activate.darwin darwinConfig;
-            };
+            }
+            // cfg.deploy;
           }
         );
     in

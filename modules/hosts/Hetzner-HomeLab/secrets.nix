@@ -4,12 +4,12 @@
       hetznerHomeLabPrivateKey = {
         path = "/etc/ssh/ssh_host_ed25519_key";
         reference = "op://Development/Hetzner HomeLab/private key";
-        group = "staff";
+        group = "wheel";
       };
       hetznerHomeLabPublicKey = {
         path = "/etc/ssh/ssh_host_ed25519_key.pub";
         reference = "op://Development/Hetzner HomeLab/public key";
-        group = "staff";
+        group = "wheel";
       };
     };
   };
