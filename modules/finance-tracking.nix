@@ -40,18 +40,12 @@
           reference = "op://Development/Sure Finance Secrets/postgres password";
           owner = "postgres";
           group = "postgres";
-          services = [
-            "sure-finance-db-init"
-          ];
         };
         sureFinanceRedisPasswordPath = {
           path = "/etc/.secrets/sure-finance/redis_password";
           reference = "op://Development/Sure Finance Secrets/redis password";
           owner = "redis-sure-finance";
           group = "redis-sure-finance";
-          services = [
-            "redis-sure-finance"
-          ];
         };
         sureFinanceOpenAiTokenPath = {
           path = "/etc/.secrets/sure-finance/openai_token";

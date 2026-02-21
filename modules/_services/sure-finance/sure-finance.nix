@@ -27,9 +27,6 @@ let
     DB_HOST = cfg.database.host;
     DB_PORT = toString cfg.database.port;
 
-    # Redis configuration
-    REDIS_URL = "redis://${cfg.redis.host}:${toString cfg.redis.port}/1";
-
     # SSL configuration
     RAILS_FORCE_SSL = lib.boolToString cfg.forceSSL;
     RAILS_ASSUME_SSL = lib.boolToString cfg.assumeSSL;
@@ -259,46 +256,32 @@ in
       };
 
       script = ''
-        set -e  # Exit on any error
+        set -euo pipefail
 
-        # Wait for PostgreSQL
         until ${config.services.postgresql.package}/bin/pg_isready -q; do
           echo "Waiting for PostgreSQL..."
           sleep 1
         done
 
-        echo "Reading password from ${cfg.secrets.postgresPasswordPath}"
-
-        # Check if file exists and is readable
         if [ ! -f "${cfg.secrets.postgresPasswordPath}" ]; then
-          echo "ERROR: Password file does not exist!"
+          echo "ERROR: Password file ${cfg.secrets.postgresPasswordPath} not found!"
           exit 1
         fi
 
-        # Read password
-        DB_PASS=$(cat ${cfg.secrets.postgresPasswordPath})
+        DB_PASS=$(cat "${cfg.secrets.postgresPasswordPath}")
 
-        if [ -z "$DB_PASS" ]; then
-          echo "ERROR: Password is empty!"
-          exit 1
-        fi
+        echo "Updating password for user ${cfg.database.user}..."
 
-        echo "Setting password for user ${cfg.database.user}"
+        export NEW_PASS="$DB_PASS"
+        ${config.services.postgresql.package}/bin/psql -v ON_ERROR_STOP=1 <<EOF
+          DO \$$
+          BEGIN
+            EXECUTE format('ALTER USER %I WITH PASSWORD %L', '${cfg.database.user}', '${"\$NEW_PASS"}');
+          END
+          \$$;
+        EOF
 
-        # Use psql with proper escaping - read password from stdin
-        echo "ALTER USER ${cfg.database.user} WITH PASSWORD '$DB_PASS';" | \
-          ${config.services.postgresql.package}/bin/psql
-
-        # Verify it was set
-        PASSWD_SET=$(${config.services.postgresql.package}/bin/psql -tAc \
-          "SELECT usename FROM pg_shadow WHERE usename='${cfg.database.user}' AND passwd IS NOT NULL;")
-
-        if [ -n "$PASSWD_SET" ]; then
-          echo "✓ Password successfully set for ${cfg.database.user}"
-        else
-          echo "✗ ERROR: Password was not set!"
-          exit 1
-        fi
+        echo "✓ Password synchronization complete."
       '';
     };
 
@@ -307,10 +290,10 @@ in
       enable = true;
       inherit (cfg.redis) port;
       bind = bridgeIP;
-      # requirePassFile = cfg.secrets.redisPasswordPath;
+      requirePassFile = cfg.secrets.redisPasswordPath;
       settings = {
         # Security: disable dangerous commands
-        protected-mode = "no";
+        protected-mode = "yes";
         rename-command = [
           "FLUSHALL ''"
           "FLUSHDB ''"
@@ -358,96 +341,6 @@ in
       };
     };
 
-    # Create Podman secrets from secret files (agnostic to how files are created)
-    systemd.services.sure-finance-secrets = {
-      description = "Create Podman secrets for Sure Finance";
-      wantedBy = [ "multi-user.target" ];
-      before = [
-        "podman-sure-finance-web.service"
-        "podman-sure-finance-worker.service"
-      ];
-
-      # Run after basic system services but don't hardcode specific secrets managers
-      after = [
-        "local-fs.target"
-        "network.target"
-      ];
-
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-      };
-
-      script = ''
-        # Wait for secret files to exist (with timeout)
-        wait_for_file() {
-          local file=$1
-          local timeout=30
-          local elapsed=0
-          
-          while [ ! -f "$file" ]; do
-            if [ $elapsed -ge $timeout ]; then
-              echo "Error: Timeout waiting for secret file: $file"
-              echo "Please ensure your secrets management system is configured correctly."
-              exit 1
-            fi
-            echo "Waiting for secret file: $file ($${elapsed}s/$${timeout}s)"
-            sleep 1
-            elapsed=$((elapsed + 1))
-          done
-          
-          echo "Found secret file: $file"
-        }
-
-        # Wait for all required secret files
-        wait_for_file "${cfg.secrets.secretKeyBasePath}"
-        wait_for_file "${cfg.secrets.postgresPasswordPath}"
-        ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
-          wait_for_file "${cfg.secrets.enableBankingAppIdPath}"
-        ''}
-        ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
-          wait_for_file "${cfg.secrets.openAiTokenPath}"
-        ''}
-
-        # Helper function to create or update a Podman secret
-        update_secret() {
-          local secret_name=$1
-          local secret_file=$2
-          
-          # Remove old secret if it exists (ignore errors)
-          ${pkgs.podman}/bin/podman secret rm "$secret_name" 2>/dev/null || true
-          
-          # Create new secret from file
-          cat "$secret_file" | ${pkgs.podman}/bin/podman secret create "$secret_name" -
-          
-          echo "Created Podman secret: $secret_name"
-        }
-
-        # Create secrets from the configured paths
-        update_secret "sure-finance-secret-key" "${cfg.secrets.secretKeyBasePath}"
-        update_secret "sure-finance-db-password" "${cfg.secrets.postgresPasswordPath}"
-
-        ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
-          update_secret "sure-finance-enable-banking-app-id" "${cfg.secrets.enableBankingAppIdPath}"
-        ''}
-        ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
-          update_secret "sure-finance-openai-token" "${cfg.secrets.openAiTokenPath}"
-        ''}
-      '';
-
-      # Clean up secrets when service is stopped
-      preStop = ''
-        ${pkgs.podman}/bin/podman secret rm sure-finance-secret-key 2>/dev/null || true
-        ${pkgs.podman}/bin/podman secret rm sure-finance-db-password 2>/dev/null || true
-        ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
-          ${pkgs.podman}/bin/podman secret rm sure-finance-enable-banking-app-id 2>/dev/null || true
-        ''}
-        ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
-          ${pkgs.podman}/bin/podman secret rm sure-finance-openai-token 2>/dev/null || true
-        ''}
-      '';
-    };
-
     # OCI containers for Sure Finance
     virtualisation.oci-containers = {
       backend = "podman";
@@ -472,6 +365,7 @@ in
             "--security-opt=no-new-privileges"
             "--secret=sure-finance-secret-key,type=env,target=SECRET_KEY_BASE"
             "--secret=sure-finance-db-password,type=env,target=POSTGRES_PASSWORD"
+            "--secret=sure-finance-redis-url,type=env,target=REDIS_URL"
           ]
           ++ lib.optionals (cfg.secrets.enableBankingAppIdPath != null) [
             "--secret=sure-finance-enable-banking-app-id,type=env,target=ENABLE_BANKING_APP_ID"
@@ -503,6 +397,7 @@ in
             "--security-opt=no-new-privileges"
             "--secret=sure-finance-secret-key,type=env,target=SECRET_KEY_BASE"
             "--secret=sure-finance-db-password,type=env,target=POSTGRES_PASSWORD"
+            "--secret=sure-finance-redis-url,type=env,target=REDIS_URL"
           ]
           ++ lib.optionals (cfg.secrets.enableBankingAppIdPath != null) [
             "--secret=sure-finance-enable-banking-app-id,type=env,target=ENABLE_BANKING_APP_ID"
@@ -516,7 +411,7 @@ in
 
     # Ensure proper service ordering
     systemd.services = {
-      "podman-sure-finance-web" = {
+      podman-sure-finance-web = {
         after = [
           "sure-finance-secrets.service"
         ]
@@ -535,7 +430,7 @@ in
         ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ];
       };
 
-      "podman-sure-finance-worker" = {
+      podman-sure-finance-worker = {
         after = [
           "sure-finance-secrets.service"
         ]
@@ -556,18 +451,20 @@ in
       };
 
       redis-sure-finance = {
-        after = [ "sure-finance-podman-network.service" ];
-        requires = [ "sure-finance-podman-network.service" ];
+        after = [
+          "sure-finance-secrets.service"
+          "sure-finance-podman-network.service"
+        ];
+        requires = [
+          "sure-finance-secrets.service"
+          "sure-finance-podman-network.service"
+        ];
       };
 
       sure-finance-podman-network = {
         description = "Create Sure Finance Podman network";
         wantedBy = [ "multi-user.target" ];
         after = [ "NetworkManager-wait-online.service" ];
-        before = [
-          "podman-sure-finance-web.service"
-          "podman-sure-finance-worker.service"
-        ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -583,6 +480,96 @@ in
           fi
         '';
       };
+
+      sure-finance-secrets = {
+        description = "Create Podman secrets for Sure Finance";
+        wantedBy = [ "multi-user.target" ];
+        after = [
+          "opnix-secrets.service"
+        ];
+        bindsTo = [
+          "opnix-secrets.service"
+        ];
+
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+
+        script = ''
+          # Wait for secret files to exist (with timeout)
+          wait_for_file() {
+            local file=$1
+            local timeout=120
+            local elapsed=0
+            
+            while [ ! -f "$file" ]; do
+              if [ $elapsed -ge $timeout ]; then
+                echo "Error: Timeout waiting for secret file: $file"
+                echo "Please ensure your secrets management system is configured correctly."
+                exit 1
+              fi
+              echo "Waiting for secret file: $file ($${elapsed}s/$${timeout}s)"
+              sleep 1
+              elapsed=$((elapsed + 1))
+            done
+            
+            echo "Found secret file: $file"
+          }
+
+          # Wait for all required secret files
+          wait_for_file "${cfg.secrets.secretKeyBasePath}"
+          wait_for_file "${cfg.secrets.postgresPasswordPath}"
+          wait_for_file "${cfg.secrets.redisPasswordPath}"
+
+          ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
+            wait_for_file "${cfg.secrets.enableBankingAppIdPath}"
+          ''}
+          ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
+            wait_for_file "${cfg.secrets.openAiTokenPath}"
+          ''}
+
+          # Helper function to create or update a Podman secret
+          update_secret() {
+            local secret_name=$1
+            local secret_value=$2
+            
+            # Remove old secret if it exists (ignore errors)
+            ${pkgs.podman}/bin/podman secret rm "$secret_name" 2>/dev/null || true
+            
+            # Create new secret from file
+            echo -n "$secret_value" | ${pkgs.podman}/bin/podman secret create "$secret_name" -
+            
+            echo "Created Podman secret: $secret_name"
+          }
+
+          # Create secrets from the configured paths
+          update_secret "sure-finance-secret-key" $(cat "${cfg.secrets.secretKeyBasePath}")
+          update_secret "sure-finance-db-password" $(cat "${cfg.secrets.postgresPasswordPath}")
+          update_secret "sure-finance-redis-url" "redis://:$(cat ${cfg.secrets.redisPasswordPath})@${cfg.redis.host}:${toString cfg.redis.port}/1"
+
+          ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
+            update_secret "sure-finance-enable-banking-app-id" $(cat "${cfg.secrets.enableBankingAppIdPath}")
+          ''}
+          ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
+            update_secret "sure-finance-openai-token" $(cat "${cfg.secrets.openAiTokenPath}")
+          ''}
+        '';
+
+        # Clean up secrets when service is stopped
+        preStop = ''
+          ${pkgs.podman}/bin/podman secret rm sure-finance-secret-key 2>/dev/null || true
+          ${pkgs.podman}/bin/podman secret rm sure-finance-db-password 2>/dev/null || true
+          ${pkgs.podman}/bin/podman secret rm sure-finance-redis-url 2>/dev/null || true
+          ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
+            ${pkgs.podman}/bin/podman secret rm sure-finance-enable-banking-app-id 2>/dev/null || true
+          ''}
+          ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
+            ${pkgs.podman}/bin/podman secret rm sure-finance-openai-token 2>/dev/null || true
+          ''}
+        '';
+      };
+
     };
 
     networking = {
