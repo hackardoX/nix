@@ -41,6 +41,7 @@
         "2001:4860:4860::8888"
         "2001:4860:4860::8844"
       ];
+      networkmanager.enable = lib.mkDefault true;
     };
   };
 }

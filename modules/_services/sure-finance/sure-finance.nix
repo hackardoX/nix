@@ -9,6 +9,12 @@ let
   cfg = config.services.sure-finance;
   image = "ghcr.io/we-promise/sure:stable";
 
+  # Network configuration
+  bridgePrefix = "10.89.1";
+  bridgeIP = "${bridgePrefix}.1";
+  bridgeSubnet = "${bridgePrefix}.0/28";
+  webContainerIP = "${bridgePrefix}.2";
+
   # Environment variables for both web and worker containers
   containerEnv = {
     RAILS_ENV = "production";
@@ -27,6 +33,10 @@ let
     # SSL configuration
     RAILS_FORCE_SSL = lib.boolToString cfg.forceSSL;
     RAILS_ASSUME_SSL = lib.boolToString cfg.assumeSSL;
+
+    # AI configuration
+    OPENAI_MODEL = cfg.openai.model;
+    OPENAI_URI_BASE = cfg.openai.baseUrl;
   };
 
 in
@@ -59,6 +69,24 @@ in
       description = lib.mdDoc "Whether to assume the app is behind an SSL proxy";
     };
 
+    openai = {
+      baseUrl = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = lib.mdDoc ''
+          Optional base url value used for custom OpenAI compatible LLM.
+        '';
+      };
+
+      model = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = lib.mdDoc ''
+          Optional model to use.
+        '';
+      };
+    };
+
     # Secrets configuration
     secrets = {
       secretKeyBasePath = lib.mkOption {
@@ -75,9 +103,15 @@ in
         type = lib.types.path;
         description = lib.mdDoc ''
           Path to a file containing the POSTGRES_PASSWORD value.
-
           The file should contain only the password value.
-          Generate with: `openssl rand -base64 32`
+        '';
+      };
+
+      redisPasswordPath = lib.mkOption {
+        type = lib.types.path;
+        description = lib.mdDoc ''
+          Path to a file containing the Redis password.
+          The file should contain only the password value.
         '';
       };
 
@@ -89,7 +123,7 @@ in
         '';
       };
 
-      openaiTokenPath = lib.mkOption {
+      openAiTokenPath = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
         description = lib.mdDoc ''
@@ -98,6 +132,7 @@ in
           Only needed if you want to use AI features.
         '';
       };
+
     };
 
     # State directory for persistent storage
@@ -117,7 +152,7 @@ in
 
       host = lib.mkOption {
         type = lib.types.str;
-        default = "localhost";
+        default = bridgeIP;
         description = lib.mdDoc "PostgreSQL host";
       };
 
@@ -150,7 +185,7 @@ in
 
       host = lib.mkOption {
         type = lib.types.str;
-        default = "localhost";
+        default = bridgeIP;
         description = lib.mdDoc "Redis host";
       };
 
@@ -194,20 +229,13 @@ in
           ensureDBOwnership = true;
         }
       ];
-
       # Enable password authentication for the container
-      authentication = lib.mkOverride 10 ''
-        # TYPE  DATABASE        USER            ADDRESS                 METHOD
-
-        # Allow sure_finance user with password from localhost
+      authentication = ''
+        # TYPE  DATABASE               USER                   ADDRESS                 METHOD
         local   ${cfg.database.name}   ${cfg.database.user}                           md5
         host    ${cfg.database.name}   ${cfg.database.user}   127.0.0.1/32            md5
         host    ${cfg.database.name}   ${cfg.database.user}   ::1/128                 md5
-
-        # Default peer auth for other local connections
-        local   all             all                                     peer
-        host    all             all             127.0.0.1/32            ident
-        host    all             all             ::1/128                 ident
+        host    ${cfg.database.name}   ${cfg.database.user}   ${bridgeSubnet}         md5
       '';
 
       # Enable TCP/IP connections
@@ -278,11 +306,11 @@ in
     services.redis.servers.sure-finance = lib.mkIf cfg.redis.enable {
       enable = true;
       inherit (cfg.redis) port;
-      bind = cfg.redis.host;
-
+      bind = bridgeIP;
+      # requirePassFile = cfg.secrets.redisPasswordPath;
       settings = {
         # Security: disable dangerous commands
-        protected-mode = "yes";
+        protected-mode = "no";
         rename-command = [
           "FLUSHALL ''"
           "FLUSHDB ''"
@@ -302,6 +330,7 @@ in
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-XSS-Protection "1; mode=block" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';" always;
       '';
 
       virtualHosts.${cfg.domain} = {
@@ -309,7 +338,7 @@ in
         enableACME = lib.mkDefault cfg.nginx.enableACME;
 
         locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString cfg.port}";
+          proxyPass = "http://${webContainerIP}:${toString cfg.port}";
           proxyWebsockets = true;
 
           extraConfig = ''
@@ -376,8 +405,8 @@ in
         ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
           wait_for_file "${cfg.secrets.enableBankingAppIdPath}"
         ''}
-        ${lib.optionalString (cfg.secrets.openaiTokenPath != null) ''
-          wait_for_file "${cfg.secrets.openaiTokenPath}"
+        ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
+          wait_for_file "${cfg.secrets.openAiTokenPath}"
         ''}
 
         # Helper function to create or update a Podman secret
@@ -401,8 +430,8 @@ in
         ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
           update_secret "sure-finance-enable-banking-app-id" "${cfg.secrets.enableBankingAppIdPath}"
         ''}
-        ${lib.optionalString (cfg.secrets.openaiTokenPath != null) ''
-          update_secret "sure-finance-openai-token" "${cfg.secrets.openaiTokenPath}"
+        ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
+          update_secret "sure-finance-openai-token" "${cfg.secrets.openAiTokenPath}"
         ''}
       '';
 
@@ -410,10 +439,10 @@ in
       preStop = ''
         ${pkgs.podman}/bin/podman secret rm sure-finance-secret-key 2>/dev/null || true
         ${pkgs.podman}/bin/podman secret rm sure-finance-db-password 2>/dev/null || true
-        ${lib.optionalString (cfg.secrets.sure-finance-enable-banking-app-id != null) ''
+        ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
           ${pkgs.podman}/bin/podman secret rm sure-finance-enable-banking-app-id 2>/dev/null || true
         ''}
-        ${lib.optionalString (cfg.secrets.openaiTokenPath != null) ''
+        ${lib.optionalString (cfg.secrets.openAiTokenPath != null) ''
           ${pkgs.podman}/bin/podman secret rm sure-finance-openai-token 2>/dev/null || true
         ''}
       '';
@@ -437,17 +466,17 @@ in
           ];
 
           extraOptions = [
-            "--network=host"
             "--cap-drop=ALL"
-            "--cap-add=NET_BIND_SERVICE"
+            "--network=sure-finance"
+            "--ip=${webContainerIP}"
             "--security-opt=no-new-privileges"
             "--secret=sure-finance-secret-key,type=env,target=SECRET_KEY_BASE"
             "--secret=sure-finance-db-password,type=env,target=POSTGRES_PASSWORD"
           ]
-          ++ lib.optionals (cfg.secrets.sure-finance-enable-banking-app-id != null) [
+          ++ lib.optionals (cfg.secrets.enableBankingAppIdPath != null) [
             "--secret=sure-finance-enable-banking-app-id,type=env,target=ENABLE_BANKING_APP_ID"
           ]
-          ++ lib.optionals (cfg.secrets.openaiTokenPath != null) [
+          ++ lib.optionals (cfg.secrets.openAiTokenPath != null) [
             "--secret=sure-finance-openai-token,type=env,target=OPENAI_ACCESS_TOKEN"
           ];
         };
@@ -469,17 +498,16 @@ in
           ];
 
           extraOptions = [
-            "--network=host"
             "--cap-drop=ALL"
-            "--cap-add=NET_BIND_SERVICE"
+            "--network=sure-finance"
             "--security-opt=no-new-privileges"
             "--secret=sure-finance-secret-key,type=env,target=SECRET_KEY_BASE"
             "--secret=sure-finance-db-password,type=env,target=POSTGRES_PASSWORD"
           ]
-          ++ lib.optionals (cfg.secrets.sure-finance-enable-banking-app-id != null) [
+          ++ lib.optionals (cfg.secrets.enableBankingAppIdPath != null) [
             "--secret=sure-finance-enable-banking-app-id,type=env,target=ENABLE_BANKING_APP_ID"
           ]
-          ++ lib.optionals (cfg.secrets.openaiTokenPath != null) [
+          ++ lib.optionals (cfg.secrets.openAiTokenPath != null) [
             "--secret=sure-finance-openai-token,type=env,target=OPENAI_ACCESS_TOKEN"
           ];
         };
@@ -525,6 +553,70 @@ in
           "sure-finance-db-init.service"
         ]
         ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ];
+      };
+
+      redis-sure-finance = {
+        after = [ "sure-finance-podman-network.service" ];
+        requires = [ "sure-finance-podman-network.service" ];
+      };
+
+      sure-finance-podman-network = {
+        description = "Create Sure Finance Podman network";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "NetworkManager-wait-online.service" ];
+        before = [
+          "podman-sure-finance-web.service"
+          "podman-sure-finance-worker.service"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          if ! ${pkgs.podman}/bin/podman network exists sure-finance 2>/dev/null; then
+            ${pkgs.podman}/bin/podman network create \
+              --opt mode=unmanaged \
+              --interface-name sf-br0 \
+              --subnet ${bridgeSubnet} \
+              --gateway ${bridgeIP} \
+              sure-finance
+          fi
+        '';
+      };
+    };
+
+    networking = {
+      networkmanager.ensureProfiles.profiles = {
+        sf-br0 = {
+          connection = {
+            id = "sf-br0";
+            type = "bridge";
+            interface-name = "sf-br0";
+            autoconnect = true;
+          };
+          bridge = {
+            stp = "false";
+          };
+          ipv4 = {
+            method = "manual";
+            addresses = "${bridgeIP}/24";
+          };
+        };
+        sf-br0-slave = {
+          connection = {
+            id = "sf-br0-slave";
+            type = "ethernet";
+            interface-name = "sf-br0-slave";
+            master = "sf-br0";
+            slave-type = "bridge";
+          };
+        };
+      };
+      firewall.interfaces.sf-br0 = {
+        allowedTCPPorts = [
+          5432
+          6379
+        ];
       };
     };
 

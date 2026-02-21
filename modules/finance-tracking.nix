@@ -10,6 +10,14 @@
             nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinanceSecretKeyBasePath;
           postgresPasswordPath =
             nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinancePostgresPasswordPath;
+          redisPasswordPath =
+            nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinanceRedisPasswordPath;
+          openAiTokenPath =
+            nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinanceOpenAiTokenPath;
+        };
+        openai = {
+          model = "mistral-large-latest";
+          baseUrl = "https://api.mistral.ai/v1";
         };
 
         database.enable = true;
@@ -36,11 +44,20 @@
             "sure-finance-db-init"
           ];
         };
-        # sureFinanceOpenaiTokenPath = {
-        #   path = "/etc/.secrets/sure-finance/openai_token";
-        #   reference = "";
-        #   group = "wheel";
-        # };
+        sureFinanceRedisPasswordPath = {
+          path = "/etc/.secrets/sure-finance/redis_password";
+          reference = "op://Development/Sure Finance Secrets/redis password";
+          owner = "redis-sure-finance";
+          group = "redis-sure-finance";
+          services = [
+            "redis-sure-finance"
+          ];
+        };
+        sureFinanceOpenAiTokenPath = {
+          path = "/etc/.secrets/sure-finance/openai_token";
+          reference = "op://Development/Mistral API Key - Sure Finance/credential";
+          group = "wheel";
+        };
       };
     };
   };
