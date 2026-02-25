@@ -106,7 +106,7 @@
 
       rcloneConfigContent = lib.concatStringsSep "\n\n" (
         lib.mapAttrsToList (
-          name: instanceCfg:
+          _: instanceCfg:
           lib.optionalString (instanceCfg.remote != null && instanceCfg.remoteConfig != null) ''
             [${instanceCfg.remote}]
             ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k} = ${v}") instanceCfg.remoteConfig)}
