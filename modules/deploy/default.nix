@@ -46,6 +46,7 @@
             hostname = cfg.deploy.hostname;
             profiles.system = {
               path = inputs.deploy-rs.lib.${system}.activate.nixos nixosConfig;
+              sshUser = lib.mkDefault config.flake.meta.users.deploy.name;
             }
             // cfg.deploy;
           }
@@ -64,6 +65,7 @@
             hostname = cfg.deploy.hostname;
             profiles.system = {
               path = inputs.deploy-rs.lib.${system}.activate.darwin darwinConfig;
+              sshUser = lib.mkDefault config.flake.meta.users.deploy.name;
             }
             // cfg.deploy;
           }

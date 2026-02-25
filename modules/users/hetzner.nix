@@ -34,11 +34,14 @@
               root.hashedPassword = "!";
             };
           };
-          services.onepassword-secrets.secrets = {
-            hetznerHashedUserPassword = {
-              path = "/etc/.secrets/.hetzner_password";
-              reference = "op://Development/Hetzner HomeLab/hashed user password";
-              group = "wheel";
+          services = {
+            openssh.settings.AllowUsers = [ config.flake.meta.users.hetzner.name ];
+            onepassword-secrets.secrets = {
+              hetznerHashedUserPassword = {
+                path = "/run/secrets/.hetzner_password";
+                reference = "op://Development/Hetzner HomeLab/hashed user password";
+                group = "wheel";
+              };
             };
           };
         };

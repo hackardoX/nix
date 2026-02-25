@@ -7,13 +7,15 @@
 
 let
   cfg = config.services.sure-finance;
+  defaultUser = "sure-finance";
+  defaultGroup = "sure-finance";
   image = "ghcr.io/we-promise/sure:stable";
 
   # Network configuration
   bridgePrefix = "10.89.1";
   bridgeIP = "${bridgePrefix}.1";
   bridgeSubnet = "${bridgePrefix}.0/28";
-  webContainerIP = "${bridgePrefix}.2";
+  # webContainerIP = "${bridgePrefix}.2";
 
   # Environment variables for both web and worker containers
   containerEnv = {
@@ -52,6 +54,18 @@ in
       type = lib.types.port;
       default = 3000;
       description = lib.mdDoc "Port for the web server to bind to";
+    };
+
+    user = lib.mkOption {
+      type = lib.types.str;
+      default = defaultUser;
+      description = lib.mdDoc "User running sure-finance containers";
+    };
+
+    group = lib.mkOption {
+      type = lib.types.str;
+      default = defaultGroup;
+      description = lib.mdDoc "Group running sure-finance containers";
     };
 
     forceSSL = lib.mkOption {
@@ -149,7 +163,8 @@ in
 
       host = lib.mkOption {
         type = lib.types.str;
-        default = bridgeIP;
+        default = "host.containers.internal";
+        # default = bridgeIP;
         description = lib.mdDoc "PostgreSQL host";
       };
 
@@ -182,7 +197,8 @@ in
 
       host = lib.mkOption {
         type = lib.types.str;
-        default = bridgeIP;
+        # default = bridgeIP;
+        default = "host.containers.internal";
         description = lib.mdDoc "Redis host";
       };
 
@@ -216,6 +232,36 @@ in
       dockerCompat = lib.mkDefault true;
     };
 
+    # Create user and group if needed
+    users.users = {
+      ${defaultUser} = lib.mkIf (cfg.user == defaultUser) {
+        isSystemUser = true;
+        inherit (cfg) group;
+        description = "Sure Finance service user";
+        home = cfg.stateDir;
+        linger = false;
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+      };
+    };
+    users.groups.${cfg.group} = {
+      members = [
+        "postgres"
+        "redis-sure-finance"
+        defaultUser
+      ];
+    };
+
     # PostgreSQL database (if enabled)
     services.postgresql = lib.mkIf cfg.database.enable {
       enable = lib.mkDefault true;
@@ -239,57 +285,11 @@ in
       enableTCPIP = lib.mkDefault true;
     };
 
-    systemd.services.sure-finance-db-init = lib.mkIf cfg.database.enable {
-      description = "Initialize Sure Finance database password";
-      after = [
-        "postgresql.service"
-        "sure-finance-secrets.service"
-      ];
-      requires = [ "postgresql.service" ];
-      before = [ "podman-sure-finance-web.service" ];
-      wantedBy = [ "multi-user.target" ];
-
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        User = "postgres";
-      };
-
-      script = ''
-        set -euo pipefail
-
-        until ${config.services.postgresql.package}/bin/pg_isready -q; do
-          echo "Waiting for PostgreSQL..."
-          sleep 1
-        done
-
-        if [ ! -f "${cfg.secrets.postgresPasswordPath}" ]; then
-          echo "ERROR: Password file ${cfg.secrets.postgresPasswordPath} not found!"
-          exit 1
-        fi
-
-        DB_PASS=$(cat "${cfg.secrets.postgresPasswordPath}")
-
-        echo "Updating password for user ${cfg.database.user}..."
-
-        export NEW_PASS="$DB_PASS"
-        ${config.services.postgresql.package}/bin/psql -v ON_ERROR_STOP=1 <<EOF
-          DO \$$
-          BEGIN
-            EXECUTE format('ALTER USER %I WITH PASSWORD %L', '${cfg.database.user}', '${"\$NEW_PASS"}');
-          END
-          \$$;
-        EOF
-
-        echo "✓ Password synchronization complete."
-      '';
-    };
-
     # Redis server (if enabled)
     services.redis.servers.sure-finance = lib.mkIf cfg.redis.enable {
       enable = true;
       inherit (cfg.redis) port;
-      bind = bridgeIP;
+      # bind = bridgeIP;
       requirePassFile = cfg.secrets.redisPasswordPath;
       settings = {
         # Security: disable dangerous commands
@@ -321,7 +321,8 @@ in
         enableACME = lib.mkDefault cfg.nginx.enableACME;
 
         locations."/" = {
-          proxyPass = "http://${webContainerIP}:${toString cfg.port}";
+          # proxyPass = "http://${webContainerIP}:${toString cfg.port}";
+          proxyPass = "http://127.0.0.1:${toString cfg.port}";
           proxyWebsockets = true;
 
           extraConfig = ''
@@ -358,10 +359,14 @@ in
             "${cfg.stateDir}/storage:/rails/storage"
           ];
 
+          inherit (cfg) user;
+          podman.user = cfg.user;
+
           extraOptions = [
+            "--add-host=host.containers.internal:host-gateway"
             "--cap-drop=ALL"
             "--network=sure-finance"
-            "--ip=${webContainerIP}"
+            # "--ip=${webContainerIP}"
             "--security-opt=no-new-privileges"
             "--secret=sure-finance-secret-key,type=env,target=SECRET_KEY_BASE"
             "--secret=sure-finance-db-password,type=env,target=POSTGRES_PASSWORD"
@@ -391,7 +396,11 @@ in
             "${cfg.stateDir}/storage:/rails/storage"
           ];
 
+          inherit (cfg) user;
+          podman.user = cfg.user;
+
           extraOptions = [
+            "--add-host=host.containers.internal:host-gateway"
             "--cap-drop=ALL"
             "--network=sure-finance"
             "--security-opt=no-new-privileges"
@@ -411,89 +420,137 @@ in
 
     # Ensure proper service ordering
     systemd.services = {
-      podman-sure-finance-web = {
-        after = [
-          "sure-finance-secrets.service"
-        ]
-        ++ lib.optionals cfg.database.enable [
-          "postgresql.service"
-          "sure-finance-db-init.service"
-        ]
-        ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ];
-        requires = [
-          "sure-finance-secrets.service"
-        ]
-        ++ lib.optionals cfg.database.enable [
-          "postgresql.service"
-          "sure-finance-db-init.service"
-        ]
-        ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ];
-      };
+      sure-finance-db-init =
+        let
+          serviceDeps = [
+            "postgresql.service"
+            "secrets-sure-finance.service"
+          ];
+        in
+        lib.mkIf cfg.database.enable {
+          description = "Initialize Sure Finance database password";
+          after = serviceDeps;
+          requires = serviceDeps;
+          wantedBy = [ "multi-user.target" ];
 
-      podman-sure-finance-worker = {
-        after = [
-          "sure-finance-secrets.service"
-        ]
-        ++ lib.optionals cfg.database.enable [
-          "postgresql.service"
-          "sure-finance-db-init.service"
-        ]
-        ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ]
-        ++ [ "podman-sure-finance-web.service" ];
-        requires = [
-          "sure-finance-secrets.service"
-        ]
-        ++ lib.optionals cfg.database.enable [
-          "postgresql.service"
-          "sure-finance-db-init.service"
-        ]
-        ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ];
-      };
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            User = "postgres";
+            Group = cfg.group;
+          };
 
-      redis-sure-finance = {
-        after = [
-          "sure-finance-secrets.service"
-          "sure-finance-podman-network.service"
-        ];
-        requires = [
-          "sure-finance-secrets.service"
-          "sure-finance-podman-network.service"
-        ];
-      };
+          script = ''
+            set -euo pipefail
 
-      sure-finance-podman-network = {
+            until ${config.services.postgresql.package}/bin/pg_isready -q; do
+              echo "Waiting for PostgreSQL..."
+              sleep 1
+            done
+
+            if [ ! -f "${cfg.secrets.postgresPasswordPath}" ]; then
+              echo "ERROR: Password file ${cfg.secrets.postgresPasswordPath} not found!"
+              exit 1
+            fi
+
+            DB_PASS=$(cat "${cfg.secrets.postgresPasswordPath}")
+
+            echo "Updating password for user ${cfg.database.user}..."
+
+            export NEW_PASS="$DB_PASS"
+            ${config.services.postgresql.package}/bin/psql -v ON_ERROR_STOP=1 <<EOF
+              DO \$$
+              BEGIN
+                EXECUTE format('ALTER USER %I WITH PASSWORD %L', '${cfg.database.user}', '${"\$NEW_PASS"}');
+              END
+              \$$;
+            EOF
+
+            echo "✓ Password synchronization complete."
+          '';
+        };
+
+      podman-sure-finance-web =
+        let
+          serviceDeps = [
+            "secrets-sure-finance.service"
+          ]
+          ++ lib.optionals cfg.database.enable [
+            "postgresql.service"
+            "sure-finance-db-init.service"
+          ]
+          ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ];
+        in
+        {
+          after = serviceDeps;
+          requires = serviceDeps;
+        };
+
+      podman-sure-finance-worker =
+        let
+          serviceDeps = [
+            "secrets-sure-finance.service"
+          ]
+          ++ lib.optionals cfg.database.enable [
+            "postgresql.service"
+            "sure-finance-db-init.service"
+          ]
+          ++ lib.optionals cfg.redis.enable [ "redis-sure-finance.service" ]
+          ++ [ "podman-sure-finance-web.service" ];
+        in
+        {
+          after = serviceDeps;
+          requires = serviceDeps;
+        };
+
+      redis-sure-finance =
+        let
+          serviceDeps = [
+            "secrets-sure-finance.service"
+            "podman-network-sure-finance.service"
+          ];
+        in
+        {
+          after = serviceDeps;
+          requires = serviceDeps;
+        };
+
+      podman-network-sure-finance = {
         description = "Create Sure Finance Podman network";
         wantedBy = [ "multi-user.target" ];
         after = [ "NetworkManager-wait-online.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
+          User = cfg.user;
+          Group = cfg.group;
         };
         script = ''
           if ! ${pkgs.podman}/bin/podman network exists sure-finance 2>/dev/null; then
             ${pkgs.podman}/bin/podman network create \
-              --opt mode=unmanaged \
-              --interface-name sf-br0 \
+              --interface-name sf-br0 \  
               --subnet ${bridgeSubnet} \
-              --gateway ${bridgeIP} \
               sure-finance
+              # --gateway ${bridgeIP} \
           fi
         '';
       };
 
-      sure-finance-secrets = {
+      secrets-sure-finance = {
         description = "Create Podman secrets for Sure Finance";
-        wantedBy = [ "multi-user.target" ];
         after = [
           "opnix-secrets.service"
         ];
         bindsTo = [
           "opnix-secrets.service"
         ];
+        wantedBy = [ "multi-user.target" ];
 
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
+          User = cfg.user;
+          Group = cfg.group;
         };
 
         script = ''
@@ -546,7 +603,7 @@ in
           # Create secrets from the configured paths
           update_secret "sure-finance-secret-key" $(cat "${cfg.secrets.secretKeyBasePath}")
           update_secret "sure-finance-db-password" $(cat "${cfg.secrets.postgresPasswordPath}")
-          update_secret "sure-finance-redis-url" "redis://:$(cat ${cfg.secrets.redisPasswordPath})@${cfg.redis.host}:${toString cfg.redis.port}/1"
+          update_secret "sure-finance-redis-url" "redis://:$(cat "${cfg.secrets.redisPasswordPath}")@${cfg.redis.host}:${toString cfg.redis.port}/1"
 
           ${lib.optionalString (cfg.secrets.enableBankingAppIdPath != null) ''
             update_secret "sure-finance-enable-banking-app-id" $(cat "${cfg.secrets.enableBankingAppIdPath}")
@@ -569,48 +626,58 @@ in
           ''}
         '';
       };
-
     };
 
-    networking = {
-      networkmanager.ensureProfiles.profiles = {
-        sf-br0 = {
-          connection = {
-            id = "sf-br0";
-            type = "bridge";
-            interface-name = "sf-br0";
-            autoconnect = true;
-          };
-          bridge = {
-            stp = "false";
-          };
-          ipv4 = {
-            method = "manual";
-            addresses = "${bridgeIP}/24";
-          };
-        };
-        sf-br0-slave = {
-          connection = {
-            id = "sf-br0-slave";
-            type = "ethernet";
-            interface-name = "sf-br0-slave";
-            master = "sf-br0";
-            slave-type = "bridge";
-          };
-        };
-      };
-      firewall.interfaces.sf-br0 = {
-        allowedTCPPorts = [
-          5432
-          6379
-        ];
-      };
-    };
+    # networking = {
+    # networkmanager.ensureProfiles.profiles = {
+    #   sf-br0 = {
+    #     connection = {
+    #       id = "sf-br0";
+    #       type = "bridge";
+    #       interface-name = "sf-br0";
+    #       autoconnect = true;
+    #     };
+    #     bridge = {
+    #       stp = "false";
+    #     };
+    #     ipv4 = {
+    #       method = "manual";
+    #       addresses = "${bridgeIP}/24";
+    #     };
+    #   };
+    #   sf-br0-slave = {
+    #     connection = {
+    #       id = "sf-br0-dummy";
+    #       type = "dummy";
+    #       interface-name = "sf-br0-dummy";
+    #       master = "sf-br0";
+    #       slave-type = "bridge";
+    #     };
+    #   };
+    # };
+    # firewall = {
+    #   interfaces.sf-br0 = {
+    #     allowedTCPPorts = [
+    #       5432
+    #       6379
+    #     ];
+    # allowedUDPPorts = [ 53 ];
+    # };
+
+    # extraCommands = ''
+    #   iptables -t nat -A POSTROUTING -i sf-br0 ! -o sf-br0 -j MASQUERADE
+    # '';
+    #
+    # extraStopCommands = ''
+    #   iptables -t nat -D POSTROUTING -i sf-br0 ! -o sf-br0 -j MASQUERADE || true
+    # '';
+    # };
+    # };
 
     # Create state directory with proper permissions
     systemd.tmpfiles.rules = [
-      "d ${cfg.stateDir} 0750 root root - -"
-      "d ${cfg.stateDir}/storage 0750 root root - -"
+      "d ${cfg.stateDir} 0750 ${cfg.user} ${cfg.group} - -"
+      "d ${cfg.stateDir}/storage 0750 ${cfg.user} ${cfg.group} - -"
     ];
   };
 }

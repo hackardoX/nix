@@ -52,6 +52,10 @@
             normal = "<CR>";
             insert = "<CR>";
           };
+          suggestion = {
+            accept = "<Tab>";
+            dismiss = "<C-]>";
+          };
         };
       };
     };

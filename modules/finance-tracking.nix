@@ -31,26 +31,30 @@
 
       onepassword-secrets.secrets = {
         sureFinanceSecretKeyBasePath = {
-          path = "/etc/.secrets/sure-finance/secret_key";
+          path = "/run/secrets/sure-finance/secret_key";
           reference = "op://Development/Sure Finance Secrets/secret key";
-          group = "wheel";
+          owner = "sure-finance";
+          group = "sure-finance";
         };
         sureFinancePostgresPasswordPath = {
-          path = "/etc/.secrets/sure-finance/postgres_password";
+          path = "/run/secrets/sure-finance/postgres_password";
           reference = "op://Development/Sure Finance Secrets/postgres password";
-          owner = "postgres";
-          group = "postgres";
+          owner = "sure-finance";
+          group = "sure-finance";
+          mode = "0640";
         };
         sureFinanceRedisPasswordPath = {
-          path = "/etc/.secrets/sure-finance/redis_password";
+          path = "/run/secrets/sure-finance/redis_password";
           reference = "op://Development/Sure Finance Secrets/redis password";
-          owner = "redis-sure-finance";
-          group = "redis-sure-finance";
+          owner = "sure-finance";
+          group = "sure-finance";
+          mode = "0640";
         };
         sureFinanceOpenAiTokenPath = {
-          path = "/etc/.secrets/sure-finance/openai_token";
+          path = "/run/secrets/sure-finance/openai_token";
           reference = "op://Development/Mistral API Key - Sure Finance/credential";
-          group = "wheel";
+          owner = "sure-finance";
+          group = "sure-finance";
         };
       };
     };

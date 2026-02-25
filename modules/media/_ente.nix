@@ -64,56 +64,56 @@
 
         onepassword-secrets.secrets = {
           enteS3SecretKey = {
-            path = "/etc/.secrets/ente/koofr_secret_key";
+            path = "/run/secrets/ente/koofr_secret_key";
             reference = "op://Development/Ente HomeLab/s3 koofr secret key";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           enteS3AccessKey = {
-            path = "/etc/.secrets/ente/koofr_access_key";
+            path = "/run/secrets/ente/koofr_access_key";
             reference = "op://Development/Ente HomeLab/s3 koofr access key";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           enteKoofrPassword = {
-            path = "/etc/.secrets/ente/koofr_password";
+            path = "/run/secrets/ente/koofr_password";
             reference = "op://Development/Ente HomeLab/koofr password";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           enteEncryptionKey = {
-            path = "/etc/.secrets/ente/encryption_key";
+            path = "/run/secrets/ente/encryption_key";
             reference = "op://Development/Ente HomeLab/encryption key";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           enteHashKey = {
-            path = "/etc/.secrets/ente/hash_key";
+            path = "/run/secrets/ente/hash_key";
             reference = "op://Development/Ente HomeLab/hash key";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           enteJwtSecret = {
-            path = "/etc/.secrets/ente/jwt_secret";
+            path = "/run/secrets/ente/jwt_secret";
             reference = "op://Development/Ente HomeLab/jwt secret";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           enteFirebaseCredentials = {
-            path = "/etc/.secrets/ente/fcm-service-account.json";
+            path = "/run/secrets/ente/fcm-service-account.json";
             reference = "op://Development/Ente HomeLab/firebase service account";
             owner = "ente";
             group = "ente";
             services = [ "ente" ];
           };
           rcloneKoofrEnv = {
-            path = "/etc/.secrets/ente/koofr_credentials.env";
+            path = "/run/secrets/ente/koofr_credentials.env";
             reference = "op://Development/Rclone HomeLab/koofr credentials";
             owner = "rclone-s3";
             group = "rclone-s3";

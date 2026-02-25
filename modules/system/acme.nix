@@ -12,7 +12,7 @@
 
     services.onepassword-secrets.secrets = {
       cloudflareApiEnv = {
-        path = "/etc/.secrets/cloudflare.env";
+        path = "/run/secrets/cloudflare.env";
         reference = "op://Development/CloudFlare DNS API Env - AegisInbox/credential";
         group = "wheel";
       };
