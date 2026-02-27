@@ -6,7 +6,7 @@
       programs.yazi = {
         enable = true;
         enableZshIntegration = true;
-
+        shellWrapperName = "y";
         initLua = ''
           require("full-border"):setup()
         '';

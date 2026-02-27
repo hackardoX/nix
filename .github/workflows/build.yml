@@ -3,9 +3,27 @@ on:
   - pull_request
   - workflow_dispatch
 jobs:
+  build-linux-builder:
+    name: Build Linux Builder VM
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: DeterminateSystems/nix-installer-action@v21
+        with:
+          extra-conf: |-
+            extra-experimental-features = pipe-operators
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - uses: cachix/cachix-action@v16
+        with:
+          name: hackardo
+          authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
+      - name: Build and push Linux Builder VM
+        run: nix build .#linux-builder --no-link
   builds:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    needs: build-linux-builder
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -28,5 +46,3 @@ jobs:
       - name: MacOS Build
         if: matrix.os == 'macos-latest'
         run: "nix run github:lnl7/nix-darwin#darwin-rebuild -- build --flake .#Andrea-MacBook-Air"
-      - name: Upload MacOS Build
-        run: cachix push hackardo ./result*
