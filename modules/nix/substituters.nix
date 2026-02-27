@@ -1,5 +1,6 @@
 let
   nixSettings = {
+    always-allow-substitutes = true;
     substituters = [
       "https://cache.nixos.org"
       "https://nix-community.cachix.org"
@@ -7,7 +8,6 @@ let
       "https://numtide.cachix.org"
       "https://hackardo.cachix.org"
     ];
-
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "hackardo.cachix.org-1:sQXwmhqZP1B1qMogZFGbm3FDagEiwNbG4zgi80Elda0="
