@@ -4,6 +4,7 @@
     imports = with config.flake.modules.darwin; [
       base
       dev
+      hackardo
       laptop
       password-manager
       shell

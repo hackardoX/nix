@@ -9,17 +9,17 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v6
-      - uses: DeterminateSystems/nix-installer-action@v21
+      - uses: cachix/install-nix-action@v31
         with:
-          extra-conf: |-
-            extra-experimental-features = pipe-operators
+          extra_nix_config: |-
+            experimental-features = nix-command flakes pipe-operators
       - uses: DeterminateSystems/magic-nix-cache-action@v13
       - uses: cachix/cachix-action@v16
         with:
           name: hackardo
           authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
-      - name: Build and push Linux Builder VM
-        run: nix build .#linux-builder --no-link
+      - name: Build Bootstrap Rosetta Linux Builder VM
+        run: nix run github:lnl7/nix-darwin#darwin-rebuild -- build --flake .#rosetta-bootstrap
   builds:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

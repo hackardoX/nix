@@ -12,7 +12,7 @@
     };
 
     modules = {
-      nixos.laptop =
+      nixos.hackardo =
         { pkgs, ... }:
         {
           users = {
@@ -37,7 +37,7 @@
           };
         };
 
-      darwin.laptop =
+      darwin.hackardo =
         { pkgs, ... }:
         {
           users.users.aaccardo = {
