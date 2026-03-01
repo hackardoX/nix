@@ -22,6 +22,7 @@ in
 {
   flake.packages.aarch64-darwin.linux-builder =
     (inputs.darwin.lib.darwinSystem {
+      system = "aarch64-darwin";
       modules = [ { nix.linux-builder = baseLinuxBuilder; } ];
     }).config.nix.linux-builder.package;
 
