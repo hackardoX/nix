@@ -1,5 +1,6 @@
+{ lib, ... }:
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.laptop = {
     networking = {
       dns = [
         # Cloudflare DNS
@@ -17,6 +18,30 @@
         enableStealthMode = true;
         blockAllIncoming = true;
       };
+    };
+  };
+
+  flake.modules.nixos.homelab = {
+    networking = {
+      firewall.allowedTCPPorts = [
+        22
+        80
+        443
+      ];
+      useDHCP = lib.mkDefault true;
+      nameservers = lib.mkDefault [
+        # Cloudflare DNS
+        "1.1.1.1"
+        "1.0.0.1"
+        "2606:4700:4700::1111"
+        "2606:4700:4700::1001"
+        # Google DNS
+        "8.8.8.8"
+        "8.8.4.4"
+        "2001:4860:4860::8888"
+        "2001:4860:4860::8844"
+      ];
+      networkmanager.enable = lib.mkDefault true;
     };
   };
 }

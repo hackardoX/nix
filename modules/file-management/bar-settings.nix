@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.laptop = {
     system.defaults = {
       CustomSystemPreferences = {
         finder = {
@@ -18,7 +18,7 @@
     };
   };
 
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.laptop =
     { pkgs, ... }:
     lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       targets.darwin = {

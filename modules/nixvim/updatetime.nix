@@ -1,3 +1,3 @@
 {
-  flake.modules.nixvim.base.globalOpts.updatetime = 100;
+  flake.modules.nixvim.dev.globalOpts.updatetime = 100;
 }

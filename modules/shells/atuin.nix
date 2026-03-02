@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.shell =
     { config, ... }:
     {
       programs = {
@@ -23,8 +23,8 @@
 
         onepassword-secrets.secrets = {
           atuinKey = {
-            path = ".secrets/.atuinkey";
-            reference = "op://development/atuin/key";
+            path = ".secrets/.atuin_key";
+            reference = "op://Development/Atuin/key";
             group = "staff";
           };
         };

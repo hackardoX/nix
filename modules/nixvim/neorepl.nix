@@ -1,5 +1,5 @@
 {
-  flake.modules.nixvim.base =
+  flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
       extraPlugins = [

@@ -1,12 +1,12 @@
 {
-  flake.modules.nixvim.base = {
+  flake.modules.nixvim.dev = {
     plugins.yazi = {
       enable = true;
       settings = {
         open_for_directories = true;
       };
       # More details: https://github.com/mikavilpas/yazi.nvim/issues/802
-      luaConfig.pre = ''vim.g.loaded_netrwPlugin = 1'';
+      luaConfig.pre = "vim.g.loaded_netrwPlugin = 1";
     };
 
     keymaps = [

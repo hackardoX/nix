@@ -1,16 +1,18 @@
 {
-  flake.modules.homeManager.base = {
-    programs.onepassword-secrets.secrets = {
-      githubAuthorisation = {
-        path = ".ssh/github_authorisation.pub";
-        reference = "op://Development/Github Authorisation/public key";
-        group = "staff";
-      };
-      gitSignature = {
-        path = ".ssh/git_signature.pub";
-        reference = "op://Development/Git Signature/public key";
-        group = "staff";
+  flake.modules.homeManager.base =
+    { pkgs, ... }:
+    {
+      programs.onepassword-secrets.secrets = {
+        githubAuthorisationPublicKey = {
+          path = ".ssh/github_authorisation.pub";
+          reference = "op://Development/Github Authorisation/public key";
+          group = if pkgs.stdenv.isDarwin then "staff" else "wheel";
+        };
+        gitSignaturePublicKey = {
+          path = ".ssh/git_signature.pub";
+          reference = "op://Development/Git Signature/public key";
+          group = if pkgs.stdenv.isDarwin then "staff" else "wheel";
+        };
       };
     };
-  };
 }

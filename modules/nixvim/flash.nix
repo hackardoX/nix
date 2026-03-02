@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.nixvim.base = {
+  flake.modules.nixvim.dev = {
     plugins.flash.enable = true;
     keymaps = [
       {

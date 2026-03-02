@@ -27,6 +27,4 @@ jobs:
           authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
       - name: MacOS Build
         if: matrix.os == 'macos-latest'
-        run: "nix run github:lnl7/nix-darwin#darwin-rebuild -- build --flake .#Andrea-MacBook-Air"
-      - name: Upload MacOS Build
-        run: cachix push hackardo ./result*
+        run: "nix run github:lnl7/nix-darwin#darwin-rebuild -- build --flake .#Andrea-MacBook-Air-CI"

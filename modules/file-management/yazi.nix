@@ -1,12 +1,12 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.laptop =
     { pkgs, ... }:
     {
       programs.yazi = {
         enable = true;
         enableZshIntegration = true;
-
+        shellWrapperName = "y";
         initLua = ''
           require("full-border"):setup()
         '';

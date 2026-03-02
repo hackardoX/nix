@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base = {
+  flake.modules.homeManager.shell = {
     programs.zsh.initContent = lib.mkAfter ''
       function __git_prompt_git() {
         GIT_OPTIONAL_LOCKS=0 command git "$@"

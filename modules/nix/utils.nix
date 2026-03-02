@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.laptop =
     {
       config,
       pkgs,
@@ -14,7 +14,6 @@
           enable = true;
           extraArgs = "--keep-since 1w --keep 2";
         };
-
         flake = "${config.home.homeDirectory}/Github/nix";
       };
 

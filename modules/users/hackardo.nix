@@ -12,13 +12,13 @@
     };
 
     modules = {
-      nixos.base =
+      nixos.hackardo =
         { pkgs, ... }:
         {
           users = {
             mutableUsers = false;
             users = {
-              aaccardo = {
+              ${config.flake.meta.users.hackardo.name} = {
                 inherit (config.flake.meta.users.hackardo) description;
                 isNormalUser = true;
                 shell = pkgs.zsh;
@@ -37,7 +37,7 @@
           };
         };
 
-      darwin.base =
+      darwin.hackardo =
         { pkgs, ... }:
         {
           users.users.aaccardo = {

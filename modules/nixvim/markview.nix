@@ -1,5 +1,5 @@
 {
-  flake.modules.nixvim.base.plugins.markview = {
+  flake.modules.nixvim.dev.plugins.markview = {
     enable = true;
     settings = {
       preview.icon_provider = "devicons";

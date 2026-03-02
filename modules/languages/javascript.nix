@@ -20,7 +20,7 @@
     };
   };
 
-  flake.modules.nixvim.base.plugins = {
+  flake.modules.nixvim.dev.plugins = {
     lsp.servers.eslint.enable = true;
     typescript-tools.enable = true;
   };
