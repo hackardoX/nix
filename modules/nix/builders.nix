@@ -1,12 +1,21 @@
-{ inputs, ... }:
+{ inputs, lib, ... }:
+let
+  isFirstInitialization = false;
+in
 {
-  flake.packages.aarch64-linux.linux-builder =
-    inputs.nixpkgs.legacyPackages.aarch64-linux.darwin.linux-builder;
+  flake.modules.darwin.base = darwinArgs: {
+    options.linux-builder.enable = lib.mkEnableOption "linux-builder" // {
+      default = true;
+    };
 
-  flake.modules.darwin.laptop = {
-    imports = [
-      inputs.nix-rosetta-builder.darwinModules.default
-    ];
-    nix-rosetta-builder.onDemand = true;
+    imports = [ inputs.nix-rosetta-builder.darwinModules.default ];
+
+    config = {
+      nix.linux-builder.enable = darwinArgs.config.linux-builder.enable && isFirstInitialization;
+      nix-rosetta-builder = {
+        enable = darwinArgs.config.linux-builder.enable && !isFirstInitialization;
+        onDemand = true;
+      };
+    };
   };
 }
