@@ -3,17 +3,11 @@
     plugins.avante = {
       enable = true;
       settings = {
-
-        auto_suggestions_provider = "mistral_codestral";
+        auto_suggestions_provider = "mistral_devstral";
         provider = "mistral_devstral";
         providers = {
           claude = {
-            endpoint = "https://api.anthropic.com";
-            model = "claude-4-6-opus-20260205";
-            extra_request_body = {
-              temperature = 0;
-              max_tokens = 8192;
-            };
+            model = "claude-4-6-opus";
           };
           mistral_codestral = {
             __inherited_from = "openai";
@@ -56,6 +50,9 @@
             accept = "<Tab>";
             dismiss = "<C-]>";
           };
+        };
+        input = {
+          provider = "dressing";
         };
       };
     };
