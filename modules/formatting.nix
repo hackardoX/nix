@@ -25,39 +25,40 @@
   };
 
   flake.modules.nixvim.dev = {
-    plugins = {
-      lsp.keymaps.lspBuf."<space>f" = "format";
-
-      lsp-format = {
-        enable = true;
-        lspServersToEnable = "none";
-      };
-
-      none-ls = {
-        enable = true;
-        sources.formatting.nix_flake_fmt.enable = true;
+    plugins.conform-nvim = {
+      enable = true;
+      settings = {
+        format_on_save = inputs.nixvim.lib.nixvim.mkRaw ''
+          function(bufnr)
+            if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+              return
+            end
+            return { timeout_ms = 500, lsp_format = "fallback" }
+          end
+        '';
       };
     };
-
     keymaps = [
       {
-        key = "<leader>a";
+        key = "<leader>t";
         options.desc = "Toggle autoformatting";
         action = inputs.nixvim.lib.nixvim.mkRaw ''
           function()
-            local lsp_format = require("lsp-format")
-
-            lsp_format.disabled = not lsp_format.disabled
-
-            local message
-            if lsp_format.disabled then
-              message = "Autoformatting is off"
-            else
-              message = "Autoformatting is on"
-            end
+            vim.g.disable_autoformat = not vim.g.disable_autoformat
+            local message = vim.g.disable_autoformat and "Autoformatting is off" or "Autoformatting is on"
             vim.notify(message, vim.log.levels.INFO)
           end
         '';
+      }
+      {
+        mode = "n";
+        key = "<space>f";
+        action.__raw = ''
+          function()
+            require("conform").format({ async = true, lsp_format = "fallback" })
+          end
+        '';
+        options.desc = "Format buffer";
       }
     ];
   };
