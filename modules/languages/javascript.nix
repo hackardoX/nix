@@ -1,9 +1,14 @@
 {
+  flake.modules.homeManager.dev =
+    { pkgs, ... }:
+    {
+      home.packages = with pkgs; [ nodejs ];
+    };
+
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
       extraPackages = with pkgs; [
-        nodejs
         nodePackages.typescript
         nodePackages.typescript-language-server
       ];
@@ -19,15 +24,25 @@
         };
         conform-nvim = {
           enable = true;
-          settings.formatters_by_ft = {
-            typescript = [
-              "biome"
-              "eslint"
-            ];
-            javascript = [
-              "biome"
-              "eslint"
-            ];
+          settings = {
+            formatters_by_ft = {
+              typescript = [
+                "biome"
+                "eslint_d"
+              ];
+              javascript = [
+                "biome"
+                "eslint_d"
+              ];
+            };
+            formatters = {
+              biome = {
+                command = "${pkgs.biome}/bin/biome";
+              };
+              eslint_d = {
+                command = "${pkgs.eslint_d}/bin/eslint_d";
+              };
+            };
           };
         };
         iron = {

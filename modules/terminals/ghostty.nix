@@ -17,6 +17,7 @@
             "alt+left=unbind"
             "alt+right=unbind"
           ];
+          confirm-close-surface = false;
         };
         package = pkgs.ghostty-bin; # Required for Darwin
         enableBashIntegration = true;
