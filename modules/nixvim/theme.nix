@@ -1,3 +1,10 @@
 {
-  flake.modules.nixvim.dev.colorschemes.catppuccin.enable = true;
+  flake.modules.nixvim.dev =
+    { homeConfig, ... }:
+    {
+      colorschemes.catppuccin = {
+        inherit (homeConfig.catppuccin) enable;
+        settings.flavour = homeConfig.catppuccin.flavor;
+      };
+    };
 }

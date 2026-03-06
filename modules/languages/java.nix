@@ -8,16 +8,6 @@
     {
       plugins = {
         lsp.servers.jdtls.enable = true;
-        conform-nvim = {
-          enable = true;
-          settings = {
-            formatters_by_ft.java = [ "injected" ];
-            format_on_save = {
-              timeout_ms = 3000;
-              lsp_format = "fallback";
-            };
-          };
-        };
         iron = {
           settings = {
             config = {
