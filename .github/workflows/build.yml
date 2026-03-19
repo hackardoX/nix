@@ -21,7 +21,7 @@ jobs:
           extra-conf: |-
             extra-experimental-features = pipe-operators
       - uses: DeterminateSystems/magic-nix-cache-action@v13
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@v17
         with:
           name: hackardo
           authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
