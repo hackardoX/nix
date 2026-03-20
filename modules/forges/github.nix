@@ -16,27 +16,18 @@
       {
         nixos.base = sshSettings;
         darwin.base = sshSettings;
-        homeManager.dev =
-          { config, pkgs, ... }:
-          {
-            config = {
-              programs.gh = {
-                enable = true;
-                settings.git_protocol = "ssh";
-              };
-
-              home.packages = with pkgs; [ gh-dash ];
-
-              ssh.extraHosts = {
-                "github.com" = {
-                  hostname = "github.com";
-                  forwardAgent = false;
-                  identityFile = config.programs.onepassword-secrets.secretPaths.githubAuthorisationPublicKey;
-                  identitiesOnly = true;
-                };
+        homeManager.dev = hmArgs: {
+          config = {
+            ssh.extraHosts = {
+              "github.com" = {
+                hostname = "github.com";
+                forwardAgent = false;
+                identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.githubAuthorisationPublicKey;
+                identitiesOnly = true;
               };
             };
           };
+        };
       };
   };
 }

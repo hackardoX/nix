@@ -162,54 +162,51 @@
     ];
   };
 
-  flake.modules.homeManager.dev =
-    { config, ... }:
-    {
-      home = {
-        sessionVariables = {
-          ANTHROPIC_API_KEY = "$(cat ${config.programs.onepassword-secrets.secretPaths.anthropicApiKey})";
-          MISTRAL_DEVSTRAL_API_KEY = "$(cat ${config.programs.onepassword-secrets.secretPaths.mistralDevstralApiKey})";
-          MISTRAL_CODESTRAL_API_KEY = "$(cat ${config.programs.onepassword-secrets.secretPaths.mistralCodestralApiKey})";
-          MOONSHOT_API_KEY = "$(cat ${config.programs.onepassword-secrets.secretPaths.moonshotApiKey})";
-          MORPH_API_KEY = "$(cat ${config.programs.onepassword-secrets.secretPaths.morphApiKey})";
-          TAVILY_API_KEY = "$(cat ${config.programs.onepassword-secrets.secretPaths.tavilyApiKey})";
-        };
-        shellAliases = {
-          avante = ''nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mode()end, 100)"'';
-        };
+  flake.modules.homeManager.dev = hmArgs: {
+    home = {
+      sessionVariables = {
+        ANTHROPIC_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralDevstralApiKey})";
+        MISTRAL_CODESTRAL_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralCodestralApiKey})";
+        MOONSHOT_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.moonshotApiKey})";
+        MORPH_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.morphApiKey})";
+        TAVILY_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.tavilyApiKey})";
       };
-
-      programs.onepassword-secrets.secrets = {
-        anthropicApiKey = {
-          path = ".secrets/.antropic_key";
-          reference = "op://Development/Anthropic API Key/credential";
-          group = "staff";
-        };
-        mistralDevstralApiKey = {
-          path = ".secrets/.mistral_key";
-          reference = "op://Development/Mistral API Key - Devstral/credential";
-          group = "staff";
-        };
-        mistralCodestralApiKey = {
-          path = ".secrets/.mistral_codestral_key";
-          reference = "op://Development/Mistral API Key - Codestral/credential";
-          group = "staff";
-        };
-        moonshotApiKey = {
-          path = ".secrets/.moonshot_key";
-          reference = "op://Development/Moonshot API Key/credential";
-          group = "staff";
-        };
-        morphApiKey = {
-          path = ".secrets/.morph_key";
-          reference = "op://Development/MorphLLM API Key/credential";
-          group = "staff";
-        };
-        tavilyApiKey = {
-          path = ".secrets/.tavily_key";
-          reference = "op://Development/Tavily API Key/credential";
-          group = "staff";
-        };
+      shellAliases = {
+        avante = ''nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mode()end, 100)"'';
       };
     };
+
+    programs.onepassword-secrets.secrets = {
+      anthropicApiKey = {
+        path = ".secrets/.antropic_key";
+        reference = "op://Development/Anthropic API Key/credential";
+        group = "staff";
+      };
+      mistralDevstralApiKey = {
+        path = ".secrets/.mistral_key";
+        reference = "op://Development/Mistral API Key - Devstral/credential";
+        group = "staff";
+      };
+      mistralCodestralApiKey = {
+        path = ".secrets/.mistral_codestral_key";
+        reference = "op://Development/Mistral API Key - Codestral/credential";
+        group = "staff";
+      };
+      moonshotApiKey = {
+        path = ".secrets/.moonshot_key";
+        reference = "op://Development/Moonshot API Key/credential";
+        group = "staff";
+      };
+      morphApiKey = {
+        path = ".secrets/.morph_key";
+        reference = "op://Development/MorphLLM API Key/credential";
+        group = "staff";
+      };
+      tavilyApiKey = {
+        path = ".secrets/.tavily_key";
+        reference = "op://Development/Tavily API Key/credential";
+        group = "staff";
+      };
+    };
+  };
 }
