@@ -1,8 +1,7 @@
 { lib, ... }:
 {
   flake.modules.homeManager.laptop =
-    {
-      config,
+    hmArgs@{
       pkgs,
       ...
     }:
@@ -14,7 +13,7 @@
           enable = true;
           extraArgs = "--keep-since 1w --keep 2";
         };
-        flake = "${config.home.homeDirectory}/Github/nix";
+        flake = "${hmArgs.config.home.homeDirectory}/Github/nix";
       };
 
       home.shellAliases = {
@@ -40,7 +39,7 @@
           fi
         '';
         nixre = "nh ${if pkgs.stdenv.hostPlatform.isLinux then "os" else "darwin"} switch";
-        hmvar-reload = ''__HM_ZSH_SESS_VARS_SOURCED=0 source "/etc/profiles/per-user/${config.home.username}/etc/profile.d/hm-session-vars.sh"'';
+        hmvar-reload = ''__HM_ZSH_SESS_VARS_SOURCED=0 source "/etc/profiles/per-user/${hmArgs.config.home.username}/etc/profile.d/hm-session-vars.sh"'';
       };
     };
 }

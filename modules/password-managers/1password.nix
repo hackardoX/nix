@@ -45,7 +45,6 @@
         _1password-shell-plugins = {
           enable = true;
           plugins = with pkgs; [
-            gh
             hcloud
             stripe-cli
           ];
