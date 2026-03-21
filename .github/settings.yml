@@ -46,16 +46,16 @@ labels: null
 #   - name: bug
 #     color: CC0000
 #     description: An issue with the system 🐛.
-
+#
 #   - name: feature
 #     # If including a `#`, make sure to wrap it with quotes!
 #     color: '#336699'
 #     description: New functionality.
-
+#
 #   - name: Help Wanted
 #     # Provide a new name to rename an existing label
 #     new_name: first-timers-only
-
+#
 # Milestones: define milestones for Issues and Pull Requests
 milestones: null
 #   - title: milestone-title
@@ -100,6 +100,11 @@ branches:
         # # Specify which users and teams can dismiss pull request reviews. Pass an empty dismissal_restrictions object to disable. User and team dismissal_restrictions are only available for organization-owned repositories. Omit this parameter for personal repositories.
         dismissal_restrictions:
           users: []
+          teams: []
+        # # Allow specific users and teams to bypass required reviews
+        bypass_pull_request_allowances:
+          users:
+            - hackardoX
           teams: []
       # Required. Require status checks to pass before merging. Set to null to disable
       required_status_checks:
