@@ -1,3 +1,8 @@
 {
-  flake.modules.homeManager.base.programs.git.settings.rebase.autoStash = true;
+  flake.modules.homeManager.base = {
+    programs.git.settings.rebase = {
+      autoStash = true;
+      updateRefs = true;
+    };
+  };
 }
