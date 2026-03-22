@@ -142,6 +142,9 @@ rulesets:
           dismiss_stale_reviews_on_push: true
           # All review threads must be resolved before merging
           required_review_thread_resolution: true
+          # Prevents requiring approval from someone other
+          # than the last person to push.
+          require_last_push_approval: true
     bypass_actors:
       # actor_id 5 = Admin repository role.
       # bypass_mode: always means the review requirement is skipped when
