@@ -155,6 +155,6 @@ rulesets:
       - actor_id: 5
         actor_type: RepositoryRole
         bypass_mode: exempt
-      - actor_id: 75019323
+      - actor_id: 1556657
         actor_type: Integration
         bypass_mode: exempt
