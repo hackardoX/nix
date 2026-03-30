@@ -16,7 +16,7 @@ jobs:
       # - uses: wimpysworld/nothing-but-nix@main
       #   with:
       #     hatchet-protocol: "holster"
-      - uses: DeterminateSystems/nix-installer-action@v21
+      - uses: DeterminateSystems/nix-installer-action@v22
         with:
           extra-conf: |-
             extra-experimental-features = pipe-operators
