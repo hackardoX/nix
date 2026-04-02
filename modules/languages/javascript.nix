@@ -9,8 +9,8 @@
     { pkgs, ... }:
     {
       extraPackages = with pkgs; [
-        nodePackages.typescript
-        nodePackages.typescript-language-server
+        typescript
+        typescript-language-server
       ];
 
       plugins = {
