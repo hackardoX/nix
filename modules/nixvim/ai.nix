@@ -5,7 +5,8 @@
         enable = true;
         settings = {
           # auto_suggestions_provider = "mistral_devstral";
-          provider = "mistral_devstral";
+          mode = "legacy";
+          provider = "mistral_codestral";
           providers = {
             claude = {
               model = "claude-4-6-opus";
@@ -41,6 +42,7 @@
             auto_suggestions = false;
             minimize_diff = true;
             enable_fastapply = true;
+            mode = "legacy";
           };
           mappings = {
             submit = {

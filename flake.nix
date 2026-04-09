@@ -88,6 +88,7 @@
         flake-compat.follows = "";
         flake-parts.follows = "flake-parts";
         nixpkgs.follows = "nixpkgs";
+        ndg.inputs.nixpkgs.follows = "nixpkgs";
       };
     };
     nix-rosetta-builder = {
