@@ -19,3 +19,5 @@ zstyle ':completion:*:eza'            sort false
 zstyle ':completion:files'            sort false
 # solve carapace issues (https://github.com/carapace-sh/carapace-bin/issues/417)
 zstyle ':fzf-tab:*'                   query-string prefix first
+# open in a popup in zellij
+zstyle ':fzf-tab:*' fzf-flags --popup

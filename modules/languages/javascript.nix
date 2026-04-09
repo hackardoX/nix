@@ -45,25 +45,6 @@
             };
           };
         };
-        iron = {
-          settings = {
-            config = {
-              repl_definition = {
-                javascript.command = [ "node" ];
-                typescript.command = [ "node" ];
-              };
-            };
-          };
-        };
       };
-
-      keymaps = [
-        {
-          mode = "n";
-          key = "<leader>rt";
-          action = "<cmd>IronRepl typescript<cr>";
-          options.desc = "Force start TypeScript REPL";
-        }
-      ];
     };
 }
