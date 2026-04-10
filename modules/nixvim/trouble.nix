@@ -1,3 +1,16 @@
+let
+  mkTroubleKeymap =
+    {
+      key,
+      action,
+      desc,
+    }:
+    {
+      key = "<Leader>x${key}";
+      action = "<cmd>${action}<CR>";
+      inherit desc;
+    };
+in
 {
   flake.modules.nixvim.dev = {
     plugins = {
@@ -12,42 +25,51 @@
         };
       };
     };
-    keymaps = [
+    keymaps = map mkTroubleKeymap [
       {
-        key = "<leader>xx";
-        action = "<cmd>Trouble diagnostics toggle<cr>";
+        key = "x";
+        action = "Trouble diagnostics toggle";
+        desc = "Diagnostics (Trouble)";
       }
       {
-        key = "<leader>xl";
-        action = "<cmd>Trouble lsp toggle<cr>";
+        key = "l";
+        action = "Trouble lsp toggle";
+        desc = "Toogle LSP (Trouble)";
       }
       {
-        key = "<leader>xD";
-        action = "<cmd>Trouble lsp_declarations toggle<cr>";
+        key = "D";
+        action = "Trouble lsp_declarations toggle";
+        desc = "Toggle LSP declarations (Trouble)";
       }
       {
-        key = "<leader>xd";
-        action = "<cmd>Trouble lsp_definitions toggle<cr>";
+        key = "d";
+        action = "Trouble lsp_definitions toggle";
+        desc = "Toggle LSP definitions (Trouble)";
       }
       {
-        key = "<leader>xi";
-        action = "<cmd>Trouble lsp_implementations toggle<cr>";
+        key = "i";
+        action = "Trouble lsp_implementations toggle";
+        desc = "Toggle LSP implementations (Trouble)";
       }
       {
-        key = "<leader>xr";
-        action = "<cmd>Trouble lsp_references toggle<cr>";
+        key = "r";
+        action = "Trouble lsp_references toggle";
+        desc = "Toggle LSP references (Trouble)";
       }
       {
-        key = "<leader>xt";
-        action = "<cmd>Trouble lsp_type_definitions toggle<cr>";
+        key = "t";
+        action = "Trouble lsp_type_definitions toggle";
+        desc = "Toggle LSP type definitions (Trouble)";
       }
       {
-        key = "<leader>xq";
-        action = "<cmd>Trouble quickfix toggle<cr>";
+        key = "q";
+        action = "Trouble quickfix toggle";
+        desc = "Toggle quickfix (Trouble)";
       }
       {
-        key = "<leader>xf";
-        action = "<cmd>Trouble focus<cr>";
+        key = "f";
+        action = "Trouble focus";
+        desc = "Focus (Trouble)";
       }
     ];
   };

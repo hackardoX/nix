@@ -1,3 +1,20 @@
+let
+  mkOctoKeymap =
+    {
+      key,
+      action,
+      mode,
+      desc,
+    }:
+    {
+      key = "<Leader>g${key}";
+      action = "${action}<CR>";
+      inherit mode;
+      options = {
+        inherit desc;
+      };
+    };
+in
 {
   flake.modules.nixvim.dev = {
     plugins = {
@@ -25,48 +42,48 @@
         };
       };
     };
-    keymaps = [
+    keymaps = map mkOctoKeymap [
       {
         mode = "n";
-        key = "<leader>oi";
+        key = "i";
         action = "<cmd>Octo issue list<CR>";
-        options.desc = "List Issues";
+        desc = "List Issues";
       }
       {
         mode = "n";
-        key = "<leader>oI";
+        key = "I";
         action = "<cmd>Octo issue search<CR>";
-        options.desc = "Search Issues";
+        desc = "Search Issues";
       }
       {
         mode = "n";
-        key = "<leader>op";
+        key = "p";
         action = "<cmd>Octo pr list<CR>";
-        options.desc = "List PRs";
+        desc = "List PRs";
       }
       {
         mode = "n";
-        key = "<leader>oP";
+        key = "P";
         action = "<cmd>Octo pr search<CR>";
-        options.desc = "Search PRs";
+        desc = "Search PRs";
       }
       {
         mode = "n";
-        key = "<leader>od";
+        key = "d";
         action = "<cmd>Octo discussion list<CR>";
-        options.desc = "List Discussions";
+        desc = "List Discussions";
       }
       {
         mode = "n";
-        key = "<leader>on";
+        key = "n";
         action = "<cmd>Octo notification list<CR>";
-        options.desc = "List Notifications";
+        desc = "List Notifications";
       }
       {
         mode = "n";
-        key = "<leader>or";
+        key = "r";
         action = "<cmd>Octo repo list<CR>";
-        options.desc = "List Repos";
+        desc = "List Repos";
       }
     ];
   };

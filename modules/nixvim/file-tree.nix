@@ -27,14 +27,6 @@
         }
         {
           mode = "n";
-          key = "<leader>cw";
-          action = "<cmd>Yazi cwd<cr>";
-          options = {
-            desc = "Open the file manager in nvim's working directory";
-          };
-        }
-        {
-          mode = "n";
           key = "<leader>+";
           action = "<cmd>Yazi toggle<cr>";
           options = {
