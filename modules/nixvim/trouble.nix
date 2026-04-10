@@ -8,7 +8,9 @@ let
     {
       key = "<Leader>x${key}";
       action = "<cmd>${action}<CR>";
-      inherit desc;
+      options = {
+        inherit desc;
+      };
     };
 in
 {
