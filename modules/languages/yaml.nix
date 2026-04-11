@@ -4,6 +4,9 @@
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
+      extraPackages = with pkgs; [
+        prettierd
+      ];
       plugins = {
         lsp.servers.yamlls.enable = true;
         conform-nvim.settings = {
@@ -15,11 +18,5 @@
           };
         };
       };
-    };
-
-  flake.modules.homeManager.dev =
-    { pkgs, ... }:
-    {
-      home.packages = with pkgs; [ yaml-language-server ];
     };
 }

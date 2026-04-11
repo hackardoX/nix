@@ -1,4 +1,5 @@
 let
+  troublePrefix = "<Leader>x";
   mkTroubleKeymap =
     {
       key,
@@ -6,12 +7,60 @@ let
       desc,
     }:
     {
-      key = "<Leader>x${key}";
+      key = "${troublePrefix}${key}";
       action = "<cmd>${action}<CR>";
       options = {
         inherit desc;
       };
     };
+  troubleKeymaps = map mkTroubleKeymap [
+    {
+      key = "x";
+      action = "Trouble diagnostics toggle";
+      desc = "Diagnostics";
+    }
+    {
+      key = "l";
+      action = "Trouble lsp toggle";
+      desc = "Toogle LSP";
+    }
+    {
+      key = "D";
+      action = "Trouble lsp_declarations toggle";
+      desc = "Toggle LSP declarations";
+    }
+    {
+      key = "d";
+      action = "Trouble lsp_definitions toggle";
+      desc = "Toggle LSP definitions";
+    }
+    {
+      key = "i";
+      action = "Trouble lsp_implementations toggle";
+      desc = "Toggle LSP implementations";
+    }
+    {
+      key = "r";
+      action = "Trouble lsp_references toggle";
+      desc = "Toggle LSP references";
+    }
+    {
+      key = "t";
+      action = "Trouble lsp_type_definitions toggle";
+      desc = "Toggle LSP type definitions";
+    }
+    {
+      key = "q";
+      action = "Trouble quickfix toggle";
+      desc = "Toggle quickfix";
+    }
+    {
+      key = "f";
+      action = "Trouble focus";
+      desc = "Focus";
+    }
+  ];
+
 in
 {
   flake.modules.nixvim.dev = {
@@ -26,53 +75,15 @@ in
           follow = false;
         };
       };
+      which-key = {
+        settings.spec = [
+          {
+            __unkeyed-1 = troublePrefix;
+            group = "Trouble (${toString (builtins.length troubleKeymaps)} keymaps)";
+          }
+        ];
+      };
     };
-    keymaps = map mkTroubleKeymap [
-      {
-        key = "x";
-        action = "Trouble diagnostics toggle";
-        desc = "Diagnostics (Trouble)";
-      }
-      {
-        key = "l";
-        action = "Trouble lsp toggle";
-        desc = "Toogle LSP (Trouble)";
-      }
-      {
-        key = "D";
-        action = "Trouble lsp_declarations toggle";
-        desc = "Toggle LSP declarations (Trouble)";
-      }
-      {
-        key = "d";
-        action = "Trouble lsp_definitions toggle";
-        desc = "Toggle LSP definitions (Trouble)";
-      }
-      {
-        key = "i";
-        action = "Trouble lsp_implementations toggle";
-        desc = "Toggle LSP implementations (Trouble)";
-      }
-      {
-        key = "r";
-        action = "Trouble lsp_references toggle";
-        desc = "Toggle LSP references (Trouble)";
-      }
-      {
-        key = "t";
-        action = "Trouble lsp_type_definitions toggle";
-        desc = "Toggle LSP type definitions (Trouble)";
-      }
-      {
-        key = "q";
-        action = "Trouble quickfix toggle";
-        desc = "Toggle quickfix (Trouble)";
-      }
-      {
-        key = "f";
-        action = "Trouble focus";
-        desc = "Focus (Trouble)";
-      }
-    ];
+    keymaps = troubleKeymaps;
   };
 }

@@ -1,4 +1,5 @@
 let
+  octoPrefix = "<Leader>g";
   mkOctoKeymap =
     {
       key,
@@ -7,13 +8,57 @@ let
       desc,
     }:
     {
-      key = "<Leader>g${key}";
+      key = "${octoPrefix}${key}";
       action = "${action}<CR>";
       inherit mode;
       options = {
         inherit desc;
       };
     };
+  octoKeymaps = map mkOctoKeymap [
+    {
+      mode = "n";
+      key = "i";
+      action = "<cmd>Octo issue list<CR>";
+      desc = "List Issues";
+    }
+    {
+      mode = "n";
+      key = "I";
+      action = "<cmd>Octo issue search<CR>";
+      desc = "Search Issues";
+    }
+    {
+      mode = "n";
+      key = "p";
+      action = "<cmd>Octo pr list<CR>";
+      desc = "List PRs";
+    }
+    {
+      mode = "n";
+      key = "P";
+      action = "<cmd>Octo pr search<CR>";
+      desc = "Search PRs";
+    }
+    {
+      mode = "n";
+      key = "d";
+      action = "<cmd>Octo discussion list<CR>";
+      desc = "List Discussions";
+    }
+    {
+      mode = "n";
+      key = "n";
+      action = "<cmd>Octo notification list<CR>";
+      desc = "List Notifications";
+    }
+    {
+      mode = "n";
+      key = "r";
+      action = "<cmd>Octo repo list<CR>";
+      desc = "List Repos";
+    }
+  ];
 in
 {
   flake.modules.nixvim.dev = {
@@ -41,50 +86,15 @@ in
           # '';
         };
       };
+      which-key = {
+        settings.spec = [
+          {
+            __unkeyed-1 = octoPrefix;
+            group = "Octo (${toString (builtins.length octoKeymaps)} keymaps)";
+          }
+        ];
+      };
     };
-    keymaps = map mkOctoKeymap [
-      {
-        mode = "n";
-        key = "i";
-        action = "<cmd>Octo issue list<CR>";
-        desc = "List Issues";
-      }
-      {
-        mode = "n";
-        key = "I";
-        action = "<cmd>Octo issue search<CR>";
-        desc = "Search Issues";
-      }
-      {
-        mode = "n";
-        key = "p";
-        action = "<cmd>Octo pr list<CR>";
-        desc = "List PRs";
-      }
-      {
-        mode = "n";
-        key = "P";
-        action = "<cmd>Octo pr search<CR>";
-        desc = "Search PRs";
-      }
-      {
-        mode = "n";
-        key = "d";
-        action = "<cmd>Octo discussion list<CR>";
-        desc = "List Discussions";
-      }
-      {
-        mode = "n";
-        key = "n";
-        action = "<cmd>Octo notification list<CR>";
-        desc = "List Notifications";
-      }
-      {
-        mode = "n";
-        key = "r";
-        action = "<cmd>Octo repo list<CR>";
-        desc = "List Repos";
-      }
-    ];
+    keymaps = octoKeymaps;
   };
 }

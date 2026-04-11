@@ -1,3 +1,8 @@
 {
-  flake.modules.nixvim.dev.opts.number = true;
+  flake.modules.nixvim.dev = {
+    opts = {
+      number = true;
+      relativenumber = true;
+    };
+  };
 }

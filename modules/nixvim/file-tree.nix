@@ -21,17 +21,13 @@
           ];
           key = "<leader>-";
           action = "<cmd>Yazi<cr>";
-          options = {
-            desc = "Open yazi at the current file";
-          };
+          options.desc = "Open yazi at the current file";
         }
         {
           mode = "n";
           key = "<leader>+";
           action = "<cmd>Yazi toggle<cr>";
-          options = {
-            desc = "Resume the last yazi session";
-          };
+          options.desc = "Resume the last yazi session";
         }
       ];
     };
