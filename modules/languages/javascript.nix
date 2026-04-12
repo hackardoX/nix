@@ -9,18 +9,14 @@
     { pkgs, ... }:
     {
       extraPackages = with pkgs; [
-        typescript
-        typescript-language-server
+        biome
+        eslint_d
       ];
-
       plugins = {
         lsp.servers = {
           biome.enable = true;
           eslint.enable = true;
-        };
-        typescript-tools = {
-          enable = true;
-          settings.single_file_support = true;
+          tsgo.enable = true;
         };
         conform-nvim = {
           enable = true;

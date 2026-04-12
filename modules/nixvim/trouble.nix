@@ -1,3 +1,67 @@
+let
+  troublePrefix = "<Leader>x";
+  mkTroubleKeymap =
+    {
+      key,
+      action,
+      desc,
+    }:
+    {
+      key = "${troublePrefix}${key}";
+      action = "<cmd>${action}<CR>";
+      options = {
+        inherit desc;
+      };
+    };
+  troubleKeymaps = map mkTroubleKeymap [
+    {
+      key = "x";
+      action = "Trouble diagnostics toggle";
+      desc = "Diagnostics";
+    }
+    {
+      key = "l";
+      action = "Trouble lsp toggle";
+      desc = "Toogle LSP";
+    }
+    {
+      key = "D";
+      action = "Trouble lsp_declarations toggle";
+      desc = "Toggle LSP declarations";
+    }
+    {
+      key = "d";
+      action = "Trouble lsp_definitions toggle";
+      desc = "Toggle LSP definitions";
+    }
+    {
+      key = "i";
+      action = "Trouble lsp_implementations toggle";
+      desc = "Toggle LSP implementations";
+    }
+    {
+      key = "r";
+      action = "Trouble lsp_references toggle";
+      desc = "Toggle LSP references";
+    }
+    {
+      key = "t";
+      action = "Trouble lsp_type_definitions toggle";
+      desc = "Toggle LSP type definitions";
+    }
+    {
+      key = "q";
+      action = "Trouble quickfix toggle";
+      desc = "Toggle quickfix";
+    }
+    {
+      key = "f";
+      action = "Trouble focus";
+      desc = "Focus";
+    }
+  ];
+
+in
 {
   flake.modules.nixvim.dev = {
     plugins = {
@@ -11,44 +75,15 @@
           follow = false;
         };
       };
+      which-key = {
+        settings.spec = [
+          {
+            __unkeyed-1 = troublePrefix;
+            group = "Trouble (${toString (builtins.length troubleKeymaps)} keymaps)";
+          }
+        ];
+      };
     };
-    keymaps = [
-      {
-        key = "<leader>xx";
-        action = "<cmd>Trouble diagnostics toggle<cr>";
-      }
-      {
-        key = "<leader>xl";
-        action = "<cmd>Trouble lsp toggle<cr>";
-      }
-      {
-        key = "<leader>xD";
-        action = "<cmd>Trouble lsp_declarations toggle<cr>";
-      }
-      {
-        key = "<leader>xd";
-        action = "<cmd>Trouble lsp_definitions toggle<cr>";
-      }
-      {
-        key = "<leader>xi";
-        action = "<cmd>Trouble lsp_implementations toggle<cr>";
-      }
-      {
-        key = "<leader>xr";
-        action = "<cmd>Trouble lsp_references toggle<cr>";
-      }
-      {
-        key = "<leader>xt";
-        action = "<cmd>Trouble lsp_type_definitions toggle<cr>";
-      }
-      {
-        key = "<leader>xq";
-        action = "<cmd>Trouble quickfix toggle<cr>";
-      }
-      {
-        key = "<leader>xf";
-        action = "<cmd>Trouble focus<cr>";
-      }
-    ];
+    keymaps = troubleKeymaps;
   };
 }

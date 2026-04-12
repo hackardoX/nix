@@ -1,830 +1,480 @@
-{ lib, ... }:
 let
-  zellijBindings =
-    bindings:
-    builtins.listToAttrs (
-      map (
-        { keys, action }:
-        {
-          name =
-            "bind "
-            + lib.strings.concatMapStrings (k: "\"${k}\" ") (lib.lists.init keys)
-            + "\"${lib.lists.last keys}\"";
-          value = action;
-        }
-      ) bindings
-    );
+  zellijSessionPicker = ''
+    if [[ -z "$ZELLIJ" ]]; then
+      ZJ_SESSIONS=$(zellij list-sessions 2>/dev/null)
+      NO_SESSIONS=$(echo "$ZJ_SESSIONS" | wc -l)
 
-  zellijUnbinds = unbindList: {
-    ${"unbind" + (lib.strings.concatStrings (map (x: " \"${x}\"") unbindList))} = [ ];
-  };
+      if [ "$NO_SESSIONS" -ge 2 ]; then
+        zellij attach "$(echo "$ZJ_SESSIONS" | fzf | awk '{print $1}')"
+      else
+        zellij attach -c
+      fi
+    fi
+  '';
 in
 {
-  flake.modules.homeManager.shell = {
-    programs.zellij = {
-      enable = true;
-      enableBashIntegration = true;
-      enableFishIntegration = true;
-      enableZshIntegration = true;
-      settings = {
-        ui.pane_frames.hide_session_name = false;
-        show_startup_tips = false;
+  flake.modules.homeManager.shell = hmArgs: {
+    programs = {
+      # zsh.initExtra = zellijSessionPicker;
+      bash.initExtra = zellijSessionPicker;
+      zellij = {
+        enable = true;
+        enableZshIntegration = true;
+        extraConfig = ''
+          ui {
+            pane_frames {
+              hide_session_name false
+            }
+          }
+          show_startup_tips false
 
-        "keybinds clear-defaults=true" = {
+          keybinds clear-defaults=true {
+            normal {
+              unbind "Ctrl p" "Ctrl o" "Ctrl q" "Ctrl h"
 
-          normal =
-            (zellijUnbinds [
-              "Ctrl p"
-              "Ctrl o"
-              "Ctrl q"
-              "Ctrl h"
-            ])
-            // (zellijBindings [
-              {
-                keys = [ "Alt g" ];
-                action = {
-                  "Run \"lazygit\"" = {
-                    floating = true;
-                    x = "10%";
-                    y = "10%";
-                    width = "80%";
-                    height = "80%";
-                    close_on_exit = true;
-                  };
-                };
+              bind "Alt g" {
+                Run "lazygit" {
+                  floating true
+                  x "10%"
+                  y "10%"
+                  width "80%"
+                  height "80%"
+                  close_on_exit true
+                }
               }
-              {
-                keys = [ "Alt G" ];
-                action = {
-                  "Run \"gh-dash\"" = {
-                    floating = true;
-                    close_on_exit = true;
-                    x = "5%";
-                    y = "5%";
-                    width = "90%";
-                    height = "90%";
-                  };
-                };
+
+              bind "Alt G" {
+                Run "gh-dash" {
+                  floating true
+                  close_on_exit true
+                  x "5%"
+                  y "5%"
+                  width "90%"
+                  height "90%"
+                }
               }
-            ]);
 
-          locked = zellijBindings [
-            {
-              keys = [ "Ctrl g" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+              bind "Alt v" {
+                Run "nvim"
+              }
             }
-          ];
 
-          resize = zellijBindings [
-            {
-              keys = [ "Ctrl n" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            locked {
+              bind "Ctrl g" {
+                SwitchToMode "Normal"
+              }
             }
-            {
-              keys = [
-                "h"
-                "Left"
-              ];
-              action = {
-                Resize = "Increase Left";
-              };
-            }
-            {
-              keys = [
-                "j"
-                "Down"
-              ];
-              action = {
-                Resize = "Increase Down";
-              };
-            }
-            {
-              keys = [
-                "k"
-                "Up"
-              ];
-              action = {
-                Resize = "Increase Up";
-              };
-            }
-            {
-              keys = [
-                "l"
-                "Right"
-              ];
-              action = {
-                Resize = "Increase Right";
-              };
-            }
-            {
-              keys = [ "H" ];
-              action = {
-                Resize = "Decrease Left";
-              };
-            }
-            {
-              keys = [ "J" ];
-              action = {
-                Resize = "Decrease Down";
-              };
-            }
-            {
-              keys = [ "K" ];
-              action = {
-                Resize = "Decrease Up";
-              };
-            }
-            {
-              keys = [ "L" ];
-              action = {
-                Resize = "Decrease Right";
-              };
-            }
-            {
-              keys = [
-                "="
-                "+"
-              ];
-              action = {
-                Resize = "Increase";
-              };
-            }
-            {
-              keys = [ "-" ];
-              action = {
-                Resize = "Decrease";
-              };
-            }
-          ];
 
-          pane = zellijBindings [
-            {
-              keys = [ "Ctrl a" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            resize {
+              bind "Ctrl n" {
+                SwitchToMode "Normal"
+              }
+              bind "h" "Left" {
+                Resize "Increase Left"
+              }
+              bind "j" "Down" {
+                Resize "Increase Down"
+              }
+              bind "k" "Up" {
+                Resize "Increase Up"
+              }
+              bind "l" "Right" {
+                Resize "Increase Right"
+              }
+              bind "H" {
+                Resize "Decrease Left"
+              }
+              bind "J" {
+                Resize "Decrease Down"
+              }
+              bind "K" {
+                Resize "Decrease Up"
+              }
+              bind "L" {
+                Resize "Decrease Right"
+              }
+              bind "=" "+" {
+                Resize "Increase"
+              }
+              bind "-" {
+                Resize "Decrease"
+              }
             }
-            {
-              keys = [
-                "h"
-                "Left"
-              ];
-              action = {
-                MoveFocus = "Left";
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [
-                "l"
-                "Right"
-              ];
-              action = {
-                MoveFocus = "Right";
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [
-                "j"
-                "Down"
-              ];
-              action = {
-                MoveFocus = "Down";
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [
-                "k"
-                "Up"
-              ];
-              action = {
-                MoveFocus = "Up";
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "p" ];
-              action = {
-                SwitchFocus = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "n" ];
-              action = {
-                NewPane = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "d" ];
-              action = {
-                NewPane = "Down";
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "x" ];
-              action = {
-                CloseFocus = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "z" ];
-              action = {
-                ToggleFocusFullscreen = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "f" ];
-              action = {
-                TogglePaneFrames = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "w" ];
-              action = {
-                ToggleFloatingPanes = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "e" ];
-              action = {
-                TogglePaneEmbedOrFloating = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "r" ];
-              action = {
-                SwitchToMode = "RenamePane";
-                PaneNameInput = 0;
-              };
-            }
-          ];
 
-          tab = zellijBindings [
-            {
-              keys = [ "Ctrl t" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            pane {
+              bind "Ctrl a" {
+                SwitchToMode "Normal"
+              }
+              bind "h" "Left" {
+                MoveFocus "Left"
+                SwitchToMode "Normal"
+              }
+              bind "l" "Right" {
+                MoveFocus "Right"
+                SwitchToMode "Normal"
+              }
+              bind "j" "Down" {
+                MoveFocus "Down"
+                SwitchToMode "Normal"
+              }
+              bind "k" "Up" {
+                MoveFocus "Up"
+                SwitchToMode "Normal"
+              }
+              bind "p" {
+                SwitchFocus
+                SwitchToMode "Normal"
+              }
+              bind "n" {
+                NewPane
+                SwitchToMode "Normal"
+              }
+              bind "d" {
+                NewPane "Down"
+                SwitchToMode "Normal"
+              }
+              bind "x" {
+                CloseFocus
+                SwitchToMode "Normal"
+              }
+              bind "z" {
+                ToggleFocusFullscreen
+                SwitchToMode "Normal"
+              }
+              bind "f" {
+                TogglePaneFrames
+                SwitchToMode "Normal"
+              }
+              bind "w" {
+                ToggleFloatingPanes
+                SwitchToMode "Normal"
+              }
+              bind "e" {
+                TogglePaneEmbedOrFloating
+                SwitchToMode "Normal"
+              }
+              bind "r" {
+                SwitchToMode "RenamePane"
+                PaneNameInput 0
+              }
             }
-            {
-              keys = [ "r" ];
-              action = {
-                SwitchToMode = "RenameTab";
-                TabNameInput = 0;
-              };
-            }
-            {
-              keys = [
-                "h"
-                "Left"
-                "Up"
-                "k"
-              ];
-              action = {
-                GoToPreviousTab = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [
-                "l"
-                "Right"
-                "Down"
-                "j"
-              ];
-              action = {
-                GoToNextTab = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "n" ];
-              action = {
-                NewTab = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "x" ];
-              action = {
-                CloseTab = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "s" ];
-              action = {
-                ToggleActiveSyncTab = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "b" ];
-              action = {
-                BreakPane = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "]" ];
-              action = {
-                BreakPaneRight = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "[" ];
-              action = {
-                BreakPaneLeft = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "1" ];
-              action = {
-                GoToTab = 1;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "2" ];
-              action = {
-                GoToTab = 2;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "3" ];
-              action = {
-                GoToTab = 3;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "4" ];
-              action = {
-                GoToTab = 4;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "5" ];
-              action = {
-                GoToTab = 5;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "6" ];
-              action = {
-                GoToTab = 6;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "7" ];
-              action = {
-                GoToTab = 7;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "8" ];
-              action = {
-                GoToTab = 8;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "9" ];
-              action = {
-                GoToTab = 9;
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "a" ];
-              action = {
-                ToggleTab = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-          ];
 
-          scroll = zellijBindings [
-            {
-              keys = [ "Ctrl s" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            tab {
+              bind "Ctrl t" {
+                SwitchToMode "Normal"
+              }
+              bind "r" {
+                SwitchToMode "RenameTab"
+                TabNameInput 0
+              }
+              bind "h" "Left" "Up" "k" {
+                GoToPreviousTab
+                SwitchToMode "Normal"
+              }
+              bind "l" "Right" "Down" "j" {
+                GoToNextTab
+                SwitchToMode "Normal"
+              }
+              bind "n" {
+                NewTab
+                SwitchToMode "Normal"
+              }
+              bind "x" {
+                CloseTab
+                SwitchToMode "Normal"
+              }
+              bind "s" {
+                ToggleActiveSyncTab
+                SwitchToMode "Normal"
+              }
+              bind "b" {
+                BreakPane
+                SwitchToMode "Normal"
+              }
+              bind "]" {
+                BreakPaneRight
+                SwitchToMode "Normal"
+              }
+              bind "[" {
+                BreakPaneLeft
+                SwitchToMode "Normal"
+              }
+              bind "1" {
+                GoToTab 1
+                SwitchToMode "Normal"
+              }
+              bind "2" {
+                GoToTab 2
+                SwitchToMode "Normal"
+              }
+              bind "3" {
+                GoToTab 3
+                SwitchToMode "Normal"
+              }
+              bind "4" {
+                GoToTab 4
+                SwitchToMode "Normal"
+              }
+              bind "5" {
+                GoToTab 5
+                SwitchToMode "Normal"
+              }
+              bind "6" {
+                GoToTab 6
+                SwitchToMode "Normal"
+              }
+              bind "7" {
+                GoToTab 7
+                SwitchToMode "Normal"
+              }
+              bind "8" {
+                GoToTab 8
+                SwitchToMode "Normal"
+              }
+              bind "9" {
+                GoToTab 9
+                SwitchToMode "Normal"
+              }
+              bind "a" {
+                ToggleTab
+                SwitchToMode "Normal"
+              }
             }
-            {
-              keys = [ "e" ];
-              action = {
-                EditScrollback = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [ "s" ];
-              action = {
-                SwitchToMode = "EnterSearch";
-                SearchInput = [ ];
-              };
-            }
-            {
-              keys = [ "G" ];
-              action = {
-                ScrollToBottom = [ ];
-                SwitchToMode = "Normal";
-              };
-            }
-            {
-              keys = [
-                "j"
-                "Down"
-              ];
-              action = {
-                ScrollDown = [ ];
-              };
-            }
-            {
-              keys = [
-                "k"
-                "Up"
-              ];
-              action = {
-                ScrollUp = [ ];
-              };
-            }
-            {
-              keys = [
-                "Ctrl f"
-                "PageDown"
-                "Right"
-                "l"
-              ];
-              action = {
-                PageScrollDown = [ ];
-              };
-            }
-            {
-              keys = [
-                "Ctrl b"
-                "PageUp"
-                "Left"
-                "h"
-              ];
-              action = {
-                PageScrollUp = [ ];
-              };
-            }
-            {
-              keys = [ "d" ];
-              action = {
-                HalfPageScrollDown = [ ];
-              };
-            }
-            {
-              keys = [ "u" ];
-              action = {
-                HalfPageScrollUp = [ ];
-              };
-            }
-          ];
 
-          search = zellijBindings [
-            {
-              keys = [ "Ctrl /" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            scroll {
+              bind "Ctrl s" {
+                SwitchToMode "Normal"
+              }
+              bind "e" {
+                EditScrollback
+                SwitchToMode "Normal"
+              }
+              bind "s" {
+                SwitchToMode "EnterSearch"
+                SearchInput
+              }
+              bind "G" {
+                ScrollToBottom
+                SwitchToMode "Normal"
+              }
+              bind "j" "Down" {
+                ScrollDown
+              }
+              bind "k" "Up" {
+                ScrollUp
+              }
+              bind "Ctrl f" "PageDown" "Right" "l" {
+                PageScrollDown
+              }
+              bind "Ctrl b" "PageUp" "Left" "h" {
+                PageScrollUp
+              }
+              bind "d" {
+                HalfPageScrollDown
+              }
+              bind "u" {
+                HalfPageScrollUp
+              }
             }
-            {
-              keys = [
-                "j"
-                "Down"
-              ];
-              action = {
-                ScrollDown = [ ];
-              };
-            }
-            {
-              keys = [
-                "k"
-                "Up"
-              ];
-              action = {
-                ScrollUp = [ ];
-              };
-            }
-            {
-              keys = [
-                "Ctrl f"
-                "PageDown"
-                "Right"
-                "l"
-              ];
-              action = {
-                PageScrollDown = [ ];
-              };
-            }
-            {
-              keys = [
-                "Ctrl b"
-                "PageUp"
-                "Left"
-                "h"
-              ];
-              action = {
-                PageScrollUp = [ ];
-              };
-            }
-            {
-              keys = [ "d" ];
-              action = {
-                HalfPageScrollDown = [ ];
-              };
-            }
-            {
-              keys = [ "u" ];
-              action = {
-                HalfPageScrollUp = [ ];
-              };
-            }
-            {
-              keys = [ "n" ];
-              action = {
-                Search = "down";
-              };
-            }
-            {
-              keys = [ "p" ];
-              action = {
-                Search = "up";
-              };
-            }
-            {
-              keys = [ "c" ];
-              action = {
-                SearchToggleOption = "CaseSensitivity";
-              };
-            }
-            {
-              keys = [ "w" ];
-              action = {
-                SearchToggleOption = "Wrap";
-              };
-            }
-            {
-              keys = [ "o" ];
-              action = {
-                SearchToggleOption = "WholeWord";
-              };
-            }
-          ];
 
-          entersearch = zellijBindings [
-            {
-              keys = [ "Ctrl s" ];
-              action = {
-                SwitchToMode = "Scroll";
-              };
+            search {
+              bind "Ctrl /" {
+                SwitchToMode "Normal"
+              }
+              bind "j" "Down" {
+                ScrollDown
+              }
+              bind "k" "Up" {
+                ScrollUp
+              }
+              bind "Ctrl f" "PageDown" "Right" "l" {
+                PageScrollDown
+              }
+              bind "Ctrl b" "PageUp" "Left" "h" {
+                PageScrollUp
+              }
+              bind "d" {
+                HalfPageScrollDown
+              }
+              bind "u" {
+                HalfPageScrollUp
+              }
+              bind "n" {
+                Search "down"
+              }
+              bind "p" {
+                Search "up"
+              }
+              bind "c" {
+                SearchToggleOption "CaseSensitivity"
+              }
+              bind "w" {
+                SearchToggleOption "Wrap"
+              }
+              bind "o" {
+                SearchToggleOption "WholeWord"
+              }
             }
-            {
-              keys = [ "Esc" ];
-              action = {
-                SwitchToMode = "Scroll";
-              };
-            }
-            {
-              keys = [ "Enter" ];
-              action = {
-                SwitchToMode = "Search";
-              };
-            }
-          ];
 
-          renametab = zellijBindings [
-            {
-              keys = [ "Ctrl s" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            entersearch {
+              bind "Ctrl s" {
+                SwitchToMode "Scroll"
+              }
+              bind "Esc" {
+                SwitchToMode "Scroll"
+              }
+              bind "Enter" {
+                SwitchToMode "Search"
+              }
             }
-            {
-              keys = [ "Esc" ];
-              action = {
-                UndoRenameTab = [ ];
-                SwitchToMode = "Tab";
-              };
-            }
-          ];
 
-          renamepane = zellijBindings [
-            {
-              keys = [ "Ctrl c" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            renametab {
+              bind "Ctrl s" {
+                SwitchToMode "Normal"
+              }
+              bind "Esc" {
+                UndoRenameTab
+                SwitchToMode "Tab"
+              }
             }
-            {
-              keys = [ "Esc" ];
-              action = {
-                UndoRenamePane = [ ];
-                SwitchToMode = "Pane";
-              };
-            }
-          ];
 
-          session = zellijBindings [
-            {
-              keys = [ "Ctrl x" ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            renamepane {
+              bind "Ctrl c" {
+                SwitchToMode "Normal"
+              }
+              bind "Esc" {
+                UndoRenamePane
+                SwitchToMode "Pane"
+              }
             }
-            {
-              keys = [ "d" ];
-              action = {
-                Detach = [ ];
-              };
-            }
-            {
-              keys = [ "w" ];
-              action = {
-                "LaunchOrFocusPlugin \"zellij:session-manager\"" = {
-                  floating = true;
-                  move_to_focused_tab = true;
-                };
-                SwitchToMode = "Normal";
-              };
-            }
-          ];
 
-          "shared_except \"locked\"" = zellijBindings [
-            {
-              keys = [ "Ctrl g" ];
-              action = {
-                SwitchToMode = "Locked";
-              };
+            session {
+              bind "Ctrl x" {
+                SwitchToMode "Normal"
+              }
+              bind "d" {
+                Detach
+              }
+              bind "w" {
+                LaunchOrFocusPlugin "https://github.com/laperlej/zellij-sessionizer/releases/latest/download/zellij-sessionizer.wasm" {
+                  floating true
+                  move_to_focused_tab true
+                  cwd "/"
+                  root_dirs "${hmArgs.config.home.homeDirectory}/Github/"
+                }
+                SwitchToMode "Normal"
+              }
             }
-            {
-              keys = [ "Alt n" ];
-              action = {
-                NewPane = [ ];
-              };
-            }
-            {
-              keys = [
-                "Alt h"
-                "Alt Left"
-              ];
-              action = {
-                MoveFocusOrTab = "Left";
-              };
-            }
-            {
-              keys = [
-                "Alt l"
-                "Alt Right"
-              ];
-              action = {
-                MoveFocusOrTab = "Right";
-              };
-            }
-            {
-              keys = [
-                "Alt j"
-                "Alt Down"
-              ];
-              action = {
-                MoveFocus = "Down";
-              };
-            }
-            {
-              keys = [
-                "Alt k"
-                "Alt Up"
-              ];
-              action = {
-                MoveFocus = "Up";
-              };
-            }
-            {
-              keys = [
-                "Alt ="
-                "Alt +"
-              ];
-              action = {
-                Resize = "Increase";
-              };
-            }
-            {
-              keys = [ "Alt -" ];
-              action = {
-                Resize = "Decrease";
-              };
-            }
-            {
-              keys = [ "Alt [" ];
-              action = {
-                PreviousSwapLayout = [ ];
-              };
-            }
-            {
-              keys = [ "Alt ]" ];
-              action = {
-                NextSwapLayout = [ ];
-              };
-            }
-          ];
 
-          "shared_except \"normal\" \"locked\"" = zellijBindings [
-            {
-              keys = [
-                "Enter"
-                "Esc"
-              ];
-              action = {
-                SwitchToMode = "Normal";
-              };
+            shared_except "locked" {
+              bind "Ctrl g" {
+                SwitchToMode "Locked"
+              }
+              bind "Alt n" {
+                NewPane
+              }
+              bind "Alt h" "Alt Left" {
+                MoveFocusOrTab "Left"
+              }
+              bind "Alt l" "Alt Right" {
+                MoveFocusOrTab "Right"
+              }
+              bind "Alt j" "Alt Down" {
+                MoveFocus "Down"
+              }
+              bind "Alt k" "Alt Up" {
+                MoveFocus "Up"
+              }
+              bind "Alt =" "Alt +" {
+                Resize "Increase"
+              }
+              bind "Alt -" {
+                Resize "Decrease"
+              }
+              bind "Alt [" {
+                PreviousSwapLayout
+              }
+              bind "Alt ]" {
+                NextSwapLayout
+              }
             }
-          ];
-          "shared_except \"pane\" \"locked\"" = zellijBindings [
-            {
-              keys = [ "Ctrl a" ];
-              action = {
-                SwitchToMode = "Pane";
-              };
-            }
-          ];
-          "shared_except \"resize\" \"locked\"" = zellijBindings [
-            {
-              keys = [ "Ctrl n" ];
-              action = {
-                SwitchToMode = "Resize";
-              };
-            }
-          ];
-          "shared_except \"scroll\" \"locked\"" = zellijBindings [
-            {
-              keys = [ "Ctrl s" ];
-              action = {
-                SwitchToMode = "Scroll";
-              };
-            }
-          ];
-          "shared_except \"session\" \"locked\"" = zellijBindings [
-            {
-              keys = [ "Ctrl x" ];
-              action = {
-                SwitchToMode = "Session";
-              };
-            }
-          ];
-          "shared_except \"tab\" \"locked\"" = zellijBindings [
-            {
-              keys = [ "Ctrl t" ];
-              action = {
-                SwitchToMode = "Tab";
-              };
-            }
-          ];
-          "shared_except \"renametab\" \"locked\"" = zellijBindings [
-            {
-              keys = [ "Alt r" ];
-              action = {
-                SwitchToMode = "RenameTab";
-              };
-            }
-          ];
-        };
 
-        plugins = {
-          tab-bar.path = "tab-bar";
-          status-bar.path = "status-bar";
-          strider.path = "strider";
-          compact-bar.path = "compact-bar";
-        };
+            shared_except "normal" "locked" {
+              bind "Enter" "Esc" {
+                SwitchToMode "Normal"
+              }
+            }
 
-        on_force_close = "detach";
-        pane_frames = false;
+            shared_except "pane" "locked" {
+              bind "Ctrl a" {
+                SwitchToMode "Pane"
+              }
+            }
+
+            shared_except "resize" "locked" {
+              bind "Ctrl n" {
+                SwitchToMode "Resize"
+              }
+            }
+
+            shared_except "scroll" "locked" {
+              bind "Ctrl s" {
+                SwitchToMode "Scroll"
+              }
+            }
+
+            shared_except "session" "locked" {
+              bind "Ctrl x" {
+                SwitchToMode "Session"
+              }
+            }
+
+            shared_except "tab" "locked" {
+              bind "Ctrl t" {
+                SwitchToMode "Tab"
+              }
+            }
+
+            shared_except "renametab" "locked" {
+              bind "Alt r" {
+                SwitchToMode "RenameTab"
+              }
+            }
+          }
+
+          plugins {
+            tab-bar {
+              path "tab-bar"
+            }
+            status-bar {
+              path "status-bar"
+            }
+            strider {
+              path "strider"
+            }
+            compact-bar {
+              path "compact-bar"
+            }
+          }
+
+          default_layout "sessionizer"
+          on_force_close "detach"
+          pane_frames false
+        '';
       };
     };
+
+    xdg.configFile."zellij/layouts/sessionizer.kdl".text = ''
+      layout {
+        floating_panes {
+          pane {
+            plugin location="https://github.com/laperlej/zellij-sessionizer/releases/latest/download/zellij-sessionizer.wasm" {
+              floating true
+              root_dirs "${hmArgs.config.home.homeDirectory}/Github/"
+            }
+          }
+        }
+      }
+    '';
   };
 }

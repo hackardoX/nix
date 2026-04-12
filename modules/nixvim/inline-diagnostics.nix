@@ -18,6 +18,7 @@
               })
             end
           '';
+          options.desc = "Toggle diagnostic virtual lines";
         }
         {
           key = "[d";
@@ -26,6 +27,7 @@
               vim.diagnostic.goto_prev({ float = false })
             end
           '';
+          options.desc = "Previous diagnostic";
         }
         {
           key = "]d";
@@ -34,6 +36,7 @@
               vim.diagnostic.goto_next({ float = false })
             end
           '';
+          options.desc = "Next diagnostic";
         }
       ];
     };
