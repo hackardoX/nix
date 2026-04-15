@@ -1,22 +1,6 @@
-let
-  zellijSessionPicker = ''
-    if [[ -z "$ZELLIJ" ]]; then
-      ZJ_SESSIONS=$(zellij list-sessions 2>/dev/null)
-      NO_SESSIONS=$(echo "$ZJ_SESSIONS" | wc -l)
-
-      if [ "$NO_SESSIONS" -ge 2 ]; then
-        zellij attach "$(echo "$ZJ_SESSIONS" | fzf | awk '{print $1}')"
-      else
-        zellij attach -c
-      fi
-    fi
-  '';
-in
 {
   flake.modules.homeManager.shell = hmArgs: {
     programs = {
-      # zsh.initExtra = zellijSessionPicker;
-      bash.initExtra = zellijSessionPicker;
       zellij = {
         enable = true;
         enableZshIntegration = true;
@@ -56,6 +40,13 @@ in
 
               bind "Alt v" {
                 Run "nvim"
+              }
+
+              bind "Alt l" {
+                Run "bash" "-c" "zellij action override-layout ~/.config/zellij/layouts/$(ls ~/.config/zellij/layouts/*.kdl | xargs -I{} basename {} .kdl | fzf)" {
+                  floating true
+                  close_on_exit true
+                }
               }
             }
 
@@ -457,24 +448,11 @@ in
             }
           }
 
-          default_layout "sessionizer"
+          default_layout "welcome"
           on_force_close "detach"
           pane_frames false
         '';
       };
     };
-
-    xdg.configFile."zellij/layouts/sessionizer.kdl".text = ''
-      layout {
-        floating_panes {
-          pane {
-            plugin location="https://github.com/laperlej/zellij-sessionizer/releases/latest/download/zellij-sessionizer.wasm" {
-              floating true
-              root_dirs "${hmArgs.config.home.homeDirectory}/Github/"
-            }
-          }
-        }
-      }
-    '';
   };
 }
