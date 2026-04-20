@@ -40,7 +40,7 @@
     };
     keymaps = [
       {
-        key = "<leader>t";
+        key = "<Leader>t";
         options.desc = "Toggle autoformatting";
         action = inputs.nixvim.lib.nixvim.mkRaw ''
           function()

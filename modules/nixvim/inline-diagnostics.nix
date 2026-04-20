@@ -8,7 +8,7 @@
     plugins = {
       lsp.keymaps.extra = [
         {
-          key = "<leader>l";
+          key = "<Leader>l";
           action = inputs.nixvim.lib.nixvim.mkRaw ''
             function()
               local current = vim.diagnostic.config()
