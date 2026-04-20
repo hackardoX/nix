@@ -19,13 +19,13 @@
             "n"
             "v"
           ];
-          key = "<leader>-";
+          key = "<Leader>-";
           action = "<cmd>Yazi<cr>";
           options.desc = "Open yazi at the current file";
         }
         {
           mode = "n";
-          key = "<leader>+";
+          key = "<Leader>+";
           action = "<cmd>Yazi toggle<cr>";
           options.desc = "Resume the last yazi session";
         }

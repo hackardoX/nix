@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.shell = hmArgs: {
+  flake.modules.homeManager.shell = {
     programs = {
       zellij = {
         enable = true;
@@ -347,12 +347,10 @@
                 Detach
               }
               bind "w" {
-                LaunchOrFocusPlugin "https://github.com/laperlej/zellij-sessionizer/releases/latest/download/zellij-sessionizer.wasm" {
+                LaunchOrFocusPlugin "zellij:session-manager" {
                   floating true
                   move_to_focused_tab true
-                  cwd "/"
-                  root_dirs "${hmArgs.config.home.homeDirectory}/Github/"
-                }
+                };
                 SwitchToMode "Normal"
               }
             }
