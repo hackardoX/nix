@@ -3,7 +3,9 @@
     plugins = {
       treesitter = {
         enable = true;
-        folding.enable = true;
+        folding = {
+          enable = true;
+        };
         highlight.enable = true;
         indent.enable = true;
       };
@@ -56,9 +58,11 @@
         };
       };
     };
+    opts.foldlevel = 99;
     keymaps =
       let
-        selectMaps = let
+        selectMaps =
+          let
             mkSelect = key: query: group: {
               mode = [
                 "x"
@@ -148,19 +152,19 @@
         ];
       in
       selectMaps
-        ++ repeatMaps
-        ++ ftMaps
-        ++ [
-          (mkSwap "<Leader>k" "swap_next" "@parameter.inner" "Swap next parameter")
-          (mkSwap "<Leader>K" "swap_previous" "@parameter.outer" "Swap previous parameter")
-        ]
-        ++ [
-          {
-            mode = "n";
-            key = "<Leader>c";
-            action = "<CMD>TSContext toggle<CR>";
-            options.desc = "Toggle treesitter context";
-          }
-        ];
+      ++ repeatMaps
+      ++ ftMaps
+      ++ [
+        (mkSwap "<Leader>k" "swap_next" "@parameter.inner" "Swap next parameter")
+        (mkSwap "<Leader>K" "swap_previous" "@parameter.outer" "Swap previous parameter")
+      ]
+      ++ [
+        {
+          mode = "n";
+          key = "<Leader>c";
+          action = "<CMD>TSContext toggle<CR>";
+          options.desc = "Toggle treesitter context";
+        }
+      ];
   };
 }
