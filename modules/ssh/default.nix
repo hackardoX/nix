@@ -162,7 +162,7 @@ in
               chmod 644 "$known_hosts_file"
               echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
             else
-              echo "No SSH keys were successfully scanned"
+              echo "No SSH keys were scanned"
             fi
 
             rm "$temp_file"
