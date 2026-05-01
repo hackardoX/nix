@@ -1,7 +1,5 @@
-{ inputs, ... }:
 {
   flake.modules.nixvim.dev =
-    { pkgs, ... }:
     {
       extraConfigLua = ''
         vim.o.autoread = true;
@@ -13,18 +11,5 @@
           end
         })
       '';
-
-      # extraPlugins = [
-      #   {
-      #     plugin = pkgs.vimUtils.buildVimPlugin {
-      #       pname = "vim-autoread";
-      #       version = "unstable";
-      #       src = inputs.vim-autoread;
-      #     };
-      #     config = ''
-      #       autocmd VimEnter * nested WatchForChangesAllFile!
-      #     '';
-      #   }
-      # ];
     };
 }
