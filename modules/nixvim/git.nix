@@ -75,15 +75,37 @@ in
           enable_builtin = true;
           default_to_projects_v2 = true;
           default_merge_method = "squash";
-          # gh_env.__raw = ''
-          #   function()
-          #     local github_token = require('op.api').item.get({ 'GitHub Personal Access Token', '--fields', 'token' })[1]
-          #     if not github_token or not vim.startswith(github_token, 'ghp_') then
-          #       error('Failed to get GitHub token.')
-          #     end
-          #     return { GITHUB_TOKEN = github_token }
-          #   end
-          # '';
+          commands = {
+            pr = {
+              auto.__raw = ''
+                function()
+                  local gh = require "octo.gh"
+                  local picker = require "octo.picker"
+                  local utils = require "octo.utils"
+
+                  local buffer = utils.get_current_buffer()
+
+                  local auto_merge = function(number)
+                    local cb = function()
+                      utils.info "This PR will be auto-merged"
+                    end
+                    local opts = { cb = cb }
+                    gh.pr.merge { number, auto = true, squash = true, opts = opts }
+                  end
+
+                  if not buffer or not buffer:isPullRequest() then
+                    picker.prs {
+                      cb = function(selected)
+                        auto_merge(selected.obj.number)
+                      end,
+                    }
+                  elseif buffer:isPullRequest() then
+                    auto_merge(buffer.node.number)
+                  end
+                end
+              '';
+            };
+          };
         };
       };
       which-key = {
