@@ -40,12 +40,13 @@
       darwin.hackardo =
         { pkgs, ... }:
         {
-          users.users.aaccardo = {
+          users.users.${config.flake.meta.users.hackardo.name} = {
             inherit (config.flake.meta.users.hackardo)
               description
               name
               uid
               ;
+            home = "/Users/${config.flake.meta.users.hackardo.name}";
             shell = pkgs.zsh;
           };
         };

@@ -325,6 +325,26 @@
         "type": "github"
       }
     },
+    "nix-apple-container": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776537252,
+        "narHash": "sha256-PMqXKifatKUsxftwNXX5shaG0fKp2EH0PmDBxVwdkTQ=",
+        "owner": "halfwhey",
+        "repo": "nix-apple-container",
+        "rev": "2663255e16196f05219cb8d5a0026bc9eeebb28c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "halfwhey",
+        "repo": "nix-apple-container",
+        "type": "github"
+      }
+    },
     "nix-homebrew": {
       "inputs": {
         "brew-src": "brew-src"
@@ -543,6 +563,7 @@
         "import-tree": "import-tree",
         "lanzaboote": "lanzaboote",
         "make-shell": "make-shell",
+        "nix-apple-container": "nix-apple-container",
         "nix-homebrew": "nix-homebrew",
         "nix-index-database": "nix-index-database",
         "nix-mineral": "nix-mineral",

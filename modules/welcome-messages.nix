@@ -1,11 +1,7 @@
 {
-  flake.modules = {
-    nixvim.dev = {
-      extraConfigLua =
-        # lua
-        ''
-          vim.opt.shortmess:append("I")
-        '';
-    };
+  flake.modules.nixvim.dev = {
+    extraConfigLua = ''
+      vim.opt.shortmess:append("I")
+    '';
   };
 }

@@ -18,6 +18,9 @@
         settings = {
           model = "mistral-devstral/devstral-latest";
           autoupdate = false;
+          permission = {
+            "edit" = "ask";
+          };
           provider = {
             # anthropic = {
             #   options = {

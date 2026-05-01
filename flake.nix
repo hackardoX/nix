@@ -75,6 +75,10 @@
       url = "github:nicknovitski/make-shell";
       inputs.flake-compat.follows = "";
     };
+    nix-apple-container = {
+      url = "github:halfwhey/nix-apple-container";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
     };

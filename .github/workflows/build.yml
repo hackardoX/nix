@@ -6,7 +6,7 @@ jobs:
   builds:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
