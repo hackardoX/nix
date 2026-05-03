@@ -1,4 +1,3 @@
-{ lib, ... }:
 {
   flake.modules.nixvim.dev = {
     plugins = {
@@ -57,6 +56,7 @@
               dismiss = "<C-e>";
             };
           };
+          before_cursor_filter_length = 16;
         };
       };
     };
@@ -108,12 +108,12 @@
   flake.modules.homeManager.dev = hmArgs: {
     home = {
       sessionVariables = {
-        MISTRAL_CODESTRAL_API_KEY = lib.mkDefault "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralCodestralApiKey})";
+        MISTRAL_CODESTRAL_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralCodestralApiKey})";
       };
     };
 
     programs.onepassword-secrets.secrets = {
-      mistralCodestralApiKey = lib.mkDefault {
+      mistralCodestralApiKey = {
         path = ".secrets/.mistral_codestral_key";
         reference = "op://Development/Mistral API Key - Codestral/credential";
         group = "staff";

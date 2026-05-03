@@ -1,12 +1,20 @@
+{ lib, ... }:
+let
+  models = {
+    devstral = "mistral-devstral/devstral-latest";
+    "qwen3.6" = "qwen/qwen3.6-plus";
+  };
+in
 {
   flake.modules.homeManager.dev =
     { pkgs, ... }@hmArgs:
     {
       home = {
         sessionVariables = {
+          OPENCODE_ENABLE_EXA = true; # Enable websearch tool
           ANTHROPIC_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralDevstralApiKey})";
-          MISTRAL_CODESTRAL_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralCodestralApiKey})";
           MISTRAL_DEVSTRAL_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralDevstralApiKey})";
+          OPENCODE_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.opencodeZenApiKey})";
           MOONSHOT_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.moonshotApiKey})";
           MORPH_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.morphApiKey})";
           TAVILY_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.tavilyApiKey})";
@@ -16,28 +24,19 @@
       programs.opencode = {
         enable = true;
         settings = {
-          model = "mistral-devstral/devstral-latest";
+          model = models."qwen3.6";
           autoupdate = false;
           permission = {
-            "edit" = "ask";
+            "bash" = {
+              "*" = "ask";
+              "git *" = "allow";
+              "npm *" = "allow";
+              "rm *" = "deny";
+              "grep *" = "allow";
+            };
+            edit = "ask";
           };
           provider = {
-            # anthropic = {
-            #   options = {
-            #     apiKey = "{env:ANTHROPIC_API_KEY}";
-            #   };
-            # };
-            # moonshot = {
-            #   options = {
-            #     apiKey = "{env:MOONSHOT_API_KEY}";
-            #   };
-            # };
-            # morph = {
-            #   options = {
-            #     apiKey = "{env:MORPH_API_KEY}";
-            #   };
-            # };
-
             # Custom providers
             mistral-devstral = {
               npm = "@ai-sdk/mistral";
@@ -56,24 +55,6 @@
                 };
               };
             };
-            mistral-codestral = {
-              npm = "@ai-sdk/mistral";
-              name = "Mistral Codestral";
-              options = {
-                baseURL = "https://codestral.mistral.ai/v1";
-                apiKey = "{env:MISTRAL_CODESTRAL_API_KEY}";
-              };
-              models = {
-                "codestral-latest" = {
-                  name = "Codestral Latest";
-                  limit = {
-                    context = 256000;
-                    output = 4096;
-                  };
-                };
-              };
-            };
-
           };
         };
         skills =
@@ -81,10 +62,31 @@
             mattpocock-skills = pkgs.fetchFromGitHub {
               owner = "mattpocock";
               repo = "skills";
-              rev = "main"; # pin to a commit hash for reproducibility
-              hash = "sha256-kInYwg1xaBrcW6lZXm2AuyHKZ9gjL6qGvoope+25ADs=";
+              rev = "main";
+              hash = "sha256-qOhU5bBnT6kI8c7i0r0IyecrgLJNNPlmQtAb6qWM73Q=";
             };
-            mkSkill = skill: builtins.readFile "${mattpocock-skills}/${skill}/SKILL.md";
+            findFile =
+              root: target:
+              let
+                entries = builtins.readDir root;
+                found = lib.filterAttrs (name: _: name == target) entries;
+                subdirs = builtins.attrNames (lib.filterAttrs (_: v: v == "directory") entries);
+                recurse = builtins.filter (x: x != null) (map (dir: findFile "${root}/${dir}" target) subdirs);
+              in
+              if found != { } then
+                "${root}/${target}"
+              else if recurse != [ ] then
+                builtins.head recurse
+              else
+                null;
+
+            mkSkill =
+              skill:
+              let
+                path = findFile mattpocock-skills skill;
+              in
+              if path == null then throw "Skill '${skill}' not found" else builtins.readFile "${path}/SKILL.md";
+
             mkSkills =
               skills:
               builtins.listToAttrs (
@@ -95,12 +97,13 @@
               );
           in
           mkSkills [
-            "prd-to-plan"
-            "write-a-prd"
-            "prd-to-issues"
-            "grill-me"
-            "design-an-interface"
-            "request-refactor-plan"
+            "grill-with-docs"
+            "caveman"
+            "tdd"
+            "to-issues"
+            "to-prd"
+            "diagnose"
+            "zoom-out"
           ];
       };
 
@@ -115,9 +118,9 @@
           reference = "op://Development/Mistral API Key - Devstral/credential";
           group = "staff";
         };
-        mistralCodestralApiKey = {
-          path = ".secrets/.mistral_codestral_key";
-          reference = "op://Development/Mistral API Key - Codestral/credential";
+        opencodeZenApiKey = {
+          path = ".secrets/.opencode_zen_key";
+          reference = "op://Development/Opencode Zen API Key/credential";
           group = "staff";
         };
         moonshotApiKey = {
