@@ -31,8 +31,10 @@ in
               "*" = "ask";
               "git *" = "allow";
               "npm *" = "allow";
-              "rm *" = "deny";
+              "ls *" = "allow";
+              "cat *" = "allow";
               "grep *" = "allow";
+              "rm *" = "deny";
             };
             edit = "ask";
           };
@@ -63,7 +65,7 @@ in
               owner = "mattpocock";
               repo = "skills";
               rev = "main";
-              hash = "sha256-qOhU5bBnT6kI8c7i0r0IyecrgLJNNPlmQtAb6qWM73Q=";
+              hash = "sha256-HyJLE9+ItZY0nB87eMfONSAc3L6dndcApoRpbO+D7UY=";
             };
             findFile =
               root: target:

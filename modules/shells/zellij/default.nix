@@ -57,9 +57,6 @@
             }
 
             resize {
-              bind "Ctrl n" {
-                SwitchToMode "Normal"
-              }
               bind "h" "Left" {
                 Resize "Increase Left"
               }
@@ -93,56 +90,53 @@
             }
 
             pane {
-              bind "Ctrl a" {
-                SwitchToMode "Normal"
-              }
               bind "h" "Left" {
                 MoveFocus "Left"
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "l" "Right" {
                 MoveFocus "Right"
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "j" "Down" {
                 MoveFocus "Down"
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "k" "Up" {
                 MoveFocus "Up"
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "p" {
                 SwitchFocus
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "n" {
                 NewPane
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "d" {
                 NewPane "Down"
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "x" {
                 CloseFocus
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "z" {
                 ToggleFocusFullscreen
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "f" {
                 TogglePaneFrames
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "w" {
                 ToggleFloatingPanes
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "e" {
                 TogglePaneEmbedOrFloating
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "r" {
                 SwitchToMode "RenamePane"
@@ -151,94 +145,88 @@
             }
 
             tab {
-              bind "Ctrl t" {
-                SwitchToMode "Normal"
-              }
               bind "r" {
                 SwitchToMode "RenameTab"
                 TabNameInput 0
               }
               bind "h" "Left" "Up" "k" {
                 GoToPreviousTab
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "l" "Right" "Down" "j" {
                 GoToNextTab
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "n" {
                 NewTab
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "x" {
                 CloseTab
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "s" {
                 ToggleActiveSyncTab
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "b" {
                 BreakPane
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "]" {
                 BreakPaneRight
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "[" {
                 BreakPaneLeft
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "1" {
                 GoToTab 1
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "2" {
                 GoToTab 2
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "3" {
                 GoToTab 3
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "4" {
                 GoToTab 4
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "5" {
                 GoToTab 5
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "6" {
                 GoToTab 6
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "7" {
                 GoToTab 7
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "8" {
                 GoToTab 8
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "9" {
                 GoToTab 9
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "a" {
                 ToggleTab
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
             }
 
             scroll {
-              bind "Ctrl s" {
-                SwitchToMode "Normal"
-              }
               bind "e" {
                 EditScrollback
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "s" {
                 SwitchToMode "EnterSearch"
@@ -246,7 +234,7 @@
               }
               bind "G" {
                 ScrollToBottom
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
               bind "j" "Down" {
                 ScrollDown
@@ -269,9 +257,6 @@
             }
 
             search {
-              bind "Ctrl /" {
-                SwitchToMode "Normal"
-              }
               bind "j" "Down" {
                 ScrollDown
               }
@@ -308,9 +293,6 @@
             }
 
             entersearch {
-              bind "Ctrl s" {
-                SwitchToMode "Scroll"
-              }
               bind "Esc" {
                 SwitchToMode "Scroll"
               }
@@ -320,9 +302,6 @@
             }
 
             renametab {
-              bind "Ctrl s" {
-                SwitchToMode "Normal"
-              }
               bind "Esc" {
                 UndoRenameTab
                 SwitchToMode "Tab"
@@ -330,9 +309,6 @@
             }
 
             renamepane {
-              bind "Ctrl c" {
-                SwitchToMode "Normal"
-              }
               bind "Esc" {
                 UndoRenamePane
                 SwitchToMode "Pane"
@@ -340,9 +316,6 @@
             }
 
             session {
-              bind "Ctrl x" {
-                SwitchToMode "Normal"
-              }
               bind "d" {
                 Detach
               }
@@ -351,7 +324,7 @@
                   floating true
                   move_to_focused_tab true
                 };
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
             }
 
@@ -390,43 +363,43 @@
 
             shared_except "normal" "locked" {
               bind "Enter" "Esc" {
-                SwitchToMode "Normal"
+                SwitchToMode "Locked"
               }
             }
 
             shared_except "pane" "locked" {
-              bind "Ctrl a" {
+              bind "p" {
                 SwitchToMode "Pane"
               }
             }
 
             shared_except "resize" "locked" {
-              bind "Ctrl n" {
+              bind "r" {
                 SwitchToMode "Resize"
               }
             }
 
+            shared_except "search" "locked" {
+              bind "/" {
+                SwitchToMode "Search"
+              }
+            }
+
             shared_except "scroll" "locked" {
-              bind "Ctrl s" {
+              bind "l" {
                 SwitchToMode "Scroll"
               }
             }
 
             shared_except "session" "locked" {
-              bind "Ctrl x" {
+              bind "x" {
                 SwitchToMode "Session"
               }
             }
 
             shared_except "tab" "locked" {
-              bind "Ctrl t" {
+              bind "t" {
                 SwitchToMode "Tab"
-              }
-            }
-
-            shared_except "renametab" "locked" {
-              bind "Alt r" {
-                SwitchToMode "RenameTab"
               }
             }
           }
@@ -447,6 +420,7 @@
           }
 
           default_layout "welcome"
+          default_mode "locked"
           on_force_close "detach"
           pane_frames false
         '';
