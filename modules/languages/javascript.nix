@@ -11,7 +11,32 @@ in
   flake.modules.homeManager.dev =
     { pkgs, ... }:
     {
-      home.packages = with pkgs; [ nodejs ];
+      home.packages = with pkgs; [
+        nodejs
+      ];
+
+      programs.opencode = {
+        extraPackages = with pkgs; [
+          typescript-go
+        ];
+        settings.lsp = {
+          typescript = {
+            command = [
+              (lib.getExe pkgs.typescript-go)
+            ];
+            extensions = [
+              ".ts"
+              ".tsx"
+              ".js"
+              ".jsx"
+              ".mjs"
+              ".cjs"
+              ".mts"
+              ".cts"
+            ];
+          };
+        };
+      };
     };
 
   flake.modules.nixvim.dev =
