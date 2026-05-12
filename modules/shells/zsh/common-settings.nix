@@ -3,8 +3,7 @@
     { config, ... }:
     {
       programs.zsh = {
-        # Place zsh config files in XDG-compliant directory instead of $HOME
-        dotDir = "${config.home.homeDirectory}/.config/zsh";
+        dotDir = "${config.xdg.configHome}/zsh";
         enableCompletion = true;
         sessionVariables = {
           LC_ALL = "en_US.UTF-8";

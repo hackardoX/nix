@@ -3,7 +3,7 @@
     hmArgs@{ pkgs, ... }:
     let
       podmanMachineName = "dev";
-      podmanSymLinkSocketPath = "${hmArgs.config.home.homeDirectory}/.local/share/containers/podman/machine/podman.sock";
+      podmanSymLinkSocketPath = "${hmArgs.config.xdg.dataHome}/containers/podman/machine/podman.sock";
     in
     {
       home = {
