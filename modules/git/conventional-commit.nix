@@ -4,7 +4,7 @@
     { config, pkgs, ... }:
     {
       programs.git.settings = {
-        commit.template = "${config.home.homeDirectory}/.config/git/commit-template";
+        commit.template = "${config.xdg.configHome}/git/commit-template";
       };
 
       home = {

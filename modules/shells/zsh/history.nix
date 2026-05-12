@@ -14,7 +14,7 @@
           ignoreDups = true;
           ignoreSpace = true;
           # avoid cluttering $HOME with the histfile
-          path = "${config.home.homeDirectory}/.config/zsh/zsh_history";
+          path = "${config.xdg.configHome}/zsh/zsh_history";
           # optimize size of the histfile by avoiding duplicates or commands we don't need remembered
           save = 100000;
           # Don't write duplicate entries to history file

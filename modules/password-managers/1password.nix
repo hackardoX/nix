@@ -17,7 +17,7 @@
     { config, pkgs, ... }:
     let
       _1passwordOriginalSocketPath = "${config.home.homeDirectory}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
-      _1passwordSymLinkSocketPath = "${config.home.homeDirectory}/.1password/agent.sock";
+      _1passwordSymLinkSocketPath = "${config.xdg.dataHome}/.1password/agent.sock";
     in
     {
       imports = [ inputs.op-shell-plugins.hmModules.default ];
