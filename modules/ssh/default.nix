@@ -90,7 +90,7 @@ in
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
-          matchBlocks =
+          settings =
             myReachableHosts
             # TODO: Do I need this block?
             |> lib.mapAttrsToList (
@@ -120,7 +120,7 @@ in
                   identitiesOnly = true;
                   identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
                   serverAliveInterval = 60;
-                  setEnv.TERM = "xterm-256color";
+                  setEnv = "TERM=xterm-256color";
                 };
               }
             ]

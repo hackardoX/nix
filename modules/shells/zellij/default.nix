@@ -15,39 +15,6 @@
           keybinds clear-defaults=true {
             normal {
               unbind "Ctrl p" "Ctrl o" "Ctrl q" "Ctrl h"
-
-              bind "Alt g" {
-                Run "lazygit" {
-                  floating true
-                  x "10%"
-                  y "10%"
-                  width "80%"
-                  height "80%"
-                  close_on_exit true
-                }
-              }
-
-              bind "Alt G" {
-                Run "gh-dash" {
-                  floating true
-                  close_on_exit true
-                  x "5%"
-                  y "5%"
-                  width "90%"
-                  height "90%"
-                }
-              }
-
-              bind "Alt v" {
-                Run "nvim"
-              }
-
-              bind "Alt l" {
-                Run "bash" "-c" "zellij action override-layout ~/.config/zellij/layouts/$(ls ~/.config/zellij/layouts/*.kdl | xargs -I{} basename {} .kdl | fzf)" {
-                  floating true
-                  close_on_exit true
-                }
-              }
             }
 
             locked {
@@ -90,26 +57,6 @@
             }
 
             pane {
-              bind "h" "Left" {
-                MoveFocus "Left"
-                SwitchToMode "Locked"
-              }
-              bind "l" "Right" {
-                MoveFocus "Right"
-                SwitchToMode "Locked"
-              }
-              bind "j" "Down" {
-                MoveFocus "Down"
-                SwitchToMode "Locked"
-              }
-              bind "k" "Up" {
-                MoveFocus "Up"
-                SwitchToMode "Locked"
-              }
-              bind "p" {
-                SwitchFocus
-                SwitchToMode "Locked"
-              }
               bind "n" {
                 NewPane
                 SwitchToMode "Locked"
@@ -400,6 +347,58 @@
             shared_except "tab" "locked" {
               bind "t" {
                 SwitchToMode "Tab"
+              }
+            }
+
+            shared {
+              bind "Alt h" "Alt Left" {
+                MoveFocus "Left"
+                SwitchToMode "Locked"
+              }
+              bind "Alt l" "Alt Right" {
+                MoveFocus "Right"
+                SwitchToMode "Locked"
+              }
+              bind "Alt j" "Alt Down" {
+                MoveFocus "Down"
+                SwitchToMode "Locked"
+              }
+              bind "Alt k" "Alt Up" {
+                MoveFocus "Up"
+                SwitchToMode "Locked"
+              }
+              bind "Alt p" {
+                SwitchFocus
+                SwitchToMode "Locked"
+              }
+              bind "Alt g" {
+                Run "lazygit" {
+                  floating true
+                  x "10%"
+                  y "10%"
+                  width "80%"
+                  height "80%"
+                  close_on_exit true
+                }
+              }
+              bind "Alt G" {
+                Run "gh-dash" {
+                  floating true
+                  close_on_exit true
+                  x "5%"
+                  y "5%"
+                  width "90%"
+                  height "90%"
+                }
+              }
+              bind "Alt v" {
+                Run "nvim"
+              }
+              bind "Alt l" {
+                Run "bash" "-c" "zellij action override-layout ~/.config/zellij/layouts/$(ls ~/.config/zellij/layouts/*.kdl | xargs -I{} basename {} .kdl | fzf)" {
+                  floating true
+                  close_on_exit true
+                }
               }
             }
           }
