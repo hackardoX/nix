@@ -39,7 +39,6 @@
                   "csv"
                   "db"
                   "duckdb"
-                  "json"
                   "parquet"
                   "tsv"
                   "xlsx"
@@ -47,8 +46,15 @@
               in
               map (ext: {
                 url = "*.${ext}";
-                run = "duckdb";
-              }) fileTypes;
+                run = "mux duckdb code";
+              }) fileTypes
+              ++ [
+                {
+                  url = "*.json";
+                  run = "mux code duckdb";
+                }
+              ];
+
           };
         };
       };
