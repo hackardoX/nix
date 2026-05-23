@@ -22,6 +22,15 @@ Verify the partition layout:
 sgdisk /dev/nvme0n1 -p
 ```
 
+### WiFi Configuration
+
+iwd is configured to auto-connect to your home network. Update `hostname.nix`:
+
+1. Replace `YOUR_SSID` with your actual WiFi network name
+2. Store the WiFi password in 1Password at `op://Development/HomeLab/wifi password`
+
+**Note:** WiFi works after boot. For initrd/LUKS unlock, use Ethernet (DHCP).
+
 ### Required Information for `disk.nix`
 
 Before deploying, update `disk.nix` with the actual disk ID and partition UUIDs:
@@ -45,7 +54,7 @@ Update the `uuid` field for each partition in `disk.nix` (`iBootSystemContainer`
 ### What Disko Will Do
 
 - Format the ESP as vfat and mount at `/boot`
-- Format the root partition as ext4 and mount at `/`
+- Format the LUKS partition with btrfs subvolumes (`/`, `/home`, `/nix`, `/swap`)
 
 ### What Disko Will NOT Touch
 
@@ -55,3 +64,22 @@ Update the `uuid` field for each partition in `disk.nix` (`iBootSystemContainer`
 - `p2` - macOS Container (APFS)
 - `p3` - Asahi stub partition
 - `p6` - `RecoveryOSContainer` (Apple recovery)
+
+### Required Information for `hardware-configuration.nix`
+
+Before deploying, update `hardware-configuration.nix` with actual UUIDs:
+
+**1. LUKS device UUID**
+After creating the LUKS partition, get its UUID:
+```bash
+cryptsetup luksUUID /dev/nvme0n1p5
+# or
+lsblk -o NAME,UUID /dev/nvme0n1p5
+```
+Update `boot.initrd.luks.devices."crypted".device` in `hardware-configuration.nix`.
+
+**2. ESP UUID**
+```bash
+blkid /dev/nvme0n1p4
+```
+Update `fileSystems."/boot".device` in `hardware-configuration.nix`.
