@@ -40,19 +40,49 @@
                   ];
                 };
               };
-              root = {
-                size = "100%";
-                content = {
-                  type = "filesystem";
-                  format = "ext4";
-                  mountpoint = "/";
-                };
-              };
               RecoveryOSContainer = {
                 label = "RecoveryOSContainer";
                 priority = 5;
                 type = "AF0C";
                 uuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual UUID
+              };
+              luks = {
+                size = "100%";
+                content = {
+                  type = "luks";
+                  name = "crypted";
+                  # passwordFile = "/tmp/secret.key"; # Interactive password entry
+                  extraFormatArgs = [ "--pbkdf argon2id" ];
+                  content = {
+                    type = "btrfs";
+                    extraArgs = [ "-f" ];
+                    subvolumes =
+                      let
+                        mountOptions = [
+                          "compress=zstd"
+                          "noatime"
+                        ];
+                      in
+                      {
+                        "/root" = {
+                          mountpoint = "/";
+                          inherit mountOptions;
+                        };
+                        "/home" = {
+                          mountpoint = "/home";
+                          inherit mountOptions;
+                        };
+                        "/nix" = {
+                          mountpoint = "/nix";
+                          inherit mountOptions;
+                        };
+                        "/swap" = {
+                          mountpoint = "/swap";
+                          swap.swapfile.size = "16G";
+                        };
+                      };
+                  };
+                };
               };
             };
           };
