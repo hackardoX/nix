@@ -20,7 +20,7 @@ jobs:
         with:
           extra-conf: |-
             extra-experimental-features = pipe-operators
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
       - uses: cachix/cachix-action@v17
         with:
           name: hackardo
