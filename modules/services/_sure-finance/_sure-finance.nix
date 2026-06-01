@@ -4,7 +4,6 @@
   pkgs,
   ...
 }:
-
 let
   cfg = config.services.sure-finance;
   defaultUser = "sure-finance";
