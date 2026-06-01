@@ -1,32 +1,15 @@
 {
-  flake.modules.nixos.homelab = nixosArgs: {
-    imports = [ ./_services/sure-finance/sure-finance.nix ];
+  flake.modules.homeManager.homelab = hmArgs: {
     services = {
       sure-finance = {
         enable = true;
         domain = "finance.aegisinbox.com";
-        secrets = {
-          secretKeyBasePath =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinanceSecretKeyBasePath;
-          postgresPasswordPath =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinancePostgresPasswordPath;
-          redisPasswordPath =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinanceRedisPasswordPath;
-          openAiTokenPath =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.sureFinanceOpenAiTokenPath;
-        };
-        openai = {
-          model = "mistral-large-latest";
-          baseUrl = "https://api.mistral.ai/v1";
-        };
-
-        database.enable = true;
-        redis.enable = true;
-
-        nginx = {
-          enable = true;
-          enableACME = true;
-        };
+        port = "";
+        database.passwordFile =
+          hmArgs.config.services.onepassword-secrets.secretPaths.sureFinancePostgresPasswordPath;
+        secretKeyBaseFile =
+          hmArgs.config.services.onepassword-secrets.secretPaths.sureFinanceSecretKeyBasePath;
+        openaiTokenFile = hmArgs.config.services.onepassword-secrets.secretPaths.sureFinanceOpenAiTokenPath;
       };
 
       onepassword-secrets.secrets = {
@@ -41,14 +24,6 @@
           reference = "op://Development/Sure Finance Secrets/postgres password";
           owner = "sure-finance";
           group = "sure-finance";
-          mode = "0640";
-        };
-        sureFinanceRedisPasswordPath = {
-          path = "/run/secrets/sure-finance/redis_password";
-          reference = "op://Development/Sure Finance Secrets/redis password";
-          owner = "sure-finance";
-          group = "sure-finance";
-          mode = "0640";
         };
         sureFinanceOpenAiTokenPath = {
           path = "/run/secrets/sure-finance/openai_token";
