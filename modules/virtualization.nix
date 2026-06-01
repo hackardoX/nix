@@ -6,6 +6,7 @@
       podmanSymLinkSocketPath = "${hmArgs.config.xdg.dataHome}/containers/podman/machine/podman.sock";
     in
     {
+      imports = [ ../modules/secrets/_podman-secrets.nix ];
       home = {
         # file.".config/containers/containers.conf".text = ''
         #   [machine]
