@@ -1,5 +1,12 @@
 { lib, ... }:
 {
+  flake.meta.reverse-proxy = {
+    domain = "";
+    ports = {
+      sure-finance = 3000;
+    };
+  };
+
   flake.modules.nixos.homelab =
     nixosArgs@{
       pkgs,
