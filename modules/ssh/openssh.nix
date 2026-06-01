@@ -1,5 +1,5 @@
 {
-  flake.module.nixos.homelab = {
+  flake.modules.nixos.homelab = {
     services.openssh = {
       enable = true;
       settings = {
