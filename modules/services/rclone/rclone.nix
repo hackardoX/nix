@@ -3,10 +3,10 @@
   ...
 }:
 {
-  flake.modules.nixos.homelab =
-    nixosArgs@{ pkgs, ... }:
+  flake.modules.homeManager.homelab =
+    hmArgs@{ pkgs, ... }:
     let
-      cfg = nixosArgs.config.services.rclone-s3;
+      cfg = hmArgs.config.services.rclone-s3;
 
       instanceOptions = lib.types.submodule {
         options = {
