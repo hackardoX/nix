@@ -30,18 +30,21 @@
 
       crowdsec = {
         enable = true;
-        enrollKeyFile = nixosArgs.config.services.onepassword-secrets.secretPaths.crowdsecEnrollKey;
-        acquisitions = lib.mkIf nixosArgs.config.services.caddy.enable [
-          {
-            filenames = [ "/var/log/caddy/access.log" ];
-            labels.type = "caddy";
-          }
-        ];
+        settings.console.tokenFile =
+          nixosArgs.config.services.onepassword-secrets.secretPaths.crowdsecConsoleToken;
+        localConfig = {
+          acquisitions = lib.mkIf nixosArgs.config.services.caddy.enable [
+            {
+              filenames = [ "/var/log/caddy/access.log" ];
+              labels.type = "caddy";
+            }
+          ];
+        };
       };
       onepassword-secrets.secrets = {
-        crowdsecEnrollKey = {
-          path = "/run/secrets/crowdsec/enroll_key";
-          reference = "op://Development/CrowdSec/enroll key";
+        crowdsecConsoleToken = {
+          path = "/run/secrets/crowdsec/console_token";
+          reference = "op://Development/CrowdSec/console token";
           owner = "crowdsec";
           group = "crowdsec";
           services = [ "crowdsec" ];
