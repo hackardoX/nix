@@ -1,10 +1,24 @@
+{ config, ... }:
+let
+  domain = config.flake.meta.reverse-proxy.domain;
+  port = config.flake.meta.reverse-proxy.ports.sure-finance;
+in
 {
+  flake.modules.nixos.homelab = {
+    services.caddy.virtualHosts."finance.${domain}" = {
+      useACMEHost = domain;
+      extraConfig = ''
+        import reverse_proxy_common
+        reverse_proxy localhost:${toString port}
+      '';
+    };
+  };
+
   flake.modules.homeManager.homelab = hmArgs: {
     services = {
       sure-finance = {
+        inherit port;
         enable = true;
-        domain = "finance.aegisinbox.com";
-        port = "";
         database.passwordFile =
           hmArgs.config.services.onepassword-secrets.secretPaths.sureFinancePostgresPasswordPath;
         secretKeyBaseFile =
