@@ -1,7 +1,7 @@
+{ config, ... }:
 let
   user = "deploy";
 in
-{ config, ... }:
 {
   flake = {
     meta.users.deploy.name = "deploy";
