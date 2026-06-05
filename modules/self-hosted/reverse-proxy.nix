@@ -3,7 +3,8 @@
   flake.meta.reverse-proxy = {
     domain = "";
     ports = {
-      sure-finance = 3000;
+      immich = 9000;
+      sure-finance = 19000;
     };
   };
 
@@ -22,6 +23,7 @@
       ];
     in
     {
+      users.users.caddy.extraGroups = [ "acme" ];
       services = {
         geoipupdate = {
           enable = true;
@@ -45,7 +47,7 @@
 
           package = pkgs.caddy.withPlugins {
             plugins = [
-              "github.com/porech/caddy-maxmind-geolocation@v0.0.0-20240608124restrict"
+              "github.com/porech/caddy-maxmind-geolocation@v1.0.0"
             ];
             hash = "sha256-your-hash-here";
           };
@@ -113,7 +115,5 @@
           '';
         };
       };
-
-      users.users.caddy.extraGroups = [ "acme" ];
     };
 }
