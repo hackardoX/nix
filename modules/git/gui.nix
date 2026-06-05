@@ -58,7 +58,7 @@
 
         onepassword-secrets.secrets = {
           githubToken = {
-            path = ".secrets/github_token";
+            path = ".secrets/.github_token";
             reference = "op://Development/GitHub Personal Access Token/token";
             group = if pkgs.stdenv.isDarwin then "staff" else "wheel";
           };
