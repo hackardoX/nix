@@ -21,6 +21,20 @@ let
   };
 in
 {
+  flake.meta.sure-finance = {
+    user = "sure-finance";
+    group = "sure-finance";
+  };
+
+  flake.modules.nixos.homelab = {
+    users.users.${config.flake.meta.sure-finance.user} = {
+      isNormalUser = true;
+      extraGroups = [
+        config.flake.meta.sure-finance.group
+      ];
+    };
+  };
+
   flake.modules.homeManager.homelab = {
     options.services.sure-finance = {
       enable = lib.mkEnableOption "Sure Finance";
