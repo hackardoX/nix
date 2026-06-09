@@ -1,13 +1,14 @@
 {
   flake.modules.homeManager.laptop = hmArgs: {
-    services.file-sync.jobs = {
+    services.file-mount.mounts = {
       documents = {
-        source = "${hmArgs.config.home.homeDirectory}/koofr";
         destination = "Private Docs";
+        mountPoint = "${hmArgs.config.home.homeDirectory}/Koofr Docs";
         providers = [
           "koofr"
         ];
         encrypted = true;
+        salt = true;
       };
     };
   };

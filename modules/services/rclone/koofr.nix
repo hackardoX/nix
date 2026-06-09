@@ -1,5 +1,5 @@
-{
-  flake.modules.homeManager.homelab =
+{ config, ... }: {
+  flake.modules.homeManager.base =
     hmArgs@{ osConfig, ... }:
     {
       programs.rclone = {
@@ -7,7 +7,7 @@
           config = {
             type = "koofr";
             endpoint = "https://app.koofr.net";
-            user = hmArgs.config.flake.meta.users.${osConfig.system.primaryUser}.email;
+            user = config.flake.meta.users.${osConfig.system.primaryUser}.email;
           };
 
           secrets = {
