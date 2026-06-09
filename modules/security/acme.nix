@@ -4,7 +4,7 @@
     security.acme = {
       acceptTerms = true;
       defaults = {
-        inherit (config.flake.meta.users.hackardo) email;
+        inherit (config.flake.meta.users.${nixosArgs.config.system.primaryUser}) email;
         dnsProvider = "cloudflare";
         credentialsFile = nixosArgs.config.services.onepassword-secrets.secretPaths.cloudflareApiEnv;
       };
