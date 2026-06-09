@@ -15,7 +15,7 @@
   };
 
   flake.modules.homeManager.homelab =
-    hmArgs:
+    hmArgs@{ osConfig, ... }:
     let
       cfg = hmArgs.config.services.sure-finance;
       networkName = "sure-finance";
@@ -28,6 +28,7 @@
         DB_HOST = "db";
         DB_PORT = "5432";
         REDIS_URL = "redis://redis:6379/1";
+        TZ = osConfig.time.timeZone;
       };
       sharedSecrets = {
         POSTGRES_PASSWORD = cfg.database.passwordFile;
