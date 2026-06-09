@@ -45,6 +45,7 @@ in
       extraPackages = with pkgs; [
         biome
         eslint_d
+        typescript-go
       ];
       plugins = {
         conform-nvim = {
