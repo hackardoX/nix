@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 {
   flake.modules.homeManager.homelab =
     hmArgs:
@@ -21,6 +21,7 @@
       };
 
       mkBackupName = jobName: provider: "${jobName}-${provider}";
+      mkSecretName = jobName: "backup${config.flake.lib.capitalize jobName}";
 
       mkResticBackup =
         jobName: jobCfg: provider:
@@ -29,7 +30,7 @@
         in
         {
           repository = "rclone:${provider}:${destination}/backup";
-          passwordFile = hmArgs.config.programs.onepassword-secrets.secretPaths."backup-${jobName}".path;
+          passwordFile = hmArgs.config.programs.onepassword-secrets.secretPaths.${mkSecretName jobName}.path;
           paths = jobCfg.paths;
           initialize = true;
           runCheck = true;
@@ -43,7 +44,7 @@
 
       mkSecrets = lib.mapAttrs' (
         jobName: _:
-        lib.nameValuePair "backup-${jobName}" {
+        lib.nameValuePair (mkSecretName jobName) {
           path = ".secrets/backup/${jobName}/password";
           reference = "op://Homelab/Backup/${jobName}/password";
         }
