@@ -1,6 +1,6 @@
 { config, ... }:
 {
-  flake.meta.users.hackardo = {
+  flake.meta.users.aaccardo = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
     description = "Andrea Accardo";
     name = "aaccardo";
@@ -13,13 +13,13 @@
   flake.modules.darwin.hackardo =
     { pkgs, ... }:
     {
-      users.users.${config.flake.meta.users.hackardo.name} = {
-        inherit (config.flake.meta.users.hackardo)
+      users.users.${config.flake.meta.users.aaccardo.name} = {
+        inherit (config.flake.meta.users.aaccardo)
           description
           name
           uid
           ;
-        home = "/Users/${config.flake.meta.users.hackardo.name}";
+        home = "/Users/${config.flake.meta.users.aaccardo.name}";
         shell = pkgs.zsh;
       };
     };

@@ -1,7 +1,7 @@
 { config, ... }:
 {
   configurations.darwin.Andrea-MacBook-Air.module = {
-    home-manager.users.${config.flake.meta.users.hackardo.name}.programs.onepassword-secrets.secrets = {
+    home-manager.users.${config.flake.meta.users.aaccardo.name}.programs.onepassword-secrets.secrets = {
       hetznerCloudPublicKey = {
         path = ".ssh/hetzner_cloud_debian.8gb.hel1.1.pub";
         reference = "op://Development/Hetzner Cloud debian-8gb-hel1-1/public key";

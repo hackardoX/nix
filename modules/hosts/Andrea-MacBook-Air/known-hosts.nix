@@ -1,7 +1,7 @@
 { config, ... }:
 {
   configurations.darwin.Andrea-MacBook-Air.module = {
-    home-manager.users.${config.flake.meta.users.hackardo.name} = hmArgs: {
+    home-manager.users.${config.flake.meta.users.aaccardo.name} = hmArgs: {
       ssh.extraHosts = {
         "hetzner-cloud" = {
           hostname = "46.62.149.89";

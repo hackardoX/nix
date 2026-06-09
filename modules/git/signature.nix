@@ -1,7 +1,7 @@
 { config, lib, ... }:
 {
   flake.modules.homeManager.dev =
-    hmArgs@{ pkgs, ... }:
+    hmArgs@{ osConfig, pkgs, ... }:
     {
       programs.git = {
         hooks = {
@@ -9,7 +9,9 @@
             pkgs.writeShellScriptBin "prepare-commit-msg" ''
               echo "Signing off commit"
               ${lib.getExe hmArgs.config.programs.git.package} interpret-trailers --if-exists doNothing --trailer \
-              "Signed-off-by: ${config.flake.meta.users.hackardo.name} <${config.flake.meta.users.hackardo.email}>" \
+              "Signed-off-by: ${config.flake.meta.users.${osConfig.system.primaryUser}.name} <${
+                config.flake.meta.users.${osConfig.system.primaryUser}.email
+              }>" \
               --in-place "$1"
             ''
           );

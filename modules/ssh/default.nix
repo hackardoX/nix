@@ -16,11 +16,13 @@ let
       ])
     );
   knownHosts = myReachableHosts |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
-  email = config.flake.meta.users.hackardo.email;
 in
 {
   flake.modules.homeManager.dev =
-    { config, pkgs, ... }:
+    hmArgs@{ osConfig, pkgs, ... }:
+    let
+      email = config.flake.meta.users.${osConfig.system.primaryUser}.email;
+    in
     {
       options.ssh = {
         extraConfig = lib.mkOption {
@@ -102,7 +104,7 @@ in
                       name = lib.replaceStrings [ "-" ] [ "" ] host.config.networking.hostName;
                       secretName = lib.toLower (lib.substring 0 1 name) + lib.substring 1 (-1) name + "PublicKey";
                     in
-                    config.programs.onepassword-secrets.secretPaths.${secretName};
+                    hmArgs.config.programs.onepassword-secrets.secretPaths.${secretName};
                   port = builtins.head host.config.services.openssh.ports;
                   user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
                 };
@@ -118,25 +120,25 @@ in
                   forwardAgent = false;
                   hashKnownHosts = true;
                   identitiesOnly = true;
-                  identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
+                  identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/id_ed25519";
                   serverAliveInterval = 60;
                   setEnv = "TERM=xterm-256color";
                 };
               }
             ]
-            |> lib.concat [ config.ssh.extraHosts ]
+            |> lib.concat [ hmArgs.config.ssh.extraHosts ]
             |> lib.mkMerge;
           extraConfig = ''
             StreamLocalBindUnlink yes
           ''
-          + config.ssh.extraConfig;
+          + hmArgs.config.ssh.extraConfig;
         };
 
         home = {
           # shellAliases = lib.mapAttrs' (system: _: {
           #   name = "ssh-${system}";
           #   value = "ssh ${system}";
-          # }) config.hosts;
+          # }) hmArgs.config.hosts;
 
           file = {
             ".ssh/allowed_signers".text = ''
