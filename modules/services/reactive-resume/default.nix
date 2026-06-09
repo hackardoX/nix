@@ -15,7 +15,7 @@
   };
 
   flake.modules.homeManager."${config.flake.meta.reactive-resume.user}@homelab" =
-    hmArgs@{ pkgs, ... }:
+    hmArgs@{ osConfig, pkgs, ... }:
     let
       cfg = hmArgs.config.services.reactive-resume;
       networkName = "reactive-resume";
@@ -120,7 +120,7 @@
             ];
 
             environment = {
-              TZ = "Etc/UTC";
+              TZ = osConfig.time.timeZone;
               APP_URL = cfg.appUrl;
               FLAG_DISABLE_SIGNUPS = "true";
               FLAG_DISABLE_EMAIL_AUTH = "false";
