@@ -4,6 +4,7 @@
     domain = "";
     ports = {
       immich = 9000;
+      reactive-resume = 18000;
       sure-finance = 19000;
     };
   };
