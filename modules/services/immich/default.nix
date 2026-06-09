@@ -18,13 +18,33 @@
   };
 
   flake.modules.homeManager."${config.flake.meta.immich.user}@homelab" =
-    hmArgs:
+    hmArgs@{ osConfig, pkgs, ... }:
     let
       cfg = hmArgs.config.services.immich-podman;
       networkName = "immich";
       storageDir = cfg.storageDir;
       dbName = "immich";
       dbUser = "postgres";
+
+      immichConfig = {
+        storageTemplate = {
+          enabled = true;
+          hashVerificationEnabled = true;
+          template = "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}";
+        };
+      };
+
+      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
+
+      sharedEnv = {
+        DB_HOSTNAME = "immich-db";
+        DB_PORT = "5432";
+        DB_DATABASE_NAME = dbName;
+        DB_USERNAME = dbUser;
+        REDIS_HOSTNAME = "immich-redis";
+        REDIS_PORT = "6379";
+        TZ = osConfig.time.timeZone;
+      };
     in
     {
       options.services.immich-podman = {
@@ -62,15 +82,11 @@
             volumes = [
               "${storageDir}/photos:/data"
               "/etc/localtime:/etc/localtime:ro"
+              "${immichConfigFile}:/config/immich.json:ro"
             ];
 
-            environment = {
-              DB_HOSTNAME = "immich-db";
-              DB_PORT = "5432";
-              DB_DATABASE_NAME = dbName;
-              DB_USERNAME = dbUser;
-              REDIS_HOSTNAME = "immich-redis";
-              REDIS_PORT = "6379";
+            environment = sharedEnv // {
+              IMMICH_CONFIG_FILE = "/config/immich.json";
             };
 
             secrets = {
@@ -107,13 +123,7 @@
               "${storageDir}/ml-config:/.config"
             ];
 
-            environment = {
-              DB_HOSTNAME = "immich-db";
-              DB_PORT = "5432";
-              DB_DATABASE_NAME = dbName;
-              DB_USERNAME = dbUser;
-              REDIS_HOSTNAME = "immich-redis";
-            };
+            environment = sharedEnv;
 
             secrets = {
               DB_PASSWORD = cfg.dbPasswordFile;
