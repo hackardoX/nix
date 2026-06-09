@@ -30,7 +30,7 @@
         in
         {
           repository = "rclone:${provider}:${destination}/backup";
-          passwordFile = hmArgs.config.programs.onepassword-secrets.secretPaths.${mkSecretName jobName}.path;
+          passwordFile = hmArgs.config.programs.onepassword-secrets.secretPaths.${mkSecretName jobName};
           paths = jobCfg.paths;
           initialize = true;
           runCheck = true;
@@ -104,13 +104,15 @@
 
       config = lib.mkIf (cfg.jobs != { }) {
         programs.onepassword-secrets.secrets = mkSecrets;
-
-        services.restic.backups = lib.concatMapAttrs (
-          jobName: jobCfg:
-          lib.genAttrs (map (provider: mkBackupName jobName provider) jobCfg.providers) (
-            provider: mkResticBackup jobName jobCfg provider
-          )
-        ) cfg.jobs;
+        services.restic = {
+          enable = cfg.jobs != { };
+          backups = lib.concatMapAttrs (
+            jobName: jobCfg:
+            lib.genAttrs (map (provider: mkBackupName jobName provider) jobCfg.providers) (
+              provider: mkResticBackup jobName jobCfg provider
+            )
+          ) cfg.jobs;
+        };
       };
     };
 }
