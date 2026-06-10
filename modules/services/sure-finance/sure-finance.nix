@@ -99,9 +99,12 @@
           sure-finance-db = {
             image = "docker.io/library/postgres:16";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "db" ];
             volumes = [ "${cfg.storageDir}/postgres:/var/lib/postgresql/data" ];
+
+            monitoring.enable = true;
 
             environment = {
               POSTGRES_USER = cfg.database.user;
@@ -117,31 +120,39 @@
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
+              NoNewPrivileges = true;
             };
           };
 
           sure-finance-redis = {
             image = "docker.io/library/redis:latest";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "redis" ];
             volumes = [ "${cfg.storageDir}/redis:/data" ];
+
+            monitoring.enable = true;
 
             extraConfig.Container = {
               HealthCmd = "redis-cli ping";
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
+              NoNewPrivileges = true;
             };
           };
 
           sure-finance-web = {
             image = cfg.image;
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "web" ];
             volumes = [ "${cfg.storageDir}/storage:/rails/storage" ];
             ports = [ "${toString cfg.port}:3000" ];
+
+            monitoring.enable = true;
 
             environment = sharedEnv;
             secrets = sharedSecrets;
@@ -157,19 +168,25 @@
                   "podman-sure-finance-redis.service"
                 ];
               };
-              Container.DNS = [
-                "8.8.8.8"
-                "1.1.1.1"
-              ];
+              Container = {
+                NoNewPrivileges = true;
+                DNS = [
+                  "8.8.8.8"
+                  "1.1.1.1"
+                ];
+              };
             };
           };
 
           sure-finance-worker = {
             image = cfg.image;
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "worker" ];
             volumes = [ "${cfg.storageDir}/storage:/rails/storage" ];
+
+            monitoring.enable = true;
 
             exec = "bundle exec sidekiq";
 
@@ -187,10 +204,13 @@
                   "podman-sure-finance-redis.service"
                 ];
               };
-              Container.DNS = [
-                "8.8.8.8"
-                "1.1.1.1"
-              ];
+              Container = {
+                NoNewPrivileges = true;
+                DNS = [
+                  "8.8.8.8"
+                  "1.1.1.1"
+                ];
+              };
             };
           };
         };

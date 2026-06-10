@@ -75,9 +75,12 @@
           immich-server = {
             image = "ghcr.io/immich-app/immich-server:release";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "immich-server" ];
             ports = [ "${toString cfg.port}:2283" ];
+
+            monitoring.enable = true;
 
             volumes = [
               "${storageDir}/photos:/data"
@@ -114,8 +117,11 @@
           immich-machine-learning = {
             image = "ghcr.io/immich-app/immich-machine-learning:release";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "immich-machine-learning" ];
+
+            monitoring.enable = true;
 
             volumes = [
               "${storageDir}/ml-models:/cache"
@@ -135,9 +141,12 @@
           immich-redis = {
             image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "immich-redis" ];
             volumes = [ "${storageDir}/redis:/data" ];
+
+            monitoring.enable = true;
 
             extraConfig.Container = {
               HealthCmd = "redis-cli ping || exit 1";
@@ -151,9 +160,12 @@
           immich-db = {
             image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "immich-db" ];
             volumes = [ "${storageDir}/postgres:/var/lib/postgresql/data" ];
+
+            monitoring.enable = true;
 
             environment = {
               POSTGRES_USER = dbUser;
