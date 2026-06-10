@@ -4,7 +4,9 @@
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.monitoring;
-      lokiPort = config.flake.meta.monitoring.loki.port;
+      lokiHost = config.flake.meta.monitoring.loki.host;
+      lokiHostPort = config.flake.meta.monitoring.loki.hostPort;
+      lokiContainerPort = config.flake.meta.monitoring.loki.containerPort;
       retentionDays = 30;
       lokiDir = "${cfg.storageDir}/loki";
 
@@ -13,7 +15,7 @@
           auth_enabled = false;
 
           server = {
-            http_listen_port = lokiPort;
+            http_listen_port = lokiContainerPort;
           };
 
           common = {
@@ -54,8 +56,8 @@
         autoStart = true;
         userNS = "keep-id";
         network = [ "monitoring.network" ];
-        networkAlias = [ "loki" ];
-        ports = [ "${toString lokiPort}:3100" ];
+        networkAlias = [ lokiHost ];
+        ports = [ "${toString lokiHostPort}:${toString lokiContainerPort}" ];
 
         volumes = [
           "${lokiDir}:/loki"

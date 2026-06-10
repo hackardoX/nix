@@ -4,7 +4,13 @@
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.monitoring;
-      grafanaPort = config.flake.meta.monitoring.grafana.port;
+      grafanaHost = config.flake.meta.monitoring.grafana.host;
+      grafanaContainerPort = config.flake.meta.monitoring.grafana.containerPort;
+      grafanaHostPort = config.flake.meta.monitoring.grafana.hostPort;
+      prometheusHost = config.flake.meta.monitoring.prometheus.host;
+      prometheusPort = config.flake.meta.monitoring.prometheus.containerPort;
+      lokiHost = config.flake.meta.monitoring.loki.host;
+      lokiPort = config.flake.meta.monitoring.loki.containerPort;
       grafanaDir = "${cfg.storageDir}/grafana";
 
       datasourcesConfig = pkgs.writeText "datasources.yml" (
@@ -14,13 +20,13 @@
             {
               name = "Prometheus";
               type = "prometheus";
-              url = "http://prometheus:9090";
+              url = "http://${prometheusHost}:${prometheusPort}";
               isDefault = true;
             }
             {
               name = "Loki";
               type = "loki";
-              url = "http://loki:3100";
+              url = "http://${lokiHost}:${lokiPort}";
               isDefault = false;
             }
           ];
@@ -45,8 +51,8 @@
         autoStart = true;
         userNS = "keep-id";
         network = [ "monitoring.network" ];
-        networkAlias = [ "grafana" ];
-        ports = [ "${toString grafanaPort}:3000" ];
+        networkAlias = [ grafanaHost ];
+        ports = [ "${toString grafanaHostPort}:${toString grafanaContainerPort}" ];
 
         volumes = [
           "${grafanaDir}/data:/var/lib/grafana"

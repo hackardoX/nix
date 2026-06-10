@@ -4,11 +4,28 @@
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.monitoring;
-      prometheusPort = config.flake.meta.monitoring.prometheus.port;
-      podmanExporterPort = 9882;
+      prometheusHost = config.flake.meta.monitoring.prometheus.host;
+      prometheusHostPort = config.flake.meta.monitoring.prometheus.hostPort;
+      prometheusContainerPort = config.flake.meta.monitoring.prometheus.containerPort;
+      prometheusPodmanExporterHost = config.flake.meta.monitoring.prometheusPodmanExporter.host;
+      prometheusPodmanExporterPort = config.flake.meta.monitoring.prometheusPodmanExporter.hostPort;
       retentionDays = 30;
       prometheusDir = "${cfg.storageDir}/prometheus";
       targetsDir = "${prometheusDir}/targets";
+
+      alertRulesConfig = {
+        groups = lib.mapAttrsToList (name: group: {
+          inherit name;
+          rules = map (rule: {
+            inherit (rule) alert expr;
+            for = rule.for;
+            labels = rule.labels;
+            annotations = rule.annotations;
+          }) group.rules;
+        }) cfg.prometheus.alertRules;
+      };
+
+      alertRulesFile = pkgs.writeText "alert-rules.yml" (builtins.toJSON alertRulesConfig);
 
       prometheusConfig = pkgs.writeText "prometheus.yml" (
         builtins.toJSON {
@@ -17,14 +34,18 @@
             evaluation_interval = "15s";
           };
 
+          rule_files = [ "/etc/prometheus/alert-rules.yml" ];
+
           scrape_configs = [
             {
               job_name = "prometheus";
-              static_configs = [ { targets = [ "localhost:${toString prometheusPort}" ]; } ];
+              static_configs = [ { targets = [ "localhost:${toString prometheusHostPort}" ]; } ];
             }
             {
               job_name = "podman";
-              static_configs = [ { targets = [ "podman-exporter:${toString podmanExporterPort}" ]; } ];
+              static_configs = [
+                { targets = [ "${prometheusPodmanExporterHost}:${toString prometheusPodmanExporterPort}" ]; }
+              ];
             }
           ];
         }
@@ -39,13 +60,14 @@
           autoStart = true;
           userNS = "keep-id";
           network = [ "monitoring.network" ];
-          networkAlias = [ "prometheus" ];
-          ports = [ "${toString prometheusPort}:9090" ];
+          networkAlias = [ prometheusHost ];
+          ports = [ "${toString prometheusHostPort}:${toString prometheusContainerPort}" ];
 
           volumes = [
             "${prometheusDir}/data:/prometheus"
             "${targetsDir}:/etc/prometheus/targets:ro"
             "${prometheusConfig}:/etc/prometheus/prometheus.yml:ro"
+            "${alertRulesFile}:/etc/prometheus/alert-rules.yml:ro"
           ];
 
           exec = "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=${toString retentionDays}d --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles";
@@ -58,7 +80,7 @@
           autoStart = true;
           userNS = "keep-id";
           network = [ "monitoring.network" ];
-          networkAlias = [ "podman-exporter" ];
+          networkAlias = [ prometheusPodmanExporterHost ];
 
           volumes = [
             "/run/podman/podman.sock:/var/run/podman/podman.sock:ro"
