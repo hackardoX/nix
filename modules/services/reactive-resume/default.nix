@@ -87,9 +87,12 @@
           reactive-resume-db = {
             image = "docker.io/library/postgres:16";
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "db" ];
             volumes = [ "${cfg.storageDir}/postgres:/var/lib/postgresql/data" ];
+
+            monitoring.enable = true;
 
             environment = {
               POSTGRES_USER = cfg.database.user;
@@ -105,15 +108,19 @@
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
+              NoNewPrivileges = true;
             };
           };
 
           reactive-resume = {
             image = cfg.image;
             autoStart = true;
+            userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "app" ];
             ports = [ "${toString cfg.port}:3000" ];
+
+            monitoring.enable = true;
 
             volumes = [
               "${entrypointScript}:/entrypoint.sh:ro"
