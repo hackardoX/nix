@@ -136,9 +136,12 @@
         services.podman.containers.job-ops = {
           image = cfg.image;
           autoStart = true;
+          userNS = "keep-id";
           network = [ "${networkName}.network" ];
           networkAlias = [ "job-ops" ];
           ports = [ "${toString cfg.port}:3001" ];
+
+          monitoring.enable = true;
 
           volumes = [ "${cfg.storageDir}/data:/app/data" ];
 
