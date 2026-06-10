@@ -4,7 +4,12 @@
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.monitoring;
-      alloyPort = config.flake.meta.monitoring.alloy.port;
+      alloyHost = config.flake.meta.monitoring.alloy.host;
+      alloyContainerPort = config.flake.meta.monitoring.alloy.containerPort;
+      alloyHostPort = config.flake.meta.monitoring.alloy.hostPort;
+      lokiHost = config.flake.meta.monitoring.loki.host;
+      lokiPort = config.flake.meta.monitoring.loki.containerPort;
+
       alloyDir = "${cfg.storageDir}/alloy";
 
       alloyConfig = pkgs.writeText "alloy.river" ''
@@ -48,7 +53,7 @@
         // Write to Loki
         loki.write "default" {
           endpoint {
-            url = "http://loki:3100/loki/api/v1/push"
+            url = "http://${lokiHost}:${toString lokiPort}/loki/api/v1/push"
           }
         }
       '';
@@ -59,8 +64,8 @@
         autoStart = true;
         userNS = "keep-id";
         network = [ "monitoring.network" ];
-        networkAlias = [ "alloy" ];
-        ports = [ "${toString alloyPort}:12345" ];
+        networkAlias = [ alloyHost ];
+        ports = [ "${toString alloyHostPort}:${toString alloyContainerPort}" ];
 
         volumes = [
           "${alloyDir}/data:/var/lib/alloy"
@@ -69,7 +74,7 @@
           "/etc/machine-id:/etc/machine-id:ro"
         ];
 
-        exec = "run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.river";
+        exec = "run --server.http.listen-addr=0.0.0.0:${toString alloyContainerPort} --storage.path=/var/lib/alloy/data /etc/alloy/config.river";
 
         extraConfig.Container.NoNewPrivileges = true;
       };
