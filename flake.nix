@@ -121,6 +121,10 @@
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware";
     };
+    nixos-apple-silicon = {
+      url = "github:nix-community/nixos-apple-silicon";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
       inputs = {

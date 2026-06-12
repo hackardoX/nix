@@ -24,7 +24,7 @@
                 };
               };
               luks = {
-                size = "100%";
+                # size = "100%";
                 content = {
                   type = "luks";
                   name = "nixos";

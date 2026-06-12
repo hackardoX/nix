@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, ... }:
 let
   # Convert structured Homepage configuration to Docker labels
   # Usage:
