@@ -83,3 +83,16 @@ Update `boot.initrd.luks.devices."crypted".device` in `hardware-configuration.ni
 blkid /dev/nvme0n1p4
 ```
 Update `fileSystems."/boot".device` in `hardware-configuration.nix`.
+
+### Peripheral Firmware
+
+The Apple Silicon support module requires peripheral firmware files for WiFi/Bluetooth. Copy them from the EFI partition on the Mac Mini:
+
+```bash
+# From the Mac Mini (after Asahi Linux installation)
+mkdir -p modules/hosts/HomeLab/firmware
+cp /boot/asahi/all_firmware.tar.gz modules/hosts/HomeLab/firmware/
+cp /boot/asahi/kernelcache* modules/hosts/HomeLab/firmware/
+```
+
+These files are referenced by `hardware.asahi.peripheralFirmwareDirectory = ./firmware;` in `hardware-configuration.nix`.

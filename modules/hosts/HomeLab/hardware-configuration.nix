@@ -1,27 +1,33 @@
 {
   config,
+  inputs,
   ...
 }:
 {
   configurations.nixos.HomeLab.module =
-    { modulesPath, ... }@nixosArgs:
     {
-      imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
+      modulesPath,
+      ...
+    }@nixosArgs:
+    {
+      imports = [
+        (modulesPath + "/installer/scan/not-detected.nix")
+        inputs.nixos-apple-silicon.nixosModules.apple-silicon-support
+      ];
+
+      hardware.asahi.peripheralFirmwareDirectory = ./firmware;
 
       boot = {
-        loader.systemd-boot.enable = true;
+        loader = {
+          efi.canTouchEfiVariables = false;
+          systemd-boot.enable = true;
+        };
         initrd = {
           availableKernelModules = [
-            "nvme" # NVMe SSD driver
-            "usb_storage" # USB storage for installer/key files
-            "xhci_pci" # USB 3.0 controller
-            "usbhid" # USB HID devices
-            "hid_apple" # Apple keyboard/mouse support
+            "macb" # Mac Mini M1 1Gbps Ethernet for remote LUKS unlock
           ];
-          kernelModules = [
-            "brcmfmac" # Broadcom WiFi (Apple Silicon)
-          ];
-          luks.devices."crypted".device = "/dev/disk/by-uuid/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual LUKS UUID
+
+          luks.devices."crypted".device = "/dev/disk/by-uuid/d5abab6e-0650-4e5b-8fb4-3a500d196e95";
           network = {
             enable = true;
             ssh = {
@@ -37,53 +43,5 @@
         };
         kernelParams = [ "ip=dhcp" ];
       };
-      services.openssh.enable = true;
-
-      fileSystems."/" = {
-        device = "/dev/mapper/crypted";
-        fsType = "btrfs";
-        options = [
-          "subvol=root"
-          "compress=zstd"
-          "noatime"
-        ];
-      };
-
-      fileSystems."/boot" = {
-        device = "/dev/disk/by-uuid/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with ESP UUID
-        fsType = "vfat";
-        options = [
-          "fmask=0022"
-          "dmask=0022"
-        ];
-      };
-
-      fileSystems."/home" = {
-        device = "/dev/mapper/crypted";
-        fsType = "btrfs";
-        options = [
-          "subvol=home"
-          "compress=zstd"
-          "noatime"
-        ];
-      };
-
-      fileSystems."/nix" = {
-        device = "/dev/mapper/crypted";
-        fsType = "btrfs";
-        options = [
-          "subvol=nix"
-          "compress=zstd"
-          "noatime"
-        ];
-      };
-
-      fileSystems."/swap" = {
-        device = "/dev/mapper/crypted";
-        fsType = "btrfs";
-        options = [ "subvol=swap" ];
-      };
-
-      swapDevices = [ { device = "/swap/swapfile"; } ];
     };
 }

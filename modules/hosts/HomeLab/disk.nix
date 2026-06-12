@@ -4,7 +4,7 @@
       disk = {
         main = {
           type = "disk";
-          device = "/dev/disk/by-id/nvme-APPLE_SSD_XXXXXXXXXXXXXXXX"; # TODO: update with actual disk ID
+          device = "/dev/disk/by-id/nvme-APPLE_SSD_AP1024Q_0ba01609449ca217";
           destroy = false;
           content = {
             type = "gpt";
@@ -13,23 +13,23 @@
                 label = "iBootSystemContainer";
                 priority = 1;
                 type = "AF0B";
-                uuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual UUID
+                uuid = "139e5dc2-7c27-4070-ac5d-c6582bc6a780";
               };
               Container = {
                 label = "Container";
                 priority = 2;
                 type = "AF0A";
-                uuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual UUID
+                uuid = "5d2cd669-430d-4151-afa4-4e8afe3a497d";
               };
               AsahiStub = {
                 priority = 3;
                 type = "AF0A";
-                uuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual UUID
+                uuid = "a9decce4-8a8d-4647-887c-8e1c19aaa9dc";
               };
               ESP = {
                 priority = 4;
                 type = "EF00";
-                uuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual UUID
+                uuid = "e862caa4-cb82-4d97-94ce-c9e77a74ef83";
                 content = {
                   type = "filesystem";
                   format = "vfat";
@@ -42,16 +42,17 @@
               };
               RecoveryOSContainer = {
                 label = "RecoveryOSContainer";
-                priority = 5;
+                priority = 6;
                 type = "AF0C";
-                uuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; # TODO: update with actual UUID
+                uuid = "60c3b87f-981b-448f-a616-e0675bce34c8";
               };
               luks = {
+                priority = 5;
                 size = "100%";
                 content = {
                   type = "luks";
                   name = "crypted";
-                  # passwordFile = "/tmp/secret.key"; # Interactive password entry
+                  passwordFile = "/tmp/secret.key"; # Interactive password entry
                   extraFormatArgs = [ "--pbkdf argon2id" ];
                   content = {
                     type = "btrfs";
@@ -89,9 +90,5 @@
         };
       };
     };
-
-    # Required for Asahi Linux EFI boot
-    boot.loader.efi.canTouchEfiVariables = false;
-    boot.loader.systemd-boot.enable = true;
   };
 }
