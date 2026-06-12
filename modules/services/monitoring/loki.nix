@@ -64,6 +64,14 @@
           "${lokiConfig}:/etc/loki/local-config.yml:ro"
         ];
 
+        labels = config.flake.lib.mkHomepageLabels {
+          category = "Monitoring";
+          name = "Loki";
+          description = "Log Aggregation";
+          icon = "grafana.png";
+          href = "http://localhost:${toString lokiHostPort}";
+        };
+
         extraConfig.Container.NoNewPrivileges = true;
       };
     };

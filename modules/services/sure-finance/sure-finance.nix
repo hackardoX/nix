@@ -154,6 +154,14 @@
 
             monitoring.enable = true;
 
+            labels = config.flake.lib.mkHomepageLabels {
+              category = "Finance";
+              name = "Sure Finance";
+              description = "Personal Finance Tracker";
+              icon = "mdi-cash-multiple";
+              href = "http://localhost:${toString cfg.port}";
+            };
+
             environment = sharedEnv;
             secrets = sharedSecrets;
 

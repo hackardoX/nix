@@ -3,6 +3,7 @@
   flake.meta.reverse-proxy = {
     domain = "";
     ports = {
+      homepage = 8000;
       immich = 9000;
       job-ops = 10000;
       reactive-resume = 18000;
