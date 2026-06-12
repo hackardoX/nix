@@ -2,35 +2,28 @@
   configurations.nixos.HomeLab.module = nixosArgs: {
     networking = {
       hostName = "HomeLab";
-      networkmanager.wifi.backend = "wpa_supplicant";
-      wireless.iwd = {
-        enable = true;
-        settings = {
-          Network = {
-            EnableIPv6 = true;
-          };
-          Settings = {
-            AutoConnect = true;
-          };
-        };
-
-      };
+      networkmanager.wifi.backend = "iwd";
     };
+
     systemd.services.iwd.preStart =
       let
         wifiPasswordFile = nixosArgs.config.services.onepassword-secrets.secretPaths.wifiPassword;
-        ssid = "";
+        ssid = "Livebox-0670_2GEXT";
       in
       ''
         install -Dm600 /dev/null /var/lib/iwd/${ssid}.psk
-        printf '[Security]\nPassphrase=%s\n[Settings]\nAutoconnect=true\n' \
-          "$(cat ${wifiPasswordFile})" > /var/lib/iwd/${ssid}.psk
+        cat > /var/lib/iwd/${ssid}.psk << EOF
+        [Security]
+        Passphrase=$(cat ${wifiPasswordFile})
+        [Settings]
+        Autoconnect=true
+        EOF
       '';
 
     services.onepassword-secrets.secrets = {
       wifiPassword = {
         path = "/run/secrets/.wifi_password";
-        reference = "op://Development/HomeLab/wifi password";
+        reference = "op://HomeLab/Wireless Router/wireless network password";
         group = "wheel";
       };
     };
