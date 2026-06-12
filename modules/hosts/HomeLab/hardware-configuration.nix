@@ -37,7 +37,6 @@
               hostKeys = [
                 nixosArgs.config.services.onepassword-secrets.secretPaths.homeLabPrivateKey
               ];
-              shell = "/bin/cryptsetup-askpass";
             };
           };
         };
