@@ -27,7 +27,6 @@
             "macb" # Mac Mini M1 1Gbps Ethernet for remote LUKS unlock
           ];
 
-          luks.devices."crypted".device = "/dev/disk/by-uuid/d5abab6e-0650-4e5b-8fb4-3a500d196e95";
           network = {
             enable = true;
             ssh = {
