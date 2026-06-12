@@ -82,6 +82,18 @@
 
             monitoring.enable = true;
 
+            labels = config.flake.lib.mkHomepageLabels {
+              category = "Media";
+              name = "Immich";
+              description = "Photo & Video Management";
+              icon = "immich.png";
+              href = "http://localhost:${toString cfg.port}";
+              widget = {
+                type = "immich";
+                url = "http://localhost:${toString cfg.port}";
+              };
+            };
+
             volumes = [
               "${storageDir}/photos:/data"
               "/etc/localtime:/etc/localtime:ro"

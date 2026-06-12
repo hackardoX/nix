@@ -143,6 +143,14 @@
 
           monitoring.enable = true;
 
+          labels = config.flake.lib.mkHomepageLabels {
+            category = "Productivity";
+            name = "Job-Ops";
+            description = "AI Job Application Assistant";
+            icon = "mdi-briefcase-outline";
+            href = "http://localhost:${toString cfg.port}";
+          };
+
           volumes = [ "${cfg.storageDir}/data:/app/data" ];
 
           environment = {

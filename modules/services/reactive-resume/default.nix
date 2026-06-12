@@ -122,6 +122,14 @@
 
             monitoring.enable = true;
 
+            labels = config.flake.lib.mkHomepageLabels {
+              category = "Productivity";
+              name = "Reactive Resume";
+              description = "Resume Builder";
+              icon = "mdi-file-document-outline";
+              href = "http://localhost:${toString cfg.port}";
+            };
+
             volumes = [
               "${entrypointScript}:/entrypoint.sh:ro"
             ];

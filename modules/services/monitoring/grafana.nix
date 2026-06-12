@@ -69,6 +69,14 @@
             hmArgs.config.programs.onepassword-secrets.secretPaths.grafanaAdminPassword;
         };
 
+        labels = config.flake.lib.mkHomepageLabels {
+          category = "Monitoring";
+          name = "Grafana";
+          description = "Metrics & Dashboards";
+          icon = "grafana.png";
+          href = "http://localhost:${toString grafanaHostPort}";
+        };
+
         extraConfig.Container.NoNewPrivileges = true;
       };
     };

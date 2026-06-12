@@ -70,6 +70,14 @@
             "${alertRulesFile}:/etc/prometheus/alert-rules.yml:ro"
           ];
 
+          labels = config.flake.lib.mkHomepageLabels {
+            category = "Monitoring";
+            name = "Prometheus";
+            description = "Metrics Storage";
+            icon = "prometheus.png";
+            href = "http://localhost:${toString prometheusHostPort}";
+          };
+
           exec = "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=${toString retentionDays}d --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles";
 
           extraConfig.Container.NoNewPrivileges = true;
