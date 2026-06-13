@@ -21,6 +21,12 @@
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabPublicKey;
           port = 22;
         };
+        "homelab-initrd" = {
+          hostname = "192.168.1.44";
+          user = "root";
+          identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabInitrdPublicKey;
+          port = 2222;
+        };
       };
     };
   };

@@ -23,9 +23,14 @@
         group = "staff";
       };
       homeLabPublicKey = {
-        path = ".ssh/home_lab.pub";
+        path = ".ssh/homelab.pub";
         reference = "op://HomeLab/Hal/public key";
         group = "staff";
+      };
+      homeLabInitrdPublicKey = {
+        path = ".ssh/homelab_initrd.pub";
+        reference = "op://HomeLab/Initrd Luks/public key";
+        group = "wheel";
       };
     };
   };
