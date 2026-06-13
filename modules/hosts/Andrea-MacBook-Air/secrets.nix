@@ -22,6 +22,11 @@
         reference = "op://Development/Andrea-MacBook-Air/private key";
         group = "staff";
       };
+      homeLabPublicKey = {
+        path = ".ssh/home_lab.pub";
+        reference = "op://HomeLab/Hal/public key";
+        group = "staff";
+      };
     };
   };
 }

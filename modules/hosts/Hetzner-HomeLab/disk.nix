@@ -1,5 +1,6 @@
-{
+{ inputs, ... }: {
   configurations.nixos.Hetzner-HomeLab.module = {
+    imports = [ inputs.disko.nixosModules.disko ];
     disko.devices = {
       disk = {
         main = {
