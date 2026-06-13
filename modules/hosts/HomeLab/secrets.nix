@@ -17,13 +17,11 @@
         path = "/etc/secrets/initrd/ssh_host_ed25519_key";
         reference = "op://HomeLab/Initrd Luks/private key";
         group = "wheel";
-        services = [ "sshd" ];
       };
       homeLabInitrdPublicKey = {
         path = "/etc/secrets/initrd/ssh_host_ed25519_key.pub";
-        reference = "op://HomeLab/Initrd Luks/private key";
+        reference = "op://HomeLab/Initrd Luks/public key";
         group = "wheel";
-        services = [ "sshd" ];
       };
     };
   };
