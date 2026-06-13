@@ -34,7 +34,7 @@
               port = 2222;
               inherit (config.flake.meta.users.hal) authorizedKeys;
               hostKeys = [
-                nixosArgs.config.services.onepassword-secrets.secretPaths.homeLabPrivateKey
+                nixosArgs.config.services.onepassword-secrets.secretPaths.homeLabInitrdPrivateKey
               ];
             };
           };
