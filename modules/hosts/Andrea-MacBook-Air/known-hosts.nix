@@ -15,6 +15,12 @@
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.hetznerHomeLabPublicKey;
           port = 22;
         };
+        "homelab" = {
+          hostname = "192.168.1.44";
+          user = config.flake.meta.users.hal.name;
+          identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabPublicKey;
+          port = 22;
+        };
       };
     };
   };
