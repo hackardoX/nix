@@ -30,7 +30,7 @@
       homeLabInitrdPublicKey = {
         path = ".ssh/homelab_initrd.pub";
         reference = "op://HomeLab/Initrd Luks/public key";
-        group = "wheel";
+        group = "staff";
       };
     };
   };
