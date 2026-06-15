@@ -9,7 +9,7 @@
     config = {
       users = {
         mutableUsers = false;
-        users.root.hashedPassword = "!";
+        # users.root.hashedPassword = "!";
       };
     };
   };
