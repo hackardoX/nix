@@ -27,6 +27,8 @@
             "macb" # Mac Mini M1 1Gbps Ethernet for remote LUKS unlock
           ];
 
+          luks.devices.crypted.keyFile = "/boot/secret.key"; # Temporary auto-unlock
+
           network = {
             enable = true;
             ssh = {

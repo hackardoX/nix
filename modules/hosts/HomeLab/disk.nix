@@ -1,6 +1,5 @@
-{ inputs, ... }: {
+{
   configurations.nixos.HomeLab.module = {
-    imports = [ inputs.disko.nixosModules.disko ];
     disko.devices = {
       disk = {
         main = {
