@@ -31,7 +31,7 @@
         onepassword-secrets.secrets = {
           halHashedUserPassword = {
             path = "/run/secrets/.hal_password";
-            reference = "op://Development/HomeLab/hashed user password";
+            reference = "op://HomeLab/Hal/hashed user password";
             group = "wheel";
           };
         };
