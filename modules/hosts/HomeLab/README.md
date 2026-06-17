@@ -27,7 +27,7 @@ sgdisk /dev/nvme0n1 -p
 iwd is configured to auto-connect to your home network. Update `hostname.nix`:
 
 1. Replace `YOUR_SSID` with your actual WiFi network name
-2. Store the WiFi password in 1Password at `op://Development/HomeLab/wifi password`
+2. Store the WiFi password in 1Password at `op://HomeLab/wifi password`
 
 **Note:** WiFi works after boot. For initrd/LUKS unlock, use Ethernet (DHCP).
 
