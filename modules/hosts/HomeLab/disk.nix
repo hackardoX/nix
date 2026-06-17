@@ -52,6 +52,7 @@
                 content = {
                   type = "luks";
                   name = "crypted";
+                  keyFile = "/tmp/secret.key";
                   passwordFile = "/tmp/secret.key"; # Interactive password entry
                   extraFormatArgs = [ "--pbkdf argon2id" ];
                   content = {
