@@ -11,10 +11,13 @@
       extraGroups = [
         config.flake.meta.job-ops.group
       ];
+      linger = true;
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.job-ops.user}@homelab" =
+  flake.homelab.services.job-ops.user = config.flake.meta.job-ops.user;
+
+  flake.modules.homeManager.homelab =
     hmArgs:
     let
       cfg = hmArgs.config.services.job-ops;

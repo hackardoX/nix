@@ -24,8 +24,8 @@ in
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.immich.user}@homelab" = hmArgs: {
-    services.immich-podman = {
+  flake.homelab.services.immich = hmArgs: {
+    config = {
       enable = true;
       port = port;
       storageDir = "/var/lib/immich";

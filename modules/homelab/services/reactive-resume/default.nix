@@ -11,10 +11,13 @@
       extraGroups = [
         config.flake.meta.reactive-resume.group
       ];
+      linger = true;
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.reactive-resume.user}@homelab" =
+  flake.homelab.services.reactive-resume.user = config.flake.meta.reactive-resume.user;
+
+  flake.modules.homeManager.homelab =
     hmArgs@{ osConfig, pkgs, ... }:
     let
       cfg = hmArgs.config.services.reactive-resume;

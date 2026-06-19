@@ -17,8 +17,8 @@ in
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.job-ops.user}@homelab" = hmArgs: {
-    services.job-ops = {
+  flake.homelab.services.job-ops = hmArgs: {
+    config = {
       enable = true;
       port = port;
       publicBaseUrl = "https://${appSubDomain}.${domain}";

@@ -21,10 +21,13 @@
       extraGroups = [
         config.flake.meta.alerting.group
       ];
+      linger = true;
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.alerting.user}@homelab" = {
+  flake.homelab.services.alerting.user = config.flake.meta.alerting.user;
+
+  flake.modules.homeManager.homelab = {
     options.services.alerting = {
       enable = lib.mkEnableOption "Alerting stack (Alertmanager, alertmanager-ntfy)";
 

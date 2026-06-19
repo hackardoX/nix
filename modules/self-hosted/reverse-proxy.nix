@@ -8,6 +8,7 @@
       job-ops = 10000;
       reactive-resume = 18000;
       sure-finance = 19000;
+      tandoor = 20000;
     };
   };
 

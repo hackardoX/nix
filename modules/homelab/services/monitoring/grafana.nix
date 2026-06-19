@@ -1,6 +1,6 @@
 { lib, config, ... }:
 {
-  flake.modules.homeManager."${config.flake.meta.monitoring.user}@homelab" =
+  flake.modules.homeManager.homelab =
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.monitoring;

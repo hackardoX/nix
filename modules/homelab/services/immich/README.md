@@ -5,7 +5,7 @@ Self-hosted photo and video management solution running in Podman containers.
 ## Usage
 
 ```nix
-services.immich-podman = {
+services.immich = {
   enable = true;
   port = 2283;                        # default: 2283
   storageDir = "/var/lib/immich";     # default: /var/lib/immich

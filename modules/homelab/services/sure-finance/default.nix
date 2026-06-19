@@ -11,8 +11,11 @@
       extraGroups = [
         config.flake.meta.sure-finance.group
       ];
+      linger = true;
     };
   };
+
+  flake.homelab.services.sure-finance.user = config.flake.meta.sure-finance.user;
 
   flake.modules.homeManager.homelab =
     hmArgs@{ osConfig, ... }:

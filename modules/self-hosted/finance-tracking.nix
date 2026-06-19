@@ -14,8 +14,8 @@ in
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.sure-finance.user}@homelab" = hmArgs: {
-    services.sure-finance = {
+  flake.modules.homelab.services.sure-finance = hmArgs: {
+    config = {
       inherit port;
       enable = true;
       database.passwordFile =
