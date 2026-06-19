@@ -37,10 +37,13 @@
         config.flake.meta.monitoring.group
         "systemd-journal"
       ];
+      linger = true;
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.monitoring.user}@homelab" = {
+  flake.homelab.services.monitoring.user = config.flake.meta.monitoring.user;
+
+  flake.modules.homeManager.homelab = {
     options.services.monitoring = {
       enable = lib.mkEnableOption "Monitoring stack (Prometheus, Grafana, Loki, Alloy)";
 

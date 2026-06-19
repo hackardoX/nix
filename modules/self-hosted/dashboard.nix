@@ -24,8 +24,8 @@ in
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.homepage.user}@homelab" = hmArgs: {
-    services.homepage = {
+  flake.homelab.services.homepage = hmArgs: {
+    config = {
       enable = true;
       port = port;
 

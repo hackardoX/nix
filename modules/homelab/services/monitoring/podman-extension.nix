@@ -1,6 +1,5 @@
 { lib, ... }:
 {
-
   flake.modules.homeManager.homelab =
     hmArgs:
     let
