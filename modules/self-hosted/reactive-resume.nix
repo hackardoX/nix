@@ -15,8 +15,8 @@ in
     };
   };
 
-  flake.modules.homeManager."${config.flake.meta.reactive-resume.user}@homelab" = hmArgs: {
-    services.reactive-resume = {
+  flake.homelab.services.reactive-resume = hmArgs: {
+    config = {
       enable = true;
       port = port;
       appUrl = "https://${appSubDomain}.${domain}";

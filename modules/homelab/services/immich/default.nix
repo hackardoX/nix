@@ -11,16 +11,19 @@
       extraGroups = [
         config.flake.meta.immich.group
       ];
+      linger = true;
     };
     users.users.postgres.extraGroups = [
       config.flake.meta.immich.group
     ];
   };
 
-  flake.modules.homeManager."${config.flake.meta.immich.user}@homelab" =
+  flake.homelab.services.immich.user = config.flake.meta.immich.user;
+
+  flake.modules.homeManager.homelab =
     hmArgs@{ osConfig, pkgs, ... }:
     let
-      cfg = hmArgs.config.services.immich-podman;
+      cfg = hmArgs.config.services.immich;
       networkName = "immich";
       storageDir = cfg.storageDir;
       dbName = "immich";
@@ -47,7 +50,7 @@
       };
     in
     {
-      options.services.immich-podman = {
+      options.services.immich = {
         enable = lib.mkEnableOption "Immich (Podman)";
 
         port = lib.mkOption {

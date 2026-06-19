@@ -7,25 +7,25 @@ let
   inherit (config.flake.meta) homepage;
 in
 {
-  # Define homepage metadata
   flake.meta.homepage = {
     user = "homepage";
     group = "homepage";
     port = 3000;
   };
 
-  # Create homepage user
   flake.modules.nixos.homelab = {
     users.users.${homepage.user} = {
       isNormalUser = true;
       group = homepage.group;
+      linger = true;
     };
 
     users.groups.${homepage.group} = { };
   };
 
-  # Homepage Home Manager module
-  flake.modules.homeManager."${homepage.user}@homelab" =
+  flake.homelab.services.homepage.user = config.flake.meta.homepage.user;
+
+  flake.modules.homeManager.homelab =
     {
       config,
       pkgs,
@@ -41,61 +41,65 @@ in
       dockerFile = pkgs.writeText "docker.yaml" (builtins.toJSON cfg.docker);
     in
     {
-      options.services.homepage = {
-        enable = lib.mkEnableOption "Homepage dashboard";
+      modules = [
+        {
+          options.services.homepage = {
+            enable = lib.mkEnableOption "Homepage dashboard";
 
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = homepage.port;
-          description = "Port to expose Homepage on";
-        };
+            port = lib.mkOption {
+              type = lib.types.port;
+              default = homepage.port;
+              description = "Port to expose Homepage on";
+            };
 
-        storageDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/homepage";
-          description = "Directory for Homepage persistent data";
-        };
+            storageDir = lib.mkOption {
+              type = lib.types.path;
+              default = "/var/lib/homepage";
+              description = "Directory for Homepage persistent data";
+            };
 
-        settings = lib.mkOption {
-          type = lib.types.attrs;
-          default = {
-            title = "Homelab";
-            theme = "dark";
-            color = "slate";
-          };
-          description = "Homepage settings configuration";
-        };
-
-        bookmarks = lib.mkOption {
-          type = lib.types.listOf lib.types.attrs;
-          default = [ ];
-          description = "Homepage bookmarks configuration";
-        };
-
-        widgets = lib.mkOption {
-          type = lib.types.listOf lib.types.attrs;
-          default = [
-            {
-              resources = {
-                cpu = true;
-                memory = true;
-                network = "eth0";
+            settings = lib.mkOption {
+              type = lib.types.attrs;
+              default = {
+                title = "Homelab";
+                theme = "dark";
+                color = "slate";
               };
-            }
-          ];
-          description = "Homepage widgets configuration";
-        };
+              description = "Homepage settings configuration";
+            };
 
-        docker = lib.mkOption {
-          type = lib.types.attrs;
-          default = {
-            local = {
-              socket = "/var/run/docker.sock";
+            bookmarks = lib.mkOption {
+              type = lib.types.listOf lib.types.attrs;
+              default = [ ];
+              description = "Homepage bookmarks configuration";
+            };
+
+            widgets = lib.mkOption {
+              type = lib.types.listOf lib.types.attrs;
+              default = [
+                {
+                  resources = {
+                    cpu = true;
+                    memory = true;
+                    network = "eth0";
+                  };
+                }
+              ];
+              description = "Homepage widgets configuration";
+            };
+
+            docker = lib.mkOption {
+              type = lib.types.attrs;
+              default = {
+                local = {
+                  socket = "/var/run/docker.sock";
+                };
+              };
+              description = "Homepage Docker integration configuration";
             };
           };
-          description = "Homepage Docker integration configuration";
-        };
-      };
+        }
+      ];
 
       config = lib.mkIf cfg.enable {
         services.podman.networks.homepage.driver = "bridge";

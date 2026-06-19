@@ -1,7 +1,6 @@
-{ config, ... }:
 {
-  flake.modules.homeManager."${config.flake.meta.monitoring.user}@homelab" = hmArgs: {
-    services.monitoring = {
+  flake.homelab.services.monitoring = hmArgs: {
+    config = {
       enable = true;
       prometheus.alertRules = {
         container_health = {
@@ -63,17 +62,17 @@
         };
       };
     };
-  };
 
-  flake.modules.homeManager."${config.flake.meta.alerting.user}@homelab" = hmArgs: {
-    programs.onepassword-secrets.secrets.ntfyToken = {
-      path = ".secrets/alerting/ntfy/token";
-      reference = "op://Homelab/Alerting/ntfy/token";
-    };
+    flake.homelab.services.alerting = hmArgs: {
+      programs.onepassword-secrets.secrets.ntfyToken = {
+        path = ".secrets/alerting/ntfy/token";
+        reference = "op://Homelab/Alerting/ntfy/token";
+      };
 
-    services.alerting = {
-      enable = true;
-      ntfyTokenFile = hmArgs.config.programs.onepassword-secrets.secretPaths.ntfyToken;
+      config = {
+        enable = true;
+        ntfyTokenFile = hmArgs.config.programs.onepassword-secrets.secretPaths.ntfyToken;
+      };
     };
   };
 }
