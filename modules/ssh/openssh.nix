@@ -7,6 +7,7 @@
         PasswordAuthentication = false;
         KbdInteractiveAuthentication = false;
       };
+      allowSFTP = false;
     };
   };
 }

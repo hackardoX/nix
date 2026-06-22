@@ -5,54 +5,27 @@
       inputs.nix-mineral.nixosModules.nix-mineral
     ];
 
-    # nix-mineral = {
-    #   enable = true;
-    #   preset = "compatibility";
-    # };
+    nix-mineral = {
+      enable = true;
+      preset = "compatibility";
+    };
 
     services = {
       openssh = {
         settings = {
-          PasswordAuthentication = false;
-          KbdInteractiveAuthentication = false;
-          PermitRootLogin = "no";
           MaxAuthTries = 3;
           LoginGraceTime = 30;
           MaxSessions = 3;
           ClientAliveInterval = 300;
           ClientAliveCountMax = 2;
           AllowTcpForwarding = false;
-          AllowAgentForwarding = false;
           UseDNS = false;
         };
         allowSFTP = true;
       };
-
-      crowdsec = {
-        enable = true;
-        settings.console.tokenFile =
-          nixosArgs.config.services.onepassword-secrets.secretPaths.crowdsecConsoleToken;
-        localConfig = {
-          acquisitions = lib.mkIf nixosArgs.config.services.caddy.enable [
-            {
-              filenames = [ "/var/log/caddy/access.log" ];
-              labels.type = "caddy";
-            }
-          ];
-        };
-      };
-      onepassword-secrets.secrets = {
-        crowdsecConsoleToken = {
-          path = "/run/secrets/crowdsec/console_token";
-          reference = "op://Development/CrowdSec/console token";
-          owner = "crowdsec";
-          group = "crowdsec";
-          services = [ "crowdsec" ];
-        };
-      };
     };
 
-    nix.settings.allowed-users = [ "root" ];
+    nix.settings.allowed-users = lib.mkForce [ "root" ];
 
     environment.defaultPackages = lib.mkForce [ ];
 
@@ -66,6 +39,4 @@
       };
     };
   };
-
-  flake.modules.darwin.hardening = { };
 }
