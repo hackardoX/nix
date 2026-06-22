@@ -1,47 +1,35 @@
-{ lib, ... }:
+{ ... }:
 {
-  flake.modules.darwin.laptop.security = {
-    pam.services = {
-      sudo_local = {
-        reattach = true;
-        touchIdAuth = true;
+  flake.modules.darwin.laptop = {
+    security = {
+      pam.services = {
+        sudo_local = {
+          reattach = true;
+          touchIdAuth = true;
+        };
       };
+      sudo.extraConfig = "Defaults timestamp_timeout=30";
     };
-
-    # Set sudo timeout to 30 minutes
-    sudo.extraConfig = "Defaults    timestamp_timeout=30";
   };
 
-  flake.modules.nixos.homelab =
-    { config, ... }:
-    {
-      security.sudo.extraRules = lib.mkAfter [
-        {
-          users = [ config.system.primaryUser ];
-          commands = [
-            # {
-            #   command = "/nix/store/*/bin/switch-to-configuration";
-            #   options = [
-            #     "NOPASSWD"
-            #     "SETENV"
-            #   ];
-            # }
-            # {
-            #   command = "/run/current-system/sw/bin/nixos-rebuild";
-            #   options = [
-            #     "NOPASSWD"
-            #     "SETENV"
-            #   ];
-            # }
-            # {
-            #   command = "/run/current-system/sw/bin/systemctl";
-            #   options = [
-            #     "NOPASSWD"
-            #     "SETENV"
-            #   ];
-            # }
-          ];
-        }
-      ];
+  flake.modules.nixos.homelab = {
+    security = {
+      sudo = {
+        execWheelOnly = true;
+        extraConfig = ''
+          Defaults timestamp_timeout=0
+        '';
+      };
+      pam = {
+        services.sudo.unixAuth = false;
+        sshAgentAuth = {
+          enable = true;
+          authorizedKeysFiles = [ "/etc/ssh/authorized_sudo_keys.%u" ];
+        };
+      };
     };
+    systemd.tmpfiles.rules = [
+      "d /etc/ssh/authorized_sudo_keys 0755 root root -"
+    ];
+  };
 }

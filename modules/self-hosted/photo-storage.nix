@@ -28,7 +28,6 @@ in
     config = {
       enable = true;
       port = port;
-      storageDir = "/var/lib/immich";
       dbPasswordFile = hmArgs.config.services.onepassword-secrets.secretPaths.immichDbPassword;
     };
 
