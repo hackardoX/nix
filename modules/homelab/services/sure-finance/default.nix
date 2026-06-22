@@ -59,8 +59,7 @@
 
         storageDir = lib.mkOption {
           type = lib.types.path;
-          default = "${config.home.homeDirectory}/containers/sure-finance";
-          defaultText = lib.literalExpression ''"''${config.home.homeDirectory}/containers/sure-finance"'';
+          default = "/var/lib/containers/sure-finance";
           description = "Base directory for Sure Finance persistent data";
         };
 

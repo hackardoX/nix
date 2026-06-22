@@ -49,7 +49,7 @@
 
       storageDir = lib.mkOption {
         type = lib.types.path;
-        default = "/var/lib/monitoring";
+        default = "/var/lib/containers/monitoring";
         description = "Base directory for monitoring data";
       };
 

@@ -49,8 +49,7 @@
 
         storageDir = lib.mkOption {
           type = lib.types.path;
-          default = "${config.home.homeDirectory}/containers/tandoor";
-          defaultText = lib.literalExpression ''"''${config.home.homeDirectory}/containers/tandoor"'';
+          default = "/var/lib/containers/tandoor";
           description = "Base directory for Tandoor persistent data";
         };
 

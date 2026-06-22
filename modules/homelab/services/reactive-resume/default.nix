@@ -46,8 +46,7 @@
 
         storageDir = lib.mkOption {
           type = lib.types.path;
-          default = "${config.home.homeDirectory}/containers/reactive-resume";
-          defaultText = lib.literalExpression ''"''${config.home.homeDirectory}/containers/reactive-resume"'';
+          default = "/var/lib/containers/reactive-resume";
           description = "Base directory for Reactive Resume persistent data";
         };
 

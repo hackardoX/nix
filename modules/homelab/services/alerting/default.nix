@@ -33,7 +33,7 @@
 
       storageDir = lib.mkOption {
         type = lib.types.path;
-        default = "/var/lib/alerting";
+        default = "/var/lib/containers/alerting";
         description = "Base directory for alerting data";
       };
 

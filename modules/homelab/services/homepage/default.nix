@@ -54,7 +54,7 @@ in
 
             storageDir = lib.mkOption {
               type = lib.types.path;
-              default = "/var/lib/homepage";
+              default = "/var/lib/containers/homepage";
               description = "Directory for Homepage persistent data";
             };
 
