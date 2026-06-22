@@ -61,7 +61,7 @@
 
         storageDir = lib.mkOption {
           type = lib.types.path;
-          default = "/var/lib/immich";
+          default = "/var/lib/containers/immich";
           description = "Base directory for Immich persistent data (photos, database, ML models)";
         };
 

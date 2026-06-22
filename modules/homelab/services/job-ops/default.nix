@@ -41,8 +41,7 @@
 
         storageDir = lib.mkOption {
           type = lib.types.path;
-          default = "${config.home.homeDirectory}/containers/job-ops";
-          defaultText = lib.literalExpression ''"''${config.home.homeDirectory}/containers/job-ops"'';
+          default = "/var/lib/containers/job-ops";
           description = "Base directory for Job-Ops persistent data";
         };
 
