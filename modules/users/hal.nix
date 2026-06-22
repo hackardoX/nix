@@ -26,6 +26,15 @@
         openssh.authorizedKeys.keys = config.flake.meta.users.hal.authorizedKeys;
       };
 
+      environment.etc."ssh/authorized_sudo_keys/${config.flake.meta.users.hal.name}" = {
+        text = ''
+          ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOa3X9sTqDrEddYn5qxluMw6h5SzA5eC9UMnIDQNYCiV
+        '';
+        mode = "0644";
+        user = "root";
+        group = "root";
+      };
+
       services = {
         openssh.settings.AllowUsers = [ config.flake.meta.users.hal.name ];
         onepassword-secrets.secrets = {
