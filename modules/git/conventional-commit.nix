@@ -8,7 +8,7 @@
       };
 
       home = {
-        file.".config/git/commit-template".text = ''
+        xdg.configFile."git/commit-template".text = ''
 
           # <type>(<scope>): <subject>
           # |<----  Using a Maximum Of 50 Characters  ---->|
