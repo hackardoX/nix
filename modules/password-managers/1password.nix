@@ -30,15 +30,15 @@
           "${_1passwordSymLinkSocketPath}" = {
             source = hmArgs.config.lib.file.mkOutOfStoreSymlink _1passwordOriginalSocketPath;
           };
-
-          ".config/1Password/ssh/agent.toml".text = ''
-            [[ssh-keys]]
-            vault = "Development"
-
-            [[ssh-keys]]
-            vault = "Private"
-          '';
         };
+
+        xdg.configFile."1Password/ssh/agent.toml".text = ''
+          [[ssh-keys]]
+          vault = "Development"
+
+          [[ssh-keys]]
+          vault = "Private"
+        '';
       };
 
       programs = {
