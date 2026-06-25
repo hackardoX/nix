@@ -22,6 +22,8 @@ in
       secretKeyFile = hmArgs.config.services.onepassword-secrets.secretPaths.tandoorSecretKeyPath;
       database.passwordFile =
         hmArgs.config.services.onepassword-secrets.secretPaths.tandoorDbPasswordPath;
+      oidcClientSecretFile =
+        hmArgs.config.services.onepassword-secrets.secretPaths.tandoorOidcClientSecret;
     };
 
     programs.onepassword-secrets.secrets = {
@@ -35,6 +37,13 @@ in
       tandoorDbPasswordPath = {
         path = "/run/secrets/tandoor/db_password";
         reference = "op://Homelab/Tandoor/Database/password";
+        owner = config.flake.meta.tandoor.user;
+        group = config.flake.meta.tandoor.group;
+      };
+
+      tandoorOidcClientSecret = {
+        path = "/run/secrets/tandoor/oidc_client_secret";
+        reference = "op://Homelab/Tandoor/OIDC Client Secret/credential";
         owner = config.flake.meta.tandoor.user;
         group = config.flake.meta.tandoor.group;
       };

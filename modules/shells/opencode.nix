@@ -107,6 +107,9 @@ in
             "diagnose"
             "zoom-out"
           ];
+        tui = {
+          plugins = [ "@renjfk/opencode-voice" ];
+        };
       };
 
       programs.onepassword-secrets.secrets = {

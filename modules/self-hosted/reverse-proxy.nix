@@ -1,8 +1,9 @@
-{ lib, ... }:
+{ config, lib, ... }:
 {
   flake.meta.reverse-proxy = {
     domain = "";
     ports = {
+      authelia = 1000;
       homepage = 8000;
       immich = 9000;
       job-ops = 10000;
@@ -99,6 +100,7 @@
               import geoblock
               import rate_limit_common
               import tls_hardened
+              import auth_protected
 
               # Limit request body to 10MB to prevent abuse
               request_body {

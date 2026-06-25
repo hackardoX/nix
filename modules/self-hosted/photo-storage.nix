@@ -29,13 +29,24 @@ in
       enable = true;
       port = port;
       dbPasswordFile = hmArgs.config.services.onepassword-secrets.secretPaths.immichDbPassword;
+      oauthClientSecretFile =
+        hmArgs.config.services.onepassword-secrets.secretPaths.immichOidcClientSecret;
     };
 
-    programs.onepassword-secrets.secrets.immichDbPassword = {
-      path = ".secrets/immich/db_password";
-      reference = "op://Homelab/Immich DB Password/credential";
-      owner = config.flake.meta.immich.user;
-      group = config.flake.meta.immich.group;
+    programs.onepassword-secrets.secrets = {
+      immichDbPassword = {
+        path = ".secrets/immich/db_password";
+        reference = "op://Homelab/Immich DB Password/credential";
+        owner = config.flake.meta.immich.user;
+        group = config.flake.meta.immich.group;
+      };
+
+      immichOidcClientSecret = {
+        path = "/run/secrets/immich/oidc_client_secret";
+        reference = "op://Homelab/Immich/OIDC Client Secret/credential";
+        owner = config.flake.meta.immich.user;
+        group = config.flake.meta.immich.group;
+      };
     };
   };
 }

@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ config, lib, ... }:
 {
   flake.meta.immich = {
     user = "immich";
@@ -69,6 +69,12 @@
           type = lib.types.path;
           description = "Path to file containing the Postgres password";
         };
+
+        oauthClientSecretFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Path to file containing the OIDC client secret";
+        };
       };
 
       config = lib.mkIf cfg.enable {
@@ -103,12 +109,25 @@
               "${immichConfigFile}:/config/immich.json:ro"
             ];
 
-            environment = sharedEnv // {
-              IMMICH_CONFIG_FILE = "/config/immich.json";
-            };
+            environment =
+              sharedEnv
+              // {
+                IMMICH_CONFIG_FILE = "/config/immich.json";
+              }
+              // lib.optionalAttrs (cfg.oauthClientSecretFile != null) {
+                IMMICH_OAUTH_ENABLED = "true";
+                IMMICH_OAUTH_ISSUER_URL = "https://auth.${config.flake.meta.reverse-proxy.domain}";
+                IMMICH_OAUTH_CLIENT_ID = config.flake.meta.oidc-clients.immich.clientId;
+                IMMICH_OAUTH_SCOPE = "openid profile email";
+                IMMICH_OAUTH_AUTO_LAUNCH = "true";
+                IMMICH_OAUTH_AUTO_REGISTRATION = "true";
+              };
 
             secrets = {
               DB_PASSWORD = cfg.dbPasswordFile;
+            }
+            // lib.optionalAttrs (cfg.oauthClientSecretFile != null) {
+              IMMICH_OAUTH_CLIENT_SECRET = cfg.oauthClientSecretFile;
             };
 
             extraConfig = {
