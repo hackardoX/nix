@@ -76,6 +76,12 @@
             description = "Path to file containing the PostgreSQL password";
           };
         };
+
+        oidcClientSecretFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Path to file containing the OIDC client secret";
+        };
       };
 
       config = lib.mkIf cfg.enable {
@@ -139,11 +145,20 @@
               "${cfg.storageDir}/mediafiles:/opt/recipes/mediafiles"
             ];
 
-            environment = sharedEnv;
+            environment =
+              sharedEnv
+              // lib.optionalAttrs (cfg.oidcClientSecretFile != null) {
+                OIDC_ENDPOINT = "https://auth.${config.flake.meta.reverse-proxy.domain}";
+                OIDC_CLIENT_ID = config.flake.meta.oidc-clients.tandoor.clientId;
+                OIDC_SCOPES = "openid,profile,email";
+              };
 
             secrets = {
               SECRET_KEY = cfg.secretKeyFile;
               POSTGRES_PASSWORD = cfg.database.passwordFile;
+            }
+            // lib.optionalAttrs (cfg.oidcClientSecretFile != null) {
+              OIDC_CLIENT_SECRET = cfg.oidcClientSecretFile;
             };
 
             extraConfig = {
