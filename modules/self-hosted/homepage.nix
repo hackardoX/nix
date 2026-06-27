@@ -26,6 +26,8 @@ in
   };
 
   flake.homelab.services.homepage = hmArgs: {
+    services.docker-socket-proxy.enable = true;
+
     config = {
       enable = true;
       port = port;

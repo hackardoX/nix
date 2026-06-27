@@ -92,7 +92,8 @@ in
               type = lib.types.attrs;
               default = {
                 local = {
-                  socket = "/var/run/docker.sock";
+                  host = "dockerproxy";
+                  port = 2375;
                 };
               };
               description = "Homepage Docker integration configuration";
@@ -120,7 +121,6 @@ in
             "${bookmarksFile}:/app/config/bookmarks.yaml:ro"
             "${widgetsFile}:/app/config/widgets.yaml:ro"
             "${dockerFile}:/app/config/docker.yaml:ro"
-            "/run/podman/podman.sock:/var/run/docker.sock:ro"
           ];
 
           environment = {
