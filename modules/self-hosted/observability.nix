@@ -1,7 +1,11 @@
+{ config, ... }:
 {
   flake.homelab.services.monitoring = hmArgs: {
     config = {
       enable = true;
+      grafana.oidcClientSecretFile =
+        hmArgs.config.programs.onepassword-secrets.secretPaths.grafanaOidcClientSecret;
+
       prometheus.alertRules = {
         container_health = {
           rules = [
@@ -61,17 +65,24 @@
           ];
         };
       };
+
+      programs.onepassword-secrets.secrets.grafanaOidcClientSecret = {
+        path = "/run/secrets/monitoring/grafana/oidc_client_secret";
+        reference = "op://Homelab/Grafana/Authentication/OIDC Client Secret";
+        owner = config.flake.meta.monitoring.user;
+        group = config.flake.meta.monitoring.group;
+      };
     };
 
     flake.homelab.services.alerting = hmArgs: {
-      programs.onepassword-secrets.secrets.ntfyToken = {
-        path = ".secrets/alerting/ntfy/token";
-        reference = "op://Homelab/Alerting/ntfy/token";
-      };
-
       config = {
         enable = true;
         ntfyTokenFile = hmArgs.config.programs.onepassword-secrets.secretPaths.ntfyToken;
+      };
+
+      programs.onepassword-secrets.secrets.ntfyToken = {
+        path = ".secrets/alerting/ntfy/token";
+        reference = "op://Homelab/Alerting/NTFY/token";
       };
     };
   };

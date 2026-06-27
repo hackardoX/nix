@@ -14,6 +14,14 @@ in
       clientId = "tandoor";
       clientName = "Tandoor Recipes";
     };
+    grafana = {
+      clientId = "grafana";
+      clientName = "Grafana";
+    };
+    reactive-resume = {
+      clientId = "reactive-resume";
+      clientName = "Reactive Resume";
+    };
   };
 
   flake.modules.nixos.homelab =
@@ -98,7 +106,11 @@ in
               identity_providers.oidc = {
                 cors = {
                   endpoints = [ "token" ];
-                  allowed_origins = [ "https://immich.${domain}" ];
+                  allowed_origins = [
+                    "https://immich.${domain}"
+                    "https://grafana.${domain}"
+                    "https://rxresume.${domain}"
+                  ];
                 };
               };
             };
@@ -140,6 +152,28 @@ in
                         client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaTandoorOidcSecret}" | msquote }}
                         redirect_uris:
                           - "https://recipes.${domain}/accounts/oidc/authelia/login/callback/"
+                        scopes:
+                          - "openid"
+                          - "profile"
+                          - "email"
+                      - client_id: "${config.flake.meta.oidc-clients.grafana.clientId}"
+                        client_name: "${config.flake.meta.oidc-clients.grafana.clientName}"
+                        public: false
+                        authorization_policy: "one_factor"
+                        client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaGrafanaOidcSecret}" | msquote }}
+                        redirect_uris:
+                          - "https://grafana.${domain}/login/generic_oauth"
+                        scopes:
+                          - "openid"
+                          - "profile"
+                          - "email"
+                      - client_id: "${config.flake.meta.oidc-clients.reactive-resume.clientId}"
+                        client_name: "${config.flake.meta.oidc-clients.reactive-resume.clientName}"
+                        public: false
+                        authorization_policy: "one_factor"
+                        client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret}" | msquote }}
+                        redirect_uris:
+                          - "https://rxresume.${domain}/api/auth/callback"
                         scopes:
                           - "openid"
                           - "profile"
@@ -231,13 +265,25 @@ in
           };
           autheliaImmichOidcSecret = {
             path = "/run/secrets/authelia/immich_oidc_secret";
-            reference = "op://Homelab/Authelia/Immich OIDC Client Secret/credential";
+            reference = "op://Homelab/Authelia/OIDC Client Secrets/Immich";
             owner = "authelia";
             group = "authelia";
           };
           autheliaTandoorOidcSecret = {
             path = "/run/secrets/authelia/tandoor_oidc_secret";
-            reference = "op://Homelab/Authelia/Tandoor OIDC Client Secret/credential";
+            reference = "op://Homelab/Authelia/OIDC Client Secrets/Tandoor";
+            owner = "authelia";
+            group = "authelia";
+          };
+          autheliaGrafanaOidcSecret = {
+            path = "/run/secrets/authelia/grafana_oidc_secret";
+            reference = "op://Homelab/Authelia/OIDC Client Secrets/Grafana";
+            owner = "authelia";
+            group = "authelia";
+          };
+          autheliaReactiveResumeOidcSecret = {
+            path = "/run/secrets/authelia/reactive-resume_oidc_secret";
+            reference = "op://Homelab/Authelia/OIDC Client Secrets/Reactive Resume";
             owner = "authelia";
             group = "authelia";
           };

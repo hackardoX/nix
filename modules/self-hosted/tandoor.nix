@@ -29,7 +29,7 @@ in
     programs.onepassword-secrets.secrets = {
       tandoorSecretKeyPath = {
         path = "/run/secrets/tandoor/secret_key";
-        reference = "op://Homelab/Tandoor/Secret Key/credential";
+        reference = "op://Homelab/Tandoor/Authentication/secret key";
         owner = config.flake.meta.tandoor.user;
         group = config.flake.meta.tandoor.group;
       };
@@ -43,7 +43,7 @@ in
 
       tandoorOidcClientSecret = {
         path = "/run/secrets/tandoor/oidc_client_secret";
-        reference = "op://Homelab/Tandoor/OIDC Client Secret/credential";
+        reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
         owner = config.flake.meta.tandoor.user;
         group = config.flake.meta.tandoor.group;
       };

@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   ...
 }:
@@ -16,7 +15,6 @@
       pollInterval = "1m";
 
       mkCryptRemoteName = jobName: provider: "${provider}-crypt-${jobName}";
-      mkSecretName = jobName: "fileMount${config.flake.lib.capitalize jobName}";
 
       mkRcloneCryptRemote =
         jobName: jobCfg: provider:
@@ -31,10 +29,10 @@
             directory_name_encryption = "true";
           };
           secrets = {
-            password = hmArgs.config.programs.onepassword-secrets.secretPaths."${mkSecretName jobName}";
+            password = jobCfg.passwordFile;
           }
-          // lib.optionalAttrs jobCfg.salt {
-            password2 = hmArgs.config.programs.onepassword-secrets.secretPaths."${mkSecretName jobName}Salt";
+          // lib.optionalAttrs (jobCfg.saltFile != null) {
+            password2 = jobCfg.saltFile;
           };
           mounts."/" = {
             enable = true;
@@ -53,25 +51,6 @@
             };
           };
         };
-
-      mkSecrets = lib.concatMapAttrs (
-        jobName: jobCfg:
-        let
-          passwordSecret = {
-            "${mkSecretName jobName}" = {
-              path = ".secrets/file-mount/${jobName}/password";
-              reference = "op://Homelab/File Mount/${jobName}/password";
-            };
-          };
-          saltSecret = lib.optionalAttrs jobCfg.salt {
-            "${mkSecretName jobName}Salt" = {
-              path = ".secrets/file-mount/${jobName}/salt";
-              reference = "op://Homelab/File Mount/${jobName}/salt";
-            };
-          };
-        in
-        lib.optionalAttrs jobCfg.encrypted (passwordSecret // saltSecret)
-      ) cfg.mounts;
 
       mkRcloneCryptRemotes = lib.concatMapAttrs (
         jobName: jobCfg:
@@ -116,7 +95,19 @@
                 salt = lib.mkOption {
                   type = lib.types.bool;
                   default = false;
-                  description = "Use salt for encryption (adds extra security layer). Salt value stored in 1Password. Only used when encrypted = true.";
+                  description = "Use salt for encryption (adds extra security layer). Only used when encrypted = true.";
+                };
+
+                passwordFile = lib.mkOption {
+                  type = lib.types.nullOr lib.types.path;
+                  default = null;
+                  description = "Path to file containing the encryption password. Required when encrypted = true.";
+                };
+
+                saltFile = lib.mkOption {
+                  type = lib.types.nullOr lib.types.path;
+                  default = null;
+                  description = "Path to file containing the encryption salt. Required when salt = true.";
                 };
 
                 readOnly = lib.mkOption {
@@ -144,7 +135,19 @@
       };
 
       config = lib.mkIf (cfg.mounts != { }) {
-        programs.onepassword-secrets.secrets = mkSecrets;
+        assertions = lib.flatten (
+          lib.mapAttrsToList (name: mount: [
+            {
+              assertion = !mount.encrypted || mount.passwordFile != null;
+              message = "file-mount: mount '${name}' has encrypted=true but no passwordFile set";
+            }
+            {
+              assertion = !mount.salt || mount.saltFile != null;
+              message = "file-mount: mount '${name}' has salt=true but no saltFile set";
+            }
+          ]) cfg.mounts
+        );
+
         programs.rclone.remotes = mkRcloneCryptRemotes;
       };
     };

@@ -4,6 +4,7 @@
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.monitoring;
+      domain = config.flake.meta.reverse-proxy.domain;
       grafanaHost = config.flake.meta.monitoring.grafana.host;
       grafanaContainerPort = config.flake.meta.monitoring.grafana.containerPort;
       grafanaHostPort = config.flake.meta.monitoring.grafana.hostPort;
@@ -34,18 +35,6 @@
       );
     in
     lib.mkIf cfg.enable {
-      # TODO: remove secrets here, passing them as config or completely remove auth because grafana won't be accessible directly
-      programs.onepassword-secrets.secrets = {
-        grafanaAdminUser = {
-          path = ".secrets/monitoring/grafana/admin-user";
-          reference = "op://Homelab/Monitoring/Grafana/username";
-        };
-        grafanaAdminPassword = {
-          path = ".secrets/monitoring/grafana/admin-password";
-          reference = "op://Homelab/Monitoring/Grafana/password";
-        };
-      };
-
       services.podman.containers.grafana = {
         image = "grafana/grafana:latest";
         autoStart = true;
@@ -61,12 +50,22 @@
 
         environment = {
           GF_USERS_ALLOW_SIGN_UP = "false";
+        }
+        // lib.optionalAttrs (cfg.grafana.oidcClientSecretFile != null) {
+          GF_AUTH_GENERIC_OAUTH_ENABLED = "true";
+          GF_AUTH_GENERIC_OAUTH_NAME = "Authelia";
+          GF_AUTH_GENERIC_OAUTH_CLIENT_ID = config.flake.meta.oidc-clients.grafana.clientId;
+          GF_AUTH_GENERIC_OAUTH_SCOPES = "openid profile email";
+          GF_AUTH_GENERIC_OAUTH_AUTH_URL = "https://auth.${domain}/api/oidc/authorization";
+          GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "https://auth.${domain}/api/oidc/token";
+          GF_AUTH_GENERIC_OAUTH_API_URL = "https://auth.${domain}/api/oidc/userinfo";
+          GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP = "true";
+          GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN = "true";
+          GF_SERVER_ROOT_URL = "https://grafana.${domain}";
         };
 
-        secrets = {
-          GF_SECURITY_ADMIN_USER = hmArgs.config.programs.onepassword-secrets.secretPaths.grafanaAdminUser;
-          GF_SECURITY_ADMIN_PASSWORD =
-            hmArgs.config.programs.onepassword-secrets.secretPaths.grafanaAdminPassword;
+        secrets = lib.optionalAttrs (cfg.grafana.oidcClientSecretFile != null) {
+          GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET = cfg.grafana.oidcClientSecretFile;
         };
 
         labels = config.flake.lib.mkHomepageLabels {

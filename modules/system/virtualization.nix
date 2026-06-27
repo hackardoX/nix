@@ -22,8 +22,10 @@
         enable = true;
         useDefaultMachine = false;
         machines.${podmanMachineName} = {
-          diskSize = 30;
+          diskSize = 50;
           memory = 8192;
+          cpus = 4;
+          provider = "rosetta";
           volumes = [
             "${hmArgs.config.home.homeDirectory}:${hmArgs.config.home.homeDirectory}"
           ];

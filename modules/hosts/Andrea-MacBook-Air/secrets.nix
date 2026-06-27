@@ -13,13 +13,13 @@
         group = "staff";
       };
       andreaMacBookAirPublicKey = {
-        path = ".ssh/Andrea-MacBook-Air.pub";
-        reference = "op://Development/Andrea-MacBook-Air/public key";
+        path = ".ssh/andrea_mac_book_air.pub";
+        reference = "op://Development/Andrea MacBook Air/public key";
         group = "staff";
       };
       andreaMacBookAirPrivateKey = {
-        path = ".ssh/Andrea-MacBook-Air";
-        reference = "op://Development/Andrea-MacBook-Air/private key";
+        path = ".ssh/andrea_mac_book_air";
+        reference = "op://Development/Andrea MacBook Air/private key";
         group = "staff";
       };
       homeLabPublicKey = {

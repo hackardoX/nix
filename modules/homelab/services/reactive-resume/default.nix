@@ -21,6 +21,7 @@
     hmArgs@{ osConfig, pkgs, ... }:
     let
       cfg = hmArgs.config.services.reactive-resume;
+      domain = config.flake.meta.reverse-proxy.domain;
       networkName = "reactive-resume";
       entrypointScript = pkgs.writeShellScript "reactive-resume-entrypoint" ''
         DB_PASSWORD=$(cat /run/secrets/DATABASE_PASSWORD)
@@ -77,6 +78,12 @@
             type = lib.types.path;
             description = "Path to file containing the PostgreSQL password";
           };
+        };
+
+        oidcClientSecretFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Path to file containing the OIDC client secret for Authelia";
         };
       };
 
@@ -142,11 +149,21 @@
               FLAG_DISABLE_SIGNUPS = "true";
               FLAG_DISABLE_EMAIL_AUTH = "false";
               FLAG_DISABLE_IMAGE_PROCESSING = "false";
+            }
+            // lib.optionalAttrs (cfg.oidcClientSecretFile != null) {
+              OIDC_ENABLED = "true";
+              OIDC_PROVIDER = "authelia";
+              OIDC_CLIENT_ID = config.flake.meta.oidc-clients.reactive-resume.clientId;
+              OIDC_ISSUER = "https://auth.${domain}";
+              OIDC_SCOPES = "openid profile email";
             };
 
             secrets = {
               AUTH_SECRET = cfg.authSecretFile;
               DATABASE_PASSWORD = cfg.database.passwordFile;
+            }
+            // lib.optionalAttrs (cfg.oidcClientSecretFile != null) {
+              OIDC_CLIENT_SECRET = cfg.oidcClientSecretFile;
             };
 
             extraConfig = {
