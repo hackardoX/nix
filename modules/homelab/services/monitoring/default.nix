@@ -53,6 +53,12 @@
         description = "Base directory for monitoring data";
       };
 
+      grafana.oidcClientSecretFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Path to file containing Grafana OIDC client secret for Authelia";
+      };
+
       prometheus.alertRules = lib.mkOption {
         type = lib.types.attrsOf (
           lib.types.submodule {

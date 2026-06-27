@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ lib, ... }:
 {
   flake.modules.homeManager.homelab =
     hmArgs:
@@ -21,7 +21,6 @@
       };
 
       mkBackupName = jobName: provider: "${jobName}-${provider}";
-      mkSecretName = jobName: "backup${config.flake.lib.capitalize jobName}";
 
       mkResticBackup =
         jobName: jobCfg: provider:
@@ -30,7 +29,7 @@
         in
         {
           repository = "rclone:${provider}:${destination}/backup";
-          passwordFile = hmArgs.config.programs.onepassword-secrets.secretPaths.${mkSecretName jobName};
+          passwordFile = jobCfg.passwordFile;
           paths = jobCfg.paths;
           initialize = true;
           runCheck = true;
@@ -41,14 +40,6 @@
             Persistent = true;
           };
         };
-
-      mkSecrets = lib.mapAttrs' (
-        jobName: _:
-        lib.nameValuePair (mkSecretName jobName) {
-          path = ".secrets/backup/${jobName}/password";
-          reference = "op://Homelab/Backup/${jobName}/password";
-        }
-      ) cfg.jobs;
     in
     {
       options.services.backup = {
@@ -94,6 +85,11 @@
                   default = null;
                   description = "Destination folder on provider. If null, uses job name.";
                 };
+
+                passwordFile = lib.mkOption {
+                  type = lib.types.path;
+                  description = "Path to file containing the restic repository password";
+                };
               };
             }
           );
@@ -103,7 +99,13 @@
       };
 
       config = lib.mkIf (cfg.jobs != { }) {
-        programs.onepassword-secrets.secrets = mkSecrets;
+        assertions = lib.flatten (
+          lib.mapAttrsToList (name: job: {
+            assertion = job.passwordFile != null;
+            message = "backup: job '${name}' has no passwordFile set";
+          }) cfg.jobs
+        );
+
         services.restic = {
           enable = cfg.jobs != { };
           backups = lib.concatMapAttrs (

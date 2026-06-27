@@ -36,14 +36,14 @@ in
     programs.onepassword-secrets.secrets = {
       immichDbPassword = {
         path = ".secrets/immich/db_password";
-        reference = "op://Homelab/Immich DB Password/credential";
+        reference = "op://Homelab/Immich/Database/password";
         owner = config.flake.meta.immich.user;
         group = config.flake.meta.immich.group;
       };
 
       immichOidcClientSecret = {
         path = "/run/secrets/immich/oidc_client_secret";
-        reference = "op://Homelab/Immich/OIDC Client Secret/credential";
+        reference = "op://Homelab/Immich/Authentication/OIDC client secret";
         owner = config.flake.meta.immich.user;
         group = config.flake.meta.immich.group;
       };

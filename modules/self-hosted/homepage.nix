@@ -18,6 +18,7 @@ in
     services.caddy.virtualHosts."homepage.${domain}" = {
       useACMEHost = domain;
       extraConfig = ''
+        import auth_protected
         import reverse_proxy_common
         reverse_proxy localhost:${toString port}
       '';
@@ -58,19 +59,7 @@ in
             label = "Network";
           };
         }
-        {
-          search = {
-            provider = "duckduckgo";
-            target = "_blank";
-          };
-        }
       ];
-
-      docker = {
-        local = {
-          socket = "/var/run/docker.sock";
-        };
-      };
     };
   };
 }
