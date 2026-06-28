@@ -21,8 +21,8 @@
       };
 
       systemd.services.iwd = {
-        after = map (n: "onepassword-secrets-${n.secretName}.service") wifiNetworks;
-        wants = map (n: "onepassword-secrets-${n.secretName}.service") wifiNetworks;
+        after = map (network: "onepassword-secrets-${network.secretName}.service") wifiNetworks;
+        wants = map (network: "onepassword-secrets-${network.secretName}.service") wifiNetworks;
         preStart = lib.concatMapStringsSep "\n" (n: ''
           install -Dm600 /dev/null /var/lib/iwd/${n.ssid}.psk
           cat > /var/lib/iwd/${n.ssid}.psk << EOF
@@ -35,11 +35,11 @@
       };
 
       services.onepassword-secrets.secrets = builtins.listToAttrs (
-        map (n: {
-          name = n.secretName;
+        map (network: {
+          name = network.secretName;
           value = {
-            path = "/run/secrets/.${n.secretName}";
-            reference = n.secretReference;
+            path = "/run/secrets/.${network.secretName}";
+            reference = network.secretReference;
             group = "wheel";
           };
         }) wifiNetworks
