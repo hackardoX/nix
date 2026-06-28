@@ -47,6 +47,12 @@
                 { targets = [ "${prometheusPodmanExporterHost}:${toString prometheusPodmanExporterPort}" ]; }
               ];
             }
+            {
+              job_name = "crowdsec";
+              static_configs = [
+                { targets = [ "host.containers.internal:6060" ]; }
+              ];
+            }
           ];
         }
       );

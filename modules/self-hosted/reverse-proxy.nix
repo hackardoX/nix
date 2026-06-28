@@ -1,7 +1,7 @@
 { config, lib, ... }:
 {
   flake.meta.reverse-proxy = {
-    domain = "";
+    domain = "your-domain.example.com"; # TODO: replace with your actual domain
     ports = {
       authelia = 1000;
       homepage = 8000;

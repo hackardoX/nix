@@ -1,29 +1,44 @@
-{ lib, ... }:
+{ ... }:
 {
   flake.modules.nixos.homelab = nixosArgs: {
     services = {
       crowdsec = {
         enable = true;
-        settings.console.tokenFile =
-          nixosArgs.config.services.onepassword-secrets.secretPaths.crowdsecConsoleToken;
+        autoUpdateService = true;
+        hub.collections = [
+          "crowdsecurity/base-http-scenarios"
+          "crowdsecurity/caddy"
+          "crowdsecurity/http-cve"
+          "crowdsecurity/linux"
+          "crowdsecurity/whitelist-good-actors"
+        ];
+        settings = {
+          general.api.server.enable = true;
+          general.prometheus.listen_addr = "0.0.0.0";
+          lapi.credentialsFile = "/var/lib/crowdsec/state/local_api_credentials.yaml";
+          capi.credentialsFile = "/var/lib/crowdsec/state/online_api_credentials.yaml";
+        };
         localConfig = {
-          acquisitions = lib.mkIf nixosArgs.config.services.caddy.enable [
+          acquisitions = [
             {
-              filenames = [ "/var/log/caddy/access.log" ];
-              labels.type = "caddy";
+              source = "journalctl";
+              journalctl_filter = [ "_SYSTEMD_UNIT=sshd.service" ];
+              labels.type = "syslog";
+            }
+            {
+              source = "journalctl";
+              journalctl_filter = [ "_SYSTEMD_UNIT=caddy.service" ];
+              labels = {
+                type = "caddy";
+              };
             }
           ];
         };
       };
 
-      onepassword-secrets.secrets = {
-        crowdsecConsoleToken = {
-          path = "/run/secrets/crowdsec/console_token";
-          reference = "op://HomeLab/Crowdsec/console token";
-          owner = "crowdsec";
-          group = "crowdsec";
-          services = [ "crowdsec" ];
-        };
+      crowdsec-firewall-bouncer = {
+        enable = true;
+        registerBouncer.enable = true;
       };
     };
   };

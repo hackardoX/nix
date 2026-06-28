@@ -15,7 +15,7 @@ in
     };
   };
 
-  flake.homelab.services.tandoor = hmArgs: {
+  flake.homelab.services.tandoor.module = hmArgs: {
     config = {
       enable = true;
       port = port;

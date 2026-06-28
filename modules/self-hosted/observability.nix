@@ -1,6 +1,6 @@
 { config, ... }:
 {
-  flake.homelab.services.monitoring = hmArgs: {
+  flake.homelab.services.monitoring.module = hmArgs: {
     config = {
       enable = true;
       grafana.oidcClientSecretFile =
@@ -73,17 +73,17 @@
         group = config.flake.meta.monitoring.group;
       };
     };
+  };
 
-    flake.homelab.services.alerting = hmArgs: {
-      config = {
-        enable = true;
-        ntfyTokenFile = hmArgs.config.programs.onepassword-secrets.secretPaths.ntfyToken;
-      };
+  flake.homelab.services.alerting.module = hmArgs: {
+    config = {
+      enable = true;
+      ntfyTokenFile = hmArgs.config.programs.onepassword-secrets.secretPaths.ntfyToken;
+    };
 
-      programs.onepassword-secrets.secrets.ntfyToken = {
-        path = ".secrets/alerting/ntfy/token";
-        reference = "op://Homelab/Alerting/NTFY/token";
-      };
+    programs.onepassword-secrets.secrets.ntfyToken = {
+      path = ".secrets/alerting/ntfy/token";
+      reference = "op://Homelab/Alerting/NTFY/token";
     };
   };
 }
