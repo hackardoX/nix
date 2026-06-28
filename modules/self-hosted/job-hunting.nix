@@ -17,7 +17,7 @@ in
     };
   };
 
-  flake.homelab.services.job-ops = hmArgs: {
+  flake.homelab.services.job-ops.module = hmArgs: {
     config = {
       enable = true;
       port = port;

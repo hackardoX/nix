@@ -24,7 +24,7 @@ in
     };
   };
 
-  flake.homelab.services.immich = hmArgs: {
+  flake.homelab.services.immich.module = hmArgs: {
     config = {
       enable = true;
       port = port;

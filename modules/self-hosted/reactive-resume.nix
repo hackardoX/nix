@@ -15,7 +15,7 @@ in
     };
   };
 
-  flake.homelab.services.reactive-resume = hmArgs: {
+  flake.homelab.services.reactive-resume.module = hmArgs: {
     config = {
       enable = true;
       port = port;

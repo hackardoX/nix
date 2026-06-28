@@ -14,7 +14,7 @@ in
     };
   };
 
-  flake.modules.homelab.services.sure-finance = hmArgs: {
+  flake.homelab.services.sure-finance.module = hmArgs: {
     config = {
       inherit port;
       enable = true;
