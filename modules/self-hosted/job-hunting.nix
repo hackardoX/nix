@@ -17,7 +17,7 @@ in
     };
   };
 
-  flake.homelab.services.job-ops.module = hmArgs: {
+  flake.homelab.services.job-ops = hmArgs: {
     config = {
       enable = true;
       port = port;
@@ -39,7 +39,7 @@ in
     programs.onepassword-secrets.secrets = {
       jobOpsBasicAuthPasswordPath = {
         path = "/run/secrets/job-ops/basic_auth_password";
-        reference = "op://Homelab/Job Ops/Auth/password";
+        reference = "op://Homelab/Job Ops/Authentication/password";
         owner = config.flake.meta.job-ops.user;
         group = config.flake.meta.job-ops.group;
       };

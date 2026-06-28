@@ -33,7 +33,7 @@
         geoipupdate = {
           enable = true;
           settings = {
-            AccountID = 12345;
+            AccountID = 1353550;
             LicenseKeyFile = nixosArgs.config.services.onepassword-secrets.secretPaths.maxmindLicenseKey;
             EditionIDs = [ "GeoLite2-Country" ];
           };
