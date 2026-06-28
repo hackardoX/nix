@@ -24,15 +24,6 @@ in
         pam.sshAgentAuth = {
           enable = true;
         };
-        sudo.extraRules = [
-          {
-            users = [ user ];
-            commands = [
-              { command = "/nix/store/*-activatable-nixos-system-*/activate-rs"; }
-              { command = "/run/current-system/sw/bin/rm /tmp/deploy-rs-canary-*"; }
-            ];
-          }
-        ];
       };
 
       nix.settings.trusted-users = [ user ];
