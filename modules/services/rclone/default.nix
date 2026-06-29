@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   flake.modules.darwin.base =
     darwinArgs:
     let
@@ -9,18 +9,6 @@
       );
     in
     {
-      homebrew.casks = darwinArgs.lib.mkIf hasRcloneMounts [ "macfuse" ];
-    };
-
-  flake.modules.homeManager.base =
-    hmArgs:
-    let
-      isResticEnabled = hmArgs.config.services.restic.enable;
-      hasRcloneMounts = builtins.any (remote: remote.mounts or { } != { }) (
-        builtins.attrValues hmArgs.config.programs.rclone.remotes
-      );
-    in
-    {
-      programs.rclone.enable = isResticEnabled || hasRcloneMounts;
+      homebrew.casks = lib.mkIf hasRcloneMounts [ "macfuse" ];
     };
 }

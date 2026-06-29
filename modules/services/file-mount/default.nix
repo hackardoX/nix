@@ -9,31 +9,17 @@
       cfg = hmArgs.config.services.file-mount;
       rcloneRemotes = hmArgs.config.programs.rclone.remotes or { };
 
+      inherit (hmArgs.config.flake.lib.rclone) mkCryptRemoteName mkRcloneCryptRemote;
+
       cacheMaxAge = "720h";
       cacheMaxSize = "10G";
       dirCacheTime = "5m";
       pollInterval = "1m";
 
-      mkCryptRemoteName = jobName: provider: "${provider}-crypt-${jobName}";
-
-      mkRcloneCryptRemote =
+      mkRcloneCryptRemoteWithMount =
         jobName: jobCfg: provider:
-        let
-          destination = if jobCfg.destination != null then jobCfg.destination else jobName;
-        in
-        {
-          config = {
-            type = "crypt";
-            remote = "${provider}:${destination}";
-            filename_encryption = "standard";
-            directory_name_encryption = "true";
-          };
-          secrets = {
-            password = jobCfg.passwordFile;
-          }
-          // lib.optionalAttrs (jobCfg.saltFile != null) {
-            password2 = jobCfg.saltFile;
-          };
+        (mkRcloneCryptRemote jobName jobCfg provider)
+        // {
           mounts."/" = {
             enable = true;
             mountPoint =
@@ -57,7 +43,7 @@
         lib.listToAttrs (
           map (provider: {
             name = mkCryptRemoteName jobName provider;
-            value = mkRcloneCryptRemote jobName jobCfg provider;
+            value = mkRcloneCryptRemoteWithMount jobName jobCfg provider;
           }) jobCfg.providers
         )
       ) (lib.filterAttrs (_: jobCfg: jobCfg.encrypted) cfg.mounts);
@@ -135,6 +121,8 @@
       };
 
       config = lib.mkIf (cfg.mounts != { }) {
+        programs.rclone.enable = true;
+
         assertions = lib.flatten (
           lib.mapAttrsToList (name: mount: [
             {
