@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ lib, ... }:
 {
   flake.meta.reverse-proxy = {
     domain = "your-domain.example.com"; # TODO: replace with your actual domain
@@ -63,11 +63,8 @@
                 Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
                 X-Content-Type-Options "nosniff"
                 X-Frame-Options "SAMEORIGIN"
-                X-XSS-Protection "1; mode=block"
                 Referrer-Policy "strict-origin-when-cross-origin"
-                Permissions-Policy "geolocation=(), microphone=(), camera=()"
                 -Server
-                -X-Powered-By
               }
             }
 
@@ -107,11 +104,9 @@
                 max_size 10MB
               }
 
-              encode zstd gzip
+              encode
 
               header_up X-Real-IP {remote_host}
-              header_up X-Forwarded-For {remote_host}
-              header_up X-Forwarded-Proto {scheme}
             }
 
             # Catch-all: block direct IP access and unknown domains
