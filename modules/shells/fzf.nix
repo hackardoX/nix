@@ -28,6 +28,8 @@
         enableBashIntegration = true;
         enableZshIntegration = true;
         enableFishIntegration = true;
+
+        historyWidget.command = "";
       };
     };
 }
