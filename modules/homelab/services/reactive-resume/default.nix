@@ -141,6 +141,7 @@
 
             volumes = [
               "${entrypointScript}:/entrypoint.sh:ro"
+              "${cfg.storageDir}/data:/app/data"
             ];
 
             environment = {

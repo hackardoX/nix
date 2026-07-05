@@ -92,22 +92,21 @@
               }
             }
 
-            (reverse_proxy_common) {
-              import common_headers
-              import geoblock
-              import rate_limit_common
-              import tls_hardened
-              import auth_protected
-
-              # Limit request body to 10MB to prevent abuse
-              request_body {
-                max_size 10MB
-              }
-
-              encode
-
-              header_up X-Real-IP {remote_host}
-            }
+            # (reverse_proxy_common) {
+            #   import common_headers
+            #   import geoblock
+            #   import rate_limit_common
+            #   import tls_hardened
+            #   import auth_protected
+            #
+            #   request_body {
+            #     max_size 10MB
+            #   }
+            #
+            #   encode
+            #
+            #   header_up X-Real-IP {remote_host}
+            # }
 
             # Catch-all: block direct IP access and unknown domains
             :443, :80 {
