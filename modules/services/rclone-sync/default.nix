@@ -41,7 +41,7 @@
           dest = if jobCfg.destination != null then jobCfg.destination else jobName;
           remotePath =
             if jobCfg.encrypted then
-              "${config.flake.lib.rclone.mkCryptRemoteName jobName provider}:${dest}"
+              "${config.flake.lib.rclone.mkCryptRemoteName jobName provider}:"
             else
               "${provider}:${dest}";
 
@@ -67,6 +67,18 @@
               ++ mkCommonFlags jobCfg.exclude jobCfg.maxDelete "bisync"
             )
           }";
+
+          resyncCmd = "rclone bisync ${
+            lib.escapeShellArgs (
+              [
+                jobCfg.localPath
+                remotePath
+              ]
+              ++ mkCommonFlags jobCfg.exclude null "bisync"
+            )
+          } --force --resync";
+
+          mkdirCmd = "rclone mkdir ${lib.escapeShellArg remotePath}";
 
           copyCmd = "rclone copy ${
             lib.escapeShellArgs (
@@ -107,7 +119,8 @@
                 ''
                   if [ ! -f "$SENTINEL" ]; then
                     echo "rclone-sync: first run, performing initial resync..."
-                    ${bisyncCmd} --resync
+                    ${mkdirCmd} 2>/dev/null || true
+                    ${resyncCmd}
                     mkdir -p "$(dirname "$SENTINEL")"
                     touch "$SENTINEL"
                   else
