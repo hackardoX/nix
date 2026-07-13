@@ -1,4 +1,4 @@
-{
+{ config, ... }: {
   flake.modules.nixos.homelab = nixosArgs: {
     programs.msmtp = {
       enable = true;
@@ -14,7 +14,7 @@
         host = "smtp.resend.com";
         user = "resend";
         passwordeval = "cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.resendApiKey}";
-        from = "fail2ban@YOUR_RESEND_DOMAIN";
+        from = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
       };
     };
 
