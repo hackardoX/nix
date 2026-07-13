@@ -15,6 +15,24 @@ in
     };
   };
 
+  flake.modules.homeManager.homelab = hmArgs: {
+    services.backup.jobs.tandoor = {
+      paths = [
+        "/var/lib/containers/tandoor/postgres"
+        "/var/lib/containers/tandoor/mediafiles"
+      ];
+      schedule = "daily";
+      retention = "weekly";
+      providers = [ "koofr" ];
+      encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
+    };
+
+    programs.onepassword-secrets.secrets.backupTandoorEncryptionKey = {
+      path = ".secrets/backup/tandoor/encryption_key";
+      reference = "op://Homelab/Backup/tandoor/password";
+    };
+  };
+
   flake.homelab.services.tandoor.module = hmArgs: {
     config = {
       enable = true;

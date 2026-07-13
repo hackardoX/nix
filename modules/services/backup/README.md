@@ -11,6 +11,7 @@ services.backup.jobs.immich = {
   retention = "weekly";    # hourly, daily, weekly, monthly, yearly (default: weekly)
   providers = [ "koofr" ]; # default: all defined rclone remotes
   destination = "immich";  # default: job name
+  encryptionKey = config.services.onepassword-secrets.secretPaths.backup_immich_encryption_key;
 };
 ```
 
@@ -33,7 +34,7 @@ Example for job `immich`:
 - Field: `password`
 - Reference: `op://Homelab/Backup/immich/password`
 
-The module automatically creates the secret file at `.secrets/backup/<job-name>/password`.
+The module automatically creates the secret file at `.secrets/backup/<job-name>/encryption_key`.
 
 ## Retention Policy
 

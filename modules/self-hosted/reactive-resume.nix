@@ -15,6 +15,25 @@ in
     };
   };
 
+  flake.modules.homeManager.homelab = hmArgs: {
+    services.backup.jobs.reactive-resume = {
+      paths = [
+        "/var/lib/containers/reactive-resume/postgres"
+        "/var/lib/containers/reactive-resume/data"
+      ];
+      schedule = "daily";
+      retention = "weekly";
+      providers = [ "koofr" ];
+      encryptionKey =
+        hmArgs.config.services.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
+    };
+
+    programs.onepassword-secrets.secrets.backupReactiveResumeEncryptionKey = {
+      path = ".secrets/backup/reactive-resume/encryption_key";
+      reference = "op://Homelab/Backup/reactive-resume/password";
+    };
+  };
+
   flake.homelab.services.reactive-resume.module = hmArgs: {
     config = {
       enable = true;

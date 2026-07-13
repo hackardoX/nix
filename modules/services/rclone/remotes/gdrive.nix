@@ -8,14 +8,9 @@
         };
 
         secrets = {
-          token = hmArgs.config.programs.onepassword-secrets.secretPaths.gdriveToken;
+          token = "${hmArgs.config.xdg.configHome}/rclone/gdrive-token.json";
         };
       };
-    };
-
-    programs.onepassword-secrets.secrets.gdriveToken = {
-      path = ".secrets/rclone/gdrive_token";
-      reference = "op://Homelab/Rclone remotes/Google Drive/token";
     };
   };
 }
