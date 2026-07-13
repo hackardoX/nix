@@ -24,6 +24,26 @@ in
     };
   };
 
+  flake.modules.homeManager.homelab = hmArgs: {
+    services.backup.jobs.immich = {
+      paths = [
+        "/var/lib/containers/immich/photos/library"
+        "/var/lib/containers/immich/photos/upload"
+        "/var/lib/containers/immich/photos/profile"
+        "/var/lib/containers/immich/photos/backups"
+      ];
+      schedule = "daily";
+      retention = "weekly";
+      providers = [ "koofr" ];
+      encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
+    };
+
+    programs.onepassword-secrets.secrets.backupImmichEncryptionKey = {
+      path = ".secrets/backup/immich/encryption_key";
+      reference = "op://Homelab/Backup/immich/password";
+    };
+  };
+
   flake.homelab.services.immich.module = hmArgs: {
     config = {
       enable = true;

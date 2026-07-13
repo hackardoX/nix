@@ -17,6 +17,21 @@ in
     };
   };
 
+  flake.modules.homeManager.homelab = hmArgs: {
+    services.backup.jobs.job-ops = {
+      paths = [ "/var/lib/containers/job-ops/data" ];
+      schedule = "daily";
+      retention = "weekly";
+      providers = [ "koofr" ];
+      encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
+    };
+
+    programs.onepassword-secrets.secrets.backupJobOpsEncryptionKey = {
+      path = ".secrets/backup/job-ops/encryption_key";
+      reference = "op://Homelab/Backup/job-ops/password";
+    };
+  };
+
   flake.homelab.services.job-ops = hmArgs: {
     config = {
       enable = true;

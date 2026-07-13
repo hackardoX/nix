@@ -1,5 +1,38 @@
 { config, ... }:
 {
+  flake.modules.homeManager.homelab = hmArgs: {
+    services.backup.jobs = {
+      grafana = {
+        paths = [ "/var/lib/containers/monitoring/grafana/data" ];
+        schedule = "weekly";
+        retention = "monthly";
+        providers = [ "koofr" ];
+        encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
+      };
+
+      alertmanager = {
+        paths = [ "/var/lib/containers/alerting/alertmanager/data" ];
+        schedule = "weekly";
+        retention = "monthly";
+        providers = [ "koofr" ];
+        encryptionKey =
+          hmArgs.config.services.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
+      };
+    };
+
+    programs.onepassword-secrets.secrets = {
+      backupGrafanaEncryptionKey = {
+        path = ".secrets/backup/grafana/encryption_key";
+        reference = "op://Homelab/Backup/grafana/password";
+      };
+
+      backupAlertmanagerEncryptionKey = {
+        path = ".secrets/backup/alertmanager/encryption_key";
+        reference = "op://Homelab/Backup/alertmanager/password";
+      };
+    };
+  };
+
   flake.homelab.services.monitoring.module = hmArgs: {
     config = {
       enable = true;

@@ -6,12 +6,22 @@
       cfg = hmArgs.config.services.backup;
       rcloneRemotes = hmArgs.config.programs.rclone.remotes or { };
 
-      retentionMap = {
-        hourly = "--keep-within 1h";
-        daily = "--keep-within 1d";
-        weekly = "--keep-within 1w";
-        monthly = "--keep-within 1m";
-        yearly = "--keep-within 1y";
+      retentionPresets = {
+        short = [
+          "--keep-daily 7"
+          "--keep-weekly 4"
+        ];
+        standard = [
+          "--keep-daily 7"
+          "--keep-weekly 4"
+          "--keep-monthly 3"
+        ];
+        extended = [
+          "--keep-daily 7"
+          "--keep-weekly 4"
+          "--keep-monthly 6"
+          "--keep-yearly 3"
+        ];
       };
 
       scheduleMap = {
@@ -29,12 +39,12 @@
         in
         {
           repository = "rclone:${provider}:${destination}/backup";
-          passwordFile = jobCfg.passwordFile;
+          passwordFile = jobCfg.encryptionKey;
           paths = jobCfg.paths;
           initialize = true;
           runCheck = true;
           checkOpts = [ "--read-data" ];
-          pruneOpts = [ retentionMap.${jobCfg.retention} ];
+          pruneOpts = retentionPresets.${jobCfg.retention};
           timerConfig = {
             OnCalendar = scheduleMap.${jobCfg.schedule};
             Persistent = true;
@@ -64,14 +74,12 @@
 
                 retention = lib.mkOption {
                   type = lib.types.enum [
-                    "hourly"
-                    "daily"
-                    "weekly"
-                    "monthly"
-                    "yearly"
+                    "short"
+                    "standard"
+                    "extended"
                   ];
-                  default = "weekly";
-                  description = "How long to keep backups (time-based retention)";
+                  default = "standard";
+                  description = "Retention preset for backup snapshots";
                 };
 
                 providers = lib.mkOption {
@@ -86,9 +94,9 @@
                   description = "Destination folder on provider. If null, uses job name.";
                 };
 
-                passwordFile = lib.mkOption {
+                encryptionKey = lib.mkOption {
                   type = lib.types.path;
-                  description = "Path to file containing the restic repository password";
+                  description = "Path to file containing the restic repository encryption key";
                 };
               };
             }
@@ -101,8 +109,8 @@
       config = lib.mkIf (cfg.jobs != { }) {
         assertions = lib.flatten (
           lib.mapAttrsToList (name: job: {
-            assertion = job.passwordFile != null;
-            message = "backup: job '${name}' has no passwordFile set";
+            assertion = job.encryptionKey != null;
+            message = "backup: job '${name}' has no encryptionKey set";
           }) cfg.jobs
         );
 

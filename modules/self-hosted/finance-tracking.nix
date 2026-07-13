@@ -14,6 +14,25 @@ in
     };
   };
 
+  flake.modules.homeManager.homelab = hmArgs: {
+    services.backup.jobs.sure-finance = {
+      paths = [
+        "/var/lib/containers/sure-finance/postgres"
+        "/var/lib/containers/sure-finance/storage"
+      ];
+      schedule = "daily";
+      retention = "weekly";
+      providers = [ "koofr" ];
+      encryptionKey =
+        hmArgs.config.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
+    };
+
+    programs.onepassword-secrets.secrets.backupSureFinanceEncryptionKey = {
+      path = ".secrets/backup/sure-finance/encryption_key";
+      reference = "op://Homelab/Backup/sure-finance/password";
+    };
+  };
+
   flake.homelab.services.sure-finance.module = hmArgs: {
     config = {
       inherit port;

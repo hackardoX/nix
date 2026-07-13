@@ -25,3 +25,18 @@ programs.rclone.remotes.koofr = {
 ```
 
 See the `backup` and `file-mount` READMEs for usage examples.
+
+## Google Drive Setup
+
+Google Drive uses OAuth tokens that require periodic refresh. The token is stored in a writable file at `~/.config/rclone/gdrive-token.json` to allow rclone to automatically refresh it.
+
+### One-time setup
+
+After switching to a configuration with Google Drive enabled:
+
+```bash
+rclone authorize drive | grep -o '{.*}' > ~/.config/rclone/gdrive-token.json
+chmod 600 ~/.config/rclone/gdrive-token.json
+```
+
+This creates the token file with the OAuth JSON. Rclone will automatically refresh the access token in this file going forward.
