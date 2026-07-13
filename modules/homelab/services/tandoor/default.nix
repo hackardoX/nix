@@ -47,10 +47,16 @@
           description = "Host port to expose Tandoor on";
         };
 
-        storageDir = lib.mkOption {
+        appDir = lib.mkOption {
           type = lib.types.path;
           default = "/var/lib/containers/tandoor";
-          description = "Base directory for Tandoor persistent data";
+          description = "Base directory for Tandoor persistent data (staticfiles, mediafiles)";
+        };
+
+        dataDir = lib.mkOption {
+          type = lib.types.path;
+          default = "/var/lib/data/tandoor";
+          description = "Base directory for Tandoor database data (Postgres)";
         };
 
         secretKeyFile = lib.mkOption {
@@ -96,7 +102,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "db" ];
-            volumes = [ "${cfg.storageDir}/postgres:/var/lib/postgresql/data" ];
+            volumes = [ "${cfg.dataDir}/postgres:/var/lib/postgresql/data" ];
 
             monitoring.enable = true;
 
@@ -141,8 +147,8 @@
             };
 
             volumes = [
-              "${cfg.storageDir}/staticfiles:/opt/recipes/staticfiles"
-              "${cfg.storageDir}/mediafiles:/opt/recipes/mediafiles"
+              "${cfg.appDir}/staticfiles:/opt/recipes/staticfiles"
+              "${cfg.appDir}/mediafiles:/opt/recipes/mediafiles"
             ];
 
             environment =

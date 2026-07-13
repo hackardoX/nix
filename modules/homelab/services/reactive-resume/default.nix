@@ -45,10 +45,16 @@
           description = "Host port to expose Reactive Resume on";
         };
 
-        storageDir = lib.mkOption {
+        appDir = lib.mkOption {
           type = lib.types.path;
           default = "/var/lib/containers/reactive-resume";
-          description = "Base directory for Reactive Resume persistent data";
+          description = "Base directory for Reactive Resume persistent data (app data, config)";
+        };
+
+        dataDir = lib.mkOption {
+          type = lib.types.path;
+          default = "/var/lib/data/reactive-resume";
+          description = "Base directory for Reactive Resume database data (Postgres)";
         };
 
         appUrl = lib.mkOption {
@@ -99,7 +105,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "db" ];
-            volumes = [ "${cfg.storageDir}/postgres:/var/lib/postgresql/data" ];
+            volumes = [ "${cfg.dataDir}/postgres:/var/lib/postgresql/data" ];
 
             monitoring.enable = true;
 
@@ -141,7 +147,7 @@
 
             volumes = [
               "${entrypointScript}:/entrypoint.sh:ro"
-              "${cfg.storageDir}/data:/app/data"
+              "${cfg.appDir}/data:/app/data"
             ];
 
             environment = {

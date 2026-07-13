@@ -10,7 +10,7 @@
       lokiHost = config.flake.meta.monitoring.loki.host;
       lokiPort = config.flake.meta.monitoring.loki.containerPort;
 
-      alloyDir = "${cfg.storageDir}/alloy";
+      alloyDir = "${cfg.appDir}/alloy";
 
       alloyConfig = pkgs.writeText "alloy.river" ''
         logging {

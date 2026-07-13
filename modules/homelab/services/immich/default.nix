@@ -25,7 +25,8 @@
     let
       cfg = hmArgs.config.services.immich;
       networkName = "immich";
-      storageDir = cfg.storageDir;
+      appDir = cfg.appDir;
+      dataDir = cfg.dataDir;
       dbName = "immich";
       dbUser = "postgres";
 
@@ -59,10 +60,16 @@
           description = "Host port to expose Immich on";
         };
 
-        storageDir = lib.mkOption {
+        appDir = lib.mkOption {
           type = lib.types.path;
           default = "/var/lib/containers/immich";
-          description = "Base directory for Immich persistent data (photos, database, ML models)";
+          description = "Base directory for Immich persistent data (photos, ML models, config)";
+        };
+
+        dataDir = lib.mkOption {
+          type = lib.types.path;
+          default = "/var/lib/data/immich";
+          description = "Base directory for Immich database and cache data (Postgres, Redis)";
         };
 
         dbPasswordFile = lib.mkOption {
@@ -104,7 +111,7 @@
             };
 
             volumes = [
-              "${storageDir}/photos:/data"
+              "${appDir}/photos:/data"
               "/etc/localtime:/etc/localtime:ro"
               "${immichConfigFile}:/config/immich.json:ro"
             ];
@@ -158,9 +165,9 @@
             monitoring.enable = true;
 
             volumes = [
-              "${storageDir}/ml-models:/cache"
-              "${storageDir}/ml-dotcache:/.cache"
-              "${storageDir}/ml-config:/.config"
+              "${appDir}/ml-models:/cache"
+              "${appDir}/ml-dotcache:/.cache"
+              "${appDir}/ml-config:/.config"
             ];
 
             environment = sharedEnv;
@@ -178,7 +185,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "immich-redis" ];
-            volumes = [ "${storageDir}/redis:/data" ];
+            volumes = [ "${dataDir}/redis:/data" ];
 
             monitoring.enable = true;
 
@@ -197,7 +204,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "immich-db" ];
-            volumes = [ "${storageDir}/postgres:/var/lib/postgresql/data" ];
+            volumes = [ "${dataDir}/postgres:/var/lib/postgresql/data" ];
 
             monitoring.enable = true;
 

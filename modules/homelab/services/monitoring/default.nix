@@ -47,7 +47,7 @@
     options.services.monitoring = {
       enable = lib.mkEnableOption "Monitoring stack (Prometheus, Grafana, Loki, Alloy)";
 
-      storageDir = lib.mkOption {
+      appDir = lib.mkOption {
         type = lib.types.path;
         default = "/var/lib/containers/monitoring";
         description = "Base directory for monitoring data";

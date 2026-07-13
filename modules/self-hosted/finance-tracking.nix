@@ -21,7 +21,7 @@ in
         "/var/lib/containers/sure-finance/storage"
       ];
       schedule = "daily";
-      retention = "weekly";
+      retention = "standard";
       providers = [ "koofr" ];
       encryptionKey =
         hmArgs.config.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;

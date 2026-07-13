@@ -8,7 +8,8 @@ Self-hosted photo and video management solution running in Podman containers.
 services.immich = {
   enable = true;
   port = 2283;                        # default: 2283
-  storageDir = "/var/lib/immich";     # default: /var/lib/immich
+  appDir = "/var/lib/containers/immich";     # default
+  dataDir = "/var/lib/data/immich";         # default
   dbPasswordFile = /path/to/db/password;
 };
 ```
@@ -22,11 +23,13 @@ This creates the following containers on a `immich` bridge network:
 ## Storage Layout
 
 ```
-/var/lib/immich/
+/var/lib/containers/immich/    (appDir — CoW, compress=zstd)
   photos/        # photo library
-  postgres/      # database
-  redis/         # cache
   ml-models/     # ML model cache
   ml-dotcache/   # ML .cache
   ml-config/     # ML config
+
+/var/lib/data/immich/          (dataDir — nodatacow)
+  postgres/      # database
+  redis/         # cache (Valkey)
 ```

@@ -10,7 +10,7 @@
       prometheusPodmanExporterHost = config.flake.meta.monitoring.prometheusPodmanExporter.host;
       prometheusPodmanExporterPort = config.flake.meta.monitoring.prometheusPodmanExporter.hostPort;
       retentionDays = 30;
-      prometheusDir = "${cfg.storageDir}/prometheus";
+      prometheusDir = "${cfg.appDir}/prometheus";
       targetsDir = "${prometheusDir}/targets";
 
       alertRulesConfig = {

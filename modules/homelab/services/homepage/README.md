@@ -71,7 +71,7 @@ services.podman.containers.my-service = {
 
 - `enable`: Enable Homepage (default: false)
 - `port`: Port to expose Homepage (default: 3000)
-- `storageDir`: Persistent data directory (default: /var/lib/homepage)
+- `appDir`: Persistent data directory (default: /var/lib/containers/homepage)
 - `settings`: Homepage settings (title, theme, color, etc.)
 - `bookmarks`: List of bookmark configurations
 - `widgets`: List of widget configurations

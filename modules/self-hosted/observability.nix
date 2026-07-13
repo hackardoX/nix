@@ -5,7 +5,7 @@
       grafana = {
         paths = [ "/var/lib/containers/monitoring/grafana/data" ];
         schedule = "weekly";
-        retention = "monthly";
+        retention = "extended";
         providers = [ "koofr" ];
         encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
       };
@@ -13,7 +13,7 @@
       alertmanager = {
         paths = [ "/var/lib/containers/alerting/alertmanager/data" ];
         schedule = "weekly";
-        retention = "monthly";
+        retention = "extended";
         providers = [ "koofr" ];
         encryptionKey =
           hmArgs.config.services.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;

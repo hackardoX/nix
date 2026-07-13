@@ -8,7 +8,7 @@
       lokiHostPort = config.flake.meta.monitoring.loki.hostPort;
       lokiContainerPort = config.flake.meta.monitoring.loki.containerPort;
       retentionDays = 30;
-      lokiDir = "${cfg.storageDir}/loki";
+      lokiDir = "${cfg.appDir}/loki";
 
       lokiConfig = pkgs.writeText "loki.yml" (
         builtins.toJSON {

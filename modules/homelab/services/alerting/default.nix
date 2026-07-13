@@ -31,7 +31,7 @@
     options.services.alerting = {
       enable = lib.mkEnableOption "Alerting stack (Alertmanager, alertmanager-ntfy)";
 
-      storageDir = lib.mkOption {
+      appDir = lib.mkOption {
         type = lib.types.path;
         default = "/var/lib/containers/alerting";
         description = "Base directory for alerting data";

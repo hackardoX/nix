@@ -66,6 +66,14 @@
                           mountpoint = "/data";
                           mountOptions = btrfsopt;
                         };
+                        "@containerdata" = {
+                          mountpoint = "/var/lib/data";
+                          mountOptions = [
+                            "noatime"
+                            "nodatacow"
+                            "ssd"
+                          ];
+                        };
                       };
                   };
                 };

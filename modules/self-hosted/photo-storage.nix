@@ -33,7 +33,7 @@ in
         "/var/lib/containers/immich/photos/backups"
       ];
       schedule = "daily";
-      retention = "weekly";
+      retention = "standard";
       providers = [ "koofr" ];
       encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
     };

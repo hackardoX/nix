@@ -22,7 +22,7 @@ in
         "/var/lib/containers/tandoor/mediafiles"
       ];
       schedule = "daily";
-      retention = "weekly";
+      retention = "standard";
       providers = [ "koofr" ];
       encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
     };
