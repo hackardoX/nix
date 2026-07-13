@@ -39,7 +39,7 @@
           description = "Host port to expose Job-Ops on";
         };
 
-        storageDir = lib.mkOption {
+        appDir = lib.mkOption {
           type = lib.types.path;
           default = "/var/lib/containers/job-ops";
           description = "Base directory for Job-Ops persistent data";
@@ -153,7 +153,7 @@
             href = "http://localhost:${toString cfg.port}";
           };
 
-          volumes = [ "${cfg.storageDir}/data:/app/data" ];
+          volumes = [ "${cfg.appDir}/data:/app/data" ];
 
           environment = {
             MODEL = cfg.model;

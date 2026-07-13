@@ -57,10 +57,16 @@
           description = "Host port to expose Sure Finance on";
         };
 
-        storageDir = lib.mkOption {
+        appDir = lib.mkOption {
           type = lib.types.path;
           default = "/var/lib/containers/sure-finance";
-          description = "Base directory for Sure Finance persistent data";
+          description = "Base directory for Sure Finance persistent data (app storage, config)";
+        };
+
+        dataDir = lib.mkOption {
+          type = lib.types.path;
+          default = "/var/lib/data/sure-finance";
+          description = "Base directory for Sure Finance database and cache data (Postgres, Redis)";
         };
 
         database = {
@@ -104,7 +110,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "db" ];
-            volumes = [ "${cfg.storageDir}/postgres:/var/lib/postgresql/data" ];
+            volumes = [ "${cfg.dataDir}/postgres:/var/lib/postgresql/data" ];
 
             monitoring.enable = true;
 
@@ -132,7 +138,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "redis" ];
-            volumes = [ "${cfg.storageDir}/redis:/data" ];
+            volumes = [ "${cfg.dataDir}/redis:/data" ];
 
             monitoring.enable = true;
 
@@ -151,7 +157,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "web" ];
-            volumes = [ "${cfg.storageDir}/storage:/rails/storage" ];
+            volumes = [ "${cfg.appDir}/storage:/rails/storage" ];
             ports = [ "${toString cfg.port}:3000" ];
 
             monitoring.enable = true;
@@ -194,7 +200,7 @@
             userNS = "keep-id";
             network = [ "${networkName}.network" ];
             networkAlias = [ "worker" ];
-            volumes = [ "${cfg.storageDir}/storage:/rails/storage" ];
+            volumes = [ "${cfg.appDir}/storage:/rails/storage" ];
 
             monitoring.enable = true;
 

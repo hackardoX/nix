@@ -8,7 +8,7 @@
       alertmanagerContainerPort = config.flake.meta.alerting.alertmanager.containerPort;
       alertmanagerNtfyHost = config.flake.meta.alerting.alertmanagerNtfy.host;
       alertmanagerNtfyContainerPort = config.flake.meta.alerting.alertmanagerNtfy.containerPort;
-      alertmanagerDir = "${cfg.storageDir}/alertmanager";
+      alertmanagerDir = "${cfg.appDir}/alertmanager";
 
       alertmanagerConfig = pkgs.writeText "alertmanager.yml" (
         builtins.toJSON {

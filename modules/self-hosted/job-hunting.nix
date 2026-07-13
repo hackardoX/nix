@@ -21,7 +21,7 @@ in
     services.backup.jobs.job-ops = {
       paths = [ "/var/lib/containers/job-ops/data" ];
       schedule = "daily";
-      retention = "weekly";
+      retention = "standard";
       providers = [ "koofr" ];
       encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
     };

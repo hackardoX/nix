@@ -8,7 +8,8 @@ Self-hosted recipe management application running in Podman containers.
 services.tandoor = {
   enable = true;
   port = 8080;                                    # default: 8080
-  storageDir = "~/containers/tandoor";            # default
+  appDir = "/var/lib/containers/tandoor";           # default
+  dataDir = "/var/lib/data/tandoor";               # default
   secretKeyFile = /path/to/secret/key;
 
   database = {

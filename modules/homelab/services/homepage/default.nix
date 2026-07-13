@@ -52,7 +52,7 @@ in
               description = "Port to expose Homepage on";
             };
 
-            storageDir = lib.mkOption {
+            appDir = lib.mkOption {
               type = lib.types.path;
               default = "/var/lib/containers/homepage";
               description = "Directory for Homepage persistent data";
@@ -116,7 +116,7 @@ in
           monitoring.enable = true;
 
           volumes = [
-            "${cfg.storageDir}/config:/app/config"
+            "${cfg.appDir}/config:/app/config"
             "${settingsFile}:/app/config/settings.yaml:ro"
             "${bookmarksFile}:/app/config/bookmarks.yaml:ro"
             "${widgetsFile}:/app/config/widgets.yaml:ro"

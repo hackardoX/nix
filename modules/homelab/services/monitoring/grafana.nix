@@ -12,7 +12,7 @@
       prometheusPort = config.flake.meta.monitoring.prometheus.containerPort;
       lokiHost = config.flake.meta.monitoring.loki.host;
       lokiPort = config.flake.meta.monitoring.loki.containerPort;
-      grafanaDir = "${cfg.storageDir}/grafana";
+      grafanaDir = "${cfg.appDir}/grafana";
 
       datasourcesConfig = pkgs.writeText "datasources.yml" (
         builtins.toJSON {

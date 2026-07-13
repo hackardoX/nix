@@ -8,7 +8,8 @@ Self-hosted personal finance tracker running in Podman containers.
 services.sure-finance = {
   enable = true;
   port = 3000;                                      # default: 3000
-  storageDir = "~/containers/sure-finance";          # default
+  appDir = "/var/lib/containers/sure-finance";         # default
+  dataDir = "/var/lib/data/sure-finance";             # default
   secretKeyBaseFile = /path/to/secret/key/base;
   openaiTokenFile = /path/to/openai/token;           # optional, enables AI features
 

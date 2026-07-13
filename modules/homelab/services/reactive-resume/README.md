@@ -8,7 +8,8 @@ Self-hosted resume builder running in Podman containers.
 services.reactive-resume = {
   enable = true;
   port = 3000;                                          # default: 3000
-  storageDir = "~/containers/reactive-resume";          # default
+  appDir = "/var/lib/containers/reactive-resume";      # default
+  dataDir = "/var/lib/data/reactive-resume";          # default
   appUrl = "https://resume.example.com";
   authSecretFile = /path/to/auth/secret;
 

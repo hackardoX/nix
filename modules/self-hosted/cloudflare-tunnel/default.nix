@@ -6,7 +6,8 @@
 }:
 let
   cloudflaredStartScript = pkgs.writeShellScript "start-cloudflared" ''
-    exec ${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token "$(cat "$CREDENTIALS_DIRECTORY"/token)"
+    exec ${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run \
+      --token-file "$CREDENTIALS_DIRECTORY"/token
   '';
 in
 {
@@ -45,13 +46,24 @@ in
       '';
     };
 
+    # TODO: Revisit when nixpkgs merges token-based tunnel support
+    # https://github.com/NixOS/nixpkgs/pull/427964
+    # At that point services.cloudflared.tunnels may replace this custom service.
     systemd.services.cloudflared = {
       wantedBy = [ "multi-user.target" ];
-      after = [ "network-online.target" ];
+      after = [
+        "network-online.target"
+        "onepassword-secrets.service"
+      ];
       wants = [ "network-online.target" ];
+      requires = [ "onepassword-secrets.service" ];
       serviceConfig = {
         ExecStart = "${cloudflaredStartScript}";
         LoadCredential = "token:${config.services.onepassword-secrets.secretPaths.cloudflareTunnelTokenFile}";
+        NoNewPrivileges = true;
+        PrivateTmp = true;
+        ProtectSystem = "strict";
+        ProtectHome = true;
         Restart = "on-failure";
         RestartSec = 5;
         DynamicUser = true;

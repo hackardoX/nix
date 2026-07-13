@@ -9,6 +9,9 @@
           content = {
             type = "gpt";
             partitions = {
+              # Pre-existing Apple partitions — matched, not allocated (no `size` set).
+              # Ordering by priority is safe here since disko locates these on-disk
+              # rather than creating them; confirmed working in your setup.
               iBootSystemContainer = {
                 label = "iBootSystemContainer";
                 priority = 1;
@@ -62,6 +65,7 @@
                         mountOptions = [
                           "compress=zstd"
                           "noatime"
+                          "discard=async"
                         ];
                       in
                       {
@@ -80,6 +84,14 @@
                         "/swap" = {
                           mountpoint = "/swap";
                           swap.swapfile.size = "16G";
+                        };
+                        "/data" = {
+                          mountpoint = "/var/lib/data";
+                          mountOptions = [
+                            "noatime"
+                            "nodatacow"
+                            "discard=async"
+                          ];
                         };
                       };
                   };
