@@ -16,23 +16,23 @@
                 label = "iBootSystemContainer";
                 priority = 1;
                 type = "AF0B";
-                uuid = "139e5dc2-7c27-4070-ac5d-c6582bc6a780";
+                uuid = "b99a06e4-ef87-4397-ae4f-7eb14d019240";
               };
               Container = {
                 label = "Container";
                 priority = 2;
                 type = "AF0A";
-                uuid = "5d2cd669-430d-4151-afa4-4e8afe3a497d";
+                uuid = "d10753fd-90b7-4555-88a4-bc4e6c7ac7d5";
               };
               AsahiStub = {
                 priority = 3;
                 type = "AF0A";
-                uuid = "a9decce4-8a8d-4647-887c-8e1c19aaa9dc";
+                uuid = "d09fcd13-2f74-4fb2-bc8a-db2b8e6d6676";
               };
               ESP = {
                 priority = 4;
                 type = "EF00";
-                uuid = "e862caa4-cb82-4d97-94ce-c9e77a74ef83";
+                uuid = "2481db01-fc76-4e22-99c8-c184fa675265";
                 content = {
                   type = "filesystem";
                   format = "vfat";
@@ -45,12 +45,12 @@
               };
               RecoveryOSContainer = {
                 label = "RecoveryOSContainer";
-                priority = 6;
+                priority = 5;
                 type = "AF0C";
-                uuid = "60c3b87f-981b-448f-a616-e0675bce34c8";
+                uuid = "9ec06d70-8edf-4a9e-9d5b-e89b10c415a8";
               };
               luks = {
-                priority = 5;
+                priority = 6;
                 size = "100%";
                 content = {
                   type = "luks";
