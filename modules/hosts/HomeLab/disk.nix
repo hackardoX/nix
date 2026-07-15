@@ -25,11 +25,13 @@
                 uuid = "d10753fd-90b7-4555-88a4-bc4e6c7ac7d5";
               };
               AsahiStub = {
+                label = "AsahiStub";
                 priority = 3;
                 type = "AF0A";
                 uuid = "d09fcd13-2f74-4fb2-bc8a-db2b8e6d6676";
               };
               ESP = {
+                label = "ESP";
                 priority = 4;
                 type = "EF00";
                 uuid = "2481db01-fc76-4e22-99c8-c184fa675265";
@@ -50,6 +52,7 @@
                 uuid = "9ec06d70-8edf-4a9e-9d5b-e89b10c415a8";
               };
               luks = {
+                label = "luks";
                 priority = 6;
                 size = "100%";
                 content = {
