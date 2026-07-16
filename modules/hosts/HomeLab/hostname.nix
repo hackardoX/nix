@@ -25,8 +25,6 @@
           cat > /var/lib/iwd/${n.ssid}.psk << EOF
           [Security]
           Passphrase=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.${n.secretName}})
-          [Settings]
-          AutoConnect=true
           EOF
         '') wifiNetworks;
       };
