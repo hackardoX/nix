@@ -13,9 +13,6 @@
       ];
       linger = true;
     };
-    users.users.postgres.extraGroups = [
-      config.flake.meta.immich.group
-    ];
   };
 
   flake.homelab.services.immich.user = config.flake.meta.immich.user;
