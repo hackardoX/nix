@@ -31,7 +31,7 @@
             logpath = "/var/log/auth.log";
             maxretry = 3;
             bantime = "24h";
-            destemail = nixosArgs.config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
+            destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
             action = ''
               %(action_mwl)s
             '';
