@@ -21,6 +21,14 @@
         after = map (network: "onepassword-secrets-${network.secretName}.service") wifiNetworks;
         wants = map (network: "onepassword-secrets-${network.secretName}.service") wifiNetworks;
         preStart = lib.concatMapStringsSep "\n" (n: ''
+          psk_file=/var/lib/iwd/${n.ssid}.psk
+          new_pass=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.${n.secretName}})
+          current_pass=$(grep -oP '^Passphrase=\K.*' "$psk_file" 2>/dev/null || true)
+
+          if [ "$current_pass" = "$new_pass" ]; then
+            exit 0
+          fi
+
           install -Dm600 /dev/null /var/lib/iwd/${n.ssid}.psk
           cat > /var/lib/iwd/${n.ssid}.psk << EOF
           [Security]
