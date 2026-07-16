@@ -28,7 +28,7 @@
         80
         443
       ];
-      useDHCP = lib.mkDefault true;
+      useDHCP = lib.mkForce true;
       nameservers = lib.mkDefault [
         # Cloudflare DNS
         "1.1.1.1"

@@ -15,7 +15,10 @@
         inputs.nixos-apple-silicon.nixosModules.apple-silicon-support
       ];
 
-      hardware.asahi.peripheralFirmwareDirectory = ./firmware;
+      hardware.asahi = {
+        enable = true;
+        peripheralFirmwareDirectory = ./firmware;
+      };
 
       boot = {
         loader = {
@@ -24,10 +27,11 @@
         };
         initrd = {
           availableKernelModules = [
+            "xhci_pci"
+            "usbhid"
+            "usb_storage"
             "macb" # Mac Mini M1 1Gbps Ethernet for remote LUKS unlock
           ];
-
-          # luks.devices.crypted.keyFile = "/boot/secret.key"; # Temporary auto-unlock
 
           network = {
             enable = true;

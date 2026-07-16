@@ -14,10 +14,7 @@
     {
       networking = {
         hostName = "HomeLab";
-        wireless.iwd = {
-          enable = true;
-          settings.Settings.AutoConnect = true;
-        };
+        networkmanager.wifi.backend = "iwd";
       };
 
       systemd.services.iwd = {
@@ -29,7 +26,7 @@
           [Security]
           Passphrase=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.${n.secretName}})
           [Settings]
-          Autoconnect=true
+          AutoConnect=true
           EOF
         '') wifiNetworks;
       };
