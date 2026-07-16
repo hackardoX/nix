@@ -41,66 +41,62 @@ in
       dockerFile = pkgs.writeText "docker.yaml" (builtins.toJSON cfg.docker);
     in
     {
-      modules = [
-        {
-          options.services.homepage = {
-            enable = lib.mkEnableOption "Homepage dashboard";
+      options.services.homepage = {
+        enable = lib.mkEnableOption "Homepage dashboard";
 
-            port = lib.mkOption {
-              type = lib.types.port;
-              default = homepage.port;
-              description = "Port to expose Homepage on";
-            };
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = homepage.port;
+          description = "Port to expose Homepage on";
+        };
 
-            appDir = lib.mkOption {
-              type = lib.types.path;
-              default = "/var/lib/containers/homepage";
-              description = "Directory for Homepage persistent data";
-            };
+        appDir = lib.mkOption {
+          type = lib.types.path;
+          default = "/var/lib/containers/homepage";
+          description = "Directory for Homepage persistent data";
+        };
 
-            settings = lib.mkOption {
-              type = lib.types.attrs;
-              default = {
-                title = "Homelab";
-                theme = "dark";
-                color = "slate";
+        settings = lib.mkOption {
+          type = lib.types.attrs;
+          default = {
+            title = "Homelab";
+            theme = "dark";
+            color = "slate";
+          };
+          description = "Homepage settings configuration";
+        };
+
+        bookmarks = lib.mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default = [ ];
+          description = "Homepage bookmarks configuration";
+        };
+
+        widgets = lib.mkOption {
+          type = lib.types.listOf lib.types.attrs;
+          default = [
+            {
+              resources = {
+                cpu = true;
+                memory = true;
+                network = "eth0";
               };
-              description = "Homepage settings configuration";
-            };
+            }
+          ];
+          description = "Homepage widgets configuration";
+        };
 
-            bookmarks = lib.mkOption {
-              type = lib.types.listOf lib.types.attrs;
-              default = [ ];
-              description = "Homepage bookmarks configuration";
-            };
-
-            widgets = lib.mkOption {
-              type = lib.types.listOf lib.types.attrs;
-              default = [
-                {
-                  resources = {
-                    cpu = true;
-                    memory = true;
-                    network = "eth0";
-                  };
-                }
-              ];
-              description = "Homepage widgets configuration";
-            };
-
-            docker = lib.mkOption {
-              type = lib.types.attrs;
-              default = {
-                local = {
-                  host = "dockerproxy";
-                  port = 2375;
-                };
-              };
-              description = "Homepage Docker integration configuration";
+        docker = lib.mkOption {
+          type = lib.types.attrs;
+          default = {
+            local = {
+              host = "dockerproxy";
+              port = 2375;
             };
           };
-        }
-      ];
+          description = "Homepage Docker integration configuration";
+        };
+      };
 
       config = lib.mkIf cfg.enable {
         services.podman.networks.homepage.driver = "bridge";
