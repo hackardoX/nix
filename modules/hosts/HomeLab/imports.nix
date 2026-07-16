@@ -4,7 +4,7 @@
     imports = with config.flake.modules.nixos; [
       base
       hal
-      podman
+      # podman
       # hardening
       homelab
     ];
