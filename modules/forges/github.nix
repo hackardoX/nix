@@ -14,7 +14,7 @@ in
         "github.com" = {
           hostname = "github.com";
           forwardAgent = false;
-          identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.githubAuthorisationPublicKey;
+          identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/github_authorisation.pub";
           identitiesOnly = true;
         };
       };
