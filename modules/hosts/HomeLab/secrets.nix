@@ -13,16 +13,6 @@
         group = "wheel";
         services = [ "sshd" ];
       };
-      homeLabInitrdPrivateKey = {
-        path = "/etc/secrets/initrd/ssh_host_ed25519_key";
-        reference = "op://HomeLab/Initrd Luks/private key";
-        group = "wheel";
-      };
-      homeLabInitrdPublicKey = {
-        path = "/etc/secrets/initrd/ssh_host_ed25519_key.pub";
-        reference = "op://HomeLab/Initrd Luks/public key";
-        group = "wheel";
-      };
     };
   };
 }

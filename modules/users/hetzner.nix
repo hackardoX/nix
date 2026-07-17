@@ -11,30 +11,18 @@
   };
 
   flake.modules.nixos.hetzner =
-    nixosArgs@{ pkgs, ... }:
+    { pkgs, ... }:
     {
       users.users.${config.flake.meta.users.hetzner.name} = {
         inherit (config.flake.meta.users.hetzner) description;
         isNormalUser = true;
         shell = pkgs.zsh;
-        hashedPasswordFile =
-          nixosArgs.config.services.onepassword-secrets.secretPaths.hetznerHashedUserPassword;
+        hashedPasswordFile = "$y$j9T$eFjRG1wVzfAXzCCa2nD05.$.p8T4gfUxacJwCapOI9MuPLDBbL4tmHIrj4SYqvKTO5";
         extraGroups = [
           "wheel"
           "onepassword-secrets"
         ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
-      };
-
-      services = {
-        openssh.settings.AllowUsers = [ config.flake.meta.users.hetzner.name ];
-        onepassword-secrets.secrets = {
-          hetznerHashedUserPassword = {
-            path = "/run/secrets/.hetzner_password";
-            reference = "op://Development/Hetzner HomeLab/hashed user password";
-            group = "wheel";
-          };
-        };
       };
     };
 }
