@@ -1,6 +1,7 @@
 {
   config,
   inputs,
+  lib,
   ...
 }:
 {
@@ -46,5 +47,9 @@
         };
         kernelParams = [ "ip=dhcp" ];
       };
+
+      # TODO: Remove this once the issue is fixed
+      # https://github.com/NixOS/nixpkgs/issues/204619
+      powerManagement.cpuFreqGovernor = lib.mkForce null;
     };
 }
