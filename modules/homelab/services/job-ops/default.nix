@@ -7,12 +7,15 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.job-ops.user} = {
-      isNormalUser = true;
-      extraGroups = [
-        config.flake.meta.job-ops.group
-      ];
+      isSystemUser = true;
+      group = config.flake.meta.job-ops.group;
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.job-ops.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.job-ops.group} = { };
   };
 
   flake.homelab.services.job-ops.user = config.flake.meta.job-ops.user;

@@ -32,13 +32,18 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.monitoring.user} = {
-      isNormalUser = true;
+      isSystemUser = true;
+      group = config.flake.meta.monitoring.group;
       extraGroups = [
-        config.flake.meta.monitoring.group
         "systemd-journal"
       ];
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.monitoring.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.monitoring.group} = { };
   };
 
   flake.homelab.services.monitoring.user = config.flake.meta.monitoring.user;

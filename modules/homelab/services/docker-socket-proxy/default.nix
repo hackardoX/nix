@@ -10,9 +10,12 @@ in
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.docker-socket-proxy.user} = {
-      isNormalUser = true;
+      isSystemUser = true;
       group = config.flake.meta.docker-socket-proxy.group;
       extraGroups = [ "podman" ];
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.docker-socket-proxy.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
 

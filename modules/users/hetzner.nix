@@ -4,7 +4,7 @@
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
     description = "Hetzner HomeLab";
     name = "hetzner";
-    uid = 501;
+    uid = 1001;
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu"
     ];

@@ -17,12 +17,15 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.alerting.user} = {
-      isNormalUser = true;
-      extraGroups = [
-        config.flake.meta.alerting.group
-      ];
+      isSystemUser = true;
+      group = config.flake.meta.alerting.group;
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.alerting.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.alerting.group} = { };
   };
 
   flake.homelab.services.alerting.user = config.flake.meta.alerting.user;

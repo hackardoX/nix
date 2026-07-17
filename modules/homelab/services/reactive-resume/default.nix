@@ -7,12 +7,15 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.reactive-resume.user} = {
-      isNormalUser = true;
-      extraGroups = [
-        config.flake.meta.reactive-resume.group
-      ];
+      isSystemUser = true;
+      group = config.flake.meta.reactive-resume.group;
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.reactive-resume.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.reactive-resume.group} = { };
   };
 
   flake.homelab.services.reactive-resume.user = config.flake.meta.reactive-resume.user;

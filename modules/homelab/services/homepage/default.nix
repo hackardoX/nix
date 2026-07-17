@@ -15,8 +15,11 @@ in
 
   flake.modules.nixos.homelab = {
     users.users.${homepage.user} = {
-      isNormalUser = true;
+      isSystemUser = true;
       group = homepage.group;
+      createHome = true;
+      home = "/var/lib/${homepage.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
 
