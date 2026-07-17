@@ -4,7 +4,7 @@
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
     description = "HAL 9000";
     name = "hal";
-    uid = 502;
+    uid = 9000;
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOa3X9sTqDrEddYn5qxluMw6h5SzA5eC9UMnIDQNYCiV"
     ];

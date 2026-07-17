@@ -7,12 +7,15 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.sure-finance.user} = {
-      isNormalUser = true;
-      extraGroups = [
-        config.flake.meta.sure-finance.group
-      ];
+      isSystemUser = true;
+      group = config.flake.meta.sure-finance.group;
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.sure-finance.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.sure-finance.group} = { };
   };
 
   flake.homelab.services.sure-finance.user = config.flake.meta.sure-finance.user;

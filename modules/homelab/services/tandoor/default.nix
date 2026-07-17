@@ -7,12 +7,15 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.tandoor.user} = {
-      isNormalUser = true;
-      extraGroups = [
-        config.flake.meta.tandoor.group
-      ];
+      isSystemUser = true;
+      group = config.flake.meta.tandoor.group;
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.tandoor.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.tandoor.group} = { };
   };
 
   flake.homelab.services.tandoor.user = config.flake.meta.tandoor.user;

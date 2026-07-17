@@ -7,12 +7,15 @@
 
   flake.modules.nixos.homelab = {
     users.users.${config.flake.meta.immich.user} = {
-      isNormalUser = true;
-      extraGroups = [
-        config.flake.meta.immich.group
-      ];
+      isSystemUser = true;
+      group = config.flake.meta.immich.group;
+      createHome = true;
+      home = "/var/lib/${config.flake.meta.immich.user}";
+      autoSubUidGidRange = true;
       linger = true;
     };
+
+    users.groups.${config.flake.meta.immich.group} = { };
   };
 
   flake.homelab.services.immich.user = config.flake.meta.immich.user;
