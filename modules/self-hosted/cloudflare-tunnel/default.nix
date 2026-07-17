@@ -53,10 +53,10 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [
         "network-online.target"
-        "onepassword-secrets.service"
+        "opnix-secrets.service"
       ];
       wants = [ "network-online.target" ];
-      requires = [ "onepassword-secrets.service" ];
+      requires = [ "opnix-secrets.service" ];
       serviceConfig = {
         ExecStart = "${cloudflaredStartScript}";
         LoadCredential = "token:${config.services.onepassword-secrets.secretPaths.cloudflareTunnelTokenFile}";
