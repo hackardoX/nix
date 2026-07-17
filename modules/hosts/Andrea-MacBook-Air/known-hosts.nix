@@ -16,13 +16,13 @@
           port = 22;
         };
         "homelab" = {
-          hostname = "192.168.1.44";
+          hostname = "192.168.1.55";
           user = config.flake.meta.users.hal.name;
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabPublicKey;
           port = 22;
         };
         "homelab-initrd" = {
-          hostname = "192.168.1.44";
+          hostname = "192.168.1.55";
           user = "root";
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabInitrdPublicKey;
           port = 2222;
