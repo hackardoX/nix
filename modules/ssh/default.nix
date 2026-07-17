@@ -142,7 +142,7 @@ in
 
           file = {
             ".ssh/allowed_signers".text = ''
-              ${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H
+              ${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardo
             '';
 
           };
