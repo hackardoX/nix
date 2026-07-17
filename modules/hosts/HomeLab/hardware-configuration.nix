@@ -8,7 +8,7 @@
     {
       modulesPath,
       ...
-    }@nixosArgs:
+    }:
     {
       imports = [
         (modulesPath + "/installer/scan/not-detected.nix")
@@ -30,7 +30,6 @@
             "xhci_pci"
             "usbhid"
             "usb_storage"
-            "macb" # Mac Mini M1 1Gbps Ethernet for remote LUKS unlock
           ];
 
           network = {
@@ -40,7 +39,7 @@
               port = 2222;
               inherit (config.flake.meta.users.hal) authorizedKeys;
               hostKeys = [
-                nixosArgs.config.services.onepassword-secrets.secretPaths.homeLabInitrdPrivateKey
+                "/etc/secrets/initrd/ssh_host_ed25519_key"
               ];
             };
           };

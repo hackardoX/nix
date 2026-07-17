@@ -28,7 +28,7 @@
             port = 2222;
             inherit (config.flake.meta.users.hetzner) authorizedKeys;
             hostKeys = [
-              nixosArgs.config.services.onepassword-secrets.secretPaths.hetznerHomeLabPrivateKey
+              "/etc/secrets/initrd/ssh_host_ed25519_key"
             ];
             shell = "/bin/cryptsetup-askpass";
           };
