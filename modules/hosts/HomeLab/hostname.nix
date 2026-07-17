@@ -26,6 +26,7 @@
           Type = "oneshot";
           RemainAfterExit = true;
         };
+        # TODO: optimize this to iterate over the list instead of generating a script per network
         script = lib.concatMapStringsSep "\n" (n: ''
           secret_path="${nixosArgs.config.services.onepassword-secrets.secretPaths.${n.secretName}}"
           psk_file="/var/lib/iwd/${n.ssid}.psk"
