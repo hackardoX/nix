@@ -67,6 +67,17 @@ in
                   example = 22;
                   default = null;
                 };
+                requestTTY = lib.mkOption {
+                  type = lib.types.nullOr lib.types.bool;
+                  description = "Whether to request a TTY.";
+                  default = null;
+                };
+                remoteCommand = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  description = "Command to execute on the remote host.";
+                  example = "systemd-tty-ask-password-agent";
+                  default = null;
+                };
               };
             }
           );
