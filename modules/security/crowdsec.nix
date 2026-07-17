@@ -41,5 +41,12 @@
         registerBouncer.enable = true;
       };
     };
+
+    # Fix for DynamicUser + /var/lib/crowdsec permission issue.
+    # crowdsec tries to mkdir /var/lib/crowdsec which fails as a broken symlink
+    # when DynamicUser=true without StateDirectory.
+    # See: https://discourse.nixos.org/t/nixos-crowdsec-and-dynamicuser/73815
+    # See: https://discourse.nixos.org/t/how-to-set-permissions-to-binary-in-a-package-crowdsec-without-dynamiuser/76659
+    systemd.services.crowdsec.serviceConfig.StateDirectory = "crowdsec";
   };
 }
