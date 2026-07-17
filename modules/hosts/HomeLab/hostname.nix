@@ -49,8 +49,7 @@
           Passphrase=$new_pass
           EOF
 
-          echo "WiFi PSK for ${n.ssid} updated, restarting iwd..."
-          systemctl restart iwd
+          echo "WiFi PSK for ${n.ssid} updated. iwd will use it on next connection attempt."
         '') wifiNetworks;
       };
 
