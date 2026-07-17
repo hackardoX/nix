@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   flake.modules.nixos.homelab = nixosArgs: {
     services = {
@@ -47,6 +47,6 @@
     # when DynamicUser=true without StateDirectory.
     # See: https://discourse.nixos.org/t/nixos-crowdsec-and-dynamicuser/73815
     # See: https://discourse.nixos.org/t/how-to-set-permissions-to-binary-in-a-package-crowdsec-without-dynamiuser/76659
-    systemd.services.crowdsec.serviceConfig.StateDirectory = "crowdsec";
+    systemd.services.crowdsec.serviceConfig.DynamicUser = lib.mkForce false;
   };
 }
