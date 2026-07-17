@@ -26,6 +26,8 @@
           user = "root";
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabInitrdPublicKey;
           port = 2222;
+          requestTTY = true;
+          remoteCommand = "systemd-tty-ask-password-agent";
         };
       };
     };
