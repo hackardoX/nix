@@ -2,7 +2,7 @@
 {
   flake.meta.users.root = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
-    description = "System Administrator";
+    description = "System administrator";
     name = "root";
     uid = 0;
   };
