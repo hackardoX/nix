@@ -31,6 +31,7 @@
             "xhci_pci"
             "usbhid"
             "usb_storage"
+            "tg3"
           ];
 
           network = {
