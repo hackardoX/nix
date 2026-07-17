@@ -24,5 +24,9 @@
         ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hal.authorizedKeys;
       };
+
+      users.groups.${config.flake.meta.users.hal.name} = {
+        gid = config.flake.meta.users.hal.uid;
+      };
     };
 }

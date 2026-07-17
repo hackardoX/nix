@@ -24,5 +24,9 @@
         ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
       };
+
+      users.groups.${config.flake.meta.users.hetzner.name} = {
+        gid = config.flake.meta.users.hetzner.uid;
+      };
     };
 }
