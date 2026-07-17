@@ -21,13 +21,12 @@
     in
     {
       imports = [ inputs.op-shell-plugins.hmModules.default ];
-
       xdg.configFile."1Password/ssh/agent.toml".text = ''
         [[ssh-keys]]
         vault = "Development"
 
         [[ssh-keys]]
-        vault = "Private"
+        vault = "HomeLab"
       '';
 
       home = {
