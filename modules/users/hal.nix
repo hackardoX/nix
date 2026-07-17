@@ -17,7 +17,7 @@
         inherit (config.flake.meta.users.hal) description uid;
         isNormalUser = true;
         shell = pkgs.zsh;
-        hashedPasswordFile = "$y$j9T$Sv8i2SE20JnZzX1irLZ4k1$1o3LWQVdeQDfp9z6U1ZnN1uaoYvQsb21HF8xsTTxDp2";
+        hashedPassword = "$y$j9T$Sv8i2SE20JnZzX1irLZ4k1$1o3LWQVdeQDfp9z6U1ZnN1uaoYvQsb21HF8xsTTxDp2";
         extraGroups = [
           "wheel"
           "onepassword-secrets"
