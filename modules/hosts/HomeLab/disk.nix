@@ -96,6 +96,10 @@
                             "discard=async"
                           ];
                         };
+                        "/persist" = {
+                          mountpoint = "/persist";
+                          inherit mountOptions;
+                        };
                       };
                   };
                 };
@@ -104,6 +108,13 @@
           };
         };
       };
+    };
+
+    boot.initrd.impermanence = {
+      enable = true;
+      btrfsDevice = "/dev/mapper/crypted";
+      rootSubvolume = "root";
+      blankSubvolume = "root-blank";
     };
   };
 }
