@@ -22,22 +22,20 @@
     };
 
     config = lib.mkIf config.boot.initrd.impermanence.enable {
+      # Required for systemd initrd services to function
+      boot.initrd.systemd.enable = true;
 
-      # Ensure btrfs tools are in the initrd
+      # Ensure btrfs tools are available in initrd
       boot.initrd.supportedFilesystems = [ "btrfs" ];
 
-      # Rollback service for systemd initrd
-      boot.initrd.systemd.services.impermanence-rollback = {
-        description = "Rollback BTRFS root subvolume to blank snapshot";
+      # Rollback root to blank snapshot before mounting /
+      boot.initrd.systemd.services.rollback = {
+        description = "Rollback BTRFS root subvolume to a pristine state";
+        wantedBy = [ "initrd.target" ];
+        before = [ "sysroot.mount" ];
         unitConfig.DefaultDependencies = "no";
         serviceConfig.Type = "oneshot";
 
-        # Run before root is mounted
-        before = [ "sysroot.mount" ];
-        wantedBy = [ "initrd.target" ];
-
-        # Run after LUKS unlock and local-fs-pre (prevents hibernation resume issues)
-        requires = [ "systemd-cryptsetup@crypted.service" ];
         after = [
           "systemd-cryptsetup@crypted.service"
           "local-fs-pre.target"
@@ -47,7 +45,6 @@
           mkdir -p /mnt
           mount -o subvol=/ ${config.boot.initrd.impermanence.btrfsDevice} /mnt
 
-          # Safety: verify the blank snapshot exists before destroying anything
           if [[ ! -e /mnt/${config.boot.initrd.impermanence.blankSubvolume} ]]; then
             echo "ERROR: blank snapshot ${config.boot.initrd.impermanence.blankSubvolume} not found!" >&2
             umount /mnt
@@ -56,9 +53,6 @@
 
           delete_subvolume_recursively() {
             IFS=$'\n'
-            # CRITICAL SAFETY: only delete if it's actually a btrfs subvolume (inode=256).
-            # If a regular directory is passed, 'btrfs subvolume list -o' enumerates ALL
-            # subvolumes on the filesystem, which would wipe the entire drive.
             if [ $(stat -c %i "$1") -ne 256 ]; then return; fi
             for i in $(btrfs subvolume list -o "$1" | cut -f9- -d' '); do
               delete_subvolume_recursively "/mnt/$i"
@@ -99,5 +93,4 @@
       '';
     };
   };
-
 }
