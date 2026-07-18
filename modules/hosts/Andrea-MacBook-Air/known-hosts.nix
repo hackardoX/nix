@@ -20,6 +20,7 @@
           user = config.flake.meta.users.hal.name;
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabPublicKey;
           port = 22;
+          forwardAgent = true;
         };
         "homelab-initrd" = {
           hostname = "192.168.1.55";

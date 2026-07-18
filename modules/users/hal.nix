@@ -8,10 +8,13 @@
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOa3X9sTqDrEddYn5qxluMw6h5SzA5eC9UMnIDQNYCiV hal"
     ];
+    sudoAuthorizedKeys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG3cs+qEbW36c2nX23roMaotYZGd0Lua5pxY+BbgW5B5 hal-sudo"
+    ];
   };
 
   flake.modules.nixos.hal =
-    { pkgs, ... }:
+    { pkgs, lib, ... }:
     {
       users.users.${config.flake.meta.users.hal.name} = {
         inherit (config.flake.meta.users.hal) description uid;
@@ -28,6 +31,11 @@
 
       users.groups.${config.flake.meta.users.hal.name} = {
         gid = config.flake.meta.users.hal.uid;
+      };
+
+      environment.etc."ssh/authorized_sudo_keys/hal" = {
+        text = lib.concatStringsSep "\n" config.flake.meta.users.hal.sudoAuthorizedKeys + "\n";
+        mode = "0644";
       };
     };
 }
