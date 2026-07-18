@@ -43,5 +43,14 @@
       ];
       networkmanager.enable = lib.mkDefault true;
     };
+
+    services.avahi = {
+      enable = true;
+      publish = {
+        enable = true;
+        addresses = true;
+        workstation = true;
+      };
+    };
   };
 }
