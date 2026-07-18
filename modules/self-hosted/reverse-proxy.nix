@@ -43,7 +43,8 @@
           maxmindLicenseKey = {
             path = ".secrets/.maxmind_license_key";
             reference = "op://Homelab/MaxMind License Key/credential";
-            group = "staff";
+            owner = "caddy";
+            group = "caddy";
           };
         };
 

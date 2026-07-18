@@ -24,11 +24,15 @@
       backupGrafanaEncryptionKey = {
         path = ".secrets/backup/grafana/encryption_key";
         reference = "op://Homelab/Backup/grafana/password";
+        owner = config.flake.meta.monitoring.user;
+        group = config.flake.meta.monitoring.group;
       };
 
       backupAlertmanagerEncryptionKey = {
         path = ".secrets/backup/alertmanager/encryption_key";
         reference = "op://Homelab/Backup/alertmanager/password";
+        owner = config.flake.meta.monitoring.user;
+        group = config.flake.meta.monitoring.group;
       };
     };
   };

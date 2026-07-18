@@ -30,6 +30,8 @@ in
     programs.onepassword-secrets.secrets.backupSureFinanceEncryptionKey = {
       path = ".secrets/backup/sure-finance/encryption_key";
       reference = "op://Homelab/Backup/sure-finance/password";
+      owner = config.flake.meta.sure-finance.user;
+      group = config.flake.meta.sure-finance.group;
     };
   };
 

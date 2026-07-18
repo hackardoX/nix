@@ -31,6 +31,8 @@ in
     programs.onepassword-secrets.secrets.backupReactiveResumeEncryptionKey = {
       path = ".secrets/backup/reactive-resume/encryption_key";
       reference = "op://Homelab/Backup/reactive-resume/password";
+      owner = config.flake.meta.reactive-resume.user;
+      group = config.flake.meta.reactive-resume.group;
     };
   };
 
