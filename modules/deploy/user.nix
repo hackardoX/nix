@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, ... }:
 let
   user = "deploy";
 in
@@ -17,8 +17,6 @@ in
         openssh.authorizedKeys.keys =
           config.flake.meta.users.${nixosArgs.config.system.primaryUser}.authorizedKeys;
       };
-
-      services.openssh.settings.AllowUsers = lib.mkMerge [ user ];
 
       security = {
         pam.sshAgentAuth = {
