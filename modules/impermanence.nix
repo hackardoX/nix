@@ -87,8 +87,4 @@
       '';
     };
   };
-
-  flake.modules.homeManager.impermanence = { ... }: {
-    imports = [ inputs.impermanence.homeManagerModules.default ];
-  };
 }
