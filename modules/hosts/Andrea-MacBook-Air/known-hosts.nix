@@ -16,7 +16,7 @@
           port = 22;
         };
         "homelab" = {
-          hostname = "192.168.1.55";
+          hostname = "${config.flake.nixosConfigurations.HomeLab.config.networking.hostName}.local";
           user = config.flake.meta.users.hal.name;
           identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabPublicKey;
           port = 22;
