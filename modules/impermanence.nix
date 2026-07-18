@@ -22,10 +22,28 @@
     };
 
     config = lib.mkIf config.boot.initrd.impermanence.enable {
-      boot.initrd = {
-        enable = true;
-        supportedFilesystems = [ "btrfs" ];
-        postResumeCommands = lib.mkAfter ''
+
+      # Ensure btrfs tools are in the initrd
+      boot.initrd.supportedFilesystems = [ "btrfs" ];
+
+      # Rollback service for systemd initrd
+      boot.initrd.systemd.services.impermanence-rollback = {
+        description = "Rollback BTRFS root subvolume to blank snapshot";
+        unitConfig.DefaultDependencies = "no";
+        serviceConfig.Type = "oneshot";
+
+        # Run before root is mounted
+        before = [ "sysroot.mount" ];
+        wantedBy = [ "initrd.target" ];
+
+        # Run after LUKS unlock and local-fs-pre (prevents hibernation resume issues)
+        requires = [ "systemd-cryptsetup@crypted.service" ];
+        after = [
+          "systemd-cryptsetup@crypted.service"
+          "local-fs-pre.target"
+        ];
+
+        script = ''
           mkdir -p /mnt
           mount -o subvol=/ ${config.boot.initrd.impermanence.btrfsDevice} /mnt
 
@@ -87,4 +105,5 @@
       '';
     };
   };
+
 }
