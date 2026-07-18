@@ -18,18 +18,16 @@
         execWheelOnly = true;
         extraConfig = ''
           Defaults timestamp_timeout=0
+          Defaults env_keep += "SSH_AUTH_SOCK"
         '';
       };
       pam = {
         services.sudo.unixAuth = false;
         sshAgentAuth = {
           enable = true;
-          authorizedKeysFiles = [ "/etc/ssh/authorized_sudo_keys.%u" ];
+          authorizedKeysFiles = [ "/etc/ssh/authorized_sudo_keys/%u" ];
         };
       };
     };
-    systemd.tmpfiles.rules = [
-      "d /etc/ssh/authorized_sudo_keys 0755 root root -"
-    ];
   };
 }

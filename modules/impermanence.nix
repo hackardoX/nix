@@ -1,6 +1,8 @@
 { lib, inputs, ... }:
 {
   flake.modules.nixos.impermanence = { config, ... }: {
+    imports = [ inputs.impermanence.nixosModules.default ];
+
     options.boot.initrd.impermanence = {
       enable = lib.mkEnableOption "btrfs root subvolume rollback on every boot";
       btrfsDevice = lib.mkOption {
@@ -20,8 +22,6 @@
     };
 
     config = lib.mkIf config.boot.initrd.impermanence.enable {
-      imports = [ inputs.impermanence.nixosModules.default ];
-
       boot.initrd = {
         enable = true;
         supportedFilesystems = [ "btrfs" ];
