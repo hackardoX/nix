@@ -6,6 +6,7 @@
       hal
       # hardening
       homelab
+      impermanence
     ];
   };
 }
