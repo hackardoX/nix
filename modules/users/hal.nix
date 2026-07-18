@@ -16,6 +16,7 @@
       users.users.${config.flake.meta.users.hal.name} = {
         inherit (config.flake.meta.users.hal) description uid;
         isNormalUser = true;
+        group = config.flake.meta.users.hal.name;
         shell = pkgs.zsh;
         hashedPassword = "$y$j9T$Sv8i2SE20JnZzX1irLZ4k1$1o3LWQVdeQDfp9z6U1ZnN1uaoYvQsb21HF8xsTTxDp2";
         extraGroups = [

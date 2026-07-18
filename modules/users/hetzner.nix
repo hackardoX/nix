@@ -14,10 +14,11 @@
     { pkgs, ... }:
     {
       users.users.${config.flake.meta.users.hetzner.name} = {
-        inherit (config.flake.meta.users.hetzner) description;
+        inherit (config.flake.meta.users.hetzner) description uid;
         isNormalUser = true;
+        group = config.flake.meta.users.hetzner.name;
         shell = pkgs.zsh;
-        hashedPasswordFile = "$y$j9T$eFjRG1wVzfAXzCCa2nD05.$.p8T4gfUxacJwCapOI9MuPLDBbL4tmHIrj4SYqvKTO5";
+        hashedPassword = "$y$j9T$eFjRG1wVzfAXzCCa2nD05.$.p8T4gfUxacJwCapOI9MuPLDBbL4tmHIrj4SYqvKTO5";
         extraGroups = [
           "wheel"
           "onepassword-secrets"
