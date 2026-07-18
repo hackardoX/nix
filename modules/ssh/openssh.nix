@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   flake.modules.nixos.homelab = nixosArgs: {
     services.openssh = {
       enable = true;
@@ -6,7 +6,7 @@
         PermitRootLogin = "no";
         PasswordAuthentication = false;
         KbdInteractiveAuthentication = false;
-        AllowUsers = [ nixosArgs.config.system.primaryUser ];
+        AllowUsers = lib.mkMerge [ nixosArgs.config.system.primaryUser ];
       };
       allowSFTP = false;
     };
