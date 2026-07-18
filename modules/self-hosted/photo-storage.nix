@@ -41,6 +41,8 @@ in
     programs.onepassword-secrets.secrets.backupImmichEncryptionKey = {
       path = ".secrets/backup/immich/encryption_key";
       reference = "op://Homelab/Backup/immich/password";
+      owner = config.flake.meta.immich.user;
+      group = config.flake.meta.immich.group;
     };
   };
 

@@ -30,6 +30,8 @@ in
     programs.onepassword-secrets.secrets.backupTandoorEncryptionKey = {
       path = ".secrets/backup/tandoor/encryption_key";
       reference = "op://Homelab/Backup/tandoor/password";
+      owner = config.flake.meta.tandoor.user;
+      group = config.flake.meta.tandoor.group;
     };
   };
 

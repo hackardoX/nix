@@ -29,6 +29,8 @@ in
     programs.onepassword-secrets.secrets.backupJobOpsEncryptionKey = {
       path = ".secrets/backup/job-ops/encryption_key";
       reference = "op://Homelab/Backup/job-ops/password";
+      owner = config.flake.meta.job-ops.user;
+      group = config.flake.meta.job-ops.group;
     };
   };
 
