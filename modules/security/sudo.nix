@@ -37,6 +37,11 @@
             unixAuth = false;
             logFailures = lib.mkForce false;
           };
+          su-l = {
+            rssh = true;
+            unixAuth = false;
+            logFailures = lib.mkForce false;
+          };
         };
       };
     };
