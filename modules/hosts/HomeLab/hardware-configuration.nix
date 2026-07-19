@@ -17,7 +17,7 @@
 
       hardware.asahi = {
         enable = true;
-        peripheralFirmwareDirectory = ./firmware;
+        peripheralFirmwareDirectory = inputs.asahi-firmware + "/firmware";
       };
 
       boot = {

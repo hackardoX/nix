@@ -8,6 +8,10 @@
     #     nixpkgs.follows = "nixpkgs";
     #   };
     # };
+    asahi-firmware = {
+      url = "git+ssh://git@github.com/hackardoX/nixos-asahi-firmware.git?shallow=1";
+      flake = false;
+    };
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";

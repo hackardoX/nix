@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "asahi-firmware": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784491698,
+        "narHash": "sha256-lcUiTH15yo5/McJZeO2wHrKEU+KYEPl2mE8aoky/8Is=",
+        "ref": "refs/heads/main",
+        "rev": "2fe83cde38517773d65cff3281c46ddb9e63969c",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/hackardoX/nixos-asahi-firmware.git"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/hackardoX/nixos-asahi-firmware.git"
+      }
+    },
     "brew-src": {
       "flake": false,
       "locked": {
@@ -620,6 +637,7 @@
     },
     "root": {
       "inputs": {
+        "asahi-firmware": "asahi-firmware",
         "catppuccin": "catppuccin",
         "custom-homebrew-formulas": "custom-homebrew-formulas",
         "darwin": "darwin",
