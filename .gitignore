@@ -50,3 +50,5 @@ result
 .venv
 
 **/.claude/settings.local.json
+
+modules/hosts/*/firmware/*
