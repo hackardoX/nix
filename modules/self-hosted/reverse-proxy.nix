@@ -1,7 +1,7 @@
 { lib, ... }:
 {
   flake.meta.reverse-proxy = {
-    domain = "your-domain.example.com"; # TODO: replace with your actual domain
+    domain = "homelab4.fun";
     ports = {
       authelia = 1000;
       homepage = 8000;
@@ -47,7 +47,7 @@
           };
           cloudflareApiToken = {
             path = "/run/secrets/cloudflare_api_token";
-            reference = "op://Development/CloudFlare DNS API Env - AegisInbox/credential";
+            reference = "op://HomeLab/CloudFlare/homelab4.fun/dns api token";
             owner = "caddy";
             group = "caddy";
           };
@@ -65,7 +65,7 @@
               "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
               "github.com/caddy-dns/cloudflare@v0.2.3"
             ];
-            hash = lib.fakeSha256;
+            hash = "sha256-5N6iDxy/qZvGjuPn0Ph957HVhkZdIdfKvv9z4wFVRX4=";
           };
 
           extraConfig = ''
