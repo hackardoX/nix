@@ -122,116 +122,41 @@
         })
       '';
 
-      plugins.java =
-        let
-          nvim-java-core-fixed = pkgs.vimPlugins.nvim-java-core.overrideAttrs (old: {
-            postPatch = ''
-              ${old.postPatch or ""}
+      plugins.java = {
+        enable = true;
+        lazyLoad.settings.ft = [ "java" ];
+        package = pkgs.vimPlugins.nvim-java.overrideAttrs (old: {
+          postPatch = ''
+            ${old.postPatch or ""}
 
-              substituteInPlace lua/java-core/ls/clients/jdtls-client.lua \
-                --replace-fail "self.client.request(method, params, on_response, buffer)" "self.client:request(method, params, on_response, buffer)"
-            '';
-          });
+            substituteInPlace lua/java.lua \
+              --replace-fail "local pkgm = Manager()" "local pkgm = config.pkgm and config.pkgm.enable == false and { install = function() end } or Manager()" \
+              --replace-fail "require('java.startup.lsp_setup').setup(config)" "if config.jdtls.enable ~= false then
+              require('java.startup.lsp_setup').setup(config) 
+            end"
+          '';
+        });
 
-          nvim-java-refactor-fixed = pkgs.vimPlugins.nvim-java-refactor.overrideAttrs (old: {
-            postPatch = ''
-              ${old.postPatch or ""}
-
-              substituteInPlace lua/java-refactor/init.lua \
-                --replace-fail "local event = require('java-core.utils.event')" "local event = require('java-core.utils.event')
-
-              local function register_api(module, path, command, opts)
-                local name = 'Java'
-
-                for _, word in ipairs(path) do
-                  for _, sub_word in ipairs(vim.split(word, '_')) do
-                    name = name .. sub_word:sub(1, 1):upper() .. sub_word:sub(2)
-                  end
-                end
-
-                vim.api.nvim_create_user_command(name, command, opts or {})
-
-                local func_name = table.remove(path)
-                local node = module
-
-                for _, key in ipairs(path) do
-                  node[key] = node[key] or {}
-                  node = node[key]
-                end
-
-                node[func_name] = command
-              end" \
-                --replace-fail "require('java').register_api({ 'refactor', api_name }, api, { range = 2 })" "local java = require('java')
-                  register_api(java, { 'refactor', api_name }, api, { range = 2 })" \
-                --replace-fail "require('java').register_api({ 'build', api_name }, api, {})" "local java = require('java')
-                  register_api(java, { 'build', api_name }, api, {})"
-
-              printf '\nM.setup = M.setup or function() end\nreturn M\n' >> lua/java-refactor/init.lua
-            '';
-          });
-        in
-        {
-          enable = true;
-          lazyLoad.settings.ft = [ "java" ];
-          package = pkgs.vimPlugins.nvim-java.overrideAttrs (old: {
-            # TODO: Remove when nvim-java/nvim-java#487 is merged and reaches nixpkgs.
-            patches = (old.patches or [ ]) ++ [
-              (pkgs.fetchpatch {
-                name = "nvim-java-pr-487.patch";
-                url = "https://patch-diff.githubusercontent.com/raw/nvim-java/nvim-java/pull/487.patch";
-                hash = "sha256-qe89H0pNd0qOuvilrhWfZqHrqy3PV/E/wguEUad0nEA=";
-              })
-            ];
-            dependencies = map (
-              dep:
-              if dep.pname == "nvim-java-core" then
-                nvim-java-core-fixed
-              else if dep.pname == "nvim-java-refactor" then
-                nvim-java-refactor-fixed
-              else
-                dep
-            ) old.dependencies;
-
-            postPatch = ''
-              ${old.postPatch or ""}
-
-              substituteInPlace lua/java.lua \
-                --replace-fail "table.insert(to_install, { name = 'jdtls', version = config.jdtls.version })" "if config.jdtls.enable ~= false then
-                table.insert(to_install, { name = 'jdtls', version = config.jdtls.version })
-              end" \
-                --replace-fail "pkgm:install_all(" "if config.pkgm and config.pkgm.enable == false then
-                to_install = {}
-              end
-
-              pkgm:install_all(" \
-                --replace-fail "vim.lsp.enable('jdtls')" "" \
-                --replace-fail "require('java.startup.lsp_setup').setup(config)" "if config.jdtls.enable ~= false then
-                require('java.startup.lsp_setup').setup(config)
-                vim.lsp.enable('jdtls')
-              end"
-            '';
-          });
-
-          settings = {
-            # Keep JDK management in Nix
-            jdk.auto_install = false;
-            # Keep nvim-java's feature APIs, but use the Nix-managed JDTLS below.
-            jdtls.enable = false;
-            pkgm.enable = false;
-            # Spring Boot is configured by the root spring-boot plugin module.
-            spring_boot_tools = {
-              enable = false;
-            };
-            root_markers = [
-              "pom.xml"
-              "mvnw"
-              "settings.gradle"
-              "settings.gradle.kts"
-              "build.gradle"
-              "build.gradle.kts"
-              "gradlew"
-            ];
+        settings = {
+          # Keep JDK management in Nix
+          jdk.auto_install = false;
+          # Keep nvim-java's feature APIs, but use the Nix-managed JDTLS below.
+          jdtls.enable = false;
+          pkgm.enable = false;
+          # Spring Boot is configured by the root spring-boot plugin module.
+          spring_boot_tools = {
+            enable = false;
           };
+          root_markers = [
+            "pom.xml"
+            "mvnw"
+            "settings.gradle"
+            "settings.gradle.kts"
+            "build.gradle"
+            "build.gradle.kts"
+            "gradlew"
+          ];
         };
+      };
     };
 }
