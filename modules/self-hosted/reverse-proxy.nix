@@ -63,9 +63,9 @@
           package = pkgs.caddy.withPlugins {
             plugins = [
               "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
-              "github.com/caddy-dns/cloudflare@v0.2.3"
+              "github.com/caddy-dns/cloudflare@v0.2.4"
             ];
-            hash = "sha256-5N6iDxy/qZvGjuPn0Ph957HVhkZdIdfKvv9z4wFVRX4=";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
           };
 
           extraConfig = ''
