@@ -14,7 +14,8 @@
 
   flake.modules.nixos.homelab = {
     security = {
-      sudo = {
+      sudo-rs = {
+        enable = true;
         execWheelOnly = true;
         extraConfig = ''
           Defaults timestamp_timeout=0
@@ -22,19 +23,21 @@
         '';
       };
       pam = {
+        rssh = {
+          enable = true;
+          settings.auth_key_file = "/etc/ssh/authorized_sudo_keys/$ruser";
+        };
         services = {
           sudo = {
+            rssh = true;
             unixAuth = false;
             sshAgentAuth = true;
           };
           su = {
+            rssh = true;
             unixAuth = false;
             sshAgentAuth = true;
           };
-        };
-        sshAgentAuth = {
-          enable = true;
-          authorizedKeysFiles = [ "/etc/ssh/authorized_sudo_keys/%u" ];
         };
       };
     };
