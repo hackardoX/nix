@@ -33,7 +33,7 @@
           enable = true;
           settings = {
             AccountID = 1353550;
-            LicenseKeyFile = nixosArgs.config.services.onepassword-secrets.secretPaths.maxmindLicenseKey;
+            LicenseKey = nixosArgs.config.services.onepassword-secrets.secretPaths.maxmindLicenseKey;
             EditionIDs = [ "GeoLite2-Country" ];
           };
         };
