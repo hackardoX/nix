@@ -8,7 +8,7 @@ in
   flake.meta = {
     authelia = {
       user = "authelia";
-      group = "authelia";
+      group = config.flake.meta.authelia.group;
     };
 
     oidc-clients = {
@@ -236,68 +236,68 @@ in
           autheliaJwtSecret = {
             path = "/run/secrets/authelia/jwt_secret";
             reference = "op://Homelab/Authelia/JWT Secret/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaStorageEncryption = {
             path = "/run/secrets/authelia/storage_encryption";
             reference = "op://Homelab/Authelia/Storage Encryption Key/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaSessionSecret = {
             path = "/run/secrets/authelia/session_secret";
             reference = "op://Homelab/Authelia/Session Secret/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaOidcHmacSecret = {
             path = "/run/secrets/authelia/oidc_hmac_secret";
             reference = "op://Homelab/Authelia/OIDC HMAC Secret/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaHalPasswordHash = {
             path = "/run/secrets/authelia/hal_password_hash";
             reference = "op://Homelab/Authelia/HAL Password Hash/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaJwksKey = {
             path = "/run/secrets/authelia/jwks_key";
             reference = "op://Homelab/Authelia/JWKS Key/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaSmtpPassword = {
             path = "/run/secrets/authelia/smtp_password";
             reference = "op://Homelab/Authelia/SMTP Password/credential";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaImmichOidcSecret = {
             path = "/run/secrets/authelia/immich_oidc_secret";
             reference = "op://Homelab/Authelia/OIDC Client Secrets/Immich";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaTandoorOidcSecret = {
             path = "/run/secrets/authelia/tandoor_oidc_secret";
             reference = "op://Homelab/Authelia/OIDC Client Secrets/Tandoor";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaGrafanaOidcSecret = {
             path = "/run/secrets/authelia/grafana_oidc_secret";
             reference = "op://Homelab/Authelia/OIDC Client Secrets/Grafana";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
           autheliaReactiveResumeOidcSecret = {
             path = "/run/secrets/authelia/reactive-resume_oidc_secret";
             reference = "op://Homelab/Authelia/OIDC Client Secrets/Reactive Resume";
-            owner = "authelia";
-            group = "authelia";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
           };
         };
       };
