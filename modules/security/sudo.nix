@@ -22,7 +22,16 @@
         '';
       };
       pam = {
-        services.sudo.unixAuth = false;
+        services = {
+          sudo = {
+            unixAuth = false;
+            sshAgentAuth = true;
+          };
+          su = {
+            unixAuth = false;
+            sshAgentAuth = true;
+          };
+        };
         sshAgentAuth = {
           enable = true;
           authorizedKeysFiles = [ "/etc/ssh/authorized_sudo_keys/%u" ];
