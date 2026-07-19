@@ -65,7 +65,7 @@
               "github.com/porech/caddy-maxmind-geolocation@v1.0.0"
               "github.com/caddy-dns/cloudflare@v0.2.3"
             ];
-            hash = "sha256-your-hash-here";
+            hash = lib.fakeSha256;
           };
 
           extraConfig = ''
