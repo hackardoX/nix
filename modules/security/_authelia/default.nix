@@ -185,7 +185,6 @@ in
 
         caddy = {
           virtualHosts."${authDomain}" = {
-            useACMEHost = domain;
             extraConfig = ''
               import reverse_proxy_internal
               reverse_proxy localhost:${toString autheliaPort}

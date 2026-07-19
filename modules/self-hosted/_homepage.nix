@@ -7,7 +7,6 @@ in
   flake.modules.nixos.homelab = {
     # Redirect root domain to Homepage
     services.caddy.virtualHosts."${domain}" = {
-      useACMEHost = domain;
       extraConfig = ''
         import reverse_proxy_common
         redir https://homepage.${domain}{uri}
@@ -16,7 +15,6 @@ in
 
     # Homepage subdomain
     services.caddy.virtualHosts."homepage.${domain}" = {
-      useACMEHost = domain;
       extraConfig = ''
         import auth_protected
         import reverse_proxy_common
