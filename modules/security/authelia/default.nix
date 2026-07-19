@@ -277,25 +277,25 @@ in
           };
           autheliaImmichOidcSecret = {
             path = "/run/secrets/authelia/immich_oidc_secret";
-            reference = "op://Homelab/Immich/Authentication/tOIDC Client Secrets";
+            reference = "op://Homelab/Immich/Authentication/OIDC client secrets";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaTandoorOidcSecret = {
             path = "/run/secrets/authelia/tandoor_oidc_secret";
-            reference = "op://Homelab/Tandoor/Authentication/OIDC Client Secrets";
+            reference = "op://Homelab/Tandoor/Authentication/OIDC client secrets";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaGrafanaOidcSecret = {
             path = "/run/secrets/authelia/grafana_oidc_secret";
-            reference = "op://Homelab/Grafana/Authentication/OIDC Client Secrets";
+            reference = "op://Homelab/Grafana/Authentication/OIDC client secrets";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaReactiveResumeOidcSecret = {
             path = "/run/secrets/authelia/reactive-resume_oidc_secret";
-            reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secrets";
+            reference = "op://Homelab/Reactive Resume/Authentication/OIDC client secrets";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
