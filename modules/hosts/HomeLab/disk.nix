@@ -112,9 +112,31 @@
 
     boot.initrd.impermanence = {
       enable = true;
+      persistPath = "/persist";
       btrfsDevice = "/dev/mapper/crypted";
       rootSubvolume = "root";
       blankSubvolume = "root-blank";
+    };
+
+    # Host-specific files and directories to persist.
+    # These use the native impermanence module options directly.
+    environment.persistence."/persist" = {
+      hideMounts = true;
+      directories = [
+        "/etc/nixos"
+        "/var/lib/iwd"
+      ];
+      files = [
+        "/etc/machine-id"
+        "/etc/opnix-token"
+        "/etc/ssh/ssh_host_ed25519_key"
+        "/etc/ssh/ssh_host_ed25519_key.pub"
+        "/etc/ssh/ssh_host_rsa_key"
+        "/etc/ssh/ssh_host_rsa_key.pub"
+        # Persist only the uid/gid maps to keep dynamically allocated ids stable
+        "/var/lib/nixos/uid-map"
+        "/var/lib/nixos/gid-map"
+      ];
     };
   };
 }

@@ -5,6 +5,15 @@
 
     options.boot.initrd.impermanence = {
       enable = lib.mkEnableOption "btrfs root subvolume rollback on every boot";
+      persistPath = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          Path to the persistent storage mountpoint (e.g. /persist).
+          When set, the mountpoint is marked neededForBoot so impermanence
+          activation runs at the right time.
+        '';
+      };
       btrfsDevice = lib.mkOption {
         type = lib.types.str;
         description = "Decrypted btrfs device to mount for rollback (e.g. /dev/mapper/crypted)";
@@ -22,36 +31,15 @@
     };
 
     config = lib.mkMerge [
-      # Always active: ensure /persist mounts before impermanence activation
-      {
-        fileSystems."/persist".neededForBoot = true;
-
-        # Always activate impermanence persistence
-        # This copies files from the ephemeral root into /persist on first boot
-        # and bind-mounts them on every subsequent boot
-        environment.persistence."/persist" = {
-          hideMounts = true;
-          directories = [
-            "/etc/nixos"
-            "/var/lib/iwd"
-          ];
-          files = [
-            "/etc/machine-id"
-            "/etc/opnix-token"
-            "/etc/ssh/ssh_host_ed25519_key"
-            "/etc/ssh/ssh_host_ed25519_key.pub"
-            "/etc/ssh/ssh_host_rsa_key"
-            "/etc/ssh/ssh_host_rsa_key.pub"
-          ];
-        };
+      (lib.mkIf (config.boot.initrd.impermanence.persistPath != null) {
+        fileSystems.${config.boot.initrd.impermanence.persistPath}.neededForBoot = true;
 
         # Avoid sudo lectures after rollback
         security.sudo.extraConfig = ''
           Defaults lecture = never
         '';
-      }
+      })
 
-      # Only when rollback is explicitly enabled
       (lib.mkIf config.boot.initrd.impermanence.enable {
         # Required for systemd initrd services to function
         boot.initrd.systemd.enable = true;
