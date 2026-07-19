@@ -8,7 +8,7 @@ in
   flake.meta = {
     authelia = {
       user = "authelia";
-      group = config.flake.meta.authelia.group;
+      group = "authelia";
     };
 
     oidc-clients = {
