@@ -62,7 +62,7 @@
 
           package = pkgs.caddy.withPlugins {
             plugins = [
-              "github.com/porech/caddy-maxmind-geolocation@v1.0.0"
+              "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
               "github.com/caddy-dns/cloudflare@v0.2.3"
             ];
             hash = lib.fakeSha256;
