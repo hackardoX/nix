@@ -46,8 +46,7 @@ in
               default_redirection_url = "https://${domain}";
               log.level = "info";
               server = {
-                host = "127.0.0.1";
-                port = autheliaPort;
+                address = "tcp://127.0.0.1:${toString autheliaPort}";
               };
               totp = {
                 issuer = domain;
