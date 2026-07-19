@@ -47,7 +47,8 @@
             };
           };
           secrets = {
-            "/etc/secrets/initrd/ssh_host_ed25519_key" = "/persist/etc/secrets/initrd/ssh_host_ed25519_key";
+            "/etc/secrets/initrd/ssh_host_ed25519_key" =
+              lib.mkForce "/persist/etc/secrets/initrd/ssh_host_ed25519_key";
           };
         };
         kernelParams = [ "ip=dhcp" ];
