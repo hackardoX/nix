@@ -58,7 +58,7 @@ in
       onepassword-secrets.secrets = {
         resendApiKey = {
           path = "/run/secrets/resend_api_key";
-          reference = "op://Development/Resend/api key";
+          reference = "op://HomeLab/Resend/Fail2ban/api key";
           owner = fail2ban.owner;
           group = fail2ban.group;
           services = [ "fail2ban" ];
