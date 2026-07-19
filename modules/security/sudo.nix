@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   flake.modules.darwin.laptop = {
     security = {
@@ -35,7 +35,7 @@
           su = {
             rssh = true;
             unixAuth = false;
-            logFailures = false;
+            logFailures = lib.mkForce false;
           };
         };
       };
