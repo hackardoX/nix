@@ -5,22 +5,29 @@ let
   autheliaPort = config.flake.meta.reverse-proxy.ports.authelia;
 in
 {
-  flake.meta.oidc-clients = {
-    immich = {
-      clientId = "immich";
-      clientName = "Immich";
+  flake.meta = {
+    authelia = {
+      user = "authelia";
+      group = "authelia";
     };
-    tandoor = {
-      clientId = "tandoor";
-      clientName = "Tandoor Recipes";
-    };
-    grafana = {
-      clientId = "grafana";
-      clientName = "Grafana";
-    };
-    reactive-resume = {
-      clientId = "reactive-resume";
-      clientName = "Reactive Resume";
+
+    oidc-clients = {
+      immich = {
+        clientId = "immich";
+        clientName = "Immich";
+      };
+      tandoor = {
+        clientId = "tandoor";
+        clientName = "Tandoor Recipes";
+      };
+      grafana = {
+        clientId = "grafana";
+        clientName = "Grafana";
+      };
+      reactive-resume = {
+        clientId = "reactive-resume";
+        clientName = "Reactive Resume";
+      };
     };
   };
 
@@ -37,6 +44,17 @@ in
       };
     in
     {
+      users.users.${config.flake.meta.authelia.user} = {
+        isSystemUser = true;
+        group = config.flake.meta.authelia.group;
+        createHome = true;
+        home = "/var/lib/${config.flake.meta.authelia.user}";
+        autoSubUidGidRange = true;
+        linger = true;
+      };
+
+      users.groups.${config.flake.meta.authelia.group} = { };
+
       services = {
         authelia = {
           instances.default = {
