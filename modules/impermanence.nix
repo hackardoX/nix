@@ -30,16 +30,20 @@
         # This copies files from the ephemeral root into /persist on first boot
         # and bind-mounts them on every subsequent boot
         environment.persistence."/persist" = {
+          hideMounts = true;
           directories = [
             "/etc/nixos"
-            "/etc/ssh"
-            "/etc/secrets/initrd"
             "/var/lib/iwd"
-            "/var/lib/opnix"
           ];
           files = [
             "/etc/machine-id"
             "/etc/opnix-token"
+            "/etc/ssh/ssh_host_ed25519_key"
+            "/etc/ssh/ssh_host_ed25519_key.pub"
+            "/etc/ssh/ssh_host_rsa_key"
+            "/etc/ssh/ssh_host_rsa_key.pub"
+            "/etc/secrets/initrd/ssh_host_ed25519_key"
+            "/etc/secrets/initrd/ssh_host_ed25519_key.pub"
           ];
         };
 
