@@ -14,6 +14,7 @@
           extraArgs = "--keep-since 1w --keep 2";
         };
         flake =
+          # TODO: make this configurable
           if pkgs.stdenv.hostPlatform.isDarwin then
             "${hmArgs.config.home.homeDirectory}/Github/nix"
           else

@@ -6,7 +6,6 @@ in
 {
   flake.modules.nixos.homelab = {
     services.caddy.virtualHosts."immich.${domain}" = {
-      useACMEHost = domain;
       extraConfig = ''
         import reverse_proxy_common
 

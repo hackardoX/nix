@@ -28,7 +28,6 @@
       ];
     in
     {
-      users.users.caddy.extraGroups = [ "acme" ];
       services = {
         geoipupdate = {
           enable = true;
@@ -46,14 +45,25 @@
             owner = "caddy";
             group = "caddy";
           };
+          cloudflareApiToken = {
+            path = "/run/secrets/cloudflare_api_token";
+            reference = "op://Development/CloudFlare DNS API Env - AegisInbox/credential";
+            owner = "caddy";
+            group = "caddy";
+          };
         };
 
         caddy = {
           enable = true;
 
+          globalConfig = ''
+            acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
+          '';
+
           package = pkgs.caddy.withPlugins {
             plugins = [
               "github.com/porech/caddy-maxmind-geolocation@v1.0.0"
+              "github.com/caddy-dns/cloudflare@v0.2.3"
             ];
             hash = "sha256-your-hash-here";
           };
@@ -115,6 +125,11 @@
             }
           '';
         };
+      };
+
+      systemd.services.caddy = {
+        after = [ "opnix-secrets.service" ];
+        wants = [ "opnix-secrets.service" ];
       };
     };
 }
