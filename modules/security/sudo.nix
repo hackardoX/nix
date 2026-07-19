@@ -31,12 +31,10 @@
           sudo = {
             rssh = true;
             unixAuth = false;
-            sshAgentAuth = true;
           };
           su = {
             rssh = true;
             unixAuth = false;
-            sshAgentAuth = true;
           };
         };
       };
