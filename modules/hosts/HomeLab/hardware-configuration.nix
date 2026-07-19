@@ -42,7 +42,7 @@
                 "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINITBgeUtBDMKomSpjla72kbHvh9CYCV7yHVoAfGBIUK root@homelab-initrd"
               ];
               hostKeys = [
-                "/persist/etc/secrets/initrd/ssh_host_ed25519_key"
+                "/etc/secrets/initrd/ssh_host_ed25519_key"
               ];
             };
           };
