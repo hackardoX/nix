@@ -35,6 +35,7 @@
           su = {
             rssh = true;
             unixAuth = false;
+            faillock = false;
           };
         };
       };
