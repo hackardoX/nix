@@ -40,7 +40,7 @@
 
         onepassword-secrets.secrets = {
           maxmindLicenseKey = {
-            path = ".secrets/.maxmind_license_key";
+            path = "/run/secrets/.maxmind_license_key";
             reference = "op://Homelab/MaxMind License Key/credential";
             owner = "caddy";
             group = "caddy";
