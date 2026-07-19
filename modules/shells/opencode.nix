@@ -59,57 +59,6 @@ in
             };
           };
         };
-        skills =
-          let
-            mattpocock-skills = pkgs.fetchFromGitHub {
-              owner = "mattpocock";
-              repo = "skills";
-              rev = "main";
-              hash = "sha256-HyJLE9+ItZY0nB87eMfONSAc3L6dndcApoRpbO+D7UY=";
-            };
-            findFile =
-              root: target:
-              let
-                entries = builtins.readDir root;
-                found = lib.filterAttrs (name: _: name == target) entries;
-                subdirs = builtins.attrNames (lib.filterAttrs (_: v: v == "directory") entries);
-                recurse = builtins.filter (x: x != null) (map (dir: findFile "${root}/${dir}" target) subdirs);
-              in
-              if found != { } then
-                "${root}/${target}"
-              else if recurse != [ ] then
-                builtins.head recurse
-              else
-                null;
-
-            mkSkill =
-              skill:
-              let
-                path = findFile mattpocock-skills skill;
-              in
-              if path == null then throw "Skill '${skill}' not found" else builtins.readFile "${path}/SKILL.md";
-
-            mkSkills =
-              skills:
-              builtins.listToAttrs (
-                map (skill: {
-                  name = skill;
-                  value = mkSkill skill;
-                }) skills
-              );
-          in
-          mkSkills [
-            "grill-with-docs"
-            "caveman"
-            "tdd"
-            "to-issues"
-            "to-prd"
-            "diagnose"
-            "zoom-out"
-          ];
-        tui = {
-          plugins = [ "@renjfk/opencode-voice" ];
-        };
       };
 
       programs.onepassword-secrets.secrets = {
