@@ -228,10 +228,6 @@ in
               import tls_hardened
 
               encode zstd gzip
-
-              header_up X-Real-IP {remote_host}
-              header_up X-Forwarded-For {remote_host}
-              header_up X-Forwarded-Proto {scheme}
             }
           '';
         };

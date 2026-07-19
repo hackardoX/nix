@@ -40,8 +40,6 @@ in
           }
 
           encode
-
-          header_up X-Real-IP {client_ip}
         }
       '';
     };
