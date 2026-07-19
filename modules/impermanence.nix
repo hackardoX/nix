@@ -21,76 +21,86 @@
       };
     };
 
-    config = lib.mkIf config.boot.initrd.impermanence.enable {
-      # Required for systemd initrd services to function
-      boot.initrd.systemd.enable = true;
+    config = lib.mkMerge [
+      # Always active: ensure /persist mounts before impermanence activation
+      {
+        fileSystems."/persist".neededForBoot = true;
 
-      # Ensure btrfs tools are available in initrd
-      boot.initrd.supportedFilesystems = [ "btrfs" ];
+        # Always activate impermanence persistence
+        # This copies files from the ephemeral root into /persist on first boot
+        # and bind-mounts them on every subsequent boot
+        environment.persistence."/persist" = {
+          directories = [
+            "/etc/nixos"
+            "/etc/ssh"
+            "/etc/secrets/initrd"
+            "/var/lib/iwd"
+            "/var/lib/opnix"
+          ];
+          files = [
+            "/etc/machine-id"
+            "/etc/opnix-token"
+          ];
+        };
 
-      # Rollback root to blank snapshot before mounting /
-      boot.initrd.systemd.services.rollback = {
-        description = "Rollback BTRFS root subvolume to a pristine state";
-        wantedBy = [ "initrd.target" ];
-        before = [ "sysroot.mount" ];
-        unitConfig.DefaultDependencies = "no";
-        serviceConfig.Type = "oneshot";
-
-        after = [
-          "systemd-cryptsetup@crypted.service"
-          "local-fs-pre.target"
-        ];
-
-        script = ''
-          mkdir -p /mnt
-          mount -o subvol=/ ${config.boot.initrd.impermanence.btrfsDevice} /mnt
-
-          if [[ ! -e /mnt/${config.boot.initrd.impermanence.blankSubvolume} ]]; then
-            echo "ERROR: blank snapshot ${config.boot.initrd.impermanence.blankSubvolume} not found!" >&2
-            umount /mnt
-            exit 1
-          fi
-
-          delete_subvolume_recursively() {
-            IFS=$'\n'
-            if [ $(stat -c %i "$1") -ne 256 ]; then return; fi
-            for i in $(btrfs subvolume list -o "$1" | cut -f9- -d' '); do
-              delete_subvolume_recursively "/mnt/$i"
-            done
-            echo "deleting subvolume: $1"
-            btrfs subvolume delete "$1"
-          }
-
-          if [[ -e /mnt/${config.boot.initrd.impermanence.rootSubvolume} ]]; then
-            delete_subvolume_recursively /mnt/${config.boot.initrd.impermanence.rootSubvolume}
-          fi
-
-          echo "restoring blank /${config.boot.initrd.impermanence.rootSubvolume} subvolume..."
-          btrfs subvolume snapshot /mnt/${config.boot.initrd.impermanence.blankSubvolume} /mnt/${config.boot.initrd.impermanence.rootSubvolume}
-
-          umount /mnt
+        # Avoid sudo lectures after rollback
+        security.sudo.extraConfig = ''
+          Defaults lecture = never
         '';
-      };
+      }
 
-      fileSystems."/persist".neededForBoot = true;
+      # Only when rollback is explicitly enabled
+      (lib.mkIf config.boot.initrd.impermanence.enable {
+        # Required for systemd initrd services to function
+        boot.initrd.systemd.enable = true;
 
-      environment.persistence."/persist" = {
-        directories = [
-          "/etc/nixos"
-          "/etc/ssh"
-          "/etc/secrets/initrd"
-          "/var/lib/iwd"
-          "/var/lib/opnix"
-        ];
-        files = [
-          "/etc/machine-id"
-          "/etc/opnix-token"
-        ];
-      };
+        # Ensure btrfs tools are available in initrd
+        boot.initrd.supportedFilesystems = [ "btrfs" ];
 
-      security.sudo.extraConfig = ''
-        Defaults lecture = never
-      '';
-    };
+        # Rollback root to blank snapshot before mounting /
+        boot.initrd.systemd.services.rollback = {
+          description = "Rollback BTRFS root subvolume to a pristine state";
+          wantedBy = [ "initrd.target" ];
+          before = [ "sysroot.mount" ];
+          unitConfig.DefaultDependencies = "no";
+          serviceConfig.Type = "oneshot";
+
+          after = [
+            "systemd-cryptsetup@crypted.service"
+            "local-fs-pre.target"
+          ];
+
+          script = ''
+            mkdir -p /mnt
+            mount -o subvol=/ ${config.boot.initrd.impermanence.btrfsDevice} /mnt
+
+            if [[ ! -e /mnt/${config.boot.initrd.impermanence.blankSubvolume} ]]; then
+              echo "ERROR: blank snapshot ${config.boot.initrd.impermanence.blankSubvolume} not found!" >&2
+              umount /mnt
+              exit 1
+            fi
+
+            delete_subvolume_recursively() {
+              IFS=$'\n'
+              if [ $(stat -c %i "$1") -ne 256 ]; then return; fi
+              for i in $(btrfs subvolume list -o "$1" | cut -f9- -d' '); do
+                delete_subvolume_recursively "/mnt/$i"
+              done
+              echo "deleting subvolume: $1"
+              btrfs subvolume delete "$1"
+            }
+
+            if [[ -e /mnt/${config.boot.initrd.impermanence.rootSubvolume} ]]; then
+              delete_subvolume_recursively /mnt/${config.boot.initrd.impermanence.rootSubvolume}
+            fi
+
+            echo "restoring blank /${config.boot.initrd.impermanence.rootSubvolume} subvolume..."
+            btrfs subvolume snapshot /mnt/${config.boot.initrd.impermanence.blankSubvolume} /mnt/${config.boot.initrd.impermanence.rootSubvolume}
+
+            umount /mnt
+          '';
+        };
+      })
+    ];
   };
 }
