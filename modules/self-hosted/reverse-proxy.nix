@@ -73,8 +73,9 @@
               "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
               "github.com/caddy-dns/cloudflare@v0.2.4"
               "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
+              "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
             ];
-            hash = "sha256-nP+B7zT/hEXcTLtzkxftVvaohsocfSLSFGN1PAM03Cs=";
+            hash = "sha256-ENNbOIdAKo4aNiqqYRJMJBf56Conggrex+mPcTwlH/c=";
           };
 
           extraConfig = ''
