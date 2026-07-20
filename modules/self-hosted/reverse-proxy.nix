@@ -33,8 +33,9 @@
           enable = true;
           settings = {
             AccountID = 1353550;
-            LicenseKey = nixosArgs.config.services.onepassword-secrets.secretPaths.maxmindLicenseKey;
+            DatabaseDirectory = geoipDbPath;
             EditionIDs = [ "GeoLite2-Country" ];
+            LicenseKey = nixosArgs.config.services.onepassword-secrets.secretPaths.maxmindLicenseKey;
           };
         };
 
@@ -143,9 +144,13 @@
         };
       };
 
-      systemd.services.caddy = {
+      systemd.services.geoipupdate = {
         after = [ "opnix-secrets.service" ];
         wants = [ "opnix-secrets.service" ];
+        before = [ "caddy.service" ];
+      };
+
+      systemd.services.caddy = {
         serviceConfig.ReadWritePaths = [ "/var/log/caddy" ];
       };
 
