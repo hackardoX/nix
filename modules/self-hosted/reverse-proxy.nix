@@ -74,8 +74,9 @@
               "github.com/caddy-dns/cloudflare@v0.2.4"
               "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
+              "github.com/mholt/caddy-ratelimit@v0.1.0"
             ];
-            hash = "sha256-ENNbOIdAKo4aNiqqYRJMJBf56Conggrex+mPcTwlH/c=";
+            hash = "sha256-4wy1sRB5hISf3RizqwKma7Og1JbU4w0NY5lP5CuO3rQ=";
           };
 
           extraConfig = ''
