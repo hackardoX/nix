@@ -12,23 +12,21 @@ in
       # one that passes -c ${configFile}).  Raw cscli looks for config at the
       # compiled-in default path /etc/crowdsec/config.yaml, which the module never
       # creates.  This file provides the minimal config cscli needs to work.
-      crowdsecConfigFile = pkgs.formats.yaml { }.generate "crowdsec-config.yaml" {
-        config_paths = {
-          config_dir = confDir;
-          data_dir = dataDir;
-          hub_dir = hubDir;
-          index_path = "${hubDir}/.index.json";
-        };
-        db_config = {
-          type = "sqlite";
-          db_path = "${dataDir}/crowdsec.db";
-          use_wal = true;
-        };
-        api.server = {
-          enable = true;
-          listen_uri = "127.0.0.1:8080";
-        };
-      };
+      crowdsecConfigFile = pkgs.writeText "crowdsec-config.yaml" ''
+        config_paths:
+          config_dir: ${confDir}
+          data_dir: ${dataDir}
+          hub_dir: ${hubDir}
+          index_path: ${hubDir}/.index.json
+        db_config:
+          type: sqlite
+          db_path: ${dataDir}/crowdsec.db
+          use_wal: true
+        api:
+          server:
+            enable: true
+            listen_uri: 127.0.0.1:8080
+      '';
     in
     {
       # Workaround for register service using raw cscli
