@@ -18,6 +18,12 @@ in
 
       users.groups.${fail2ban.group} = { };
 
+      environment.etc."fail2ban/filter.d/caddy-auth.conf".text = ''
+        [Definition]
+        failregex = ^<HOST>.*"(GET|POST|OPTION).*" (4[0-9][0-9])[ \d]*$
+        ignoreregex =
+      '';
+
       environment.etc."fail2ban/action.d/sendmail-common.local".text = ''
         [Init]
         mailcmd = sendmail --account=fail2ban -f "<sender>" "<dest>"
@@ -55,6 +61,20 @@ in
               logpath = "/var/log/auth.log";
               maxretry = 3;
               bantime = "1w";
+              sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
+              destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
+              action = ''
+                %(action_mwl)s
+              '';
+            };
+            caddy-auth.settings = {
+              enabled = true;
+              port = "http,https";
+              filter = "caddy-auth";
+              logpath = "/var/log/caddy/access.log";
+              maxretry = 5;
+              findtime = "10m";
+              bantime = "1h";
               sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
               destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
               action = ''

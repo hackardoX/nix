@@ -58,14 +58,23 @@
 
           globalConfig = ''
             acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
+          ''
+          + lib.mkAfter ''
+            log {
+              output file /var/log/caddy/access.log {
+                roll_disabled
+              }
+              format transform "{common_log}"
+            }
           '';
 
           package = pkgs.caddy.withPlugins {
             plugins = [
               "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
               "github.com/caddy-dns/cloudflare@v0.2.4"
+              "github.com/caddyserver/transform-encoder"
             ];
-            hash = "sha256-Bv00eNLSJof+kWkLaJAPRjGzaXd/gvKoPt9fmBYG3uw=";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
           };
 
           extraConfig = ''
@@ -130,6 +139,9 @@
       systemd.services.caddy = {
         after = [ "opnix-secrets.service" ];
         wants = [ "opnix-secrets.service" ];
+        serviceConfig.ReadWritePaths = [ "/var/log/caddy" ];
       };
+
+      systemd.tmpfiles.rules = [ "d /var/log/caddy 0755 caddy caddy -" ];
     };
 }
