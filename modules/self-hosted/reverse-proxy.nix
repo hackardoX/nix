@@ -59,7 +59,8 @@
           globalConfig = ''
             acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
 
-            log {
+            log access-log {
+              include http.log.access
               output file /var/log/caddy/access.log {
                 roll_disabled
               }
