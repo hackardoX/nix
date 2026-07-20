@@ -72,9 +72,9 @@
             plugins = [
               "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
               "github.com/caddy-dns/cloudflare@v0.2.4"
-              "github.com/caddyserver/transform-encoder"
+              "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
             ];
-            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            hash = "sha256-nP+B7zT/hEXcTLtzkxftVvaohsocfSLSFGN1PAM03Cs=";
           };
 
           extraConfig = ''
