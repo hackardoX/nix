@@ -306,14 +306,12 @@ in
         "d /var/lib/authelia 0750 authelia authelia -"
       ];
 
-      systemd.services.authelia-instance-default = {
-        serviceConfig.Environment = "X_AUTHELIA_CONFIG_FILTERS=template";
-      };
-
       systemd.services.authelia-init = {
         description = "Initialize Authelia user database";
-        before = [ "authelia-instance-default.service" ];
+        before = [ "authelia-default.service" ];
         requiredBy = [ "authelia-instance-default.service" ];
+        after = [ "opnix-secrets.service" ];
+        wants = [ "opnix-secrets.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -335,6 +333,10 @@ in
             ) autheliaUsers
           )
           + "\nEOF";
+      };
+
+      systemd.services.authelia-default = {
+        serviceConfig.Environment = "X_AUTHELIA_CONFIG_FILTERS=template";
       };
     };
 }
