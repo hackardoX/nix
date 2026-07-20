@@ -7,8 +7,8 @@ in
 {
   flake.meta = {
     authelia = {
-      user = "authelia";
-      group = "authelia";
+      user = "authelia-default";
+      group = "authelia-default";
     };
 
     oidc-clients = {
@@ -44,17 +44,6 @@ in
       };
     in
     {
-      users.users.${config.flake.meta.authelia.user} = {
-        isSystemUser = true;
-        group = config.flake.meta.authelia.group;
-        createHome = true;
-        home = "/var/lib/${config.flake.meta.authelia.user}";
-        autoSubUidGidRange = true;
-        linger = true;
-      };
-
-      users.groups.${config.flake.meta.authelia.group} = { };
-
       services = {
         authelia = {
           instances.default = {
@@ -309,7 +298,7 @@ in
       systemd.services.authelia-init = {
         description = "Initialize Authelia user database";
         before = [ "authelia-default.service" ];
-        requiredBy = [ "authelia-instance-default.service" ];
+        requiredBy = [ "authelia-default.service" ];
         after = [ "opnix-secrets.service" ];
         wants = [ "opnix-secrets.service" ];
         serviceConfig = {
@@ -335,8 +324,5 @@ in
           + "\nEOF";
       };
 
-      systemd.services.authelia-default = {
-        serviceConfig.Environment = "X_AUTHELIA_CONFIG_FILTERS=template";
-      };
     };
 }
