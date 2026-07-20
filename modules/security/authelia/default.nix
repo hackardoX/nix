@@ -44,7 +44,8 @@ in
         };
       };
 
-      hashedSecretsDir = "/var/lib/${config.flake.meta.authelia.user}/hashed-oidc-secrets";
+      autheliaDataDir = "/var/lib/data/authelia";
+      hashedSecretsDir = "${autheliaDataDir}/hashed-oidc-secrets";
 
       oidcClients = [
         {
@@ -86,7 +87,7 @@ in
                 enable_passkey_login = true;
               };
               authentication_backend = {
-                file.path = "/var/lib/${config.flake.meta.authelia.user}/users.yml";
+                file.path = "${autheliaDataDir}/users.yml";
                 password_reset.disable = false;
               };
               access_control = {
@@ -125,7 +126,7 @@ in
                 ban_time = "1w";
               };
               storage = {
-                local.path = "/var/lib/${config.flake.meta.authelia.user}/db.sqlite3";
+                local.path = "${autheliaDataDir}/db.sqlite3";
               };
               notifier.smtp = {
                 address = "smtp://smtp.resend.com:587";
@@ -330,6 +331,7 @@ in
       };
 
       systemd.tmpfiles.rules = [
+        "d ${autheliaDataDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
         "d ${hashedSecretsDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
       ];
 
@@ -347,7 +349,6 @@ in
         };
         script = lib.concatStringsSep "\n" (
           [
-            ''mkdir -p "${hashedSecretsDir}"''
             ''
               hash_secret() {
                 local src="$1" dst="$2"
@@ -363,10 +364,10 @@ in
             c: ''hash_secret "${c.secretPath}" "${hashedSecretsDir}/${c.name}_oidc_secret"''
           )
           ++ [
-            "touch /var/lib/${config.flake.meta.authelia.user}/db.sqlite3"
+            "touch \"${autheliaDataDir}/db.sqlite3\""
           ]
           ++ [
-            "cat > /var/lib/${config.flake.meta.authelia.user}/users.yml << EOF"
+            "cat > \"${autheliaDataDir}/users.yml\" << EOF"
             "users:"
           ]
           ++ lib.mapAttrsToList (
