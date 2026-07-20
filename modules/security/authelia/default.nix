@@ -64,7 +64,7 @@ in
                 enable_passkey_login = true;
               };
               authentication_backend = {
-                file.path = "/var/lib/authelia/users.yml";
+                file.path = "/var/lib/${config.flake.meta.authelia.user}/users.yml";
                 password_reset.disable = false;
               };
               access_control = {
@@ -103,7 +103,7 @@ in
                 ban_time = "1w";
               };
               storage = {
-                local.path = "/var/lib/authelia/db.sqlite3";
+                local.path = "/var/lib/${config.flake.meta.authelia.user}/db.sqlite3";
               };
               notifier.smtp = {
                 address = "smtp://smtp.resend.com:587";
@@ -307,10 +307,6 @@ in
         };
       };
 
-      systemd.tmpfiles.rules = [
-        "d /var/lib/authelia 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
-      ];
-
       systemd.services.authelia-init = {
         description = "Initialize Authelia user database";
         before = [ "authelia-default.service" ];
@@ -324,8 +320,8 @@ in
           Group = config.flake.meta.authelia.group;
         };
         script =
-          "touch /var/lib/authelia/db.sqlite3 && chown ${config.flake.meta.authelia.user}:${config.flake.meta.authelia.group} /var/lib/authelia/db.sqlite3\n"
-          + "cat > /var/lib/authelia/users.yml << EOF\n"
+          "touch /var/lib/${config.flake.meta.authelia.user}/db.sqlite3\n"
+          + "cat > /var/lib/${config.flake.meta.authelia.user}/users.yml << EOF\n"
           + "users:\n"
           + lib.concatStringsSep "\n" (
             lib.mapAttrsToList (
