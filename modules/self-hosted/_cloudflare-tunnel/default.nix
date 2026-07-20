@@ -6,7 +6,7 @@
 }:
 let
   cloudflaredStartScript = pkgs.writeShellScript "start-cloudflared" ''
-    exec ${pkgs.cloudflared}/bin/cloudflared tunnel --no-autoupdate run \
+    exec ${lib.getExe pkgs.cloudflared} tunnel --no-autoupdate run \
       --token-file "$CREDENTIALS_DIRECTORY"/token
   '';
 in
