@@ -331,7 +331,6 @@ in
       };
 
       systemd.tmpfiles.rules = [
-        "d ${autheliaDataDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
         "d ${hashedSecretsDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
       ];
 
@@ -364,9 +363,6 @@ in
             c: ''hash_secret "${c.secretPath}" "${hashedSecretsDir}/${c.name}_oidc_secret"''
           )
           ++ [
-            "touch \"${autheliaDataDir}/db.sqlite3\""
-          ]
-          ++ [
             "cat > \"${autheliaDataDir}/users.yml\" << EOF"
             "users:"
           ]
@@ -383,5 +379,9 @@ in
         );
       };
 
+      systemd.services.authelia-default.serviceConfig = {
+        StateDirectory = lib.mkForce "data/authelia";
+        StateDirectoryMode = lib.mkForce "0750";
+      };
     };
 }
