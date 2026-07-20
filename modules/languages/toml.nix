@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   perSystem.treefmt.programs.taplo = {
     enable = true;
     settings.formatting = {
@@ -21,7 +21,7 @@
           toml = [ "taplo" ];
         };
         formatters = {
-          taplo.command = "${pkgs.taplo}/bin/taplo";
+          taplo.command = lib.getExe pkgs.taplo;
         };
       };
     };

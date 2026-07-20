@@ -158,7 +158,7 @@
                 };
                 Service = {
                   Type = "oneshot";
-                  ExecStart = "${script}/bin/rclone-sync-${serviceName}";
+                  ExecStart = lib.getExe' script serviceName;
                 };
               };
             }
@@ -210,7 +210,9 @@
               value = {
                 enable = true;
                 config = {
-                  ProgramArguments = [ "${script}/bin/rclone-sync-${serviceName}" ];
+                  ProgramArguments = [
+                    (lib.getExe' script serviceName)
+                  ];
                   RunAtLoad = false;
                   StandardOutPath = "${hmArgs.config.home.homeDirectory}/Library/Logs/rclone/rclone-sync-${serviceName}.log";
                   StandardErrorPath = "${hmArgs.config.home.homeDirectory}/Library/Logs/rclone/rclone-sync-${serviceName}.log";

@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   perSystem.treefmt.programs.yamlfmt.enable = true;
 
   flake.modules.nixvim.dev =
@@ -14,7 +14,7 @@
             yaml = [ "prettierd" ];
           };
           formatters = {
-            prettierd.command = "${pkgs.prettierd}/bin/prettierd";
+            prettierd.command = lib.getExe pkgs.prettierd;
           };
         };
       };

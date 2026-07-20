@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   flake.modules.homeManager.dev =
     hmArgs@{ pkgs, ... }:
     let
@@ -44,44 +44,43 @@
       launchd.agents =
         let
           podmanLinkName = "podman-link";
+          script = pkgs.writeShellApplication {
+            name = podmanLinkName;
+            runtimeInputs = [ pkgs.podman ];
+            text = ''
+              echo "Starting podman socket symlink service..."
+
+              update_symlink() {
+                PODMAN_SOCKET_PATH=$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' ${podmanMachineName} 2>/dev/null || echo "")
+                if [ -n "$PODMAN_SOCKET_PATH" ] && [ -S "$PODMAN_SOCKET_PATH" ]; then
+                  mkdir -p "$(dirname "${podmanSymLinkSocketPath}")"
+                  if [ ! -L "${podmanSymLinkSocketPath}" ] || [ "$(readlink "${podmanSymLinkSocketPath}")" != "$PODMAN_SOCKET_PATH" ]; then
+                    rm -f "${podmanSymLinkSocketPath}"
+                    ln -fs "$PODMAN_SOCKET_PATH" "${podmanSymLinkSocketPath}"
+                    echo "Symlink updated: ${podmanSymLinkSocketPath} -> $PODMAN_SOCKET_PATH"
+                  fi
+                  return 0
+                else
+                  echo "Podman socket not found or not accessible"
+                  return 1
+                fi
+              }
+
+              update_symlink
+
+              while true; do
+                sleep 30
+                update_symlink || echo "Failed to update symlink, will retry..."
+              done
+            '';
+          };
         in
         {
           ${podmanLinkName} = {
             enable = true;
             config = {
               ProgramArguments = [
-                "${
-                  pkgs.writeShellApplication {
-                    name = podmanLinkName;
-                    runtimeInputs = [ pkgs.podman ];
-                    text = ''
-                      echo "Starting podman socket symlink service..."
-
-                      update_symlink() {
-                        PODMAN_SOCKET_PATH=$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' ${podmanMachineName} 2>/dev/null || echo "")
-                        if [ -n "$PODMAN_SOCKET_PATH" ] && [ -S "$PODMAN_SOCKET_PATH" ]; then
-                          mkdir -p "$(dirname "${podmanSymLinkSocketPath}")"
-                          if [ ! -L "${podmanSymLinkSocketPath}" ] || [ "$(readlink "${podmanSymLinkSocketPath}")" != "$PODMAN_SOCKET_PATH" ]; then
-                            rm -f "${podmanSymLinkSocketPath}"
-                            ln -fs "$PODMAN_SOCKET_PATH" "${podmanSymLinkSocketPath}"
-                            echo "Symlink updated: ${podmanSymLinkSocketPath} -> $PODMAN_SOCKET_PATH"
-                          fi
-                          return 0
-                        else
-                          echo "Podman socket not found or not accessible"
-                          return 1
-                        fi
-                      }
-
-                      update_symlink
-
-                      while true; do
-                        sleep 30
-                        update_symlink || echo "Failed to update symlink, will retry..."
-                      done
-                    '';
-                  }
-                }/bin/${podmanLinkName}"
+                (lib.getExe script)
               ];
               RunAtLoad = true;
               KeepAlive = true;

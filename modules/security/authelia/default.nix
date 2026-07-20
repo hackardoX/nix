@@ -43,6 +43,29 @@ in
             nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaHalPasswordHash;
         };
       };
+
+      autheliaBin = "${nixosArgs.pkgs.authelia}/bin/authelia";
+      hashedSecretsDir = "/var/lib/${config.flake.meta.authelia.user}/hashed-oidc-secrets";
+
+      oidcClients = [
+        {
+          name = "immich";
+          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaImmichOidcSecret;
+        }
+        {
+          name = "tandoor";
+          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaTandoorOidcSecret;
+        }
+        {
+          name = "grafana";
+          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaGrafanaOidcSecret;
+        }
+        {
+          name = "reactive-resume";
+          secretPath =
+            nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret;
+        }
+      ];
     in
     {
       services = {
@@ -145,7 +168,7 @@ in
                         public: false
                         authorization_policy: "one_factor"
                         token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaImmichOidcSecret}" | msquote }}
+                        client_secret: {{ secret "${hashedSecretsDir}/immich_oidc_secret" | msquote }}
                         redirect_uris:
                           - "https://immich.${domain}/auth/login-callback"
                           - "https://immich.${domain}/api/oauth/mobile"
@@ -158,7 +181,7 @@ in
                         public: false
                         authorization_policy: "one_factor"
                         token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaTandoorOidcSecret}" | msquote }}
+                        client_secret: {{ secret "${hashedSecretsDir}/tandoor_oidc_secret" | msquote }}
                         redirect_uris:
                           - "https://recipes.${domain}/accounts/oidc/authelia/login/callback/"
                         scopes:
@@ -170,7 +193,7 @@ in
                         public: false
                         authorization_policy: "one_factor"
                         token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaGrafanaOidcSecret}" | msquote }}
+                        client_secret: {{ secret "${hashedSecretsDir}/grafana_oidc_secret" | msquote }}
                         redirect_uris:
                           - "https://grafana.${domain}/login/generic_oauth"
                         scopes:
@@ -182,7 +205,7 @@ in
                         public: false
                         authorization_policy: "one_factor"
                         token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret}" | msquote }}
+                        client_secret: {{ secret "${hashedSecretsDir}/reactive-resume_oidc_secret" | msquote }}
                         redirect_uris:
                           - "https://rxresume.${domain}/api/auth/callback"
                         scopes:
@@ -307,6 +330,10 @@ in
         };
       };
 
+      systemd.tmpfiles.rules = [
+        "d ${hashedSecretsDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
+      ];
+
       systemd.services.authelia-init = {
         description = "Initialize Authelia user database";
         before = [ "authelia-default.service" ];
@@ -319,22 +346,41 @@ in
           User = config.flake.meta.authelia.user;
           Group = config.flake.meta.authelia.group;
         };
-        script =
-          "touch /var/lib/${config.flake.meta.authelia.user}/db.sqlite3\n"
-          + "cat > /var/lib/${config.flake.meta.authelia.user}/users.yml << EOF\n"
-          + "users:\n"
-          + lib.concatStringsSep "\n" (
-            lib.mapAttrsToList (
-              name: user:
-              "  ${name}:\n"
-              + "    disabled: false\n"
-              + "    displayname: \"${user.displayname}\"\n"
-              + "    password: $(cat \"${user.passwordHashFile}\")\n"
-              + "    email: \"${user.email}\"\n"
-              + "    groups: []"
-            ) autheliaUsers
+        script = lib.concatStringsSep "\n" (
+          [
+            ''mkdir -p "${hashedSecretsDir}"''
+            ''
+              hash_secret() {
+                local src="$1" dst="$2"
+                local secret
+                secret=$(<"$src")
+                "${autheliaBin}" crypto hash generate pbkdf2 \
+                  --variant sha512 --no-confirm --password "$secret" \
+                  | sed -n 's/^Digest: //p' > "$dst"
+              }
+            ''
+          ]
+          ++ lib.forEach oidcClients (
+            c: ''hash_secret "${c.secretPath}" "${hashedSecretsDir}/${c.name}_oidc_secret"''
           )
-          + "\nEOF";
+          ++ [
+            "touch /var/lib/${config.flake.meta.authelia.user}/db.sqlite3"
+          ]
+          ++ [
+            "cat > /var/lib/${config.flake.meta.authelia.user}/users.yml << EOF"
+            "users:"
+          ]
+          ++ lib.mapAttrsToList (
+            name: user:
+            "  ${name}:\n"
+            + "    disabled: false\n"
+            + "    displayname: \"${user.displayname}\"\n"
+            + "    password: $(cat \"${user.passwordHashFile}\")\n"
+            + "    email: \"${user.email}\"\n"
+            + "    groups: []"
+          ) autheliaUsers
+          ++ [ "EOF" ]
+        );
       };
 
     };

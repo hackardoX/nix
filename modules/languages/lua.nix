@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
@@ -12,7 +12,7 @@
 
         conform-nvim.settings = {
           formatters_by_ft.lua = [ "stylua" ];
-          formatters.stylua.command = "${pkgs.stylua}/bin/stylua";
+          formatters.stylua.command = lib.getExe pkgs.stylua;
         };
       };
     };
