@@ -18,6 +18,11 @@ in
 
       users.groups.${fail2ban.group} = { };
 
+      environment.etc."fail2ban/action.d/sendmail-common.local".text = ''
+        [Init]
+        mailcmd = sendmail --account=fail2ban -f "<sender>" "<dest>"
+      '';
+
       programs.msmtp = {
         enable = true;
         setSendmail = true;
@@ -26,7 +31,6 @@ in
           auth = "plain";
           tls = "on";
           tls_starttls = "on";
-          account = "fail2ban";
         };
         accounts.fail2ban = {
           host = "smtp.resend.com";
@@ -49,7 +53,7 @@ in
               filter = "sshd";
               logpath = "/var/log/auth.log";
               maxretry = 3;
-              bantime = "24h";
+              bantime = "1w";
               destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
               action = ''
                 %(action_mwl)s
