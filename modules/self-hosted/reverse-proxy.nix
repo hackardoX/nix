@@ -90,10 +90,15 @@
             }
 
             (geoblock) {
-              maxmind_geolocation {
-                db_path "${geoipDbPath}"
-                allow_countries ${lib.concatStringsSep " " allowedCountries}
+              @not_allowed {
+                not {
+                  maxmind_geolocation {
+                    db_path "${geoipDbPath}"
+                    allow_countries ${lib.concatStringsSep " " allowedCountries}
+                  }
+                }
               }
+              respond @not_allowed "Forbidden" 403
             }
 
             (rate_limit_common) {
