@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   inherit (config.flake.meta) fail2ban;
 in
@@ -45,6 +45,7 @@ in
           enable = true;
           maxretry = 3;
           bantime = "24h";
+          daemonSettings.Definition.dbfile = lib.mkForce "/var/lib/data/fail2ban/fail2ban.sqlite3";
           extraPackages = [ pkgs.msmtp ];
           jails = {
             ssh-iptables.settings = {
@@ -73,5 +74,7 @@ in
           };
         };
       };
+
+      systemd.services.fail2ban.serviceConfig.StateDirectory = lib.mkForce "data/fail2ban";
     };
 }
