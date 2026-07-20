@@ -54,6 +54,7 @@ in
               logpath = "/var/log/auth.log";
               maxretry = 3;
               bantime = "1w";
+              sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
               destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
               action = ''
                 %(action_mwl)s
