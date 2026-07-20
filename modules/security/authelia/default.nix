@@ -32,7 +32,7 @@ in
   };
 
   flake.modules.nixos.homelab =
-    nixosArgs:
+    nixosArgs@{ pkgs, ... }:
     let
       autheliaService = "authelia-default.service";
       autheliaUsers = {
@@ -44,7 +44,6 @@ in
         };
       };
 
-      autheliaBin = "${nixosArgs.pkgs.authelia}/bin/authelia";
       hashedSecretsDir = "/var/lib/${config.flake.meta.authelia.user}/hashed-oidc-secrets";
 
       oidcClients = [
@@ -354,7 +353,7 @@ in
                 local src="$1" dst="$2"
                 local secret
                 secret=$(<"$src")
-                "${autheliaBin}" crypto hash generate pbkdf2 \
+                "${lib.getExe pkgs.authelia}" crypto hash generate pbkdf2 \
                   --variant sha512 --no-confirm --password "$secret" \
                   | sed -n 's/^Digest: //p' > "$dst"
               }
