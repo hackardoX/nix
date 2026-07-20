@@ -15,33 +15,35 @@ in
     services = {
       onepassword-secrets.secrets.cloudflareTunnelTokenFile = {
         path = "/run/secrets/cloudflared/token";
-        reference = "op://Homelab/Cloudflare Tunnel/token";
+        reference = "op://HomeLab/Cloudflare/homelab4.fun/tunnel token";
         mode = "0400";
       };
 
-      caddy.extraConfig = lib.mkBefore ''
-        {
+      caddy = {
+        globalConfig = lib.mkAfter ''
           servers {
             trusted_proxies cloudflare
             trusted_proxies_strict
             client_ip_headers Cf-Connecting-Ip X-Forwarded-For
           }
-        }
+        '';
 
-        (reverse_proxy_common) {
-          import common_headers
-          import geoblock
-          import rate_limit_common
-          import tls_hardened
-          import auth_protected
+        extraConfig = lib.mkBefore ''
+          (reverse_proxy_common) {
+            import common_headers
+            import geoblock
+            import rate_limit_common
+            import tls_hardened
+            import auth_protected
 
-          request_body {
-            max_size 10MB
+            request_body {
+              max_size 10MB
+            }
+
+            encode
           }
-
-          encode
-        }
-      '';
+        '';
+      };
     };
 
     # TODO: Revisit when nixpkgs merges token-based tunnel support
