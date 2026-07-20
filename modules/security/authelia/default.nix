@@ -143,6 +143,7 @@ in
                         client_name: "${config.flake.meta.oidc-clients.immich.clientName}"
                         public: false
                         authorization_policy: "one_factor"
+                        token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaImmichOidcSecret}" | msquote }}
                         redirect_uris:
                           - "https://immich.${domain}/auth/login-callback"
@@ -155,6 +156,7 @@ in
                         client_name: "${config.flake.meta.oidc-clients.tandoor.clientName}"
                         public: false
                         authorization_policy: "one_factor"
+                        token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaTandoorOidcSecret}" | msquote }}
                         redirect_uris:
                           - "https://recipes.${domain}/accounts/oidc/authelia/login/callback/"
@@ -166,6 +168,7 @@ in
                         client_name: "${config.flake.meta.oidc-clients.grafana.clientName}"
                         public: false
                         authorization_policy: "one_factor"
+                        token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaGrafanaOidcSecret}" | msquote }}
                         redirect_uris:
                           - "https://grafana.${domain}/login/generic_oauth"
@@ -177,6 +180,7 @@ in
                         client_name: "${config.flake.meta.oidc-clients.reactive-resume.clientName}"
                         public: false
                         authorization_policy: "one_factor"
+                        token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret}" | msquote }}
                         redirect_uris:
                           - "https://rxresume.${domain}/api/auth/callback"
@@ -224,31 +228,31 @@ in
         onepassword-secrets.secrets = {
           autheliaJwtSecret = {
             path = "/run/secrets/authelia/jwt_secret";
-            reference = "op://Homelab/Authelia/JWT Secret";
+            reference = "op://HomeLab/Authelia/JWT Secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaStorageEncryption = {
             path = "/run/secrets/authelia/storage_encryption";
-            reference = "op://Homelab/Authelia/Storage Encryption Key";
+            reference = "op://HomeLab/Authelia/Storage Encryption Key";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaSessionSecret = {
             path = "/run/secrets/authelia/session_secret";
-            reference = "op://Homelab/Authelia/Session Secret";
+            reference = "op://HomeLab/Authelia/Session Secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaOidcHmacSecret = {
             path = "/run/secrets/authelia/oidc_hmac_secret";
-            reference = "op://Homelab/Authelia/OIDC HMAC Secret";
+            reference = "op://HomeLab/Authelia/OIDC HMAC Secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaHalPasswordHash = {
             path = "/run/secrets/authelia/hal_password_hash";
-            reference = "op://Homelab/Authelia/HAL Password Hash";
+            reference = "op://HomeLab/Authelia/HAL Password Hash";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
@@ -260,31 +264,31 @@ in
           };
           autheliaSmtpPassword = {
             path = "/run/secrets/authelia/smtp_password";
-            reference = "op://Homelab/Authelia/SMTP Password";
+            reference = "op://HomeLab/Authelia/SMTP Password";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaImmichOidcSecret = {
             path = "/run/secrets/authelia/immich_oidc_secret";
-            reference = "op://Homelab/Immich/Authentication/OIDC client secret";
+            reference = "op://HomeLab/Immich/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaTandoorOidcSecret = {
             path = "/run/secrets/authelia/tandoor_oidc_secret";
-            reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
+            reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaGrafanaOidcSecret = {
             path = "/run/secrets/authelia/grafana_oidc_secret";
-            reference = "op://Homelab/Grafana/Authentication/OIDC client secret";
+            reference = "op://HomeLab/Grafana/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
           autheliaReactiveResumeOidcSecret = {
             path = "/run/secrets/authelia/reactive-resume_oidc_secret";
-            reference = "op://Homelab/Reactive Resume/Authentication/OIDC client secret";
+            reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
