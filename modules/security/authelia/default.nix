@@ -292,7 +292,7 @@ in
       };
 
       systemd.tmpfiles.rules = [
-        "d /var/lib/authelia 0750 authelia authelia -"
+        "d /var/lib/authelia 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
       ];
 
       systemd.services.authelia-init = {
@@ -304,8 +304,8 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          User = "authelia";
-          Group = "authelia";
+          User = config.flake.meta.authelia.user;
+          Group = config.flake.meta.authelia.group;
         };
         script =
           "cat > /var/lib/authelia/users.yml << EOF\n"
