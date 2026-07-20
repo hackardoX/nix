@@ -56,10 +56,10 @@ in
             };
             # db_config uses mkDefault in the module, so plain override works.
             general.db_config.db_path = "${dataDir}/crowdsec.db";
-            # lapi.credentialsFile and capi.credentialsFile intentionally
-            # left unset — crowdsec auto-manages credentials in its data
-            # directory, avoiding the first-run chicken-and-egg where
-            # cscli machines add --auto fails because the file doesn't exist yet.
+            # Credential files must be set to actual paths (not null) because
+            # the module's setup script interpolates them into shell strings.
+            lapi.credentialsFile = "${dataDir}/local_api_credentials.yaml";
+            capi.credentialsFile = "${dataDir}/online_api_credentials.yaml";
           };
           localConfig = {
             acquisitions = [
