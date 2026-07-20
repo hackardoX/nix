@@ -133,7 +133,7 @@ in
             };
             environmentVariables = {
               AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE =
-                nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaSmtpPassword;
+                nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaResendApiKey;
             };
             settingsFiles = [
               (builtins.toFile "oidc_clients.yaml" ''
@@ -269,9 +269,9 @@ in
             group = config.flake.meta.authelia.group;
             services = [ autheliaService ];
           };
-          autheliaSmtpPassword = {
-            path = "/run/secrets/authelia/smtp_password";
-            reference = "op://HomeLab/Authelia/SMTP Password";
+          autheliaResendApiKey = {
+            path = "/run/secrets/authelia/resend_api_key";
+            reference = "op://HomeLab/Resend/Authelia/api key";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
             services = [ autheliaService ];
@@ -324,7 +324,8 @@ in
           Group = config.flake.meta.authelia.group;
         };
         script =
-          "cat > /var/lib/authelia/users.yml << EOF\n"
+          "touch /var/lib/authelia/db.sqlite3 && chown ${config.flake.meta.authelia.user}:${config.flake.meta.authelia.group} /var/lib/authelia/db.sqlite3\n"
+          + "cat > /var/lib/authelia/users.yml << EOF\n"
           + "users:\n"
           + lib.concatStringsSep "\n" (
             lib.mapAttrsToList (
