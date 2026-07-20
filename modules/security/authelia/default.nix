@@ -34,6 +34,7 @@ in
   flake.modules.nixos.homelab =
     nixosArgs:
     let
+      autheliaService = "authelia-default.service";
       autheliaUsers = {
         hal = {
           displayname = config.flake.meta.users.hal.description;
@@ -231,66 +232,77 @@ in
             reference = "op://HomeLab/Authelia/JWT Secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaStorageEncryption = {
             path = "/run/secrets/authelia/storage_encryption";
             reference = "op://HomeLab/Authelia/Storage Encryption Key";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaSessionSecret = {
             path = "/run/secrets/authelia/session_secret";
             reference = "op://HomeLab/Authelia/Session Secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaOidcHmacSecret = {
             path = "/run/secrets/authelia/oidc_hmac_secret";
             reference = "op://HomeLab/Authelia/OIDC HMAC Secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaHalPasswordHash = {
             path = "/run/secrets/authelia/hal_password_hash";
             reference = "op://HomeLab/Authelia/HAL Password Hash";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaJwksKey = {
             path = "/run/secrets/authelia/jwks_key";
             reference = "op://HomeLab/Authelia JWKS Key/private key";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaSmtpPassword = {
             path = "/run/secrets/authelia/smtp_password";
             reference = "op://HomeLab/Authelia/SMTP Password";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaImmichOidcSecret = {
             path = "/run/secrets/authelia/immich_oidc_secret";
             reference = "op://HomeLab/Immich/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaTandoorOidcSecret = {
             path = "/run/secrets/authelia/tandoor_oidc_secret";
             reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaGrafanaOidcSecret = {
             path = "/run/secrets/authelia/grafana_oidc_secret";
             reference = "op://HomeLab/Grafana/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
           autheliaReactiveResumeOidcSecret = {
             path = "/run/secrets/authelia/reactive-resume_oidc_secret";
             reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
           };
         };
       };
