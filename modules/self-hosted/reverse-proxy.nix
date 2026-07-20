@@ -3,7 +3,7 @@
   flake.meta.reverse-proxy = {
     domain = "homelab4.fun";
     ports = {
-      authelia = 1000;
+      authelia = 1024;
       homepage = 8000;
       immich = 9000;
       job-ops = 10000;
