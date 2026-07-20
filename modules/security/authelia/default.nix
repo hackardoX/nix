@@ -379,9 +379,6 @@ in
         );
       };
 
-      systemd.services.authelia-default.serviceConfig = {
-        StateDirectory = lib.mkForce "data/authelia";
-        StateDirectoryMode = lib.mkForce "0750";
-      };
+      systemd.services.authelia-default.serviceConfig.StateDirectory = lib.mkForce "data/authelia";
     };
 }
