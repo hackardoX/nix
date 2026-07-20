@@ -50,7 +50,6 @@ in
             enable = true;
             settings = {
               theme = "dark";
-              default_redirection_url = "https://${domain}";
               log.level = "info";
               server = {
                 address = "tcp://127.0.0.1:${toString autheliaPort}";
@@ -90,6 +89,7 @@ in
                   {
                     domain = domain;
                     authelia_url = "https://${authDomain}";
+                    default_redirection_url = "https://${domain}";
                     inactivity = "1h";
                     expiration = "1d";
                     remember_me = "1M";
@@ -254,7 +254,7 @@ in
           };
           autheliaJwksKey = {
             path = "/run/secrets/authelia/jwks_key";
-            reference = "op://Homelab/Authelia/JWKS Key";
+            reference = "op://HomeLab/Authelia JWKS Key/private key";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
           };
