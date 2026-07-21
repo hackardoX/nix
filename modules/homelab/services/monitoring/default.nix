@@ -79,7 +79,7 @@ in
             };
 
             config = lib.mkIf config.monitoring.enable {
-              extraConfig.Container.Labels."logging.alloy" = "true";
+              labels."logging.alloy" = "true";
             };
           }
         )
@@ -321,18 +321,21 @@ in
             "${alertRulesFile}:/etc/prometheus/alert-rules.yml:ro"
           ];
 
-          labels = mkHomepageLabels {
-            category = "Monitoring";
-            name = "Prometheus";
-            description = "Metrics Storage";
-            icon = "prometheus.png";
-            href = "http://localhost:${toString prometheusHostPort}";
-          };
+          labels =
+            mkHomepageLabels {
+              category = "Monitoring";
+              name = "Prometheus";
+              description = "Metrics Storage";
+              icon = "prometheus.png";
+              href = "http://localhost:${toString prometheusHostPort}";
+            }
+            // {
+              "logging.alloy" = "true";
+            };
 
           exec = "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=30d --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles";
 
           extraConfig.Container = {
-            Labels."logging.alloy" = "true";
             NoNewPrivileges = true;
           };
         };
@@ -349,13 +352,14 @@ in
             CONTAINER_HOST = "unix:///var/run/podman/podman.sock";
           };
 
+          labels."logging.alloy" = "true";
+
           volumes = [
             "/run/podman/podman.sock:/var/run/podman/podman.sock:ro"
           ];
 
           extraConfig.Container = {
             SecurityLabelDisable = true;
-            Labels."logging.alloy" = "true";
             NoNewPrivileges = true;
           };
         };
@@ -379,16 +383,19 @@ in
           }
           // grafanaOidcEnv;
 
-          labels = mkHomepageLabels {
-            category = "Monitoring";
-            name = "Grafana";
-            description = "Metrics & Dashboards";
-            icon = "grafana.png";
-            href = "http://localhost:${toString grafanaHostPort}";
-          };
+          labels =
+            mkHomepageLabels {
+              category = "Monitoring";
+              name = "Grafana";
+              description = "Metrics & Dashboards";
+              icon = "grafana.png";
+              href = "http://localhost:${toString grafanaHostPort}";
+            }
+            // {
+              "logging.alloy" = "true";
+            };
 
           extraConfig.Container = {
-            Labels."logging.alloy" = "true";
             NoNewPrivileges = true;
           };
         };
@@ -408,16 +415,19 @@ in
             "${lokiConfig}:/etc/loki/local-config.yml:ro"
           ];
 
-          labels = mkHomepageLabels {
-            category = "Monitoring";
-            name = "Loki";
-            description = "Log Aggregation";
-            icon = "grafana.png";
-            href = "http://localhost:${toString lokiHostPort}";
-          };
+          labels =
+            mkHomepageLabels {
+              category = "Monitoring";
+              name = "Loki";
+              description = "Log Aggregation";
+              icon = "grafana.png";
+              href = "http://localhost:${toString lokiHostPort}";
+            }
+            // {
+              "logging.alloy" = "true";
+            };
 
           extraConfig.Container = {
-            Labels."logging.alloy" = "true";
             NoNewPrivileges = true;
           };
         };
@@ -439,10 +449,11 @@ in
             "/etc/machine-id:/etc/machine-id:ro"
           ];
 
+          labels."logging.alloy" = "true";
+
           exec = "run --server.http.listen-addr=0.0.0.0:${toString alloyContainerPort} --storage.path=/var/lib/alloy/data /etc/alloy/config.river";
 
           extraConfig.Container = {
-            Labels."logging.alloy" = "true";
             NoNewPrivileges = true;
           };
         };
