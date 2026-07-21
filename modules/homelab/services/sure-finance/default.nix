@@ -36,10 +36,11 @@ in
     users.groups.${sureFinanceGroup} = { };
 
     home-manager.users.${sureFinanceUser} = {
-      imports = [
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.podman-secrets
-        config.flake.modules.homeManager.sure-finance
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        podman-secrets
+        sure-finance
       ];
     };
 

@@ -64,9 +64,9 @@ in
     users.groups.${homepageGroup} = { };
 
     home-manager.users.${homepageUser} = {
-      imports = [
-        config.flake.modules.homeManager.homepage
-        config.flake.modules.homeManager.podman-extension
+      imports = with config.flake.modules.homeManager; [
+        homepage
+        podman-extension
       ];
     };
 

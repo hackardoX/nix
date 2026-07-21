@@ -37,10 +37,11 @@ in
     users.groups.${tandoorGroup} = { };
 
     home-manager.users.${tandoorUser} = {
-      imports = [
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.podman-secrets
-        config.flake.modules.homeManager.tandoor
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        podman-secrets
+        tandoor
       ];
     };
 

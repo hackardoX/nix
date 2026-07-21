@@ -30,11 +30,12 @@ in
     users.groups.${alertingGroup} = { };
 
     home-manager.users.${alertingUser} = {
-      imports = [
-        config.flake.modules.homeManager.alerting
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.podman-extension
-        config.flake.modules.homeManager.podman-secrets
+      imports = with config.flake.modules.homeManager; [
+        base
+        alerting
+        backup
+        podman-extension
+        podman-secrets
       ];
     };
   };
