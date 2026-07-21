@@ -142,7 +142,8 @@ in
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
-          encryptionKey = config.services.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
+          encryptionKey =
+            hmArgs.config.programs.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
         };
 
         services.podman.enable = true;

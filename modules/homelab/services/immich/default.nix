@@ -44,7 +44,7 @@ in
 
     home-manager.users.${immichUser} = {
       home.username = immichUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
@@ -132,7 +132,7 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
+          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
         };
 
         services.podman.enable = true;

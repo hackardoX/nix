@@ -298,7 +298,7 @@ in
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
+          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
         };
 
         services.podman.enable = true;
