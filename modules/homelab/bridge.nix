@@ -12,10 +12,13 @@ let
       services.${serviceName} = serviceConfig;
     };
 
+  # Only process services that have a module defined (i.e., are enabled)
+  # Services without a module are intentionally skipped — they exist as
+  # homelab/service/*/default.nix templates but are not configured yet.
+  enabledServices = lib.filterAttrs (name: svc: svc.module != null) config.flake.homelab.services;
+
   # Convert services attrset to list, preserving names
-  servicesList = lib.mapAttrsToList (
-    name: svc: { inherit name; } // svc
-  ) config.flake.homelab.services;
+  servicesList = lib.mapAttrsToList (name: svc: { inherit name; } // svc) enabledServices;
 
   # Group services by their target user
   servicesByUser = lib.groupBy (svc: svc.user) servicesList;
