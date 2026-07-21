@@ -47,6 +47,8 @@ in
     users.groups.${jobOpsGroup} = { };
 
     home-manager.users.${jobOpsUser} = {
+      home.username = jobOpsUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [
         base
         backup

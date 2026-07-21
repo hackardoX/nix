@@ -43,6 +43,8 @@ in
     users.groups.${immichGroup} = { };
 
     home-manager.users.${immichUser} = {
+      home.username = immichUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [
         base
         backup

@@ -37,6 +37,8 @@ in
     users.groups.${tandoorGroup} = { };
 
     home-manager.users.${tandoorUser} = {
+      home.username = tandoorUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [
         base
         backup

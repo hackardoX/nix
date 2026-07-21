@@ -64,6 +64,8 @@ in
     users.groups.${homepageGroup} = { };
 
     home-manager.users.${homepageUser} = {
+      home.username = homepageUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [
         homepage
         podman-extension
