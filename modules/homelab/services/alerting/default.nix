@@ -186,7 +186,7 @@ in
           ];
 
           secrets = {
-            NTFY_TOKEN = hmArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken;
+            NTFY_TOKEN = hmArgs.config.programs.onepassword-secrets.secretPaths.alertingNtfyToken;
           };
 
           extraConfig.Container = {
