@@ -12,8 +12,13 @@ let
       services.${serviceName} = serviceConfig;
     };
 
+  # Convert services attrset to list, preserving names
+  servicesList = lib.mapAttrsToList (
+    name: svc: { inherit name; } // svc
+  ) config.flake.homelab.services;
+
   # Group services by their target user
-  servicesByUser = lib.groupBy (name: svc: svc.user) config.flake.homelab.services;
+  servicesByUser = lib.groupBy (svc: svc.user) servicesList;
 
   # Build home-manager.users structure directly
   # Each user gets all their services' imports collected together
@@ -29,7 +34,7 @@ let
           message = "homelab services reference user '${user}', but that user does not exist in config.users.users.";
         }
       ];
-      imports = lib.mapAttrsToList (name: svc: mkServiceModule name svc) services;
+      imports = map (svc: mkServiceModule svc.name svc) services;
     }
   ) servicesByUser;
 in
