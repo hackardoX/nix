@@ -4,8 +4,10 @@ let
     serviceName: svc: hmArgs:
     let
       result = if lib.isFunction svc.module then svc.module hmArgs else svc.module;
-      serviceConfig = result.config or { };
-      rest = removeAttrs result [ "config" ];
+      # If the module has a `config` key, use it as-is.
+      # Otherwise, treat the entire attrset as the config.
+      serviceConfig = if builtins.isAttrs result && result ? config then result.config else result;
+      rest = if builtins.isAttrs result then removeAttrs result [ "config" ] else { };
     in
     rest
     // {
