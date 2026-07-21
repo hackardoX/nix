@@ -36,7 +36,6 @@ in
 
       network = lib.mkOption {
         type = types.str;
-        default = "homepage";
         description = "Podman network to attach to";
       };
     };
