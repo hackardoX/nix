@@ -192,10 +192,7 @@ in
             };
             Container = {
               Entrypoint = [ "/entrypoint.sh" ];
-              Cmd = [
-                "node"
-                "dist/apps/server/main.js"
-              ];
+              Exec = "node dist/apps/server/main.js";
               HealthCmd = "node -e \"fetch('http://127.0.0.1:3000/api/health').then((r) => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1));\"";
               HealthInterval = "30s";
               HealthTimeout = "10s";
