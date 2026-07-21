@@ -31,7 +31,7 @@ in
 
     home-manager.users.${alertingUser} = {
       home.username = alertingUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         alerting
