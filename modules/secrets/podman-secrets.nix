@@ -7,7 +7,7 @@ let
   uid = config.flake.meta.users.hal.uid;
 in
 {
-  flake.module.homeManager.homelab =
+  flake.modules.homeManager.podman-secrets =
     { pkgs, ... }:
     {
       options.services.podman.containers = lib.mkOption {

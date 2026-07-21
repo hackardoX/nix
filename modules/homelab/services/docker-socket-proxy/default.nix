@@ -1,62 +1,54 @@
-{ config, lib, ... }:
+{
+  config,
+  ...
+}:
 let
-  inherit (lib) types;
+  dockerProxyUser = "dockerproxy";
+  dockerProxyGroup = "dockerproxy";
+  dockerProxyImage = "ghcr.io/tecnativa/docker-socket-proxy:latest";
+  # Must share the homepage network so the homepage container can reach it
+  dockerProxyNetwork = "homepage";
 in
 {
-  flake.meta.docker-socket-proxy = {
-    user = "dockerproxy";
-    group = "dockerproxy";
-  };
-
-  flake.modules.nixos.homelab = {
-    users.users.${config.flake.meta.docker-socket-proxy.user} = {
+  flake.modules.nixos.docker-socket-proxy = {
+    users.users.${dockerProxyUser} = {
       isSystemUser = true;
-      group = config.flake.meta.docker-socket-proxy.group;
+      group = dockerProxyGroup;
       extraGroups = [ "podman" ];
       createHome = true;
-      home = "/var/lib/${config.flake.meta.docker-socket-proxy.user}";
+      home = "/var/lib/${dockerProxyUser}";
       autoSubUidGidRange = true;
       linger = true;
     };
 
-    users.groups.${config.flake.meta.docker-socket-proxy.group} = { };
+    users.groups.${dockerProxyGroup} = { };
+
+    home-manager.users.${dockerProxyUser} = {
+      imports = [ config.flake.modules.homeManager.docker-socket-proxy ];
+    };
   };
 
-  flake.homelab.services.docker-socket-proxy.user = config.flake.meta.docker-socket-proxy.user;
+  flake.modules.homeManager.docker-socket-proxy = { osConfig, ... }: {
+    config = {
+      services.podman.enable = true;
+      services.podman.networks.${dockerProxyNetwork}.driver = "bridge";
 
-  flake.modules.homeManager.homelab = hmArgs: {
-    options.services.docker-socket-proxy = {
-      enable = lib.mkEnableOption "Docker socket proxy for Homepage";
-
-      image = lib.mkOption {
-        type = types.str;
-        default = "ghcr.io/tecnativa/docker-socket-proxy:latest";
-        description = "Docker socket proxy container image";
-      };
-
-      network = lib.mkOption {
-        type = types.str;
-        description = "Podman network to attach to";
-      };
-    };
-
-    config = lib.mkIf hmArgs.config.services.docker-socket-proxy.enable {
       services.podman.containers.dockerproxy = {
-        image = hmArgs.config.services.docker-socket-proxy.image;
+        image = dockerProxyImage;
         autoStart = true;
         userNS = "keep-id";
-        network = [ "${hmArgs.config.services.docker-socket-proxy.network}.network" ];
+        network = [ "${dockerProxyNetwork}.network" ];
         networkAlias = [ "dockerproxy" ];
-
         environment = {
+          TZ = osConfig.time.timeZone;
           CONTAINERS = "1";
           POST = "0";
           SOCKET_PATH = "/run/podman/podman.sock";
         };
-
         volumes = [
           "/run/podman/podman.sock:/run/podman/podman.sock:ro"
         ];
+        extraConfig.Container.NoNewPrivileges = true;
       };
     };
   };

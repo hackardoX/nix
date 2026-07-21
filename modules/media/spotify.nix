@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.homeManager.laptop =
+  flake.modules.homeManager.media =
     { pkgs, ... }:
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.system};

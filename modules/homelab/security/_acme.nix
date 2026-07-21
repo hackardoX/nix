@@ -1,6 +1,6 @@
 { config, ... }:
 {
-  flake.modules.nixos.homelab = nixosArgs: {
+  flake.modules.nixos.security = nixosArgs: {
     security.acme = {
       acceptTerms = true;
       defaults = {

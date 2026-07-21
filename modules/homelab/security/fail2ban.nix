@@ -8,7 +8,7 @@ in
     group = "fail2ban";
   };
 
-  flake.modules.nixos.homelab =
+  flake.modules.nixos.security =
     nixosArgs@{ pkgs, ... }:
     {
       users.users.${fail2ban.owner} = {

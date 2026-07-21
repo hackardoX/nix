@@ -7,7 +7,7 @@
     uid = 0;
   };
 
-  flake.modules.nixos.homelab = {
+  flake.modules.nixos.root = {
     users.users.${config.flake.meta.users.root.name} = {
       inherit (config.flake.meta.users.root) description uid;
       isNormalUser = false;

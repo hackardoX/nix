@@ -1,202 +1,184 @@
-{ lib, config, ... }:
 {
-  flake.meta.job-ops = {
-    user = "job-ops";
-    group = "job-ops";
-  };
+  config,
+  lib,
+  ...
+}:
+let
+  jobOpsUser = "job-ops";
+  jobOpsGroup = "job-ops";
+  jobOpsAppDir = "/var/lib/containers/job-ops";
 
-  flake.modules.nixos.homelab = {
-    users.users.${config.flake.meta.job-ops.user} = {
+  domain = config.flake.meta.reverse-proxy.domain;
+  reverseProxyPort = config.flake.meta.reverse-proxy.ports.job-ops;
+
+  jobOpsImage = "ghcr.io/dakheera47/job-ops:latest";
+  jobOpsPort = 3001;
+  jobOpsModel = "deepseek-v4-flash-free";
+  jobOpsLlmProvider = "openai_compatible";
+  jobOpsLlmBaseUrl = "https://opencode.ai/zen/v1/chat/completions";
+
+  jobOpsPublicBaseUrl = "https://jobs.${domain}";
+  jobOpsBasicAuthUser = "admin";
+
+  # Secret file paths — configure before enabling
+  jobOpsLlmApiKeyFile = "/run/secrets/job-ops/llm_api_key";
+  jobOpsBasicAuthPasswordFile = "/run/secrets/job-ops/basic_auth_password";
+  jobOpsRxresumeApiKeyFile = "/run/secrets/job-ops/rxresume_api_key";
+  jobOpsRxresumeUrl = "https://rxresume.${domain}";
+  jobOpsGmailOauthClientId = "776086063215-ue41fr70dcfbqs70pg5p26r9emndv7m1.apps.googleusercontent.com";
+  jobOpsGmailOauthSecretFile = "/run/secrets/job-ops/gmail_oauth_secret";
+  jobOpsAdzunaAppId = "47ca24d5";
+  jobOpsAdzunaAppKeyFile = "/run/secrets/job-ops/adzuna_api_key";
+
+  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
+in
+{
+  flake.modules.nixos.job-ops = {
+    users.users.${jobOpsUser} = {
       isSystemUser = true;
-      group = config.flake.meta.job-ops.group;
+      group = jobOpsGroup;
+      extraGroups = [ "podman" ];
       createHome = true;
-      home = "/var/lib/${config.flake.meta.job-ops.user}";
+      home = "/var/lib/${jobOpsUser}";
       autoSubUidGidRange = true;
       linger = true;
     };
 
-    users.groups.${config.flake.meta.job-ops.group} = { };
+    users.groups.${jobOpsGroup} = { };
+
+    home-manager.users.${jobOpsUser} = {
+      imports = [
+        config.flake.modules.homeManager.backup
+        config.flake.modules.homeManager.job-ops
+        config.flake.modules.homeManager.podman-secrets
+      ];
+    };
+
+    services.caddy.virtualHosts."jobs.${domain}" = {
+      extraConfig = ''
+        import reverse_proxy_common
+        reverse_proxy localhost:${toString reverseProxyPort}
+      '';
+    };
   };
 
-  flake.homelab.services.job-ops.user = config.flake.meta.job-ops.user;
-
-  flake.modules.homeManager.homelab =
-    hmArgs:
+  flake.modules.homeManager.job-ops =
+    hmArgs@{ osConfig, ... }:
     let
-      cfg = hmArgs.config.services.job-ops;
-      networkName = "job-ops";
+      env = {
+        TZ = osConfig.time.timeZone;
+        MODEL = jobOpsModel;
+        LLM_PROVIDER = jobOpsLlmProvider;
+        UKVISAJOBS_HEADLESS = "true";
+        UKVISAJOBS_FILE_DIR = "/app/data";
+      }
+      // lib.optionalAttrs (jobOpsLlmBaseUrl != "") {
+        OPENAI_BASE_URL = jobOpsLlmBaseUrl;
+      }
+      // lib.optionalAttrs (jobOpsPublicBaseUrl != "") {
+        JOBOPS_PUBLIC_BASE_URL = jobOpsPublicBaseUrl;
+      }
+      // lib.optionalAttrs (jobOpsBasicAuthUser != "") {
+        BASIC_AUTH_USER = jobOpsBasicAuthUser;
+      }
+      // lib.optionalAttrs (jobOpsRxresumeUrl != "") {
+        RXRESUME_URL = jobOpsRxresumeUrl;
+      }
+      // lib.optionalAttrs (jobOpsGmailOauthClientId != "") {
+        GMAIL_OAUTH_CLIENT_ID = jobOpsGmailOauthClientId;
+      }
+      // lib.optionalAttrs (jobOpsAdzunaAppId != "") {
+        ADZUNA_APP_ID = jobOpsAdzunaAppId;
+      };
     in
     {
-      options.services.job-ops = {
-        enable = lib.mkEnableOption "Job-Ops";
-
-        image = lib.mkOption {
-          type = lib.types.str;
-          default = "ghcr.io/dakheera47/job-ops:latest";
-          description = "Docker image to use for Job-Ops";
-        };
-
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = 3001;
-          description = "Host port to expose Job-Ops on";
-        };
-
-        appDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/containers/job-ops";
-          description = "Base directory for Job-Ops persistent data";
-        };
-
-        model = lib.mkOption {
-          type = lib.types.str;
-          default = "deepseek-v4-flash-free";
-          description = "LLM model to use for job scoring and CV tailoring";
-        };
-
-        llmProvider = lib.mkOption {
-          type = lib.types.str;
-          default = "openai_compatible";
-          description = "LLM provider (openrouter, openai, gemini, ollama, openai_compatible)";
-        };
-
-        llmBaseUrl = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = "https://opencode.ai/zen/v1/chat/completions";
-          description = "Base URL for OpenAI-compatible LLM endpoints";
-        };
-
-        llmApiKeyFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to file containing the LLM API key";
-        };
-
-        publicBaseUrl = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Public base URL for tracer links. If null, auto-generated from domain.";
-        };
-
-        basicAuthUser = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Username for basic authentication. If null, auth is disabled.";
-        };
-
-        basicAuthPasswordFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to file containing the basic auth password";
-        };
-
-        rxresume = {
-          apiKeyFile = lib.mkOption {
-            type = lib.types.nullOr lib.types.path;
-            default = null;
-            description = "Path to file containing the Reactive Resume v5 API key";
+      config = {
+        programs.onepassword-secrets.secrets = {
+          jobOpsBasicAuthPassword = {
+            path = "/run/secrets/job-ops/basic_auth_password";
+            reference = "op://Homelab/Job Ops/Authentication/password";
+            owner = jobOpsUser;
+            group = jobOpsGroup;
           };
-
-          url = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "URL for self-hosted Reactive Resume instance";
+          jobOpsLlmApiKey = {
+            path = "/run/secrets/job-ops/llm_api_key";
+            reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
+            owner = jobOpsUser;
+            group = jobOpsGroup;
+          };
+          jobOpsRxresumeApiKey = {
+            path = "/run/secrets/job-ops/rxresume_api_key";
+            reference = "op://Homelab/Job Ops/RxResume/api key";
+            owner = jobOpsUser;
+            group = jobOpsGroup;
+          };
+          jobOpsGmailSecret = {
+            path = "/run/secrets/job-ops/gmail_oauth_secret";
+            reference = "op://Homelab/Job Ops/Gmail/oauth secret";
+            owner = jobOpsUser;
+            group = jobOpsGroup;
+          };
+          jobOpsAdzunaKey = {
+            path = "/run/secrets/job-ops/adzuna_api_key";
+            reference = "op://Homelab/Job Ops/Adzuna/api key";
+            owner = jobOpsUser;
+            group = jobOpsGroup;
+          };
+          backupJobOpsEncryptionKey = {
+            path = "/run/secrets/job-ops/backup_encryption_key";
+            reference = "op://Homelab/Backup/job-ops/password";
+            owner = jobOpsUser;
+            group = jobOpsGroup;
           };
         };
 
-        gmail = {
-          oauthClientId = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "Gmail OAuth client ID";
-          };
-
-          oauthClientSecretFile = lib.mkOption {
-            type = lib.types.nullOr lib.types.path;
-            default = null;
-            description = "Path to file containing the Gmail OAuth client secret";
-          };
+        services.backup.jobs.job-ops = {
+          paths = [ "${jobOpsAppDir}/data" ];
+          schedule = "daily";
+          retention = "standard";
+          providers = [ "koofr" ];
+          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
         };
 
-        adzuna = {
-          appId = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "Adzuna API app ID";
-          };
-
-          appKeyFile = lib.mkOption {
-            type = lib.types.nullOr lib.types.path;
-            default = null;
-            description = "Path to file containing the Adzuna API app key";
-          };
-        };
-      };
-
-      config = lib.mkIf cfg.enable {
-        services.podman.networks.${networkName} = {
-          driver = "bridge";
-        };
+        services.podman.enable = true;
+        services.podman.networks.job-ops.driver = "bridge";
 
         services.podman.containers.job-ops = {
-          image = cfg.image;
+          image = jobOpsImage;
           autoStart = true;
           userNS = "keep-id";
-          network = [ "${networkName}.network" ];
+          network = [ "job-ops.network" ];
           networkAlias = [ "job-ops" ];
-          ports = [ "${toString cfg.port}:3001" ];
+          ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];
 
-          monitoring.enable = true;
-
-          labels = config.flake.lib.mkHomepageLabels {
+          labels = mkHomepageLabels {
             category = "Productivity";
             name = "Job-Ops";
             description = "AI Job Application Assistant";
             icon = "mdi-briefcase-outline";
-            href = "http://localhost:${toString cfg.port}";
+            href = "http://localhost:${toString reverseProxyPort}";
           };
 
-          volumes = [ "${cfg.appDir}/data:/app/data" ];
+          volumes = [ "${jobOpsAppDir}/data:/app/data" ];
 
-          environment = {
-            MODEL = cfg.model;
-            LLM_PROVIDER = cfg.llmProvider;
-            UKVISAJOBS_HEADLESS = "true";
-          }
-          // lib.optionalAttrs (cfg.llmBaseUrl != null) {
-            OPENAI_BASE_URL = cfg.llmBaseUrl;
-          }
-          // lib.optionalAttrs (cfg.publicBaseUrl != null) {
-            JOBOPS_PUBLIC_BASE_URL = cfg.publicBaseUrl;
-          }
-          // lib.optionalAttrs (cfg.basicAuthUser != null) {
-            BASIC_AUTH_USER = cfg.basicAuthUser;
-          }
-          // lib.optionalAttrs (cfg.rxresume.url != null) {
-            RXRESUME_URL = cfg.rxresume.url;
-          }
-          // lib.optionalAttrs (cfg.gmail.oauthClientId != null) {
-            GMAIL_OAUTH_CLIENT_ID = cfg.gmail.oauthClientId;
-          }
-          // lib.optionalAttrs (cfg.adzuna.appId != null) {
-            ADZUNA_APP_ID = cfg.adzuna.appId;
-          };
+          environment = env;
 
           secrets =
-            lib.optionalAttrs (cfg.llmApiKeyFile != null) {
-              OPENAI_API_KEY = cfg.llmApiKeyFile;
+            { }
+            // lib.optionalAttrs (jobOpsLlmApiKeyFile != "") {
+              OPENAI_API_KEY = jobOpsLlmApiKeyFile;
             }
-            // lib.optionalAttrs (cfg.basicAuthPasswordFile != null) {
-              BASIC_AUTH_PASSWORD = cfg.basicAuthPasswordFile;
+            // lib.optionalAttrs (jobOpsBasicAuthPasswordFile != "") {
+              BASIC_AUTH_PASSWORD = jobOpsBasicAuthPasswordFile;
             }
-            // lib.optionalAttrs (cfg.rxresume.apiKeyFile != null) {
-              RXRESUME_API_KEY = cfg.rxresume.apiKeyFile;
+            // lib.optionalAttrs (jobOpsRxresumeApiKeyFile != "") {
+              RXRESUME_API_KEY = jobOpsRxresumeApiKeyFile;
             }
-            // lib.optionalAttrs (cfg.gmail.oauthClientSecretFile != null) {
-              GMAIL_OAUTH_CLIENT_SECRET = cfg.gmail.oauthClientSecretFile;
+            // lib.optionalAttrs (jobOpsGmailOauthSecretFile != "") {
+              GMAIL_OAUTH_CLIENT_SECRET = jobOpsGmailOauthSecretFile;
             }
-            // lib.optionalAttrs (cfg.adzuna.appKeyFile != null) {
-              ADZUNA_APP_KEY = cfg.adzuna.appKeyFile;
+            // lib.optionalAttrs (jobOpsAdzunaAppKeyFile != "") {
+              ADZUNA_APP_KEY = jobOpsAdzunaAppKeyFile;
             };
 
           extraConfig.Container = {

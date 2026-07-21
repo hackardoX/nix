@@ -1,9 +1,9 @@
 {
-  flake.modules.homeManager.laptop =
+  flake.modules.darwin.base =
     { pkgs, ... }:
     {
-      home.packages = with pkgs; [
-        raycast
+      environment.systemPackages = [
+        pkgs.raycast
       ];
     };
 }

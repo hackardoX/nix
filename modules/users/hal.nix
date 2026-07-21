@@ -38,4 +38,10 @@
         mode = "0644";
       };
     };
+
+  flake.modules.homeManager.hal = {
+    imports = with config.flake.modules.homeManager; [ base ];
+    home.username = config.flake.meta.users.hal.name;
+    home.stateVersion = "24.11";
+  };
 }

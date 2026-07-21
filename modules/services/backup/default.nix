@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.homelab =
+  flake.modules.homeManager.backup =
     hmArgs:
     let
       cfg = hmArgs.config.services.backup;

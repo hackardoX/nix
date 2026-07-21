@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.darwin.laptop = {
+  flake.modules.darwin.base = {
     security = {
       pam.services = {
         sudo_local = {
@@ -12,7 +12,7 @@
     };
   };
 
-  flake.modules.nixos.homelab = {
+  flake.modules.nixos.security = {
     security = {
       sudo-rs = {
         enable = true;

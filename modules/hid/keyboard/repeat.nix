@@ -1,16 +1,7 @@
-{ lib, ... }:
 {
-  flake.modules.homeManager.laptop =
-    { pkgs, ... }:
-    lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-      targets.darwin = {
-        defaults = {
-          NSGlobalDomain = {
-            ApplePressAndHoldEnabled = false;
-            KeyRepeat = 2;
-            InitialKeyRepeat = 15;
-          };
-        };
-      };
-    };
+  flake.modules.darwin.base = {
+    system.defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
+    system.defaults.NSGlobalDomain.KeyRepeat = 2;
+    system.defaults.NSGlobalDomain.InitialKeyRepeat = 15;
+  };
 }

@@ -16,9 +16,7 @@
                 config.flake.modules.homeManager.base
                 {
                   home.stateVersion = "24.11";
-                  _module.args.osConfig = {
-                    system.primaryUser = "check-user";
-                  };
+                  home.username = "check-user";
                 }
               ];
             };

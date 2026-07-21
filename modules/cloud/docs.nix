@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.laptop =
+  flake.modules.homeManager.file-sync =
     hmArgs@{ pkgs, ... }:
     {
       programs.onepassword-secrets.secrets = {

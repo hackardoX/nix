@@ -126,8 +126,8 @@ in
   flake.modules.nixos.base = nixConfigBase;
   flake.modules.darwin.base = nixConfigBase;
 
-  flake.modules.nixos.laptop = nixConfigLaptop;
-  flake.modules.darwin.laptop = lib.mkMerge [
+  flake.modules.nixos.dev = nixConfigLaptop;
+  flake.modules.darwin.dev = lib.mkMerge [
     nixConfigLaptop
     nixConfigLaptopDarwin
   ];
