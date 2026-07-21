@@ -153,10 +153,7 @@ in
           image = "prom/alertmanager:latest";
           autoStart = true;
           userNS = "keep-id";
-          network = [
-            "alerting.network"
-            "monitoring.network"
-          ];
+          network = [ "alerting.network" ];
           networkAlias = [ "alertmanager" ];
           ports = [ "${toString alertmanagerHostPort}:${toString alertmanagerContainerPort}" ];
           monitoring.enable = true;
