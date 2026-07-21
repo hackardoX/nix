@@ -21,11 +21,11 @@ in
         reverse_proxy localhost:${toString port}
       '';
     };
-
-    services.docker-socket-proxy.enable = true;
   };
 
   flake.homelab.services.homepage.module = hmArgs: {
+    services.docker-socket-proxy.enable = true;
+
     config = {
       enable = true;
       port = port;
