@@ -1,14 +1,24 @@
 { config, lib, ... }:
 let
+  # `flake.homelab.services.<name>.module` is a `nullOr deferredModule`
+  # option. Reading a `deferredModule`-typed option back wraps each
+  # definition in `{ imports = [ <def> ]; }` (with an optional `_file`
+  # alongside, for provenance) — and this wrapping can be applied more than
+  # once as the value passes through the surrounding `attrsOf (submodule
+  # {...})` / `nullOr` machinery. Rather than assume a fixed number of
+  # layers, recursively peel away any attrset whose only real content is
+  # `imports` (ignoring `_file`), until we reach the actual value as
+  # originally written: a function or a plain attrset.
+  unwrapDeferred =
+    v:
+    if builtins.isAttrs v && (builtins.attrNames (removeAttrs v [ "_file" ]) == [ "imports" ]) then
+      lib.concatMap unwrapDeferred v.imports
+    else
+      [ v ];
+
   # Build a home-manager module fragment for one service instance.
   #
-  # `flake.homelab.services.<name>.module` is a `deferredModule`-typed
-  # option: reading it back ALWAYS yields `{ imports = [ <raw defs> ]; }`,
-  # regardless of how many files defined it (even just one). So `svc.module`
-  # itself is never the value you wrote directly — it's that wrapper.
-  # We unwrap it here to get at the raw definitions.
-  #
-  # Each raw definition can be either:
+  # Each unwrapped definition can be either:
   #   - a function of home-manager module args: `hmArgs -> fragment`
   #     (e.g. homepage's `hmArgs: { config.services.homepage = {...}; }`)
   #   - a plain attrset (e.g. docker-socket-proxy's
@@ -16,7 +26,7 @@ let
   mkServiceModule =
     serviceName: svc: hmArgs:
     let
-      rawDefs = svc.module.imports;
+      rawDefs = unwrapDeferred svc.module;
 
       resolveDef =
         def:
