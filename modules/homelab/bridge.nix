@@ -9,7 +9,9 @@ let
     in
     rest
     // {
-      services.${serviceName} = serviceConfig;
+      config = {
+        services.${serviceName} = serviceConfig;
+      };
     };
 
   # Only process services that have a module defined (i.e., are enabled)
