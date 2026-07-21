@@ -47,10 +47,11 @@ in
     users.groups.${jobOpsGroup} = { };
 
     home-manager.users.${jobOpsUser} = {
-      imports = [
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.job-ops
-        config.flake.modules.homeManager.podman-secrets
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        job-ops
+        podman-secrets
       ];
     };
 

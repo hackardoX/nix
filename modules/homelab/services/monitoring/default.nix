@@ -53,10 +53,11 @@ in
     users.groups.${monitoringGroup} = { };
 
     home-manager.users.${monitoringUser} = {
-      imports = [
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.monitoring
-        config.flake.modules.homeManager.podman-extension
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        monitoring
+        podman-extension
       ];
     };
   };

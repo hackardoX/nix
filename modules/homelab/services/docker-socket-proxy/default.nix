@@ -24,7 +24,7 @@ in
     users.groups.${dockerProxyGroup} = { };
 
     home-manager.users.${dockerProxyUser} = {
-      imports = [ config.flake.modules.homeManager.docker-socket-proxy ];
+      imports = with config.flake.modules.homeManager; [ docker-socket-proxy ];
     };
   };
 

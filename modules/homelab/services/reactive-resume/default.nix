@@ -39,10 +39,11 @@ in
     users.groups.${reactiveResumeGroup} = { };
 
     home-manager.users.${reactiveResumeUser} = {
-      imports = [
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.podman-secrets
-        config.flake.modules.homeManager.reactive-resume
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        podman-secrets
+        reactive-resume
       ];
     };
 

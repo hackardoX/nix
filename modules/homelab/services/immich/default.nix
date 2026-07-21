@@ -43,10 +43,11 @@ in
     users.groups.${immichGroup} = { };
 
     home-manager.users.${immichUser} = {
-      imports = [
-        config.flake.modules.homeManager.backup
-        config.flake.modules.homeManager.immich
-        config.flake.modules.homeManager.podman-secrets
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        immich
+        podman-secrets
       ];
     };
 
