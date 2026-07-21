@@ -2,27 +2,41 @@
 let
   # Build a home-manager module fragment for one service instance.
   #
-  # `svc.module` can be either:
+  # `flake.homelab.services.<name>.module` is a `deferredModule`-typed
+  # option: reading it back ALWAYS yields `{ imports = [ <raw defs> ]; }`,
+  # regardless of how many files defined it (even just one). So `svc.module`
+  # itself is never the value you wrote directly — it's that wrapper.
+  # We unwrap it here to get at the raw definitions.
+  #
+  # Each raw definition can be either:
   #   - a function of home-manager module args: `hmArgs -> fragment`
-  #   - a plain attrset
-  #
-  # If the result already has a `config` key (the shape our service
-  # definition files produce, e.g. `{ config.services.homepage = {...}; }`),
-  # it's already a well-formed module fragment that targets the right
-  # option path — use it as-is, don't re-wrap it.
-  #
-  # Otherwise, treat the whole result as the *value* to assign to
-  # `services.<name>` (the shorthand used e.g. by docker-socket-proxy:
-  # `flake.homelab.services.docker-socket-proxy.module = { enable = true; ... };`).
+  #     (e.g. homepage's `hmArgs: { config.services.homepage = {...}; }`)
+  #   - a plain attrset (e.g. docker-socket-proxy's
+  #     `{ enable = true; network = "homepage"; }`)
   mkServiceModule =
     serviceName: svc: hmArgs:
     let
-      result = if lib.isFunction svc.module then svc.module hmArgs else svc.module;
+      rawDefs = svc.module.imports;
+
+      resolveDef =
+        def:
+        let
+          result = if lib.isFunction def then def hmArgs else def;
+        in
+        # If the resolved value already has a `config` key, it's already a
+        # full module fragment targeting the right option path (e.g.
+        # homepage's `{ config.services.homepage = {...}; }`) — use as-is,
+        # preserving any other top-level keys (options, assertions, etc).
+        # Otherwise, the whole value is shorthand for `services.<name>`'s
+        # config (e.g. docker-socket-proxy's `{ enable = true; ... }`).
+        if builtins.isAttrs result && result ? config then
+          result
+        else
+          { services.${serviceName} = result; };
     in
-    if builtins.isAttrs result && result ? config then
-      result
-    else
-      { config.services.${serviceName} = result; };
+    {
+      imports = map resolveDef rawDefs;
+    };
 
   # Only process services that have a module defined (i.e., are enabled).
   # Services without a module are intentionally skipped — they exist as
