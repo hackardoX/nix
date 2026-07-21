@@ -43,28 +43,28 @@ in
         hmArgs.config.services.onepassword-secrets.secretPaths.tandoorDbPasswordPath;
       oidcClientSecretFile =
         hmArgs.config.services.onepassword-secrets.secretPaths.tandoorOidcClientSecret;
-    };
 
-    programs.onepassword-secrets.secrets = {
-      tandoorSecretKeyPath = {
-        path = "/run/secrets/tandoor/secret_key";
-        reference = "op://Homelab/Tandoor/Authentication/secret key";
-        owner = config.flake.meta.tandoor.user;
-        group = config.flake.meta.tandoor.group;
-      };
+      programs.onepassword-secrets.secrets = {
+        tandoorSecretKeyPath = {
+          path = "/run/secrets/tandoor/secret_key";
+          reference = "op://Homelab/Tandoor/Authentication/secret key";
+          owner = config.flake.meta.tandoor.user;
+          group = config.flake.meta.tandoor.group;
+        };
 
-      tandoorDbPasswordPath = {
-        path = "/run/secrets/tandoor/db_password";
-        reference = "op://Homelab/Tandoor/Database/password";
-        owner = config.flake.meta.tandoor.user;
-        group = config.flake.meta.tandoor.group;
-      };
+        tandoorDbPasswordPath = {
+          path = "/run/secrets/tandoor/db_password";
+          reference = "op://Homelab/Tandoor/Database/password";
+          owner = config.flake.meta.tandoor.user;
+          group = config.flake.meta.tandoor.group;
+        };
 
-      tandoorOidcClientSecret = {
-        path = "/run/secrets/tandoor/oidc_client_secret";
-        reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
-        owner = config.flake.meta.tandoor.user;
-        group = config.flake.meta.tandoor.group;
+        tandoorOidcClientSecret = {
+          path = "/run/secrets/tandoor/oidc_client_secret";
+          reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
+          owner = config.flake.meta.tandoor.user;
+          group = config.flake.meta.tandoor.group;
+        };
       };
     };
   };

@@ -116,11 +116,11 @@
     config = {
       enable = true;
       ntfyTokenFile = hmArgs.config.programs.onepassword-secrets.secretPaths.ntfyToken;
-    };
 
-    programs.onepassword-secrets.secrets.ntfyToken = {
-      path = ".secrets/alerting/ntfy/token";
-      reference = "op://Homelab/Alerting/NTFY/token";
+      programs.onepassword-secrets.secrets.ntfyToken = {
+        path = ".secrets/alerting/ntfy/token";
+        reference = "op://Homelab/Alerting/NTFY/token";
+      };
     };
   };
 }
