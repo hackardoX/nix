@@ -40,7 +40,7 @@ in
 
     home-manager.users.${reactiveResumeUser} = {
       home.username = reactiveResumeUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
@@ -116,7 +116,7 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey =
-            hmArgs.config.services.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
+            hmArgs.config.programs.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
         };
 
         services.podman.enable = true;
