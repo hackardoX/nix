@@ -22,17 +22,29 @@ let
         def:
         let
           result = if lib.isFunction def then def hmArgs else def;
+          isAttrsResult = builtins.isAttrs result;
+          # `deferredModule` tags every definition with a `_file` key
+          # (via `lib.setDefaultModuleLocation`) for error-reporting
+          # purposes, even plain attrsets like docker-socket-proxy's
+          # `{ enable = true; network = "homepage"; }`. `_file` is only
+          # meaningful at the top level of a module fragment (the module
+          # system special-cases it there) — if we nest it under
+          # `services.<name>` along with the rest, it becomes just another
+          # unrecognized option and errors out. So we carry it separately
+          # and keep it at the top level of what we return.
+          fileMeta = lib.optionalAttrs (isAttrsResult && result ? _file) { inherit (result) _file; };
         in
         # If the resolved value already has a `config` key, it's already a
         # full module fragment targeting the right option path (e.g.
         # homepage's `{ config.services.homepage = {...}; }`) — use as-is,
-        # preserving any other top-level keys (options, assertions, etc).
-        # Otherwise, the whole value is shorthand for `services.<name>`'s
-        # config (e.g. docker-socket-proxy's `{ enable = true; ... }`).
-        if builtins.isAttrs result && result ? config then
+        # preserving any other top-level keys (options, assertions, _file, etc).
+        # Otherwise, the substantive part of the value is shorthand for
+        # `services.<name>`'s config (e.g. docker-socket-proxy's
+        # `{ enable = true; ... }`).
+        if isAttrsResult && result ? config then
           result
         else
-          { services.${serviceName} = result; };
+          fileMeta // { services.${serviceName} = removeAttrs result [ "_file" ]; };
     in
     {
       imports = map resolveDef rawDefs;
