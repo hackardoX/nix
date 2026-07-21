@@ -102,6 +102,7 @@ in
       };
 
       config = lib.mkIf cfg.enable {
+        services.podman.enable = true;
         services.podman.networks.homepage.driver = "bridge";
 
         services.podman.containers.homepage = {
