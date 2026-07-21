@@ -13,10 +13,11 @@ in
     port = 3000;
   };
 
-  flake.modules.nixos.homelab = {
+  flake.modules.nixos.homelab = { pkgs, ... }: {
     users.users.${homepage.user} = {
       isSystemUser = true;
       group = homepage.group;
+      shell = pkgs.bash;
       createHome = true;
       home = "/var/lib/${homepage.user}";
       autoSubUidGidRange = true;
@@ -29,13 +30,12 @@ in
   flake.homelab.services.homepage.user = config.flake.meta.homepage.user;
 
   flake.modules.homeManager.homelab =
-    {
-      config,
+    hmArgs@{
       pkgs,
       ...
     }:
     let
-      cfg = config.services.homepage;
+      cfg = hmArgs.config.services.homepage;
 
       # Generate YAML configuration files
       settingsFile = pkgs.writeText "settings.yaml" (builtins.toJSON cfg.settings);
