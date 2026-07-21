@@ -54,7 +54,7 @@ in
 
     home-manager.users.${monitoringUser} = {
       home.username = monitoringUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup

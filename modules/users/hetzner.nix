@@ -34,6 +34,6 @@
   flake.modules.homeManager.hetzner = {
     imports = with config.flake.modules.homeManager; [ base ];
     home.username = config.flake.meta.users.hetzner.name;
-    home.stateVersion = "24.11";
+    home.stateVersion = "26.05";
   };
 }
