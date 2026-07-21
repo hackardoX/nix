@@ -10,7 +10,7 @@
           };
 
           module = lib.mkOption {
-            type = lib.types.deferredModule;
+            type = lib.types.nullOr lib.types.deferredModule;
             default = null;
             description = "Home Manager module function for this service.";
           };
