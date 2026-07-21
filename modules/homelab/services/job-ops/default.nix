@@ -48,7 +48,7 @@ in
 
     home-manager.users.${jobOpsUser} = {
       home.username = jobOpsUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
@@ -140,7 +140,7 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
+          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
         };
 
         services.podman.enable = true;

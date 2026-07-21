@@ -37,7 +37,7 @@ in
 
     home-manager.users.${sureFinanceUser} = {
       home.username = sureFinanceUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
@@ -115,7 +115,7 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey =
-            hmArgs.config.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
+            hmArgs.config.programs.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
         };
 
         services.podman.enable = true;
