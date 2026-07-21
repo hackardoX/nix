@@ -3,7 +3,7 @@ let
   dataDir = "/var/lib/data/crowdsec";
 in
 {
-  flake.modules.nixos.homelab =
+  flake.modules.nixos.security =
     { pkgs, ... }:
     {
       disabledModules = [ "services/security/crowdsec.nix" ];

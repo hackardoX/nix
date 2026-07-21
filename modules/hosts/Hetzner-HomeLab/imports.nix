@@ -9,7 +9,14 @@
         base
         hardening
         hetzner
+        deploy
         homelab
+        root
+        ssh
+        security
       ];
+
+      home-manager.users.${config.flake.meta.users.hetzner.name} =
+        config.flake.modules.homeManager.hetzner;
     };
 }

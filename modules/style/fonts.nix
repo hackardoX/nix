@@ -20,18 +20,10 @@
     default = { };
   };
 
-  config.flake.modules = {
-    darwin.dev =
-      { pkgs, ... }:
-      {
-        fonts.packages = [ pkgs.nerd-fonts.${config.fonts.default.name} ];
-        system.defaults.NSGlobalDomain.AppleFontSmoothing = 1;
-      };
-
-    homeManager.dev =
-      { pkgs, ... }:
-      {
-        home.packages = [ pkgs.nerd-fonts.${config.fonts.default.name} ];
-      };
-  };
+  config.flake.modules.darwin.dev =
+    { pkgs, ... }:
+    {
+      fonts.packages = [ pkgs.nerd-fonts.${config.fonts.default.name} ];
+      system.defaults.NSGlobalDomain.AppleFontSmoothing = 1;
+    };
 }

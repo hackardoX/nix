@@ -1,17 +1,14 @@
 { lib, ... }:
 {
   flake.modules.homeManager.base =
-    { osConfig, pkgs, ... }:
+    { config, pkgs, ... }:
     {
-      home = {
-        username = osConfig.system.primaryUser;
-        homeDirectory = lib.mkForce (
-          if pkgs.stdenv.hostPlatform.isDarwin then
-            "/Users/${osConfig.system.primaryUser}"
-          else
-            "/home/${osConfig.system.primaryUser}"
-        );
-      };
+      home.homeDirectory = lib.mkDefault (
+        if pkgs.stdenv.hostPlatform.isDarwin then
+          "/Users/${config.home.username}"
+        else
+          "/home/${config.home.username}"
+      );
       programs.home-manager.enable = true;
     };
 }

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.laptop =
+  flake.modules.homeManager.shell =
     { pkgs, ... }:
     {
       home.packages = [

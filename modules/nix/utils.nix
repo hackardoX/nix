@@ -22,7 +22,7 @@
       };
     };
 
-  flake.modules.homeManager.laptop =
+  flake.modules.homeManager.shell =
     hmArgs@{
       pkgs,
       ...

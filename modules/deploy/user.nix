@@ -5,7 +5,7 @@ in
 {
   flake = {
     meta.users.deploy.name = "deploy";
-    modules.nixos.homelab = nixosArgs: {
+    modules.nixos.deploy = nixosArgs: {
       users.users.${user} = {
         isNormalUser = true;
         description = "System deploy user";

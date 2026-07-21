@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.nixos.homelab =
+  flake.modules.nixos.ingress =
     nixosArgs@{ pkgs, ... }:
     let
       cloudflaredStartScript = pkgs.writeShellScript "start-cloudflared" ''

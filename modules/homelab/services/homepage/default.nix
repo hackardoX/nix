@@ -1,134 +1,121 @@
 {
-  lib,
   config,
   ...
 }:
 let
-  inherit (config.flake.meta) homepage;
+  homepageUser = "homepage";
+  homepageGroup = "homepage";
+  homepagePort = 3000;
+  homepageAppDir = "/var/lib/containers/homepage";
+
+  domain = config.flake.meta.reverse-proxy.domain;
+  reverseProxyPort = config.flake.meta.reverse-proxy.ports.homepage;
+
+  homepageSettings = {
+    title = "Homelab";
+    description = "Self-hosted services dashboard";
+    theme = "dark";
+    color = "slate";
+    statusStyle = "dot";
+    useEqualHeights = true;
+  };
+  homepageWidgets = [
+    {
+      resources = {
+        cpu = true;
+        memory = true;
+        label = "System";
+      };
+    }
+    {
+      resources = {
+        disk = "/";
+        label = "Storage";
+      };
+    }
+    {
+      resources = {
+        network = "eth0";
+        label = "Network";
+      };
+    }
+  ];
+  homepageBookmarks = [ ];
+  homepageDocker = {
+    local = {
+      host = "dockerproxy";
+      port = 2375;
+    };
+  };
 in
 {
-  flake.meta.homepage = {
-    user = "homepage";
-    group = "homepage";
-    port = 3000;
-  };
-
-  flake.modules.nixos.homelab = { pkgs, ... }: {
-    users.users.${homepage.user} = {
+  flake.modules.nixos.homepage = { pkgs, ... }: {
+    users.users.${homepageUser} = {
       isSystemUser = true;
-      group = homepage.group;
+      group = homepageGroup;
       shell = pkgs.bash;
+      extraGroups = [ "podman" ];
       createHome = true;
-      home = "/var/lib/${homepage.user}";
+      home = "/var/lib/${homepageUser}";
       autoSubUidGidRange = true;
       linger = true;
     };
 
-    users.groups.${homepage.group} = { };
+    users.groups.${homepageGroup} = { };
+
+    home-manager.users.${homepageUser} = {
+      imports = [
+        config.flake.modules.homeManager.homepage
+        config.flake.modules.homeManager.podman-extension
+      ];
+    };
+
+    services.caddy.virtualHosts."${domain}" = {
+      extraConfig = ''
+        import reverse_proxy_common
+        redir https://homepage.${domain}{uri}
+      '';
+    };
+
+    services.caddy.virtualHosts."homepage.${domain}" = {
+      extraConfig = ''
+        import auth_protected
+        import reverse_proxy_common
+        reverse_proxy localhost:${toString reverseProxyPort}
+      '';
+    };
   };
 
-  flake.homelab.services.homepage.user = config.flake.meta.homepage.user;
+  flake.modules.homeManager.homepage = { osConfig, pkgs, ... }: {
+    config = {
+      services.podman.enable = true;
+      services.podman.networks.homepage.driver = "bridge";
 
-  flake.modules.homeManager.homelab =
-    hmArgs@{
-      pkgs,
-      ...
-    }:
-    let
-      cfg = hmArgs.config.services.homepage;
+      services.podman.containers.homepage = {
+        image = "ghcr.io/gethomepage/homepage:latest";
+        autoStart = true;
+        userNS = "keep-id";
+        network = [ "homepage.network" ];
+        networkAlias = [ "homepage" ];
+        ports = [ "${toString reverseProxyPort}:${toString homepagePort}" ];
 
-      # Generate YAML configuration files
-      settingsFile = pkgs.writeText "settings.yaml" (builtins.toJSON cfg.settings);
-      bookmarksFile = pkgs.writeText "bookmarks.yaml" (builtins.toJSON cfg.bookmarks);
-      widgetsFile = pkgs.writeText "widgets.yaml" (builtins.toJSON cfg.widgets);
-      dockerFile = pkgs.writeText "docker.yaml" (builtins.toJSON cfg.docker);
-    in
-    {
-      options.services.homepage = {
-        enable = lib.mkEnableOption "Homepage dashboard";
+        monitoring.enable = true;
 
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = homepage.port;
-          description = "Port to expose Homepage on";
+        volumes = [
+          "${homepageAppDir}/config:/app/config"
+          "${pkgs.writeText "settings.yaml" (builtins.toJSON homepageSettings)}:/app/config/settings.yaml:ro"
+          "${pkgs.writeText "bookmarks.yaml" (builtins.toJSON homepageBookmarks)}:/app/config/bookmarks.yaml:ro"
+          "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
+          "${pkgs.writeText "docker.yaml" (builtins.toJSON homepageDocker)}:/app/config/docker.yaml:ro"
+        ];
+
+        environment = {
+          TZ = osConfig.time.timeZone;
+          HOMEPAGE_ALLOWED_HOSTS = "localhost,homepage";
         };
 
-        appDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/containers/homepage";
-          description = "Directory for Homepage persistent data";
-        };
-
-        settings = lib.mkOption {
-          type = lib.types.attrs;
-          default = {
-            title = "Homelab";
-            theme = "dark";
-            color = "slate";
-          };
-          description = "Homepage settings configuration";
-        };
-
-        bookmarks = lib.mkOption {
-          type = lib.types.listOf lib.types.attrs;
-          default = [ ];
-          description = "Homepage bookmarks configuration";
-        };
-
-        widgets = lib.mkOption {
-          type = lib.types.listOf lib.types.attrs;
-          default = [
-            {
-              resources = {
-                cpu = true;
-                memory = true;
-                network = "eth0";
-              };
-            }
-          ];
-          description = "Homepage widgets configuration";
-        };
-
-        docker = lib.mkOption {
-          type = lib.types.attrs;
-          default = {
-            local = {
-              host = "dockerproxy";
-              port = 2375;
-            };
-          };
-          description = "Homepage Docker integration configuration";
-        };
-      };
-
-      config = lib.mkIf cfg.enable {
-        services.podman.enable = true;
-        services.podman.networks.homepage.driver = "bridge";
-
-        services.podman.containers.homepage = {
-          image = "ghcr.io/gethomepage/homepage:latest";
-          autoStart = true;
-          userNS = "keep-id";
-          network = [ "homepage.network" ];
-          networkAlias = [ "homepage" ];
-          ports = [ "${toString cfg.port}:3000" ];
-
-          monitoring.enable = true;
-
-          volumes = [
-            "${cfg.appDir}/config:/app/config"
-            "${settingsFile}:/app/config/settings.yaml:ro"
-            "${bookmarksFile}:/app/config/bookmarks.yaml:ro"
-            "${widgetsFile}:/app/config/widgets.yaml:ro"
-            "${dockerFile}:/app/config/docker.yaml:ro"
-          ];
-
-          environment = {
-            HOMEPAGE_ALLOWED_HOSTS = "localhost,homepage";
-          };
-
-          extraConfig.Container.NoNewPrivileges = true;
-        };
+        extraConfig.Container.NoNewPrivileges = true;
       };
     };
+  };
 }

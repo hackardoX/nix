@@ -1,18 +1,9 @@
-{ lib, ... }:
 {
-  flake.modules.homeManager.laptop =
-    { pkgs, ... }:
-    lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-      targets.darwin = {
-        defaults = {
-          NSGlobalDomain = {
-            NSAutomaticCapitalizationEnabled = false;
-            NSAutomaticDashSubstitutionEnabled = false;
-            NSAutomaticQuoteSubstitutionEnabled = false;
-            NSAutomaticPeriodSubstitutionEnabled = false;
-            NSAutomaticSpellingCorrectionEnabled = false;
-          };
-        };
-      };
-    };
+  flake.modules.darwin.base = {
+    system.defaults.NSGlobalDomain.NSAutomaticCapitalizationEnabled = false;
+    system.defaults.NSGlobalDomain.NSAutomaticDashSubstitutionEnabled = false;
+    system.defaults.NSGlobalDomain.NSAutomaticQuoteSubstitutionEnabled = false;
+    system.defaults.NSGlobalDomain.NSAutomaticPeriodSubstitutionEnabled = false;
+    system.defaults.NSGlobalDomain.NSAutomaticSpellingCorrectionEnabled = false;
+  };
 }

@@ -31,7 +31,7 @@ in
     };
   };
 
-  flake.modules.nixos.homelab =
+  flake.modules.nixos.security =
     nixosArgs@{ pkgs, ... }:
     let
       autheliaService = "authelia-default.service";

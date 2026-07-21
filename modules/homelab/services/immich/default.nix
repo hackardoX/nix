@@ -1,233 +1,260 @@
-{ config, lib, ... }:
 {
-  flake.meta.immich = {
-    user = "immich";
-    group = "immich";
-  };
+  config,
+  lib,
+  ...
+}:
+let
+  immichUser = "immich";
+  immichGroup = "immich";
+  immichAppDir = "/var/lib/containers/immich";
+  immichDataDir = "/var/lib/data/immich";
 
-  flake.modules.nixos.homelab = {
-    users.users.${config.flake.meta.immich.user} = {
+  domain = config.flake.meta.reverse-proxy.domain;
+  reverseProxyPort = config.flake.meta.reverse-proxy.ports.immich;
+  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
+
+  immichPort = 2283;
+  immichDbUser = "postgres";
+  immichDbName = "immich";
+  immichDbPasswordFile = "/run/secrets/immich/db_password";
+  immichOidcClientId = config.flake.meta.oidc-clients.immich.clientId or "";
+  immichOidcSecretFile = "/run/secrets/immich/oidc_client_secret";
+
+  immichConfig = {
+    storageTemplate = {
+      enabled = true;
+      hashVerificationEnabled = true;
+      template = "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}";
+    };
+  };
+in
+{
+  flake.modules.nixos.immich = {
+    users.users.${immichUser} = {
       isSystemUser = true;
-      group = config.flake.meta.immich.group;
+      group = immichGroup;
+      extraGroups = [ "podman" ];
       createHome = true;
-      home = "/var/lib/${config.flake.meta.immich.user}";
+      home = "/var/lib/${immichUser}";
       autoSubUidGidRange = true;
       linger = true;
     };
 
-    users.groups.${config.flake.meta.immich.group} = { };
+    users.groups.${immichGroup} = { };
+
+    home-manager.users.${immichUser} = {
+      imports = [
+        config.flake.modules.homeManager.backup
+        config.flake.modules.homeManager.immich
+        config.flake.modules.homeManager.podman-secrets
+      ];
+    };
+
+    services.caddy.virtualHosts."immich.${domain}" = {
+      extraConfig = ''
+        import reverse_proxy_common
+
+        request_body {
+          max_size 50GB
+        }
+
+        reverse_proxy localhost:${toString reverseProxyPort} {
+          transport http {
+            read_timeout 600s
+            write_timeout 600s
+          }
+        }
+      '';
+    };
   };
 
-  flake.homelab.services.immich.user = config.flake.meta.immich.user;
-
-  flake.modules.homeManager.homelab =
+  flake.modules.homeManager.immich =
     hmArgs@{ osConfig, pkgs, ... }:
     let
-      cfg = hmArgs.config.services.immich;
-      networkName = "immich";
-      appDir = cfg.appDir;
-      dataDir = cfg.dataDir;
-      dbName = "immich";
-      dbUser = "postgres";
-
-      immichConfig = {
-        storageTemplate = {
-          enabled = true;
-          hashVerificationEnabled = true;
-          template = "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}";
-        };
-      };
-
-      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
-
       sharedEnv = {
         DB_HOSTNAME = "immich-db";
         DB_PORT = "5432";
-        DB_DATABASE_NAME = dbName;
-        DB_USERNAME = dbUser;
+        DB_DATABASE_NAME = immichDbName;
+        DB_USERNAME = immichDbUser;
         REDIS_HOSTNAME = "immich-redis";
         REDIS_PORT = "6379";
         TZ = osConfig.time.timeZone;
       };
-    in
-    {
-      options.services.immich = {
-        enable = lib.mkEnableOption "Immich (Podman)";
 
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = 2283;
-          description = "Host port to expose Immich on";
-        };
+      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
 
-        appDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/containers/immich";
-          description = "Base directory for Immich persistent data (photos, ML models, config)";
-        };
-
-        dataDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/data/immich";
-          description = "Base directory for Immich database and cache data (Postgres, Redis)";
-        };
-
-        dbPasswordFile = lib.mkOption {
-          type = lib.types.path;
-          description = "Path to file containing the Postgres password";
-        };
-
-        oauthClientSecretFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to file containing the OIDC client secret";
-        };
+      oidcEnv = lib.optionalAttrs (immichOidcSecretFile != null) {
+        IMMICH_OAUTH_ENABLED = "true";
+        IMMICH_OAUTH_ISSUER_URL = "https://auth.${domain}";
+        IMMICH_OAUTH_CLIENT_ID = immichOidcClientId;
+        IMMICH_OAUTH_SCOPE = "openid profile email";
+        IMMICH_OAUTH_AUTO_LAUNCH = "true";
+        IMMICH_OAUTH_AUTO_REGISTRATION = "true";
       };
 
-      config = lib.mkIf cfg.enable {
-        services.podman.networks.${networkName}.driver = "bridge";
+      oidcSecrets = lib.optionalAttrs (immichOidcSecretFile != null) {
+        IMMICH_OAUTH_CLIENT_SECRET = immichOidcSecretFile;
+      };
+    in
+    {
+      config = {
+        programs.onepassword-secrets.secrets = {
+          immichDbPassword = {
+            path = "/run/secrets/immich/db_password";
+            reference = "op://Homelab/Immich/Database/password";
+            owner = immichUser;
+            group = immichGroup;
+          };
+          immichOidcClientSecret = {
+            path = "/run/secrets/immich/oidc_client_secret";
+            reference = "op://Homelab/Immich/Authentication/OIDC client secret";
+            owner = immichUser;
+            group = immichGroup;
+          };
+          backupImmichEncryptionKey = {
+            path = "/run/secrets/immich/backup_encryption_key";
+            reference = "op://Homelab/Backup/immich/password";
+            owner = immichUser;
+            group = immichGroup;
+          };
+        };
 
-        services.podman.containers = {
-          immich-server = {
-            image = "ghcr.io/immich-app/immich-server:release";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "immich-server" ];
-            ports = [ "${toString cfg.port}:2283" ];
+        services.backup.jobs.immich = {
+          paths = [
+            "${immichAppDir}/photos/library"
+            "${immichAppDir}/photos/upload"
+            "${immichAppDir}/photos/profile"
+            "${immichAppDir}/photos/backups"
+          ];
+          schedule = "daily";
+          retention = "standard";
+          providers = [ "koofr" ];
+          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
+        };
 
-            monitoring.enable = true;
+        services.podman.enable = true;
+        services.podman.networks.immich.driver = "bridge";
 
-            labels = config.flake.lib.mkHomepageLabels {
-              category = "Media";
-              name = "Immich";
-              description = "Photo & Video Management";
-              icon = "immich.png";
-              href = "http://localhost:${toString cfg.port}";
-              widget = {
-                type = "immich";
-                url = "http://localhost:${toString cfg.port}";
-              };
+        services.podman.containers.immich-server = {
+          image = "ghcr.io/immich-app/immich-server:release";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "immich.network" ];
+          networkAlias = [ "immich-server" ];
+          ports = [ "${toString reverseProxyPort}:${toString immichPort}" ];
+
+          labels = mkHomepageLabels {
+            category = "Media";
+            name = "Immich";
+            description = "Photo & Video Management";
+            icon = "immich.png";
+            href = "http://localhost:${toString reverseProxyPort}";
+            widget = {
+              type = "immich";
+              url = "http://localhost:${toString reverseProxyPort}";
             };
+          };
 
-            volumes = [
-              "${appDir}/photos:/data"
-              "/etc/localtime:/etc/localtime:ro"
-              "${immichConfigFile}:/config/immich.json:ro"
-            ];
+          volumes = [
+            "${immichAppDir}/photos:/data"
+            "/etc/localtime:/etc/localtime:ro"
+            "${immichConfigFile}:/config/immich.json:ro"
+          ];
 
-            environment =
-              sharedEnv
-              // {
-                IMMICH_CONFIG_FILE = "/config/immich.json";
-              }
-              // lib.optionalAttrs (cfg.oauthClientSecretFile != null) {
-                IMMICH_OAUTH_ENABLED = "true";
-                IMMICH_OAUTH_ISSUER_URL = "https://auth.${config.flake.meta.reverse-proxy.domain}";
-                IMMICH_OAUTH_CLIENT_ID = config.flake.meta.oidc-clients.immich.clientId;
-                IMMICH_OAUTH_SCOPE = "openid profile email";
-                IMMICH_OAUTH_AUTO_LAUNCH = "true";
-                IMMICH_OAUTH_AUTO_REGISTRATION = "true";
-              };
-
-            secrets = {
-              DB_PASSWORD = cfg.dbPasswordFile;
+          environment =
+            sharedEnv
+            // {
+              IMMICH_CONFIG_FILE = "/config/immich.json";
             }
-            // lib.optionalAttrs (cfg.oauthClientSecretFile != null) {
-              IMMICH_OAUTH_CLIENT_SECRET = cfg.oauthClientSecretFile;
+            // oidcEnv;
+
+          secrets = {
+            DB_PASSWORD = immichDbPasswordFile;
+          }
+          // oidcSecrets;
+
+          extraConfig = {
+            Unit = {
+              Requires = [
+                "podman-immich-db.service"
+                "podman-immich-redis.service"
+              ];
+              After = [
+                "podman-immich-db.service"
+                "podman-immich-redis.service"
+              ];
             };
-
-            extraConfig = {
-              Unit = {
-                Requires = [
-                  "podman-immich-db.service"
-                  "podman-immich-redis.service"
-                ];
-                After = [
-                  "podman-immich-db.service"
-                  "podman-immich-redis.service"
-                ];
-              };
-              Container = {
-                SecurityLabelDisable = false;
-                NoNewPrivileges = true;
-              };
-            };
-          };
-
-          immich-machine-learning = {
-            image = "ghcr.io/immich-app/immich-machine-learning:release";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "immich-machine-learning" ];
-
-            monitoring.enable = true;
-
-            volumes = [
-              "${appDir}/ml-models:/cache"
-              "${appDir}/ml-dotcache:/.cache"
-              "${appDir}/ml-config:/.config"
-            ];
-
-            environment = sharedEnv;
-
-            secrets = {
-              DB_PASSWORD = cfg.dbPasswordFile;
-            };
-
-            extraConfig.Container.NoNewPrivileges = true;
-          };
-
-          immich-redis = {
-            image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "immich-redis" ];
-            volumes = [ "${dataDir}/redis:/data" ];
-
-            monitoring.enable = true;
-
-            extraConfig.Container = {
-              HealthCmd = "redis-cli ping || exit 1";
-              HealthInterval = "5s";
-              HealthTimeout = "5s";
-              HealthRetries = 5;
+            Container = {
+              SecurityLabelDisable = false;
               NoNewPrivileges = true;
             };
           };
+        };
 
-          immich-db = {
-            image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "immich-db" ];
-            volumes = [ "${dataDir}/postgres:/var/lib/postgresql/data" ];
+        services.podman.containers.immich-machine-learning = {
+          image = "ghcr.io/immich-app/immich-machine-learning:release";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "immich.network" ];
+          networkAlias = [ "immich-machine-learning" ];
 
-            monitoring.enable = true;
+          volumes = [
+            "${immichAppDir}/ml-models:/cache"
+            "${immichAppDir}/ml-dotcache:/.cache"
+            "${immichAppDir}/ml-config:/.config"
+          ];
 
-            environment = {
-              POSTGRES_USER = dbUser;
-              POSTGRES_DB = dbName;
-              POSTGRES_INITDB_ARGS = "--data-checksums";
-            };
+          environment = sharedEnv;
 
-            secrets = {
-              POSTGRES_PASSWORD = cfg.dbPasswordFile;
-            };
+          secrets = {
+            DB_PASSWORD = immichDbPasswordFile;
+          };
 
-            extraConfig = {
-              Container = {
-                ShmSize = "128m";
-                NoNewPrivileges = true;
-                HealthCmd = "pg_isready -U ${dbUser} -d ${dbName} || exit 1";
-                HealthInterval = "5s";
-                HealthTimeout = "5s";
-                HealthRetries = 5;
-              };
-            };
+          extraConfig.Container.NoNewPrivileges = true;
+        };
+
+        services.podman.containers.immich-redis = {
+          image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "immich.network" ];
+          networkAlias = [ "immich-redis" ];
+          volumes = [ "${immichDataDir}/redis:/data" ];
+
+          extraConfig.Container = {
+            HealthCmd = "redis-cli ping || exit 1";
+            HealthInterval = "5s";
+            HealthTimeout = "5s";
+            HealthRetries = 5;
+            NoNewPrivileges = true;
+          };
+        };
+
+        services.podman.containers.immich-db = {
+          image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "immich.network" ];
+          networkAlias = [ "immich-db" ];
+          volumes = [ "${immichDataDir}/postgres:/var/lib/postgresql/data" ];
+
+          environment = {
+            POSTGRES_USER = immichDbUser;
+            POSTGRES_DB = immichDbName;
+            POSTGRES_INITDB_ARGS = "--data-checksums";
+          };
+
+          secrets = {
+            POSTGRES_PASSWORD = immichDbPasswordFile;
+          };
+
+          extraConfig.Container = {
+            ShmSize = "128m";
+            NoNewPrivileges = true;
+            HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";
+            HealthInterval = "5s";
+            HealthTimeout = "5s";
+            HealthRetries = 5;
           };
         };
       };

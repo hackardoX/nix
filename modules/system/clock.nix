@@ -1,22 +1,11 @@
-{ lib, ... }:
 {
-  flake.modules.homeManager.laptop =
-    { pkgs, ... }:
-    lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-      targets.darwin = {
-        defaults = {
-          NSGlobalDomain = {
-            AppleICUForce24HourTime = true;
-          };
-
-          "com.apple.menuextra.clock" = {
-            Show24Hour = true;
-            ShowDayOfWeek = true;
-            ShowSeconds = false;
-            ShowTime = true;
-            ShowDate = 0;
-          };
-        };
-      };
+  flake.modules.darwin.base = {
+    system.defaults.NSGlobalDomain.AppleICUForce24HourTime = true;
+    system.defaults.menuExtraClock = {
+      Show24Hour = true;
+      ShowDayOfWeek = true;
+      ShowSeconds = false;
+      ShowDate = 0;
     };
+  };
 }

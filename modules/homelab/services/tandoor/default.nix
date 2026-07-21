@@ -1,184 +1,188 @@
-{ lib, config, ... }:
 {
-  flake.meta.tandoor = {
-    user = "tandoor";
-    group = "tandoor";
-  };
+  config,
+  lib,
+  ...
+}:
+let
+  tandoorUser = "tandoor";
+  tandoorGroup = "tandoor";
+  tandoorAppDir = "/var/lib/containers/tandoor";
+  tandoorDataDir = "/var/lib/data/tandoor";
 
-  flake.modules.nixos.homelab = {
-    users.users.${config.flake.meta.tandoor.user} = {
+  domain = config.flake.meta.reverse-proxy.domain;
+  reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
+  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
+
+  tandoorImage = "ghcr.io/tandoorrecipes/recipes:latest";
+  tandoorPort = 8080;
+  tandoorDbName = "tandoor";
+  tandoorDbUser = "tandoor";
+  tandoorDbPasswordFile = "/run/secrets/tandoor/db_password";
+  tandoorSecretKeyFile = "/run/secrets/tandoor/secret_key";
+  tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId or "";
+  tandoorOidcSecretFile = "/run/secrets/tandoor/oidc_client_secret";
+in
+{
+  flake.modules.nixos.tandoor = {
+    users.users.${tandoorUser} = {
       isSystemUser = true;
-      group = config.flake.meta.tandoor.group;
+      group = tandoorGroup;
+      extraGroups = [ "podman" ];
       createHome = true;
-      home = "/var/lib/${config.flake.meta.tandoor.user}";
+      home = "/var/lib/${tandoorUser}";
       autoSubUidGidRange = true;
       linger = true;
     };
 
-    users.groups.${config.flake.meta.tandoor.group} = { };
+    users.groups.${tandoorGroup} = { };
+
+    home-manager.users.${tandoorUser} = {
+      imports = [
+        config.flake.modules.homeManager.backup
+        config.flake.modules.homeManager.podman-secrets
+        config.flake.modules.homeManager.tandoor
+      ];
+    };
+
+    services.caddy.virtualHosts."recipes.${domain}" = {
+      extraConfig = ''
+        import reverse_proxy_common
+        reverse_proxy localhost:${toString reverseProxyPort}
+      '';
+    };
   };
 
-  flake.homelab.services.tandoor.user = config.flake.meta.tandoor.user;
-
-  flake.modules.homeManager.homelab =
+  flake.modules.homeManager.tandoor =
     hmArgs@{ osConfig, ... }:
     let
-      cfg = hmArgs.config.services.tandoor;
-      networkName = "tandoor";
       sharedEnv = {
         ALLOWED_HOSTS = "*";
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
-        POSTGRES_DB = cfg.database.name;
-        POSTGRES_USER = cfg.database.user;
+        POSTGRES_DB = tandoorDbName;
+        POSTGRES_USER = tandoorDbUser;
         TZ = osConfig.time.timeZone;
+      };
+
+      oidcEnv = lib.optionalAttrs (tandoorOidcSecretFile != null) {
+        OIDC_ENDPOINT = "https://auth.${domain}";
+        OIDC_CLIENT_ID = tandoorOidcClientId;
+        OIDC_SCOPES = "openid,profile,email";
+      };
+
+      oidcSecrets = lib.optionalAttrs (tandoorOidcSecretFile != null) {
+        OIDC_CLIENT_SECRET = tandoorOidcSecretFile;
       };
     in
     {
-      options.services.tandoor = {
-        enable = lib.mkEnableOption "Tandoor Recipes";
-
-        image = lib.mkOption {
-          type = lib.types.str;
-          default = "ghcr.io/tandoorrecipes/recipes:latest";
-          description = "Docker image to use for Tandoor";
-        };
-
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = 8080;
-          description = "Host port to expose Tandoor on";
-        };
-
-        appDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/containers/tandoor";
-          description = "Base directory for Tandoor persistent data (staticfiles, mediafiles)";
-        };
-
-        dataDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/data/tandoor";
-          description = "Base directory for Tandoor database data (Postgres)";
-        };
-
-        secretKeyFile = lib.mkOption {
-          type = lib.types.path;
-          description = "Path to file containing the Django SECRET_KEY";
-        };
-
-        database = {
-          name = lib.mkOption {
-            type = lib.types.str;
-            default = "tandoor";
-            description = "PostgreSQL database name";
+      config = {
+        programs.onepassword-secrets.secrets = {
+          tandoorSecretKey = {
+            path = "/run/secrets/tandoor/secret_key";
+            reference = "op://Homelab/Tandoor/Authentication/secret key";
+            owner = tandoorUser;
+            group = tandoorGroup;
           };
-
-          user = lib.mkOption {
-            type = lib.types.str;
-            default = "tandoor";
-            description = "PostgreSQL database user";
+          tandoorDbPassword = {
+            path = "/run/secrets/tandoor/db_password";
+            reference = "op://Homelab/Tandoor/Database/password";
+            owner = tandoorUser;
+            group = tandoorGroup;
           };
-
-          passwordFile = lib.mkOption {
-            type = lib.types.path;
-            description = "Path to file containing the PostgreSQL password";
+          tandoorOidcClientSecret = {
+            path = "/run/secrets/tandoor/oidc_client_secret";
+            reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
+            owner = tandoorUser;
+            group = tandoorGroup;
+          };
+          backupTandoorEncryptionKey = {
+            path = "/run/secrets/tandoor/backup_encryption_key";
+            reference = "op://Homelab/Backup/tandoor/password";
+            owner = tandoorUser;
+            group = tandoorGroup;
           };
         };
 
-        oidcClientSecretFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to file containing the OIDC client secret";
+        services.backup.jobs.tandoor = {
+          paths = [
+            "${tandoorDataDir}/postgres"
+            "${tandoorAppDir}/mediafiles"
+          ];
+          schedule = "daily";
+          retention = "standard";
+          providers = [ "koofr" ];
+          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
         };
-      };
 
-      config = lib.mkIf cfg.enable {
-        services.podman.networks.${networkName} = {
-          driver = "bridge";
+        services.podman.enable = true;
+        services.podman.networks.tandoor.driver = "bridge";
+
+        services.podman.containers.tandoor-db = {
+          image = "docker.io/library/postgres:16";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "tandoor.network" ];
+          networkAlias = [ "db" ];
+          volumes = [ "${tandoorDataDir}/postgres:/var/lib/postgresql/data" ];
+
+          environment = {
+            TZ = osConfig.time.timeZone;
+            POSTGRES_USER = tandoorDbUser;
+            POSTGRES_DB = tandoorDbName;
+          };
+
+          secrets = {
+            POSTGRES_PASSWORD = tandoorDbPasswordFile;
+          };
+
+          extraConfig.Container = {
+            HealthCmd = "pg_isready -U ${tandoorDbUser} -d ${tandoorDbName}";
+            HealthInterval = "5s";
+            HealthTimeout = "5s";
+            HealthRetries = 5;
+            NoNewPrivileges = true;
+          };
         };
 
-        services.podman.containers = {
-          tandoor-db = {
-            image = "docker.io/library/postgres:16";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "db" ];
-            volumes = [ "${cfg.dataDir}/postgres:/var/lib/postgresql/data" ];
+        services.podman.containers.tandoor = {
+          image = tandoorImage;
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "tandoor.network" ];
+          networkAlias = [ "app" ];
+          ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];
 
-            monitoring.enable = true;
-
-            environment = {
-              POSTGRES_USER = cfg.database.user;
-              POSTGRES_DB = cfg.database.name;
-            };
-
-            secrets = {
-              POSTGRES_PASSWORD = cfg.database.passwordFile;
-            };
-
-            extraConfig.Container = {
-              HealthCmd = "pg_isready -U ${cfg.database.user} -d ${cfg.database.name}";
-              HealthInterval = "5s";
-              HealthTimeout = "5s";
-              HealthRetries = 5;
-              NoNewPrivileges = true;
+          labels = mkHomepageLabels {
+            category = "General";
+            name = "Tandoor Recipes";
+            description = "Recipe Management";
+            icon = "tandoor-recipes";
+            href = "http://localhost:${toString reverseProxyPort}";
+            widget = {
+              type = "tandoor";
+              url = "http://localhost:${toString reverseProxyPort}";
             };
           };
 
-          tandoor = {
-            image = cfg.image;
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "app" ];
-            ports = [ "${toString cfg.port}:8080" ];
+          volumes = [
+            "${tandoorAppDir}/staticfiles:/opt/recipes/staticfiles"
+            "${tandoorAppDir}/mediafiles:/opt/recipes/mediafiles"
+          ];
 
-            monitoring.enable = true;
+          environment = sharedEnv // oidcEnv;
 
-            labels = config.flake.lib.mkHomepageLabels {
-              category = "General";
-              name = "Tandoor Recipes";
-              description = "Recipe Management";
-              icon = "tandoor-recipes";
-              href = "http://localhost:${toString cfg.port}";
-              widget = {
-                type = "tandoor";
-                url = "http://localhost:${toString cfg.port}";
-              };
+          secrets = {
+            SECRET_KEY = tandoorSecretKeyFile;
+            POSTGRES_PASSWORD = tandoorDbPasswordFile;
+          }
+          // oidcSecrets;
+
+          extraConfig = {
+            Unit = {
+              Requires = [ "podman-tandoor-db.service" ];
+              After = [ "podman-tandoor-db.service" ];
             };
-
-            volumes = [
-              "${cfg.appDir}/staticfiles:/opt/recipes/staticfiles"
-              "${cfg.appDir}/mediafiles:/opt/recipes/mediafiles"
-            ];
-
-            environment =
-              sharedEnv
-              // lib.optionalAttrs (cfg.oidcClientSecretFile != null) {
-                OIDC_ENDPOINT = "https://auth.${config.flake.meta.reverse-proxy.domain}";
-                OIDC_CLIENT_ID = config.flake.meta.oidc-clients.tandoor.clientId;
-                OIDC_SCOPES = "openid,profile,email";
-              };
-
-            secrets = {
-              SECRET_KEY = cfg.secretKeyFile;
-              POSTGRES_PASSWORD = cfg.database.passwordFile;
-            }
-            // lib.optionalAttrs (cfg.oidcClientSecretFile != null) {
-              OIDC_CLIENT_SECRET = cfg.oidcClientSecretFile;
-            };
-
-            extraConfig = {
-              Unit = {
-                Requires = [ "podman-tandoor-db.service" ];
-                After = [ "podman-tandoor-db.service" ];
-              };
-              Container = {
-                NoNewPrivileges = true;
-              };
-            };
+            Container.NoNewPrivileges = true;
           };
         };
       };

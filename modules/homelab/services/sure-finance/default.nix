@@ -1,33 +1,62 @@
-{ lib, config, ... }:
 {
-  flake.meta.sure-finance = {
-    user = "sure-finance";
-    group = "sure-finance";
-  };
+  config,
+  lib,
+  ...
+}:
+let
+  sureFinanceUser = "sure-finance";
+  sureFinanceGroup = "sure-finance";
+  sureFinanceAppDir = "/var/lib/containers/sure-finance";
+  sureFinanceDataDir = "/var/lib/data/sure-finance";
 
-  flake.modules.nixos.homelab = {
-    users.users.${config.flake.meta.sure-finance.user} = {
+  domain = config.flake.meta.reverse-proxy.domain;
+  reverseProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance;
+  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
+
+  sureFinanceImage = "ghcr.io/we-promise/sure:stable";
+  sureFinancePort = 3000;
+  sureFinanceDbName = "sure_production";
+  sureFinanceDbUser = "sure_user";
+  sureFinanceDbPasswordFile = "/run/secrets/sure-finance/postgres_password";
+  sureFinanceSecretKeyBaseFile = "/run/secrets/sure-finance/secret_key";
+  sureFinanceOpenaiTokenFile = "/run/secrets/sure-finance/openai_token";
+in
+{
+  flake.modules.nixos.sure-finance = {
+    users.users.${sureFinanceUser} = {
       isSystemUser = true;
-      group = config.flake.meta.sure-finance.group;
+      group = sureFinanceGroup;
+      extraGroups = [ "podman" ];
       createHome = true;
-      home = "/var/lib/${config.flake.meta.sure-finance.user}";
+      home = "/var/lib/${sureFinanceUser}";
       autoSubUidGidRange = true;
       linger = true;
     };
 
-    users.groups.${config.flake.meta.sure-finance.group} = { };
+    users.groups.${sureFinanceGroup} = { };
+
+    home-manager.users.${sureFinanceUser} = {
+      imports = [
+        config.flake.modules.homeManager.backup
+        config.flake.modules.homeManager.podman-secrets
+        config.flake.modules.homeManager.sure-finance
+      ];
+    };
+
+    services.caddy.virtualHosts."finance.${domain}" = {
+      extraConfig = ''
+        import reverse_proxy_common
+        reverse_proxy localhost:${toString reverseProxyPort}
+      '';
+    };
   };
 
-  flake.homelab.services.sure-finance.user = config.flake.meta.sure-finance.user;
-
-  flake.modules.homeManager.homelab =
+  flake.modules.homeManager.sure-finance =
     hmArgs@{ osConfig, ... }:
     let
-      cfg = hmArgs.config.services.sure-finance;
-      networkName = "sure-finance";
       sharedEnv = {
-        POSTGRES_USER = cfg.database.user;
-        POSTGRES_DB = cfg.database.name;
+        POSTGRES_USER = sureFinanceDbUser;
+        POSTGRES_DB = sureFinanceDbName;
         SELF_HOSTED = "true";
         RAILS_FORCE_SSL = "false";
         RAILS_ASSUME_SSL = "false";
@@ -36,200 +65,173 @@
         REDIS_URL = "redis://redis:6379/1";
         TZ = osConfig.time.timeZone;
       };
+
       sharedSecrets = {
-        POSTGRES_PASSWORD = cfg.database.passwordFile;
-        SECRET_KEY_BASE = cfg.secretKeyBaseFile;
+        POSTGRES_PASSWORD = sureFinanceDbPasswordFile;
+        SECRET_KEY_BASE = sureFinanceSecretKeyBaseFile;
       }
-      // lib.optionalAttrs (cfg.openaiTokenFile != null) {
-        OPENAI_ACCESS_TOKEN = cfg.openaiTokenFile;
+      // lib.optionalAttrs (sureFinanceOpenaiTokenFile != null) {
+        OPENAI_ACCESS_TOKEN = sureFinanceOpenaiTokenFile;
       };
     in
     {
-      options.services.sure-finance = {
-        enable = lib.mkEnableOption "Sure Finance";
-
-        image = lib.mkOption {
-          type = lib.types.str;
-          default = "ghcr.io/we-promise/sure:stable";
-          description = "Docker image to use for Sure Finance";
-        };
-
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = 3000;
-          description = "Host port to expose Sure Finance on";
-        };
-
-        appDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/containers/sure-finance";
-          description = "Base directory for Sure Finance persistent data (app storage, config)";
-        };
-
-        dataDir = lib.mkOption {
-          type = lib.types.path;
-          default = "/var/lib/data/sure-finance";
-          description = "Base directory for Sure Finance database and cache data (Postgres, Redis)";
-        };
-
-        database = {
-          name = lib.mkOption {
-            type = lib.types.str;
-            default = "sure_production";
-            description = "Postgres database name";
+      config = {
+        programs.onepassword-secrets.secrets = {
+          sureFinanceSecretKey = {
+            path = "/run/secrets/sure-finance/secret_key";
+            reference = "op://HomeLab/Sure Finance/Authentication/secret key";
+            owner = sureFinanceUser;
+            group = sureFinanceGroup;
           };
-          user = lib.mkOption {
-            type = lib.types.str;
-            default = "sure_user";
-            description = "Postgres database user";
+          sureFinancePostgresPassword = {
+            path = "/run/secrets/sure-finance/postgres_password";
+            reference = "op://HomeLab/Sure Finance/Database/password";
+            owner = sureFinanceUser;
+            group = sureFinanceGroup;
           };
-          passwordFile = lib.mkOption {
-            type = lib.types.path;
-            description = "Path to file containing the Postgres password";
+          sureFinanceOpenAiToken = {
+            path = "/run/secrets/sure-finance/openai_token";
+            reference = "op://HomeLab/Sure Finance/AI/api key";
+            owner = sureFinanceUser;
+            group = sureFinanceGroup;
+          };
+          backupSureFinanceEncryptionKey = {
+            path = "/run/secrets/sure-finance/backup_encryption_key";
+            reference = "op://Homelab/Backup/sure-finance/password";
+            owner = sureFinanceUser;
+            group = sureFinanceGroup;
           };
         };
 
-        secretKeyBaseFile = lib.mkOption {
-          type = lib.types.path;
-          description = "Path to file containing the Rails SECRET_KEY_BASE";
+        services.backup.jobs.sure-finance = {
+          paths = [
+            "${sureFinanceDataDir}/postgres"
+            "${sureFinanceAppDir}/storage"
+          ];
+          schedule = "daily";
+          retention = "standard";
+          providers = [ "koofr" ];
+          encryptionKey =
+            hmArgs.config.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
         };
 
-        openaiTokenFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to file containing the OpenAI API token. If null, AI features are disabled.";
+        services.podman.enable = true;
+        services.podman.networks.sure-finance.driver = "bridge";
+
+        services.podman.containers.sure-finance-db = {
+          image = "docker.io/library/postgres:16";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "sure-finance.network" ];
+          networkAlias = [ "db" ];
+          volumes = [ "${sureFinanceDataDir}/postgres:/var/lib/postgresql/data" ];
+
+          environment = {
+            POSTGRES_USER = sureFinanceDbUser;
+            POSTGRES_DB = sureFinanceDbName;
+          };
+
+          secrets = {
+            POSTGRES_PASSWORD = sureFinanceDbPasswordFile;
+          };
+
+          extraConfig.Container = {
+            HealthCmd = "pg_isready -U ${sureFinanceDbUser} -d ${sureFinanceDbName}";
+            HealthInterval = "5s";
+            HealthTimeout = "5s";
+            HealthRetries = 5;
+            NoNewPrivileges = true;
+          };
         };
-      };
 
-      config = lib.mkIf cfg.enable {
-        services.podman.networks.${networkName} = {
-          driver = "bridge";
+        services.podman.containers.sure-finance-redis = {
+          image = "docker.io/library/redis:latest";
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "sure-finance.network" ];
+          networkAlias = [ "redis" ];
+          volumes = [ "${sureFinanceDataDir}/redis:/data" ];
+
+          extraConfig.Container = {
+            HealthCmd = "redis-cli ping";
+            HealthInterval = "5s";
+            HealthTimeout = "5s";
+            HealthRetries = 5;
+            NoNewPrivileges = true;
+          };
         };
 
-        services.podman.containers = {
-          sure-finance-db = {
-            image = "docker.io/library/postgres:16";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "db" ];
-            volumes = [ "${cfg.dataDir}/postgres:/var/lib/postgresql/data" ];
+        services.podman.containers.sure-finance-web = {
+          image = sureFinanceImage;
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "sure-finance.network" ];
+          networkAlias = [ "web" ];
+          volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
+          ports = [ "${toString reverseProxyPort}:${toString sureFinancePort}" ];
 
-            monitoring.enable = true;
+          labels = mkHomepageLabels {
+            category = "Finance";
+            name = "Sure Finance";
+            description = "Personal Finance Tracker";
+            icon = "mdi-cash-multiple";
+            href = "http://localhost:${toString reverseProxyPort}";
+          };
 
-            environment = {
-              POSTGRES_USER = cfg.database.user;
-              POSTGRES_DB = cfg.database.name;
+          environment = sharedEnv;
+          secrets = sharedSecrets;
+
+          extraConfig = {
+            Unit = {
+              Requires = [
+                "podman-sure-finance-db.service"
+                "podman-sure-finance-redis.service"
+              ];
+              After = [
+                "podman-sure-finance-db.service"
+                "podman-sure-finance-redis.service"
+              ];
             };
-
-            secrets = {
-              POSTGRES_PASSWORD = cfg.database.passwordFile;
-            };
-
-            extraConfig.Container = {
-              HealthCmd = "pg_isready -U ${cfg.database.user} -d ${cfg.database.name}";
-              HealthInterval = "5s";
-              HealthTimeout = "5s";
-              HealthRetries = 5;
+            Container = {
               NoNewPrivileges = true;
+              DNS = [
+                "8.8.8.8"
+                "1.1.1.1"
+              ];
             };
           };
+        };
 
-          sure-finance-redis = {
-            image = "docker.io/library/redis:latest";
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "redis" ];
-            volumes = [ "${cfg.dataDir}/redis:/data" ];
+        services.podman.containers.sure-finance-worker = {
+          image = sureFinanceImage;
+          autoStart = true;
+          userNS = "keep-id";
+          network = [ "sure-finance.network" ];
+          networkAlias = [ "worker" ];
+          volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
 
-            monitoring.enable = true;
+          exec = "bundle exec sidekiq";
 
-            extraConfig.Container = {
-              HealthCmd = "redis-cli ping";
-              HealthInterval = "5s";
-              HealthTimeout = "5s";
-              HealthRetries = 5;
+          environment = sharedEnv;
+          secrets = sharedSecrets;
+
+          extraConfig = {
+            Unit = {
+              Requires = [
+                "podman-sure-finance-db.service"
+                "podman-sure-finance-redis.service"
+              ];
+              After = [
+                "podman-sure-finance-db.service"
+                "podman-sure-finance-redis.service"
+              ];
+            };
+            Container = {
               NoNewPrivileges = true;
-            };
-          };
-
-          sure-finance-web = {
-            image = cfg.image;
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "web" ];
-            volumes = [ "${cfg.appDir}/storage:/rails/storage" ];
-            ports = [ "${toString cfg.port}:3000" ];
-
-            monitoring.enable = true;
-
-            labels = config.flake.lib.mkHomepageLabels {
-              category = "Finance";
-              name = "Sure Finance";
-              description = "Personal Finance Tracker";
-              icon = "mdi-cash-multiple";
-              href = "http://localhost:${toString cfg.port}";
-            };
-
-            environment = sharedEnv;
-            secrets = sharedSecrets;
-
-            extraConfig = {
-              Unit = {
-                Requires = [
-                  "podman-sure-finance-db.service"
-                  "podman-sure-finance-redis.service"
-                ];
-                After = [
-                  "podman-sure-finance-db.service"
-                  "podman-sure-finance-redis.service"
-                ];
-              };
-              Container = {
-                NoNewPrivileges = true;
-                DNS = [
-                  "8.8.8.8"
-                  "1.1.1.1"
-                ];
-              };
-            };
-          };
-
-          sure-finance-worker = {
-            image = cfg.image;
-            autoStart = true;
-            userNS = "keep-id";
-            network = [ "${networkName}.network" ];
-            networkAlias = [ "worker" ];
-            volumes = [ "${cfg.appDir}/storage:/rails/storage" ];
-
-            monitoring.enable = true;
-
-            exec = "bundle exec sidekiq";
-
-            environment = sharedEnv;
-            secrets = sharedSecrets;
-
-            extraConfig = {
-              Unit = {
-                Requires = [
-                  "podman-sure-finance-db.service"
-                  "podman-sure-finance-redis.service"
-                ];
-                After = [
-                  "podman-sure-finance-db.service"
-                  "podman-sure-finance-redis.service"
-                ];
-              };
-              Container = {
-                NoNewPrivileges = true;
-                DNS = [
-                  "8.8.8.8"
-                  "1.1.1.1"
-                ];
-              };
+              DNS = [
+                "8.8.8.8"
+                "1.1.1.1"
+              ];
             };
           };
         };

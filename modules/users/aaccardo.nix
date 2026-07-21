@@ -10,7 +10,7 @@
     ];
   };
 
-  flake.modules.darwin.hackardo =
+  flake.modules.darwin.aaccardo =
     { pkgs, ... }:
     {
       users.users.${config.flake.meta.users.aaccardo.name} = {
@@ -23,4 +23,18 @@
         shell = pkgs.zsh;
       };
     };
+
+  flake.modules.homeManager.aaccardo = {
+    imports = with config.flake.modules.homeManager; [
+      base
+      dev
+      file-sync
+      media
+      password-manager
+      shell
+      theme
+    ];
+    home.username = config.flake.meta.users.aaccardo.name;
+    home.stateVersion = "24.11";
+  };
 }
