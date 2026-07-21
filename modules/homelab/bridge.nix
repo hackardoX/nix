@@ -12,38 +12,35 @@ let
       services.${serviceName} = serviceConfig;
     };
 
-  mkServiceUserModule =
-    serviceName: systemArgs:
+  # Group services by their target user
+  servicesByUser = lib.groupBy (name: svc: svc.user) config.flake.homelab.services;
+
+  # Build home-manager.users structure directly
+  # Each user gets all their services' imports collected together
+  homeManagerUsers = lib.mapAttrs (
+    user: services:
     let
-      svc = config.flake.homelab.services.${serviceName};
-      user = svc.user;
-      allUsers = builtins.attrNames systemArgs.config.users.users;
+      allUsers = builtins.attrNames config.users.users;
     in
     {
       assertions = [
         {
           assertion = builtins.elem user allUsers;
-          message = "homelab service '${serviceName}' references user '${user}', but that user does not exist in config.users.users.";
+          message = "homelab services reference user '${user}', but that user does not exist in config.users.users.";
         }
       ];
-      home-manager.users.${user}.imports = [
-        (mkServiceModule serviceName svc)
-      ];
-    };
-
-  # Creates an attrset of modules like:
-  #   { service-homepage = ...; service-immich = ...; ... }
-  # Each module routes a service's home-manager config into its designated
-  # per-user scope (e.g. home-manager.users.homepage.imports = ...).
-  platformServiceModules = lib.mapAttrs' (
-    name: _: lib.nameValuePair "service-${name}" (mkServiceUserModule name)
-  ) config.flake.homelab.services;
+      imports = lib.mapAttrsToList (name: svc: mkServiceModule name svc) services;
+    }
+  ) servicesByUser;
 in
 {
-  # Flatten all service-* modules into the existing "homelab" module so they
-  # are automatically imported when a host imports flake.modules.nixos.homelab
-  # without needing to list each service individually (e.g. service-homepage,
-  # service-immich, ...).
-  flake.modules.darwin.homelab = lib.mkMerge (lib.attrValues platformServiceModules);
-  flake.modules.nixos.homelab = lib.mkMerge (lib.attrValues platformServiceModules);
+  # Build the homelab module with home-manager.users directly populated
+  # This ensures all services are automatically included when a host imports
+  # flake.modules.nixos.homelab without needing separate service-* modules.
+  flake.modules.darwin.homelab = {
+    home-manager.users = homeManagerUsers;
+  };
+  flake.modules.nixos.homelab = {
+    home-manager.users = homeManagerUsers;
+  };
 }
