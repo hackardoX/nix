@@ -7,7 +7,9 @@ let
       # If the module has a `config` key, use it as-is.
       # Otherwise, treat the entire attrset as the config.
       serviceConfig = if builtins.isAttrs result && result ? config then result.config else result;
-      rest = if builtins.isAttrs result then removeAttrs result [ "config" ] else { };
+      # Only keep top-level attributes if the module has an explicit `config` key.
+      # Otherwise, there are no top-level attributes to preserve.
+      rest = if builtins.isAttrs result && result ? config then removeAttrs result [ "config" ] else { };
     in
     rest
     // {
