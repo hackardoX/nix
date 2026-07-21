@@ -24,42 +24,43 @@ in
   };
 
   flake.homelab.services.homepage.module = hmArgs: {
-    services.docker-socket-proxy.enable = true;
-
     config = {
-      enable = true;
-      port = port;
+      services.docker-socket-proxy.enable = true;
+      services.homepage = {
+        enable = true;
+        port = port;
 
-      settings = {
-        title = "Homelab";
-        description = "Self-hosted services dashboard";
-        theme = "dark";
-        color = "slate";
-        statusStyle = "dot";
-        useEqualHeights = true;
+        settings = {
+          title = "Homelab";
+          description = "Self-hosted services dashboard";
+          theme = "dark";
+          color = "slate";
+          statusStyle = "dot";
+          useEqualHeights = true;
+        };
+
+        widgets = [
+          {
+            resources = {
+              cpu = true;
+              memory = true;
+              label = "System";
+            };
+          }
+          {
+            resources = {
+              disk = "/";
+              label = "Storage";
+            };
+          }
+          {
+            resources = {
+              network = "eth0";
+              label = "Network";
+            };
+          }
+        ];
       };
-
-      widgets = [
-        {
-          resources = {
-            cpu = true;
-            memory = true;
-            label = "System";
-          };
-        }
-        {
-          resources = {
-            disk = "/";
-            label = "Storage";
-          };
-        }
-        {
-          resources = {
-            network = "eth0";
-            label = "Network";
-          };
-        }
-      ];
     };
   };
 }

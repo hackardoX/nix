@@ -46,28 +46,28 @@ in
         hmArgs.config.services.onepassword-secrets.secretPaths.reactiveResumeDbPasswordPath;
       oidcClientSecretFile =
         hmArgs.config.services.onepassword-secrets.secretPaths.reactiveResumeOidcClientSecret;
-    };
 
-    programs.onepassword-secrets.secrets = {
-      reactiveResumeAuthSecretPath = {
-        path = "/run/secrets/reactive-resume/auth_secret";
-        reference = "op://Homelab/Reactive Resume/Authentication/secret";
-        owner = config.flake.meta.reactive-resume.user;
-        group = config.flake.meta.reactive-resume.group;
-      };
+      programs.onepassword-secrets.secrets = {
+        reactiveResumeAuthSecretPath = {
+          path = "/run/secrets/reactive-resume/auth_secret";
+          reference = "op://Homelab/Reactive Resume/Authentication/secret";
+          owner = config.flake.meta.reactive-resume.user;
+          group = config.flake.meta.reactive-resume.group;
+        };
 
-      reactiveResumeDbPasswordPath = {
-        path = "/run/secrets/reactive-resume/db_password";
-        reference = "op://Homelab/Reactive Resume/Database/password";
-        owner = config.flake.meta.reactive-resume.user;
-        group = config.flake.meta.reactive-resume.group;
-      };
+        reactiveResumeDbPasswordPath = {
+          path = "/run/secrets/reactive-resume/db_password";
+          reference = "op://Homelab/Reactive Resume/Database/password";
+          owner = config.flake.meta.reactive-resume.user;
+          group = config.flake.meta.reactive-resume.group;
+        };
 
-      reactiveResumeOidcClientSecret = {
-        path = "/run/secrets/reactive-resume/oidc_client_secret";
-        reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secret";
-        owner = config.flake.meta.reactive-resume.user;
-        group = config.flake.meta.reactive-resume.group;
+        reactiveResumeOidcClientSecret = {
+          path = "/run/secrets/reactive-resume/oidc_client_secret";
+          reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secret";
+          owner = config.flake.meta.reactive-resume.user;
+          group = config.flake.meta.reactive-resume.group;
+        };
       };
     };
   };

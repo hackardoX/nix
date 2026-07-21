@@ -52,21 +52,21 @@ in
       dbPasswordFile = hmArgs.config.services.onepassword-secrets.secretPaths.immichDbPassword;
       oauthClientSecretFile =
         hmArgs.config.services.onepassword-secrets.secretPaths.immichOidcClientSecret;
-    };
 
-    programs.onepassword-secrets.secrets = {
-      immichDbPassword = {
-        path = ".secrets/immich/db_password";
-        reference = "op://Homelab/Immich/Database/password";
-        owner = config.flake.meta.immich.user;
-        group = config.flake.meta.immich.group;
-      };
+      programs.onepassword-secrets.secrets = {
+        immichDbPassword = {
+          path = ".secrets/immich/db_password";
+          reference = "op://Homelab/Immich/Database/password";
+          owner = config.flake.meta.immich.user;
+          group = config.flake.meta.immich.group;
+        };
 
-      immichOidcClientSecret = {
-        path = "/run/secrets/immich/oidc_client_secret";
-        reference = "op://Homelab/Immich/Authentication/OIDC client secret";
-        owner = config.flake.meta.immich.user;
-        group = config.flake.meta.immich.group;
+        immichOidcClientSecret = {
+          path = "/run/secrets/immich/oidc_client_secret";
+          reference = "op://Homelab/Immich/Authentication/OIDC client secret";
+          owner = config.flake.meta.immich.user;
+          group = config.flake.meta.immich.group;
+        };
       };
     };
   };

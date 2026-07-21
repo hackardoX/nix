@@ -43,26 +43,26 @@ in
       secretKeyBaseFile =
         hmArgs.config.services.onepassword-secrets.secretPaths.sureFinanceSecretKeyBasePath;
       openaiTokenFile = hmArgs.config.services.onepassword-secrets.secretPaths.sureFinanceOpenAiTokenPath;
-    };
 
-    programs.onepassword-secrets.secrets = {
-      sureFinanceSecretKeyBasePath = {
-        path = "/run/secrets/sure-finance/secret_key";
-        reference = "op://HomeLab/Sure Finance/Authentication/secret key";
-        owner = config.flake.meta.sure-finance.user;
-        group = config.flake.meta.sure-finance.group;
-      };
-      sureFinancePostgresPasswordPath = {
-        path = "/run/secrets/sure-finance/postgres_password";
-        reference = "op://HomeLab/Sure Finance/Database/password";
-        owner = config.flake.meta.sure-finance.user;
-        group = config.flake.meta.sure-finance.group;
-      };
-      sureFinanceOpenAiTokenPath = {
-        path = "/run/secrets/sure-finance/openai_token";
-        reference = "op://HomeLab/Sure Finance/AI/api key";
-        owner = config.flake.meta.sure-finance.user;
-        group = config.flake.meta.sure-finance.group;
+      programs.onepassword-secrets.secrets = {
+        sureFinanceSecretKeyBasePath = {
+          path = "/run/secrets/sure-finance/secret_key";
+          reference = "op://HomeLab/Sure Finance/Authentication/secret key";
+          owner = config.flake.meta.sure-finance.user;
+          group = config.flake.meta.sure-finance.group;
+        };
+        sureFinancePostgresPasswordPath = {
+          path = "/run/secrets/sure-finance/postgres_password";
+          reference = "op://HomeLab/Sure Finance/Database/password";
+          owner = config.flake.meta.sure-finance.user;
+          group = config.flake.meta.sure-finance.group;
+        };
+        sureFinanceOpenAiTokenPath = {
+          path = "/run/secrets/sure-finance/openai_token";
+          reference = "op://HomeLab/Sure Finance/AI/api key";
+          owner = config.flake.meta.sure-finance.user;
+          group = config.flake.meta.sure-finance.group;
+        };
       };
     };
   };
