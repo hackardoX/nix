@@ -31,11 +31,19 @@ let
       ];
     };
 
+  # Creates an attrset of modules like:
+  #   { service-homepage = ...; service-immich = ...; ... }
+  # Each module routes a service's home-manager config into its designated
+  # per-user scope (e.g. home-manager.users.homepage.imports = ...).
   platformServiceModules = lib.mapAttrs' (
     name: _: lib.nameValuePair "service-${name}" (mkServiceUserModule name)
   ) config.flake.homelab.services;
 in
 {
-  flake.modules.darwin = platformServiceModules;
-  flake.modules.nixos = platformServiceModules;
+  # Flatten all service-* modules into the existing "homelab" module so they
+  # are automatically imported when a host imports flake.modules.nixos.homelab
+  # without needing to list each service individually (e.g. service-homepage,
+  # service-immich, ...).
+  flake.modules.darwin.homelab = lib.mkMerge (lib.attrValues platformServiceModules);
+  flake.modules.nixos.homelab = lib.mkMerge (lib.attrValues platformServiceModules);
 }
