@@ -24,6 +24,8 @@ in
     users.groups.${dockerProxyGroup} = { };
 
     home-manager.users.${dockerProxyUser} = {
+      home.username = dockerProxyUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [ docker-socket-proxy ];
     };
   };

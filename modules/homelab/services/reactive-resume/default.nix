@@ -39,6 +39,8 @@ in
     users.groups.${reactiveResumeGroup} = { };
 
     home-manager.users.${reactiveResumeUser} = {
+      home.username = reactiveResumeUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [
         base
         backup

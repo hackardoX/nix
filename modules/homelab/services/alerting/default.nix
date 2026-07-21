@@ -30,6 +30,8 @@ in
     users.groups.${alertingGroup} = { };
 
     home-manager.users.${alertingUser} = {
+      home.username = alertingUser;
+      home.stateVersion = "24.11";
       imports = with config.flake.modules.homeManager; [
         base
         alerting
