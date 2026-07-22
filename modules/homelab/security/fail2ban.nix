@@ -18,7 +18,9 @@ in
 
       users.groups.${fail2ban.group} = { };
 
-      environment.etc."fail2ban/action.d/sendmail-common.local".text = ''
+      environment.etc."fail2ban/action.d/sendmail-common.conf".text = ''
+        [Definition]
+
         [Init]
         mailcmd = sendmail --account=fail2ban -f "<sender>" "<dest>"
       '';
