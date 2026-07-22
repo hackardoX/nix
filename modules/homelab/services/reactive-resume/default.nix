@@ -197,7 +197,7 @@ in
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
-              StartPeriod = "30s";
+              HealthStartPeriod = "30s";
               NoNewPrivileges = true;
             };
           };
