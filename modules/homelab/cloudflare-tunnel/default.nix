@@ -6,7 +6,7 @@
   flake.modules.nixos.homelab-ingress =
     nixosArgs:
     let
-      domain = "homelab4.fun";
+      domain = nixosArgs.config.flake.meta.reverse-proxy.domain;
       tunnelUuid = "7ba3afe7-dd5d-4972-9035-6e181d2beedb";
     in
     {
@@ -48,7 +48,6 @@
               import geoblock
               import rate_limit_common
               import tls_hardened
-              import auth_protected
 
               request_body {
                 max_size 10MB
