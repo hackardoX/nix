@@ -19,7 +19,7 @@
       programs.onepassword-secrets.secrets.koofrPassword = {
         path = ".secrets/rclone/koofr_password";
         reference = "op://Homelab/Rclone remotes/Koofr/password";
-        owner = hmArgs.osConfig.system.primaryUser;
+        owner = hmArgs.config.home.username;
         group = if pkgs.stdenv.isDarwin then "staff" else "wheel";
       };
     };

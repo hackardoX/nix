@@ -34,6 +34,7 @@
                   originServerName = domain;
                 };
               };
+              "ssh.${domain}" = "ssh://localhost:22";
               "*.${domain}" = {
                 service = "https://localhost:443";
                 originRequest = {
@@ -41,7 +42,6 @@
                   originServerName = domain;
                 };
               };
-              "ssh.${domain}" = "ssh://localhost:22";
             };
             default = "http_status:404";
           };
