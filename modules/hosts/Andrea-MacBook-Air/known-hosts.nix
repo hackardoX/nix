@@ -37,6 +37,7 @@
             user = config.flake.meta.users.hal.name;
             identityFile = hmArgs.config.programs.onepassword-secrets.secretPaths.homeLabPublicKey;
             proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h";
+            forwardAgent = true;
           };
         };
       };
