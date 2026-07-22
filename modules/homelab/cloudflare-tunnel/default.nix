@@ -27,23 +27,9 @@
               originServerName = domain;
             };
             ingress = {
-              "${domain}" = {
-                service = "https://localhost:443";
-                originRequest = {
-                  noTLSVerify = true;
-                  originServerName = domain;
-                };
-              };
               "ssh.${domain}" = "ssh://localhost:22";
-              "*.${domain}" = {
-                service = "https://localhost:443";
-                originRequest = {
-                  noTLSVerify = true;
-                  originServerName = domain;
-                };
-              };
             };
-            default = "http_status:404";
+            default = "https://localhost:443";
           };
         };
 
