@@ -13,5 +13,7 @@
       # homelab-sure-finance
       # homelab-tandoor
     ];
+
+    users.groups.homelab-users = { };
   };
 }

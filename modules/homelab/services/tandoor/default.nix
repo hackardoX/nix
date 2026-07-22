@@ -27,7 +27,10 @@ in
     users.users.${tandoorUser} = {
       isSystemUser = true;
       group = tandoorGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${tandoorUser}";
       autoSubUidGidRange = true;

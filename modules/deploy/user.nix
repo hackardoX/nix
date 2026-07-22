@@ -12,7 +12,6 @@ in
         uid = 2000;
         extraGroups = [
           "wheel"
-          "sudo"
         ];
         openssh.authorizedKeys.keys =
           config.flake.meta.users.${nixosArgs.config.system.primaryUser}.authorizedKeys;

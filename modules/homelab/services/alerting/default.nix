@@ -20,7 +20,10 @@ in
     users.users.${alertingUser} = {
       isSystemUser = true;
       group = alertingGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${alertingUser}";
       autoSubUidGidRange = true;

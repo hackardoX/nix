@@ -14,7 +14,10 @@ in
     users.users.${dockerProxyUser} = {
       isSystemUser = true;
       group = dockerProxyGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${dockerProxyUser}";
       autoSubUidGidRange = true;

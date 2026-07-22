@@ -43,6 +43,7 @@ in
       extraGroups = [
         "systemd-journal"
         "podman"
+        "homelab-users"
       ];
       createHome = true;
       home = "/var/lib/${monitoringUser}";
