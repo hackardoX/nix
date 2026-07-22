@@ -35,14 +35,6 @@ in
     nixosArgs@{ pkgs, ... }:
     let
       autheliaService = "authelia-default.service";
-      autheliaUsers = {
-        hal = {
-          displayname = config.flake.meta.users.hal.description;
-          email = config.flake.meta.users.hal.email;
-          passwordHashFile =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaHalPasswordHash;
-        };
-      };
 
       autheliaDataDir = "/var/lib/data/authelia";
       hashedSecretsDir = "${autheliaDataDir}/hashed-oidc-secrets";
@@ -87,7 +79,7 @@ in
                 enable_passkey_login = true;
               };
               authentication_backend = {
-                file.path = "${autheliaDataDir}/users.yml";
+                file.path = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaUsersFile;
                 password_reset.disable = false;
               };
               access_control = {
@@ -278,9 +270,9 @@ in
             group = config.flake.meta.authelia.group;
             services = [ autheliaService ];
           };
-          autheliaHalPasswordHash = {
-            path = "/run/secrets/authelia/hal_password_hash";
-            reference = "op://HomeLab/Authelia/HAL Password Hash";
+          autheliaUsersFile = {
+            path = "/run/secrets/authelia/users.yml";
+            reference = "op://HomeLab/Authelia Users/notesPlain";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
             services = [ autheliaService ];
@@ -335,7 +327,7 @@ in
       ];
 
       systemd.services.authelia-init = {
-        description = "Initialize Authelia user database";
+        description = "Hash OIDC client secrets for Authelia";
         before = [ "authelia-default.service" ];
         requiredBy = [ "authelia-default.service" ];
         after = [ "opnix-secrets.service" ];
@@ -362,20 +354,6 @@ in
           ++ lib.forEach oidcClients (
             c: ''hash_secret "${c.secretPath}" "${hashedSecretsDir}/${c.name}_oidc_secret"''
           )
-          ++ [
-            "cat > \"${autheliaDataDir}/users.yml\" << EOF"
-            "users:"
-          ]
-          ++ lib.mapAttrsToList (
-            name: user:
-            "  ${name}:\n"
-            + "    disabled: false\n"
-            + "    displayname: \"${user.displayname}\"\n"
-            + "    password: $(cat \"${user.passwordHashFile}\")\n"
-            + "    email: \"${user.email}\"\n"
-            + "    groups: []"
-          ) autheliaUsers
-          ++ [ "EOF" ]
         );
       };
 
