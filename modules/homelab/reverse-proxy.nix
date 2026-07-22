@@ -19,7 +19,7 @@
       ...
     }:
     let
-      geoipDbPath = "/var/lib/GeoIP/GeoLite2-Country.mmdb";
+      geoipDbPath = "/var/lib/GeoIP";
       allowedCountries = [
         "IT"
         "FR"
@@ -95,7 +95,7 @@
               @not_allowed {
                 not {
                   maxmind_geolocation {
-                    db_path "${geoipDbPath}"
+                    db_path "${geoipDbPath}/GeoLite2-Country.mmdb"
                     allow_countries ${lib.concatStringsSep " " allowedCountries}
                   }
                 }
