@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   ...
 }:
@@ -6,7 +7,7 @@
   flake.modules.nixos.homelab-ingress =
     nixosArgs:
     let
-      domain = nixosArgs.config.flake.meta.reverse-proxy.domain;
+      domain = config.flake.meta.reverse-proxy.domain;
       tunnelUuid = "7ba3afe7-dd5d-4972-9035-6e181d2beedb";
     in
     {
