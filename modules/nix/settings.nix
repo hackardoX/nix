@@ -12,10 +12,6 @@ let
       nix =
         let
           flakeInputs = lib.filterAttrs (_: v: lib.isType "flake" v) inputs;
-          users = [
-            "root"
-            "@wheel"
-          ];
         in
         {
           registry = lib.pipe flakeInputs [
@@ -34,8 +30,15 @@ let
               "pipe-operators"
             ];
 
-            allowed-users = users;
-            trusted-users = users;
+            allowed-users = [
+              "root"
+              "@wheel"
+              "@homelab-users"
+            ];
+            trusted-users = [
+              "root"
+              "@wheel"
+            ];
 
             sandbox = lib.mkDefault true;
 

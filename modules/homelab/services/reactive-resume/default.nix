@@ -29,7 +29,10 @@ in
     users.users.${reactiveResumeUser} = {
       isSystemUser = true;
       group = reactiveResumeGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${reactiveResumeUser}";
       autoSubUidGidRange = true;

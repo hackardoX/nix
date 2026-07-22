@@ -26,7 +26,10 @@ in
     users.users.${sureFinanceUser} = {
       isSystemUser = true;
       group = sureFinanceGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${sureFinanceUser}";
       autoSubUidGidRange = true;

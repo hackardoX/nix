@@ -37,7 +37,10 @@ in
     users.users.${jobOpsUser} = {
       isSystemUser = true;
       group = jobOpsGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${jobOpsUser}";
       autoSubUidGidRange = true;

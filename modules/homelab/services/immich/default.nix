@@ -33,7 +33,10 @@ in
     users.users.${immichUser} = {
       isSystemUser = true;
       group = immichGroup;
-      extraGroups = [ "podman" ];
+      extraGroups = [
+        "podman"
+        "homelab-users"
+      ];
       createHome = true;
       home = "/var/lib/${immichUser}";
       autoSubUidGidRange = true;
