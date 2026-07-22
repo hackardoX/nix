@@ -224,14 +224,7 @@ in
             (auth_protected) {
               forward_auth localhost:${toString autheliaPort} {
                 uri /api/authz/forward-auth
-                header_up X-Forwarded-Method             {method}
-                header_up X-Forwarded-URI                {uri}
-                header_up X-Forwarded-Host               {host}
-                header_up X-Forwarded-Proto              {scheme}
-                header_up X-Forwarded-Remote-User        {http.auth.header.remote_user}
-                header_up X-Forwarded-Remote-Groups      {http.auth.header.remote_groups}
-                header_up X-Forwarded-Remote-Name        {http.auth.header.remote_name}
-                header_up X-Forwarded-Remote-Email       {http.auth.header.remote_email}
+                copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
               }
             }
 
