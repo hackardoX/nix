@@ -16,7 +16,7 @@ let
   alertingNtfyTokenSecretPath = "/run/secrets/alerting_ntfy_token";
 in
 {
-  flake.modules.nixos.alerting = {
+  flake.modules.nixos.homelab-alerting = {
     users.users.${alertingUser} = {
       isSystemUser = true;
       group = alertingGroup;
@@ -34,15 +34,15 @@ in
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
-        alerting
+        homelab-alerting
         backup
-        podman-extension
+        homelab-podman-extension
         podman-secrets
       ];
     };
   };
 
-  flake.modules.homeManager.alerting =
+  flake.modules.homeManager.homelab-alerting =
     hmArgs@{
       osConfig,
       pkgs,

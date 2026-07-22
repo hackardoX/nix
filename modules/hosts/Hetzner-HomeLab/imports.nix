@@ -13,6 +13,7 @@
         homelab
         root
         ssh
+        sudo
       ];
 
       home-manager.users.${config.flake.meta.users.hetzner.name} =

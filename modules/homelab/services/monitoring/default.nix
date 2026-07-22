@@ -36,7 +36,7 @@ let
   grafanaOidcSecretFile = "/run/secrets/monitoring/grafana/oidc_client_secret";
 in
 {
-  flake.modules.nixos.monitoring = {
+  flake.modules.nixos.homelab-monitoring = {
     users.users.${monitoringUser} = {
       isSystemUser = true;
       group = monitoringGroup;
@@ -58,13 +58,13 @@ in
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        monitoring
-        podman-extension
+        homelab-monitoring
+        homelab-podman-extension
       ];
     };
   };
 
-  flake.modules.homeManager.podman-extension = {
+  flake.modules.homeManager.homelab-podman-extension = {
     options.services.podman.containers = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule (
@@ -87,7 +87,7 @@ in
     };
   };
 
-  flake.modules.homeManager.monitoring =
+  flake.modules.homeManager.homelab-monitoring =
     hmArgs@{
       osConfig,
       pkgs,

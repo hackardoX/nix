@@ -49,7 +49,7 @@ let
   };
 in
 {
-  flake.modules.nixos.homepage = { pkgs, ... }: {
+  flake.modules.nixos.homelab-homepage = { pkgs, ... }: {
     users.users.${homepageUser} = {
       isSystemUser = true;
       group = homepageGroup;
@@ -67,8 +67,8 @@ in
       home.username = homepageUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
-        homepage
-        podman-extension
+        homelab-homepage
+        homelab-podman-extension
       ];
     };
 
@@ -88,7 +88,7 @@ in
     };
   };
 
-  flake.modules.homeManager.homepage = { osConfig, pkgs, ... }: {
+  flake.modules.homeManager.homelab-homepage = { osConfig, pkgs, ... }: {
     config = {
       services.podman.enable = true;
       services.podman.networks.homepage.driver = "bridge";

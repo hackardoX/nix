@@ -23,7 +23,7 @@ let
   tandoorOidcSecretFile = "/run/secrets/tandoor/oidc_client_secret";
 in
 {
-  flake.modules.nixos.tandoor = {
+  flake.modules.nixos.homelab-tandoor = {
     users.users.${tandoorUser} = {
       isSystemUser = true;
       group = tandoorGroup;
@@ -43,7 +43,7 @@ in
         base
         backup
         podman-secrets
-        tandoor
+        homelab-tandoor
       ];
     };
 
@@ -55,7 +55,7 @@ in
     };
   };
 
-  flake.modules.homeManager.tandoor =
+  flake.modules.homeManager.homelab-tandoor =
     hmArgs@{ osConfig, ... }:
     let
       sharedEnv = {

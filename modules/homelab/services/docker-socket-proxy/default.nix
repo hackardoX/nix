@@ -10,7 +10,7 @@ let
   dockerProxyNetwork = "homepage";
 in
 {
-  flake.modules.nixos.docker-socket-proxy = {
+  flake.modules.nixos.homelab-docker-socket-proxy = {
     users.users.${dockerProxyUser} = {
       isSystemUser = true;
       group = dockerProxyGroup;
@@ -26,11 +26,11 @@ in
     home-manager.users.${dockerProxyUser} = {
       home.username = dockerProxyUser;
       home.stateVersion = "24.11";
-      imports = with config.flake.modules.homeManager; [ docker-socket-proxy ];
+      imports = with config.flake.modules.homeManager; [ homelab-docker-socket-proxy ];
     };
   };
 
-  flake.modules.homeManager.docker-socket-proxy = { osConfig, ... }: {
+  flake.modules.homeManager.homelab-docker-socket-proxy = { osConfig, ... }: {
     config = {
       services.podman.enable = true;
       services.podman.networks.${dockerProxyNetwork}.driver = "bridge";

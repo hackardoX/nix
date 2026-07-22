@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.nixos.ingress =
+  flake.modules.nixos.homelab-ingress =
     nixosArgs:
     let
       domain = "homelab4.fun";
