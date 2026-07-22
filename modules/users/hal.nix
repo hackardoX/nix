@@ -16,6 +16,8 @@
   flake.modules.nixos.hal =
     { pkgs, lib, ... }:
     {
+      nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];
+
       users.users.${config.flake.meta.users.hal.name} = {
         inherit (config.flake.meta.users.hal) description uid;
         isNormalUser = true;
