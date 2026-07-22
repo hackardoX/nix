@@ -58,7 +58,7 @@
           enable = true;
 
           globalConfig = ''
-            acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
+            local_certs
 
             log access-log {
               include http.log.access
