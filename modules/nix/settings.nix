@@ -37,7 +37,6 @@ let
             ];
             trusted-users = [
               "root"
-              "@wheel"
             ];
 
             sandbox = lib.mkDefault true;
@@ -55,47 +54,41 @@ let
         };
     };
 
-  nixConfigLaptop =
-    { config, ... }:
-    let
-      users = [
+  nixConfigLaptop = {
+    nix.settings = {
+      experimental-features = [
+        "auto-allocate-uids"
+        "ca-derivations"
+        "dynamic-derivations"
+        "flakes"
+        "nix-command"
+        "pipe-operators"
+        "recursive-nix"
+      ];
+
+      allowed-users = [
         "root"
         "@wheel"
         "nix-builder"
         "@admin"
-        config.system.primaryUser
       ];
-    in
-    {
-      nix.settings = {
-        experimental-features = [
-          "auto-allocate-uids"
-          "ca-derivations"
-          "dynamic-derivations"
-          "flakes"
-          "nix-command"
-          "pipe-operators"
-          "recursive-nix"
-        ];
+      trusted-users = [ "root" ];
+      download-buffer-size = 500000000;
+      http-connections = 25;
+      preallocate-contents = true;
 
-        allowed-users = users;
-        trusted-users = users;
-        download-buffer-size = 500000000;
-        http-connections = 25;
-        preallocate-contents = true;
+      keep-derivations = true;
+      keep-outputs = true;
+      log-lines = 50;
+      warn-dirty = false;
 
-        keep-derivations = true;
-        keep-outputs = true;
-        log-lines = 50;
-        warn-dirty = false;
+      # https://github.com/NixOS/nix/issues/12698
+      sandbox = "relaxed";
 
-        # https://github.com/NixOS/nix/issues/12698
-        sandbox = "relaxed";
-
-        extra-system-features = [ "recursive-nix" ];
-      };
-
+      extra-system-features = [ "recursive-nix" ];
     };
+
+  };
 
   nixConfigLaptopDarwin = {
     nix = {

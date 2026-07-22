@@ -13,6 +13,8 @@
   flake.modules.darwin.aaccardo =
     { pkgs, ... }:
     {
+      nix.settings.allowed-users = [ config.flake.meta.users.aaccardo.name ];
+
       users.users.${config.flake.meta.users.aaccardo.name} = {
         inherit (config.flake.meta.users.aaccardo)
           description
