@@ -209,6 +209,9 @@ in
           };
         };
 
+        timesyncd.enable = false;
+        chrony.enable = true;
+
         caddy = {
           virtualHosts."${authDomain}" = {
             extraConfig = ''
