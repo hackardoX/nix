@@ -1,37 +1,123 @@
 # Cloudflare Tunnel Setup
 
-Manual steps to create the tunnel in the Cloudflare dashboard:
+Locally-managed tunnel with declarative ingress rules via NixOS's native
+`services.cloudflared.tunnels` module.
 
-## 1. Create the tunnel
+## One-Time Setup
 
-- Go to [Cloudflare Zero Trust](https://one.dash.cloudflare.com/) > Networks > Tunnels
-- Click "Create a tunnel", give it a name (e.g. `homelab`)
-- Choose connector type "cloudflared"
-- Copy the token value shown after creation
+Run these commands once from any machine with a browser (the generated files
+are portable and can be reused on any machine):
 
-## 2. Store the token in 1Password
+### 1. Install cloudflared
 
-- Open 1Password, locate the "Homelab" vault
-- Create a new "Cloudflare Tunnel" item with a "token" field
-- Paste the tunnel token
+```bash
+nix-shell -p cloudflared
+```
 
-## 3. Configure public hostnames
+### 2. Login to Cloudflare
 
-In the tunnel's configuration page:
+```bash
+cloudflared tunnel login
+```
 
-| Subdomain | Domain | Type | URL |
-|---|---|---|---|
-| `*` | `<yourdomain>` | HTTPS | `localhost:443` |
+This opens a browser for OAuth authentication and creates
+`~/.cloudflared/cert.pem` (account certificate, valid 10+ years).
 
-Under "Additional application settings" > TLS:
-- Enable "No TLS Verify" (cloudflared connects to Caddy via localhost)
-- Set "Origin Server Name" to `*.yourdomain.com`
+### 3. Create the tunnel
 
-## 4. Configure DNS
+```bash
+cloudflared tunnel create homelab4.fun
+```
 
-- Add a CNAME record: `*.yourdomain.com` → `<tunnel-uuid>.cfargotunnel.com`
-- Ensure the orange cloud (proxy) is enabled
+Note the tunnel UUID from the output. This creates the credentials file at
+`~/.cloudflared/<uuid>.json`.
 
-## 5. Remove router port forwarding
+### 4. Store credentials in 1Password
 
-After verifying the tunnel works, remove any port forward rules (443/80) from your router.
+- **Vault**: `HomeLab`
+- **Item**: `Cloudflare Tunnel/homelab4.fun/credentials`
+- **Field**: `credentials` — paste the entire contents of `~/.cloudflared/<uuid>.json`
+
+Optionally, also store `~/.cloudflared/cert.pem` for disaster recovery.
+
+### 5. Route DNS
+
+```bash
+cloudflared tunnel route dns homelab4.fun homelab4.fun
+cloudflared tunnel route dns homelab4.fun '*.homelab4.fun'
+```
+
+This creates CNAME records pointing domains to `<uuid>.cfargotunnel.com`.
+
+### 6. Update tunnel UUID in NixOS config
+
+Replace the UUID in `modules/homelab/cloudflare-tunnel/default.nix` if different
+from the current one.
+
+### 7. Deploy
+
+```bash
+nix run github:serokell/deploy-rs .#HomeLab
+```
+
+## Managing Ingress Rules
+
+Ingress rules are defined declaratively in `default.nix`:
+
+```nix
+services.cloudflared.tunnels.<uuid> = {
+  originRequest = {
+    noTLSVerify = true;           # Skip TLS verification (localhost)
+    originServerName = domain;    # SNI expected by Caddy
+  };
+  ingress = {
+    "${domain}" = {
+      service = "https://localhost:443";
+    };
+    "*.${domain}" = {
+      service = "https://localhost:443";
+    };
+    "ssh.${domain}" = "ssh://localhost:22";
+  };
+  default = "http_status:404";
+};
+```
+
+To add a new service, add an ingress rule and deploy:
+
+```bash
+nix run github:serokell/deploy-rs .#HomeLab
+```
+
+## Verifying
+
+```bash
+# Check service status
+systemctl status cloudflared-tunnel-<uuid>
+
+# Check logs
+journalctl -u cloudflared-tunnel-<uuid> -n 50 --no-pager
+
+# Test HTTP access
+curl -I https://homelab4.fun
+curl -I https://homepage.homelab4.fun
+
+# Test SSH (configure ~/.ssh/config first)
+# Host ssh.homelab4.fun
+#   User <user>
+#   ProxyCommand cloudflared access ssh --hostname %h
+ssh ssh.homelab4.fun
+```
+
+## Portability
+
+Both `cert.pem` and `credentials.json` are portable files stored in 1Password.
+To replicate this setup on another machine, copy both files from 1Password to
+`~/.cloudflared/` and deploy the NixOS config. No need to run `tunnel login`
+or `tunnel create` again.
+
+## Reference
+
+- [services.cloudflared documentation](https://wiki.nixos.org/wiki/Cloudflared)
+- [Cloudflare tunnel configuration file](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/configuration-file/)
+- [Supported protocols](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/)

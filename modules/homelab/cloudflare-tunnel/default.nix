@@ -4,19 +4,47 @@
 }:
 {
   flake.modules.nixos.ingress =
-    nixosArgs@{ pkgs, ... }:
+    nixosArgs:
     let
-      cloudflaredStartScript = pkgs.writeShellScript "start-cloudflared" ''
-        exec ${lib.getExe pkgs.cloudflared} tunnel --no-autoupdate run \
-          --token-file "$CREDENTIALS_DIRECTORY"/token
-      '';
+      domain = "homelab4.fun";
+      tunnelUuid = "7ba3afe7-dd5d-4972-9035-6e181d2beedb";
     in
     {
       services = {
-        onepassword-secrets.secrets.cloudflareTunnelTokenFile = {
-          path = "/run/secrets/cloudflared/token";
-          reference = "op://HomeLab/Cloudflare/homelab4.fun/tunnel token";
+        onepassword-secrets.secrets.cloudflareTunnelCredentials = {
+          path = "/run/secrets/cloudflared/credentials.json";
+          reference = "op://HomeLab/Cloudflare/homelab4.fun/${tunnelUuid}.json";
           mode = "0400";
+        };
+
+        cloudflared = {
+          enable = true;
+          tunnels.${tunnelUuid} = {
+            credentialsFile =
+              nixosArgs.config.services.onepassword-secrets.secretPaths.cloudflareTunnelCredentials;
+            originRequest = {
+              noTLSVerify = true;
+              originServerName = domain;
+            };
+            ingress = {
+              "${domain}" = {
+                service = "https://localhost:443";
+                originRequest = {
+                  noTLSVerify = true;
+                  originServerName = domain;
+                };
+              };
+              "*.${domain}" = {
+                service = "https://localhost:443";
+                originRequest = {
+                  noTLSVerify = true;
+                  originServerName = domain;
+                };
+              };
+              "ssh.${domain}" = "ssh://localhost:22";
+            };
+            default = "http_status:404";
+          };
         };
 
         caddy = {
@@ -43,30 +71,6 @@
               encode
             }
           '';
-        };
-      };
-
-      # TODO: Revisit when nixpkgs merges token-based tunnel support
-      # https://github.com/NixOS/nixpkgs/pull/427964
-      # At that point services.cloudflared.tunnels may replace this custom service.
-      systemd.services.cloudflared = {
-        wantedBy = [ "multi-user.target" ];
-        after = [
-          "network-online.target"
-          "opnix-secrets.service"
-        ];
-        wants = [ "network-online.target" ];
-        requires = [ "opnix-secrets.service" ];
-        serviceConfig = {
-          ExecStart = "${cloudflaredStartScript}";
-          LoadCredential = "token:${nixosArgs.config.services.onepassword-secrets.secretPaths.cloudflareTunnelTokenFile}";
-          NoNewPrivileges = true;
-          PrivateTmp = true;
-          ProtectSystem = "strict";
-          ProtectHome = true;
-          Restart = "on-failure";
-          RestartSec = 5;
-          DynamicUser = true;
         };
       };
     };
