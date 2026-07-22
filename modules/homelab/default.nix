@@ -2,16 +2,16 @@
 {
   flake.modules.nixos.homelab = {
     imports = with config.flake.modules.nixos; [
-      # alerting
-      # docker-socket-proxy
-      # homepage
-      # immich
-      # job-ops
-      # monitoring
-      # reactive-resume
-      security
-      # sure-finance
-      # tandoor
+      # homelab-alerting
+      # homelab-docker-socket-proxy
+      homelab-homepage
+      # homelab-immich
+      # homelab-job-ops
+      # homelab-monitoring
+      # homelab-reactive-resume
+      homelab-security
+      # homelab-sure-finance
+      # homelab-tandoor
     ];
   };
 }

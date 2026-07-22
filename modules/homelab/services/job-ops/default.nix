@@ -33,7 +33,7 @@ let
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 in
 {
-  flake.modules.nixos.job-ops = {
+  flake.modules.nixos.homelab-job-ops = {
     users.users.${jobOpsUser} = {
       isSystemUser = true;
       group = jobOpsGroup;
@@ -52,7 +52,7 @@ in
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        job-ops
+        homelab-job-ops
         podman-secrets
       ];
     };
@@ -65,7 +65,7 @@ in
     };
   };
 
-  flake.modules.homeManager.job-ops =
+  flake.modules.homeManager.homelab-job-ops =
     hmArgs@{ osConfig, ... }:
     let
       env = {

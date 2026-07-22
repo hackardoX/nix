@@ -22,7 +22,7 @@ let
   sureFinanceOpenaiTokenFile = "/run/secrets/sure-finance/openai_token";
 in
 {
-  flake.modules.nixos.sure-finance = {
+  flake.modules.nixos.homelab-sure-finance = {
     users.users.${sureFinanceUser} = {
       isSystemUser = true;
       group = sureFinanceGroup;
@@ -42,7 +42,7 @@ in
         base
         backup
         podman-secrets
-        sure-finance
+        homelab-sure-finance
       ];
     };
 
@@ -54,7 +54,7 @@ in
     };
   };
 
-  flake.modules.homeManager.sure-finance =
+  flake.modules.homeManager.homelab-sure-finance =
     hmArgs@{ osConfig, ... }:
     let
       sharedEnv = {

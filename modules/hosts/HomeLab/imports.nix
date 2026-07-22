@@ -8,9 +8,10 @@
       deploy
       homelab
       impermanence
-      ingress
+      homelab-ingress
       root
       ssh
+      sudo
     ];
 
     home-manager.users.${config.flake.meta.users.hal.name} = config.flake.modules.homeManager.hal;

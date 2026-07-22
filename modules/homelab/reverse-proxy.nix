@@ -13,7 +13,7 @@
     };
   };
 
-  flake.modules.nixos.ingress =
+  flake.modules.nixos.homelab-ingress =
     nixosArgs@{
       pkgs,
       ...

@@ -29,7 +29,7 @@ let
   };
 in
 {
-  flake.modules.nixos.immich = {
+  flake.modules.nixos.homelab-immich = {
     users.users.${immichUser} = {
       isSystemUser = true;
       group = immichGroup;
@@ -48,7 +48,7 @@ in
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        immich
+        homelab-immich
         podman-secrets
       ];
     };
@@ -71,7 +71,7 @@ in
     };
   };
 
-  flake.modules.homeManager.immich =
+  flake.modules.homeManager.homelab-immich =
     hmArgs@{ osConfig, pkgs, ... }:
     let
       sharedEnv = {

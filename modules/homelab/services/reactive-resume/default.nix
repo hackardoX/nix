@@ -25,7 +25,7 @@ let
   reactiveResumeOidcSecretFile = "/run/secrets/reactive-resume/oidc_client_secret";
 in
 {
-  flake.modules.nixos.reactive-resume = {
+  flake.modules.nixos.homelab-reactive-resume = {
     users.users.${reactiveResumeUser} = {
       isSystemUser = true;
       group = reactiveResumeGroup;
@@ -45,7 +45,7 @@ in
         base
         backup
         podman-secrets
-        reactive-resume
+        homelab-reactive-resume
       ];
     };
 
@@ -57,7 +57,7 @@ in
     };
   };
 
-  flake.modules.homeManager.reactive-resume =
+  flake.modules.homeManager.homelab-reactive-resume =
     hmArgs@{ osConfig, pkgs, ... }:
     let
       entrypointScript = pkgs.writeShellScript "reactive-resume-entrypoint" ''
