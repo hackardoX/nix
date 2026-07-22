@@ -19,10 +19,7 @@ let
 in
 {
   flake.modules.homeManager.dev =
-    hmArgs@{ osConfig, pkgs, ... }:
-    let
-      email = config.flake.meta.users.${osConfig.system.primaryUser}.email;
-    in
+    hmArgs@{ pkgs, ... }:
     {
       options.ssh = {
         extraConfig = lib.mkOption {
@@ -78,6 +75,12 @@ in
                   example = "systemd-tty-ask-password-agent";
                   default = null;
                 };
+                proxyCommand = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  description = "Proxy command to use for this host.";
+                  example = "cloudflared access ssh --hostname %h";
+                  default = null;
+                };
               };
             }
           );
@@ -100,6 +103,8 @@ in
       };
 
       config = {
+        home.packages = [ pkgs.cloudflared ];
+
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
@@ -150,13 +155,6 @@ in
           #   name = "ssh-${system}";
           #   value = "ssh ${system}";
           # }) hmArgs.config.hosts;
-
-          file = {
-            ".ssh/allowed_signers".text = ''
-              ${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardo
-            '';
-
-          };
 
           activation.generateKnownHosts = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             PATH=${pkgs.openssh}/bin:$PATH

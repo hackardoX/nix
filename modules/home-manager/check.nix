@@ -19,6 +19,12 @@
                   home.username = "check-user";
                 }
               ];
+              extraSpecialArgs.homeConfig = {
+                catppuccin = {
+                  enable = true;
+                  flavor = "mocha";
+                };
+              };
             };
           in
           hmConfig.config.home-files;
