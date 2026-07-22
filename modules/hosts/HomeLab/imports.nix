@@ -10,7 +10,6 @@
       impermanence
       ingress
       root
-      security
       ssh
     ];
 
