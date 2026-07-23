@@ -110,6 +110,14 @@
       };
     };
 
+    # Temporary: auto-unlock LUKS with keyfile on /boot for convenience.
+    # Remove this block (and run cryptsetup luksRemoveKey) when no longer needed.
+    boot.initrd.luks.devices.crypted = {
+      device = "/dev/disk/by-partlabel/luks";
+      keyFile = "/boot/luks-keyfile";
+      crypttabExtraOpts = [ "keyfile-timeout=5" ];
+    };
+
     boot.initrd.impermanence = {
       enable = true;
       persistPath = "/persist";
