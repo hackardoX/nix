@@ -76,6 +76,7 @@ in
     };
 
     systemd.tmpfiles.rules = [
+      "d ${homepageAppDir} 0750 ${homepageUser} ${homepageGroup} -"
       "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
     ];
 

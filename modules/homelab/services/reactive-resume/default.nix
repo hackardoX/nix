@@ -53,6 +53,8 @@ in
     };
 
     systemd.tmpfiles.rules = [
+      "d /run/secrets/reactive-resume 0750 root ${reactiveResumeGroup} -"
+      "d ${reactiveResumeAppDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
 
