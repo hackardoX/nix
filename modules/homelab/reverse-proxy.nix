@@ -58,7 +58,7 @@
           enable = true;
 
           globalConfig = ''
-            local_certs
+            acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
 
             log access-log {
               include http.log.access
@@ -150,8 +150,13 @@
         before = [ "caddy.service" ];
       };
 
+      environment.persistence."/persist".directories = [ "/var/lib/caddy" ];
+
       systemd.services.caddy = {
-        serviceConfig.ReadWritePaths = [ "/var/log/caddy" ];
+        serviceConfig = {
+          ReadWritePaths = [ "/var/log/caddy" ];
+          Environment = [ "XDG_DATA_HOME=/var/lib/caddy" ];
+        };
       };
 
       systemd.tmpfiles.rules = [ "d /var/log/caddy 0755 caddy caddy -" ];
