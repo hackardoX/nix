@@ -215,7 +215,7 @@ in
         caddy = {
           virtualHosts."${authDomain}" = {
             extraConfig = ''
-              import reverse_proxy_internal
+              import reverse_proxy_common
               reverse_proxy localhost:${toString autheliaPort}
             '';
           };
@@ -226,13 +226,6 @@ in
                 uri /api/authz/forward-auth
                 copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
               }
-            }
-
-            (reverse_proxy_internal) {
-              import common_headers
-              import tls_hardened
-
-              encode zstd gzip
             }
           '';
         };

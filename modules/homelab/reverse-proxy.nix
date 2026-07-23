@@ -78,13 +78,13 @@
 
           package = pkgs.caddy.withPlugins {
             plugins = [
-              "github.com/porech/caddy-maxmind-geolocation@v1.0.3"
+              "github.com/rfbezerra/caddy-maxmind-geolocation@v0.0.0-20260411180149-e7a64b59e99b"
               "github.com/caddy-dns/cloudflare@v0.2.4"
               "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
               "github.com/mholt/caddy-ratelimit@v0.1.0"
             ];
-            hash = "sha256-4wy1sRB5hISf3RizqwKma7Og1JbU4w0NY5lP5CuO3rQ=";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
           };
 
           extraConfig = ''
@@ -104,6 +104,7 @@
                   maxmind_geolocation {
                     db_path "${geoipDbPath}/GeoLite2-Country.mmdb"
                     allow_countries ${lib.concatStringsSep " " allowedCountries}
+                    ip_header Cf-Connecting-Ip
                   }
                 }
               }
@@ -127,21 +128,18 @@
               }
             }
 
-            # (reverse_proxy_common) {
-            #   import common_headers
-            #   import geoblock
-            #   import rate_limit_common
-            #   import tls_hardened
-            #   import auth_protected
-            #
-            #   request_body {
-            #     max_size 10MB
-            #   }
-            #
-            #   encode
-            #
-            #   header_up X-Real-IP {remote_host}
-            # }
+            (reverse_proxy_common) {
+              import common_headers
+              import geoblock
+              import rate_limit_common
+              import tls_hardened
+
+              request_body {
+                max_size 10MB
+              }
+
+              encode zstd gzip
+            }
 
             # Catch-all: block direct IP access and unknown domains
             :443, :80 {
