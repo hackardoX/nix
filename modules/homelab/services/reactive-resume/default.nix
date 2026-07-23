@@ -52,6 +52,14 @@ in
       ];
     };
 
+    systemd.tmpfiles.rules = [
+      "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      reactiveResumeAppDir
+    ];
+
     services.caddy.virtualHosts."rxresume.${domain}" = {
       extraConfig = ''
         import reverse_proxy_common
