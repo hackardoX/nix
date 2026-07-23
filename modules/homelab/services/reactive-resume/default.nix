@@ -76,7 +76,7 @@ in
       };
       backupReactiveResumeEncryptionKey = {
         path = "/run/secrets/reactive-resume/backup_encryption_key";
-        reference = "op://Homelab/Backup/reactive-resume/password";
+        reference = "op://Homelab/Backup/Reactive Resume/password";
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
       };

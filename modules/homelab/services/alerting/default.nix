@@ -135,7 +135,7 @@ in
         };
         programs.onepassword-secrets.secrets.backupAlertmanagerEncryptionKey = {
           path = "/run/secrets/alerting/backup_encryption_key";
-          reference = "op://Homelab/Backup/alertmanager/password";
+          reference = "op://Homelab/Backup/Alert Manager/password";
           owner = alertingUser;
           group = alertingGroup;
         };

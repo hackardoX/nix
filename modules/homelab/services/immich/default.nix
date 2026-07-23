@@ -119,7 +119,7 @@ in
           };
           backupImmichEncryptionKey = {
             path = "/run/secrets/immich/backup_encryption_key";
-            reference = "op://Homelab/Backup/immich/password";
+            reference = "op://Homelab/Backup/Immich/password";
             owner = immichUser;
             group = immichGroup;
           };

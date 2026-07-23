@@ -103,7 +103,7 @@ in
           };
           backupSureFinanceEncryptionKey = {
             path = "/run/secrets/sure-finance/backup_encryption_key";
-            reference = "op://Homelab/Backup/sure-finance/password";
+            reference = "op://Homelab/Backup/Sure Finance/password";
             owner = sureFinanceUser;
             group = sureFinanceGroup;
           };

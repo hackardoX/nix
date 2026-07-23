@@ -103,7 +103,7 @@ in
           };
           backupTandoorEncryptionKey = {
             path = "/run/secrets/tandoor/backup_encryption_key";
-            reference = "op://Homelab/Backup/tandoor/password";
+            reference = "op://Homelab/Backup/Tandoor/password";
             owner = tandoorUser;
             group = tandoorGroup;
           };
