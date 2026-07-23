@@ -120,7 +120,7 @@ in
 
         environment = {
           TZ = osConfig.time.timeZone;
-          HOMEPAGE_ALLOWED_HOSTS = "localhost,homepage";
+          HOMEPAGE_ALLOWED_HOSTS = "localhost,homepage.${domain}";
         };
 
         extraConfig.Container.NoNewPrivileges = true;
