@@ -84,7 +84,7 @@
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
               "github.com/mholt/caddy-ratelimit@v0.1.0"
             ];
-            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            hash = "sha256-U95BTfpifa5TV3vm1Hk5rLKkUYUiAOi0sX/0++lmh2A=";
           };
 
           extraConfig = ''
