@@ -71,7 +71,7 @@ in
               settings = {
                 enabled = true;
                 port = "http,https";
-                logpath = "/var/log/caddy/access.log";
+                logpath = "/var/lib/caddy/access.log";
                 maxretry = 5;
                 findtime = "10m";
                 bantime = "1h";

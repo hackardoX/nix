@@ -62,7 +62,7 @@
 
             log access-log {
               include http.log.access
-              output file /var/log/caddy/access.log {
+              output file /var/lib/caddy/access.log {
                 roll_disabled
               }
               format transform "{common_log}"
@@ -150,15 +150,14 @@
         before = [ "caddy.service" ];
       };
 
-      environment.persistence."/persist".directories = [ "/var/lib/caddy" ];
+      boot.initrd.impermanence.persist.directories = [
+        "/var/lib/caddy"
+      ];
 
       systemd.services.caddy = {
         serviceConfig = {
-          ReadWritePaths = [ "/var/log/caddy" ];
-          Environment = [ "XDG_DATA_HOME=/var/lib/caddy" ];
+          Environment = [ "XDG_DATA_HOME=/var/lib" ];
         };
       };
-
-      systemd.tmpfiles.rules = [ "d /var/log/caddy 0755 caddy caddy -" ];
     };
 }
