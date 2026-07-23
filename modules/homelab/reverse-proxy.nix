@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 {
   flake.meta.reverse-proxy = {
     domain = "homelab4.fun";
@@ -19,6 +19,7 @@
       ...
     }:
     let
+      domain = config.flake.meta.reverse-proxy.domain;
       geoipDbPath = "/var/lib/GeoIP";
       allowedCountries = [
         "IT"
@@ -56,6 +57,12 @@
 
         caddy = {
           enable = true;
+
+          virtualHosts."*.${domain}" = {
+            extraConfig = ''
+              abort
+            '';
+          };
 
           globalConfig = ''
             acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
