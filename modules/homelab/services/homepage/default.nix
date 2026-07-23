@@ -75,6 +75,10 @@ in
       ];
     };
 
+    systemd.tmpfiles.rules = [
+      "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
+    ];
+
     services.caddy.virtualHosts."${domain}" = {
       extraConfig = ''
         import reverse_proxy_common

@@ -42,21 +42,6 @@
               client_ip_headers Cf-Connecting-Ip X-Forwarded-For
             }
           '';
-
-          extraConfig = lib.mkBefore ''
-            (reverse_proxy_common) {
-              import common_headers
-              import geoblock
-              import rate_limit_common
-              import tls_hardened
-
-              request_body {
-                max_size 10MB
-              }
-
-              encode
-            }
-          '';
         };
       };
 
