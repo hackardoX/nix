@@ -288,7 +288,7 @@ in
           };
           backupGrafanaEncryptionKey = {
             path = "/run/secrets/monitoring/grafana/backup_encryption_key";
-            reference = "op://Homelab/Backup/grafana/password";
+            reference = "op://Homelab/Backup/Grafana/password";
             owner = monitoringUser;
             group = monitoringGroup;
           };

@@ -132,7 +132,7 @@ in
           };
           backupJobOpsEncryptionKey = {
             path = "/run/secrets/job-ops/backup_encryption_key";
-            reference = "op://Homelab/Backup/job-ops/password";
+            reference = "op://Homelab/Backup/Job Ops/password";
             owner = jobOpsUser;
             group = jobOpsGroup;
           };
