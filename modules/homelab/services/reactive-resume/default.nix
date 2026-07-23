@@ -52,8 +52,37 @@ in
       ];
     };
 
+    services.onepassword-secrets.secrets = {
+      reactiveResumeAuthSecret = {
+        path = "/run/secrets/reactive-resume/auth_secret";
+        reference = "op://Homelab/Reactive Resume/Authentication/secret";
+        owner = reactiveResumeUser;
+        group = reactiveResumeGroup;
+        services = [ "podman-reactive-resume.service" ];
+      };
+      reactiveResumeDbPassword = {
+        path = "/run/secrets/reactive-resume/db_password";
+        reference = "op://Homelab/Reactive Resume/Database/password";
+        owner = reactiveResumeUser;
+        group = reactiveResumeGroup;
+        services = [ "podman-reactive-resume.service" ];
+      };
+      reactiveResumeOidcClientSecret = {
+        path = "/run/secrets/reactive-resume/oidc_client_secret";
+        reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secret";
+        owner = reactiveResumeUser;
+        group = reactiveResumeGroup;
+        services = [ "podman-reactive-resume.service" ];
+      };
+      backupReactiveResumeEncryptionKey = {
+        path = "/run/secrets/reactive-resume/backup_encryption_key";
+        reference = "op://Homelab/Backup/reactive-resume/password";
+        owner = reactiveResumeUser;
+        group = reactiveResumeGroup;
+      };
+    };
+
     systemd.tmpfiles.rules = [
-      "d /run/secrets/reactive-resume 0750 root ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
@@ -71,7 +100,7 @@ in
   };
 
   flake.modules.homeManager.homelab-reactive-resume =
-    hmArgs@{ osConfig, pkgs, ... }:
+    { osConfig, pkgs, ... }:
     let
       entrypointScript = pkgs.writeShellScript "reactive-resume-entrypoint" ''
         DB_PASSWORD=$(cat /run/secrets/DATABASE_PASSWORD)
@@ -93,33 +122,6 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets = {
-          reactiveResumeAuthSecret = {
-            path = "/run/secrets/reactive-resume/auth_secret";
-            reference = "op://Homelab/Reactive Resume/Authentication/secret";
-            owner = reactiveResumeUser;
-            group = reactiveResumeGroup;
-          };
-          reactiveResumeDbPassword = {
-            path = "/run/secrets/reactive-resume/db_password";
-            reference = "op://Homelab/Reactive Resume/Database/password";
-            owner = reactiveResumeUser;
-            group = reactiveResumeGroup;
-          };
-          reactiveResumeOidcClientSecret = {
-            path = "/run/secrets/reactive-resume/oidc_client_secret";
-            reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secret";
-            owner = reactiveResumeUser;
-            group = reactiveResumeGroup;
-          };
-          backupReactiveResumeEncryptionKey = {
-            path = "/run/secrets/reactive-resume/backup_encryption_key";
-            reference = "op://Homelab/Backup/reactive-resume/password";
-            owner = reactiveResumeUser;
-            group = reactiveResumeGroup;
-          };
-        };
-
         services.backup.jobs.reactive-resume = {
           paths = [
             "${reactiveResumeDataDir}/postgres"
@@ -128,8 +130,7 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey =
-            hmArgs.config.programs.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
         };
 
         services.podman.enable = true;
