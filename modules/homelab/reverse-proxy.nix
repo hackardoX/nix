@@ -156,7 +156,11 @@
       };
 
       boot.initrd.impermanence.persist.directories = [
-        "/var/lib/caddy"
+        {
+          directory = "/var/lib/caddy";
+          user = "caddy";
+          group = "caddy";
+        }
       ];
 
       systemd.services.caddy = {

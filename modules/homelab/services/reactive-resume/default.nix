@@ -88,7 +88,11 @@ in
     ];
 
     boot.initrd.impermanence.persist.directories = [
-      reactiveResumeAppDir
+      {
+        directory = reactiveResumeAppDir;
+        user = reactiveResumeUser;
+        group = reactiveResumeGroup;
+      }
     ];
 
     services.caddy.virtualHosts."rxresume.${domain}" = {
