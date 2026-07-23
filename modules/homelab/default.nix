@@ -8,7 +8,7 @@
       # homelab-immich
       # homelab-job-ops
       # homelab-monitoring
-      # homelab-reactive-resume
+      homelab-reactive-resume
       homelab-security
       # homelab-sure-finance
       # homelab-tandoor
