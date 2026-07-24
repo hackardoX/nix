@@ -152,7 +152,6 @@
       systemd.services.geoipupdate = {
         after = [ "opnix-secrets.service" ];
         wants = [ "opnix-secrets.service" ];
-        before = [ "caddy.service" ];
       };
 
       systemd.services.caddy = {
@@ -161,6 +160,8 @@
           Restart = "on-failure";
           RestartSec = "5s";
         };
+        wants = [ "geoipupdate.service" ];
+        after = [ "geoipupdate.service" ];
       };
 
       boot.initrd.impermanence.persist.directories = [
