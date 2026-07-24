@@ -20,7 +20,7 @@
     }:
     let
       domain = config.flake.meta.reverse-proxy.domain;
-      geoipDbPath = "/var/lib/GeoIP";
+      geoipDbPath = "/var/lib/caddy/GeoIP";
       allowedCountries = [
         "IT"
         "FR"
@@ -155,6 +155,14 @@
         before = [ "caddy.service" ];
       };
 
+      systemd.services.caddy = {
+        serviceConfig = {
+          Environment = [ "XDG_DATA_HOME=/var/lib" ];
+          Restart = "on-failure";
+          RestartSec = "5s";
+        };
+      };
+
       boot.initrd.impermanence.persist.directories = [
         {
           directory = "/var/lib/caddy";
@@ -162,11 +170,5 @@
           group = "caddy";
         }
       ];
-
-      systemd.services.caddy = {
-        serviceConfig = {
-          Environment = [ "XDG_DATA_HOME=/var/lib" ];
-        };
-      };
     };
 }

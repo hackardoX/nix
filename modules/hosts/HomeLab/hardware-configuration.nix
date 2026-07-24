@@ -48,6 +48,8 @@
           };
           secrets = lib.mkForce {
             "/etc/secrets/initrd/ssh_host_ed25519_key" = "/persist/etc/secrets/initrd/ssh_host_ed25519_key";
+            # Temporary: auto-unlock LUKS with keyfile embedded in initrd.
+            # Remove this line when no longer needed.
             "/luks-keyfile" = "/boot/luks-keyfile";
           };
         };
