@@ -16,21 +16,29 @@ let
 in
 {
   flake.modules.homeManager.rclone = hmArgs: {
-    programs.rclone.enable = true;
+    options.services.rclone.remotes = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Which rclone remotes to enable for this user";
+    };
 
-    assertions = [
-      {
-        assertion = (hmArgs.osConfig or { }).services.rclone.enable or false;
-        message = ''
-          The home-manager rclone module requires the system-level rclone module
-          to be imported in the host configuration.
+    config = {
+      programs.rclone.enable = true;
 
-          Add one of the following to your host imports:
-            imports = [ config.flake.modules.nixos.rclone ];   # For NixOS
-            imports = [ config.flake.modules.darwin.rclone ];  # For Darwin
-        '';
-      }
-    ];
+      assertions = [
+        {
+          assertion = (hmArgs.osConfig or { }).services.rclone.enable or false;
+          message = ''
+            The home-manager rclone module requires the system-level rclone module
+            to be imported in the host configuration.
+
+            Add one of the following to your host imports:
+              imports = [ config.flake.modules.nixos.rclone ];   # For NixOS
+              imports = [ config.flake.modules.darwin.rclone ];  # For Darwin
+          '';
+        }
+      ];
+    };
   };
 
   flake.modules.nixos.rclone = polyModule;

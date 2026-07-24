@@ -55,6 +55,7 @@ in
     ];
 
     home-manager.users.${tandoorUser} = {
+      services.rclone.remotes = [ "koofr" ];
       home.username = tandoorUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [

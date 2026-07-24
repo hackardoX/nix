@@ -60,6 +60,7 @@ in
     ];
 
     home-manager.users.${immichUser} = {
+      services.rclone.remotes = [ "koofr" ];
       home.username = immichUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [

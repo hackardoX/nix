@@ -53,6 +53,7 @@ in
     ];
 
     home-manager.users.${sureFinanceUser} = {
+      services.rclone.remotes = [ "koofr" ];
       home.username = sureFinanceUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [

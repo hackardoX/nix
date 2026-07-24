@@ -39,6 +39,10 @@
       shell
       theme
     ];
+    services.rclone.remotes = [
+      "koofr"
+      "gdrive"
+    ];
     home.username = config.flake.meta.users.aaccardo.name;
     home.stateVersion = "24.11";
   };

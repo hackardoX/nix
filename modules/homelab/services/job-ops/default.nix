@@ -64,6 +64,7 @@ in
     ];
 
     home-manager.users.${jobOpsUser} = {
+      services.rclone.remotes = [ "koofr" ];
       home.username = jobOpsUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [

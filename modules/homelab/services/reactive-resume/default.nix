@@ -43,6 +43,7 @@ in
     users.groups.${reactiveResumeGroup} = { };
 
     home-manager.users.${reactiveResumeUser} = {
+      services.rclone.remotes = [ "koofr" ];
       home.username = reactiveResumeUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [

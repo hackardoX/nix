@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   polyModule = {
     services.onepassword-secrets.secrets.koofrPassword = {
@@ -13,8 +13,8 @@ in
   flake.modules.darwin.rclone = polyModule;
 
   flake.modules.homeManager.rclone = hmArgs: {
-    programs.rclone = {
-      remotes.koofr = {
+    programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {
+      koofr = {
         config = {
           type = "koofr";
           endpoint = "https://app.koofr.net";
@@ -26,6 +26,5 @@ in
         };
       };
     };
-
   };
 }
