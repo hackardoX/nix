@@ -38,12 +38,13 @@
                     name = "podman-secrets-${name}";
                     runtimeInputs = [ pkgs.coreutils ];
                     text = ''
-                      install -D -m 600 /dev/null "/run/user/%U/podman-secrets/${name}"
+                      uid="$(id -u)"
+                      install -D -m 600 /dev/null "/run/user/$uid/podman-secrets/${name}"
                       {
                       ${lib.concatStringsSep "\n" (
                         lib.mapAttrsToList (envName: path: ''echo "${envName}=$(<${path})"'') config.secrets
                       )}
-                      } > "/run/user/%U/podman-secrets/${name}"
+                      } > "/run/user/$uid/podman-secrets/${name}"
                     '';
                   }
                 ))
