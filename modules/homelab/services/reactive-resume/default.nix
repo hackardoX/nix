@@ -114,8 +114,7 @@ in
         executable = true;
         text = ''
           #!/bin/sh
-          DB_PASSWORD=$(cat /run/secrets/DATABASE_PASSWORD)
-          export DATABASE_URL="postgresql://${reactiveResumeDbUser}:''${DB_PASSWORD}@db:5432/${reactiveResumeDbName}"
+          export DATABASE_URL="postgresql://${reactiveResumeDbUser}:''${POSTGRES_PASSWORD}@db:5432/${reactiveResumeDbName}"
           exec "$@"
         '';
       };
