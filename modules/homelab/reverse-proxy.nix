@@ -131,7 +131,6 @@
             (reverse_proxy_common) {
               import common_headers
               import geoblock
-              import rate_limit_common
               import tls_hardened
 
               request_body {
