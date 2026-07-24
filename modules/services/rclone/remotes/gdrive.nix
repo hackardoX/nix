@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.base = hmArgs: {
+  flake.modules.homeManager.rclone = hmArgs: {
     programs.rclone = {
       remotes.gdrive = {
         config = {

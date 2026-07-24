@@ -1,15 +1,16 @@
 {
   lib,
+  config,
   ...
 }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.file-mount =
     hmArgs:
     let
       cfg = hmArgs.config.services.file-mount;
       rcloneRemotes = hmArgs.config.programs.rclone.remotes or { };
 
-      inherit (hmArgs.config.flake.lib.rclone) mkCryptRemoteName mkRcloneCryptRemote;
+      inherit (config.flake.lib.rclone) mkCryptRemoteName mkRcloneCryptRemote;
 
       cacheMaxAge = "720h";
       cacheMaxSize = "10G";
@@ -49,6 +50,8 @@
       ) (lib.filterAttrs (_: jobCfg: jobCfg.encrypted) cfg.mounts);
     in
     {
+      imports = [ config.flake.modules.homeManager.rclone ];
+
       options.services.file-mount = {
         mounts = lib.mkOption {
           type = lib.types.attrsOf (
@@ -121,8 +124,6 @@
       };
 
       config = lib.mkIf (cfg.mounts != { }) {
-        programs.rclone.enable = true;
-
         assertions = lib.flatten (
           lib.mapAttrsToList (name: mount: [
             {

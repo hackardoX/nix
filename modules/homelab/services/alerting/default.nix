@@ -17,12 +17,18 @@ let
 in
 {
   flake.modules.nixos.homelab-alerting = {
+    imports = [
+      config.flake.modules.nixos.rclone
+      config.flake.modules.nixos.impermanence
+    ];
+
     users.users.${alertingUser} = {
       isSystemUser = true;
       group = alertingGroup;
       extraGroups = [
         "podman"
         "homelab-users"
+        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${alertingUser}";
@@ -31,6 +37,20 @@ in
     };
 
     users.groups.${alertingGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${alertingAppDir} 0750 ${alertingUser} ${alertingGroup} -"
+      "d ${alertingAppDir}/alertmanager 0750 ${alertingUser} ${alertingGroup} -"
+      "d ${alertingAppDir}/alertmanager/data 0750 ${alertingUser} ${alertingGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = alertingAppDir;
+        user = alertingUser;
+        group = alertingGroup;
+      }
+    ];
 
     home-manager.users.${alertingUser} = {
       home.username = alertingUser;
@@ -42,6 +62,22 @@ in
         homelab-podman-extension
         podman-secrets
       ];
+    };
+
+    services.onepassword-secrets.secrets = {
+      alertingNtfyToken = {
+        path = alertingNtfyTokenSecretPath;
+        reference = "op://Homelab/Alerting/ntfy token";
+        owner = alertingUser;
+        group = alertingGroup;
+        services = [ "podman-alertmanager-ntfy.service" ];
+      };
+      backupAlertmanagerEncryptionKey = {
+        path = "/run/secrets/alerting/backup_encryption_key";
+        reference = "op://Homelab/Backup/Alert Manager/password";
+        owner = alertingUser;
+        group = alertingGroup;
+      };
     };
   };
 
@@ -127,26 +163,12 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets.alertingNtfyToken = {
-          path = alertingNtfyTokenSecretPath;
-          reference = "op://Homelab/Alerting/ntfy token";
-          owner = alertingUser;
-          group = alertingGroup;
-        };
-        programs.onepassword-secrets.secrets.backupAlertmanagerEncryptionKey = {
-          path = "/run/secrets/alerting/backup_encryption_key";
-          reference = "op://Homelab/Backup/Alert Manager/password";
-          owner = alertingUser;
-          group = alertingGroup;
-        };
-
         services.backup.jobs.alertmanager = {
           paths = [ "${alertingAppDir}/alertmanager/data" ];
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
-          encryptionKey =
-            hmArgs.config.programs.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
         };
 
         services.podman.enable = true;
@@ -189,7 +211,7 @@ in
           ];
 
           secrets = {
-            NTFY_TOKEN = hmArgs.config.programs.onepassword-secrets.secretPaths.alertingNtfyToken;
+            NTFY_TOKEN = alertingNtfyTokenSecretPath;
           };
 
           extraConfig.Container = {

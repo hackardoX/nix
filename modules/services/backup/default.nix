@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, config, ... }:
 {
   flake.modules.homeManager.backup =
     hmArgs:
@@ -52,6 +52,8 @@
         };
     in
     {
+      imports = [ config.flake.modules.homeManager.rclone ];
+
       options.services.backup = {
         jobs = lib.mkOption {
           type = lib.types.attrsOf (

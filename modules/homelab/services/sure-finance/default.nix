@@ -23,12 +23,18 @@ let
 in
 {
   flake.modules.nixos.homelab-sure-finance = {
+    imports = [
+      config.flake.modules.nixos.rclone
+      config.flake.modules.nixos.impermanence
+    ];
+
     users.users.${sureFinanceUser} = {
       isSystemUser = true;
       group = sureFinanceGroup;
       extraGroups = [
         "podman"
         "homelab-users"
+        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${sureFinanceUser}";
@@ -37,6 +43,19 @@ in
     };
 
     users.groups.${sureFinanceGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceAppDir}/storage 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = sureFinanceAppDir;
+        user = sureFinanceUser;
+        group = sureFinanceGroup;
+      }
+    ];
 
     home-manager.users.${sureFinanceUser} = {
       home.username = sureFinanceUser;
@@ -47,6 +66,42 @@ in
         podman-secrets
         homelab-sure-finance
       ];
+    };
+
+    services.onepassword-secrets.secrets = {
+      sureFinanceSecretKey = {
+        path = "/run/secrets/sure-finance/secret_key";
+        reference = "op://HomeLab/Sure Finance/Authentication/secret key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+        services = [
+          "podman-sure-finance-web.service"
+          "podman-sure-finance-worker.service"
+        ];
+      };
+      sureFinancePostgresPassword = {
+        path = "/run/secrets/sure-finance/postgres_password";
+        reference = "op://HomeLab/Sure Finance/Database/password";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+        services = [ "podman-sure-finance-db.service" ];
+      };
+      sureFinanceOpenAiToken = {
+        path = "/run/secrets/sure-finance/openai_token";
+        reference = "op://HomeLab/Sure Finance/AI/api key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+        services = [
+          "podman-sure-finance-web.service"
+          "podman-sure-finance-worker.service"
+        ];
+      };
+      backupSureFinanceEncryptionKey = {
+        path = "/run/secrets/sure-finance/backup_encryption_key";
+        reference = "op://Homelab/Backup/Sure Finance/password";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
     };
 
     services.caddy.virtualHosts."finance.${domain}" = {
@@ -82,33 +137,6 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets = {
-          sureFinanceSecretKey = {
-            path = "/run/secrets/sure-finance/secret_key";
-            reference = "op://HomeLab/Sure Finance/Authentication/secret key";
-            owner = sureFinanceUser;
-            group = sureFinanceGroup;
-          };
-          sureFinancePostgresPassword = {
-            path = "/run/secrets/sure-finance/postgres_password";
-            reference = "op://HomeLab/Sure Finance/Database/password";
-            owner = sureFinanceUser;
-            group = sureFinanceGroup;
-          };
-          sureFinanceOpenAiToken = {
-            path = "/run/secrets/sure-finance/openai_token";
-            reference = "op://HomeLab/Sure Finance/AI/api key";
-            owner = sureFinanceUser;
-            group = sureFinanceGroup;
-          };
-          backupSureFinanceEncryptionKey = {
-            path = "/run/secrets/sure-finance/backup_encryption_key";
-            reference = "op://Homelab/Backup/Sure Finance/password";
-            owner = sureFinanceUser;
-            group = sureFinanceGroup;
-          };
-        };
-
         services.backup.jobs.sure-finance = {
           paths = [
             "${sureFinanceDataDir}/postgres"
@@ -117,8 +145,7 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey =
-            hmArgs.config.programs.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
         };
 
         services.podman.enable = true;

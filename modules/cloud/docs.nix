@@ -1,16 +1,22 @@
 {
+  config,
+  ...
+}:
+{
   flake.modules.homeManager.file-sync =
     hmArgs@{ pkgs, ... }:
     {
+      imports = [ config.flake.modules.homeManager.rclone-sync ];
+
       programs.onepassword-secrets.secrets = {
         docsPassword = {
           path = ".secrets/rclone-sync/Documents/password";
-          reference = "op://Homelab/Cloud Encryption/Docs/password";
+          reference = "op://Development/Cloud Encryption/Docs/password";
           group = if pkgs.stdenv.isDarwin then "staff" else "wheel";
         };
         docsSalt = {
           path = ".secrets/rclone-sync/Documents/salt";
-          reference = "op://Homelab/Cloud Encryption/Docs/salt";
+          reference = "op://Development/Cloud Encryption/Docs/salt";
           group = if pkgs.stdenv.isDarwin then "staff" else "wheel";
         };
       };

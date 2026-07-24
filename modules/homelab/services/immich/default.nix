@@ -30,12 +30,18 @@ let
 in
 {
   flake.modules.nixos.homelab-immich = {
+    imports = [
+      config.flake.modules.nixos.rclone
+      config.flake.modules.nixos.impermanence
+    ];
+
     users.users.${immichUser} = {
       isSystemUser = true;
       group = immichGroup;
       extraGroups = [
         "podman"
         "homelab-users"
+        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${immichUser}";
@@ -44,6 +50,19 @@ in
     };
 
     users.groups.${immichGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/photos 0750 ${immichUser} ${immichGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = immichAppDir;
+        user = immichUser;
+        group = immichGroup;
+      }
+    ];
 
     home-manager.users.${immichUser} = {
       home.username = immichUser;
@@ -54,6 +73,33 @@ in
         homelab-immich
         podman-secrets
       ];
+    };
+
+    services.onepassword-secrets.secrets = {
+      immichDbPassword = {
+        path = "/run/secrets/immich/db_password";
+        reference = "op://Homelab/Immich/Database/password";
+        owner = immichUser;
+        group = immichGroup;
+        services = [
+          "podman-immich-server.service"
+          "podman-immich-machine-learning.service"
+          "podman-immich-db.service"
+        ];
+      };
+      immichOidcClientSecret = {
+        path = "/run/secrets/immich/oidc_client_secret";
+        reference = "op://Homelab/Immich/Authentication/OIDC client secret";
+        owner = immichUser;
+        group = immichGroup;
+        services = [ "podman-immich-server.service" ];
+      };
+      backupImmichEncryptionKey = {
+        path = "/run/secrets/immich/backup_encryption_key";
+        reference = "op://Homelab/Backup/Immich/password";
+        owner = immichUser;
+        group = immichGroup;
+      };
     };
 
     services.caddy.virtualHosts."immich.${domain}" = {
@@ -104,27 +150,6 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets = {
-          immichDbPassword = {
-            path = "/run/secrets/immich/db_password";
-            reference = "op://Homelab/Immich/Database/password";
-            owner = immichUser;
-            group = immichGroup;
-          };
-          immichOidcClientSecret = {
-            path = "/run/secrets/immich/oidc_client_secret";
-            reference = "op://Homelab/Immich/Authentication/OIDC client secret";
-            owner = immichUser;
-            group = immichGroup;
-          };
-          backupImmichEncryptionKey = {
-            path = "/run/secrets/immich/backup_encryption_key";
-            reference = "op://Homelab/Backup/Immich/password";
-            owner = immichUser;
-            group = immichGroup;
-          };
-        };
-
         services.backup.jobs.immich = {
           paths = [
             "${immichAppDir}/photos/library"
@@ -135,7 +160,7 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
         };
 
         services.podman.enable = true;

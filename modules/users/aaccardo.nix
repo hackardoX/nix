@@ -13,6 +13,8 @@
   flake.modules.darwin.aaccardo =
     { pkgs, ... }:
     {
+      imports = [ config.flake.modules.darwin.rclone ];
+
       nix.settings.allowed-users = [ config.flake.meta.users.aaccardo.name ];
 
       users.users.${config.flake.meta.users.aaccardo.name} = {
@@ -31,6 +33,7 @@
       base
       dev
       file-sync
+      file-mount
       media
       password-manager
       shell

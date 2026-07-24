@@ -1,14 +1,18 @@
 {
   lib,
-  config,
   ...
 }:
-let
-  uid = config.flake.meta.users.hal.uid;
-in
 {
   flake.modules.homeManager.podman-secrets =
-    { pkgs, ... }:
+    hmArgs@{
+      osConfig,
+      pkgs,
+      ...
+    }:
+    let
+      userName = hmArgs.config.home.username;
+      userUid = osConfig.users.users.${userName}.uid;
+    in
     {
       options.services.podman.containers = lib.mkOption {
         type = lib.types.attrsOf (
@@ -34,7 +38,7 @@ in
 
               config = lib.mkIf (config.secrets != { }) {
                 environmentFile = [
-                  "/run/user/${toString uid}/podman-secrets/${name}"
+                  "/run/user/${toString userUid}/podman-secrets/${name}"
                 ];
 
                 extraConfig.Service.ExecStartPre = [
@@ -43,12 +47,12 @@ in
                       name = "podman-secrets-${name}";
                       runtimeInputs = [ pkgs.coreutils ];
                       text = ''
-                        install -D -m 600 /dev/null "/run/user/${toString uid}/podman-secrets/${name}"
+                        install -D -m 600 /dev/null "/run/user/${toString userUid}/podman-secrets/${name}"
                         {
                         ${lib.concatStringsSep "\n" (
                           lib.mapAttrsToList (envName: path: ''echo "${envName}=$(<${path})"'') config.secrets
                         )}
-                        } > "/run/user/${toString uid}/podman-secrets/${name}"
+                        } > "/run/user/${toString userUid}/podman-secrets/${name}"
                       '';
                     }
                   ))

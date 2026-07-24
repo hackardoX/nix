@@ -1,10 +1,10 @@
 {
-  config,
   lib,
+  config,
   ...
 }:
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.rclone-sync =
     { pkgs, ... }@hmArgs:
     let
       cfg = hmArgs.config.services.rclone-sync;
@@ -227,6 +227,8 @@
       ) cfg.jobs;
     in
     {
+      imports = [ config.flake.modules.homeManager.rclone ];
+
       options.services.rclone-sync = {
         jobs = lib.mkOption {
           type = lib.types.attrsOf (
@@ -320,8 +322,6 @@
       };
 
       config = lib.mkIf (cfg.jobs != { }) {
-        programs.rclone.enable = true;
-
         # NOTE: home-manager's `rclone-config` launchd agent has two known
         # issues on macOS that cause the config file to become stale:
         #

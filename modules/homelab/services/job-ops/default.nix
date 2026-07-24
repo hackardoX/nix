@@ -34,12 +34,18 @@ let
 in
 {
   flake.modules.nixos.homelab-job-ops = {
+    imports = [
+      config.flake.modules.nixos.rclone
+      config.flake.modules.nixos.impermanence
+    ];
+
     users.users.${jobOpsUser} = {
       isSystemUser = true;
       group = jobOpsGroup;
       extraGroups = [
         "podman"
         "homelab-users"
+        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${jobOpsUser}";
@@ -48,6 +54,19 @@ in
     };
 
     users.groups.${jobOpsGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${jobOpsAppDir} 0750 ${jobOpsUser} ${jobOpsGroup} -"
+      "d ${jobOpsAppDir}/data 0750 ${jobOpsUser} ${jobOpsGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = jobOpsAppDir;
+        user = jobOpsUser;
+        group = jobOpsGroup;
+      }
+    ];
 
     home-manager.users.${jobOpsUser} = {
       home.username = jobOpsUser;
@@ -58,6 +77,50 @@ in
         homelab-job-ops
         podman-secrets
       ];
+    };
+
+    services.onepassword-secrets.secrets = {
+      jobOpsBasicAuthPassword = {
+        path = "/run/secrets/job-ops/basic_auth_password";
+        reference = "op://Homelab/Job Ops/Authentication/password";
+        owner = jobOpsUser;
+        group = jobOpsGroup;
+        services = [ "podman-job-ops.service" ];
+      };
+      jobOpsLlmApiKey = {
+        path = "/run/secrets/job-ops/llm_api_key";
+        reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
+        owner = jobOpsUser;
+        group = jobOpsGroup;
+        services = [ "podman-job-ops.service" ];
+      };
+      jobOpsRxresumeApiKey = {
+        path = "/run/secrets/job-ops/rxresume_api_key";
+        reference = "op://Homelab/Job Ops/RxResume/api key";
+        owner = jobOpsUser;
+        group = jobOpsGroup;
+        services = [ "podman-job-ops.service" ];
+      };
+      jobOpsGmailSecret = {
+        path = "/run/secrets/job-ops/gmail_oauth_secret";
+        reference = "op://Homelab/Job Ops/Gmail/oauth secret";
+        owner = jobOpsUser;
+        group = jobOpsGroup;
+        services = [ "podman-job-ops.service" ];
+      };
+      jobOpsAdzunaKey = {
+        path = "/run/secrets/job-ops/adzuna_api_key";
+        reference = "op://Homelab/Job Ops/Adzuna/api key";
+        owner = jobOpsUser;
+        group = jobOpsGroup;
+        services = [ "podman-job-ops.service" ];
+      };
+      backupJobOpsEncryptionKey = {
+        path = "/run/secrets/job-ops/backup_encryption_key";
+        reference = "op://Homelab/Backup/Job Ops/password";
+        owner = jobOpsUser;
+        group = jobOpsGroup;
+      };
     };
 
     services.caddy.virtualHosts."jobs.${domain}" = {
@@ -99,51 +162,12 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets = {
-          jobOpsBasicAuthPassword = {
-            path = "/run/secrets/job-ops/basic_auth_password";
-            reference = "op://Homelab/Job Ops/Authentication/password";
-            owner = jobOpsUser;
-            group = jobOpsGroup;
-          };
-          jobOpsLlmApiKey = {
-            path = "/run/secrets/job-ops/llm_api_key";
-            reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
-            owner = jobOpsUser;
-            group = jobOpsGroup;
-          };
-          jobOpsRxresumeApiKey = {
-            path = "/run/secrets/job-ops/rxresume_api_key";
-            reference = "op://Homelab/Job Ops/RxResume/api key";
-            owner = jobOpsUser;
-            group = jobOpsGroup;
-          };
-          jobOpsGmailSecret = {
-            path = "/run/secrets/job-ops/gmail_oauth_secret";
-            reference = "op://Homelab/Job Ops/Gmail/oauth secret";
-            owner = jobOpsUser;
-            group = jobOpsGroup;
-          };
-          jobOpsAdzunaKey = {
-            path = "/run/secrets/job-ops/adzuna_api_key";
-            reference = "op://Homelab/Job Ops/Adzuna/api key";
-            owner = jobOpsUser;
-            group = jobOpsGroup;
-          };
-          backupJobOpsEncryptionKey = {
-            path = "/run/secrets/job-ops/backup_encryption_key";
-            reference = "op://Homelab/Backup/Job Ops/password";
-            owner = jobOpsUser;
-            group = jobOpsGroup;
-          };
-        };
-
         services.backup.jobs.job-ops = {
           paths = [ "${jobOpsAppDir}/data" ];
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
         };
 
         services.podman.enable = true;

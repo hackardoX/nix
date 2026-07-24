@@ -24,12 +24,18 @@ let
 in
 {
   flake.modules.nixos.homelab-tandoor = {
+    imports = [
+      config.flake.modules.nixos.rclone
+      config.flake.modules.nixos.impermanence
+    ];
+
     users.users.${tandoorUser} = {
       isSystemUser = true;
       group = tandoorGroup;
       extraGroups = [
         "podman"
         "homelab-users"
+        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${tandoorUser}";
@@ -38,6 +44,20 @@ in
     };
 
     users.groups.${tandoorGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${tandoorAppDir} 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorAppDir}/staticfiles 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorAppDir}/mediafiles 0750 ${tandoorUser} ${tandoorGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = tandoorAppDir;
+        user = tandoorUser;
+        group = tandoorGroup;
+      }
+    ];
 
     home-manager.users.${tandoorUser} = {
       home.username = tandoorUser;
@@ -48,6 +68,36 @@ in
         podman-secrets
         homelab-tandoor
       ];
+    };
+
+    services.onepassword-secrets.secrets = {
+      tandoorSecretKey = {
+        path = "/run/secrets/tandoor/secret_key";
+        reference = "op://Homelab/Tandoor/Authentication/secret key";
+        owner = tandoorUser;
+        group = tandoorGroup;
+        services = [ "podman-tandoor.service" ];
+      };
+      tandoorDbPassword = {
+        path = "/run/secrets/tandoor/db_password";
+        reference = "op://Homelab/Tandoor/Database/password";
+        owner = tandoorUser;
+        group = tandoorGroup;
+        services = [ "podman-tandoor-db.service" ];
+      };
+      tandoorOidcClientSecret = {
+        path = "/run/secrets/tandoor/oidc_client_secret";
+        reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
+        owner = tandoorUser;
+        group = tandoorGroup;
+        services = [ "podman-tandoor.service" ];
+      };
+      backupTandoorEncryptionKey = {
+        path = "/run/secrets/tandoor/backup_encryption_key";
+        reference = "op://Homelab/Backup/Tandoor/password";
+        owner = tandoorUser;
+        group = tandoorGroup;
+      };
     };
 
     services.caddy.virtualHosts."recipes.${domain}" = {
@@ -82,33 +132,6 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets = {
-          tandoorSecretKey = {
-            path = "/run/secrets/tandoor/secret_key";
-            reference = "op://Homelab/Tandoor/Authentication/secret key";
-            owner = tandoorUser;
-            group = tandoorGroup;
-          };
-          tandoorDbPassword = {
-            path = "/run/secrets/tandoor/db_password";
-            reference = "op://Homelab/Tandoor/Database/password";
-            owner = tandoorUser;
-            group = tandoorGroup;
-          };
-          tandoorOidcClientSecret = {
-            path = "/run/secrets/tandoor/oidc_client_secret";
-            reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
-            owner = tandoorUser;
-            group = tandoorGroup;
-          };
-          backupTandoorEncryptionKey = {
-            path = "/run/secrets/tandoor/backup_encryption_key";
-            reference = "op://Homelab/Backup/Tandoor/password";
-            owner = tandoorUser;
-            group = tandoorGroup;
-          };
-        };
-
         services.backup.jobs.tandoor = {
           paths = [
             "${tandoorDataDir}/postgres"
@@ -117,7 +140,7 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
         };
 
         services.podman.enable = true;

@@ -37,6 +37,11 @@ let
 in
 {
   flake.modules.nixos.homelab-monitoring = {
+    imports = [
+      config.flake.modules.nixos.rclone
+      config.flake.modules.nixos.impermanence
+    ];
+
     users.users.${monitoringUser} = {
       isSystemUser = true;
       group = monitoringGroup;
@@ -44,6 +49,7 @@ in
         "systemd-journal"
         "podman"
         "homelab-users"
+        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${monitoringUser}";
@@ -52,6 +58,24 @@ in
     };
 
     users.groups.${monitoringGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${monitoringAppDir} 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/grafana 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/grafana/data 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/prometheus 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/prometheus/data 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/alloy 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/alloy/data 0750 ${monitoringUser} ${monitoringGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = monitoringAppDir;
+        user = monitoringUser;
+        group = monitoringGroup;
+      }
+    ];
 
     home-manager.users.${monitoringUser} = {
       home.username = monitoringUser;
@@ -62,6 +86,21 @@ in
         homelab-monitoring
         homelab-podman-extension
       ];
+    };
+
+    services.onepassword-secrets.secrets = {
+      grafanaOidcClientSecret = {
+        path = "/run/secrets/monitoring/grafana/oidc_client_secret";
+        reference = "op://Homelab/Grafana/Authentication/OIDC Client Secret";
+        owner = monitoringUser;
+        group = monitoringGroup;
+      };
+      backupGrafanaEncryptionKey = {
+        path = "/run/secrets/monitoring/grafana/backup_encryption_key";
+        reference = "op://Homelab/Backup/Grafana/password";
+        owner = monitoringUser;
+        group = monitoringGroup;
+      };
     };
   };
 
@@ -279,27 +318,12 @@ in
     in
     {
       config = {
-        programs.onepassword-secrets.secrets = {
-          grafanaOidcClientSecret = {
-            path = "/run/secrets/monitoring/grafana/oidc_client_secret";
-            reference = "op://Homelab/Grafana/Authentication/OIDC Client Secret";
-            owner = monitoringUser;
-            group = monitoringGroup;
-          };
-          backupGrafanaEncryptionKey = {
-            path = "/run/secrets/monitoring/grafana/backup_encryption_key";
-            reference = "op://Homelab/Backup/Grafana/password";
-            owner = monitoringUser;
-            group = monitoringGroup;
-          };
-        };
-
         services.backup.jobs.grafana = {
           paths = [ "${monitoringAppDir}/grafana/data" ];
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.programs.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
         };
 
         services.podman.enable = true;
