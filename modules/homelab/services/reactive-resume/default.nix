@@ -26,11 +26,6 @@ let
 in
 {
   flake.modules.nixos.homelab-reactive-resume = {
-    imports = [
-      config.flake.modules.nixos.rclone
-      config.flake.modules.nixos.impermanence
-    ];
-
     users.users.${reactiveResumeUser} = {
       isSystemUser = true;
       group = reactiveResumeGroup;

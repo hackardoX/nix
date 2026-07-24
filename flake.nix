@@ -88,7 +88,7 @@
     };
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
-      inputs.brew-src.url = "github:Homebrew/brew/5.1.12";
+      # inputs.brew-src.url = "github:Homebrew/brew/5.1.12";
     };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";

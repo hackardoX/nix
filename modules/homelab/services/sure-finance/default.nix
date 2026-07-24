@@ -23,11 +23,6 @@ let
 in
 {
   flake.modules.nixos.homelab-sure-finance = {
-    imports = [
-      config.flake.modules.nixos.rclone
-      config.flake.modules.nixos.impermanence
-    ];
-
     users.users.${sureFinanceUser} = {
       isSystemUser = true;
       group = sureFinanceGroup;

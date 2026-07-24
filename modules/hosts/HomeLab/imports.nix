@@ -8,7 +8,6 @@
       deploy
       homelab
       impermanence
-      homelab-ingress
       root
       ssh
       sudo

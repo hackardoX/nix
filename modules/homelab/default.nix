@@ -4,6 +4,7 @@
     imports = with config.flake.modules.nixos; [
       # homelab-alerting
       # homelab-docker-socket-proxy
+      homelab-ingress
       homelab-homepage
       # homelab-immich
       # homelab-job-ops
@@ -12,6 +13,7 @@
       homelab-security
       # homelab-sure-finance
       # homelab-tandoor
+      rclone
     ];
 
     users.groups.homelab-users = { };

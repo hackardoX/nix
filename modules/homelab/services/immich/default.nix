@@ -30,11 +30,6 @@ let
 in
 {
   flake.modules.nixos.homelab-immich = {
-    imports = [
-      config.flake.modules.nixos.rclone
-      config.flake.modules.nixos.impermanence
-    ];
-
     users.users.${immichUser} = {
       isSystemUser = true;
       group = immichGroup;
@@ -121,7 +116,7 @@ in
   };
 
   flake.modules.homeManager.homelab-immich =
-    hmArgs@{ osConfig, pkgs, ... }:
+    { osConfig, pkgs, ... }:
     let
       sharedEnv = {
         DB_HOSTNAME = "immich-db";

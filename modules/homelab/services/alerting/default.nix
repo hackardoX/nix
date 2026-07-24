@@ -17,11 +17,6 @@ let
 in
 {
   flake.modules.nixos.homelab-alerting = {
-    imports = [
-      config.flake.modules.nixos.rclone
-      config.flake.modules.nixos.impermanence
-    ];
-
     users.users.${alertingUser} = {
       isSystemUser = true;
       group = alertingGroup;

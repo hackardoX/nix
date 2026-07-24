@@ -24,11 +24,6 @@ let
 in
 {
   flake.modules.nixos.homelab-tandoor = {
-    imports = [
-      config.flake.modules.nixos.rclone
-      config.flake.modules.nixos.impermanence
-    ];
-
     users.users.${tandoorUser} = {
       isSystemUser = true;
       group = tandoorGroup;

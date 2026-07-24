@@ -37,11 +37,6 @@ let
 in
 {
   flake.modules.nixos.homelab-monitoring = {
-    imports = [
-      config.flake.modules.nixos.rclone
-      config.flake.modules.nixos.impermanence
-    ];
-
     users.users.${monitoringUser} = {
       isSystemUser = true;
       group = monitoringGroup;
