@@ -88,6 +88,7 @@ in
       "d ${reactiveResumeAppDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeDataDir}/postgres 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeAppDir}/storage 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -114,7 +115,7 @@ in
         executable = true;
         text = ''
           #!/bin/sh
-          export DATABASE_URL="postgresql://${reactiveResumeDbUser}:''${POSTGRES_PASSWORD}@db:5432/${reactiveResumeDbName}"
+          export DATABASE_URL="postgresql://${reactiveResumeDbUser}:''${DATABASE_PASSWORD}@db:5432/${reactiveResumeDbName}"
           exec "$@"
         '';
       };
@@ -132,6 +133,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${reactiveResumeAppDir}/containers"
+        '';
+
         services.backup.jobs.reactive-resume = {
           paths = [
             "${reactiveResumeDataDir}/postgres"

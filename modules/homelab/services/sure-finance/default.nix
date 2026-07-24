@@ -43,6 +43,7 @@ in
       "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/storage 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceDataDir}/postgres 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceAppDir}/containers 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -134,6 +135,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${sureFinanceAppDir}/containers"
+        '';
+
         services.backup.jobs.sure-finance = {
           paths = [
             "${sureFinanceDataDir}/postgres"

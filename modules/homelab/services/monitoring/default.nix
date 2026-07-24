@@ -62,6 +62,7 @@ in
       "d ${monitoringAppDir}/prometheus/data 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/alloy 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/alloy/data 0750 ${monitoringUser} ${monitoringGroup} -"
+      "d ${monitoringAppDir}/containers 0750 ${monitoringUser} ${monitoringGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -314,6 +315,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${monitoringAppDir}/containers"
+        '';
+
         services.backup.jobs.grafana = {
           paths = [ "${monitoringAppDir}/grafana/data" ];
           schedule = "weekly";

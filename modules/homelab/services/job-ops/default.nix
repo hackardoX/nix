@@ -53,6 +53,7 @@ in
     systemd.tmpfiles.rules = [
       "d ${jobOpsAppDir} 0750 ${jobOpsUser} ${jobOpsGroup} -"
       "d ${jobOpsAppDir}/data 0750 ${jobOpsUser} ${jobOpsGroup} -"
+      "d ${jobOpsAppDir}/containers 0750 ${jobOpsUser} ${jobOpsGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -158,6 +159,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${jobOpsAppDir}/containers"
+        '';
+
         services.backup.jobs.job-ops = {
           paths = [ "${jobOpsAppDir}/data" ];
           schedule = "daily";

@@ -45,6 +45,7 @@ in
       "d ${tandoorAppDir}/staticfiles 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/mediafiles 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorDataDir}/postgres 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorAppDir}/containers 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -129,6 +130,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${tandoorAppDir}/containers"
+        '';
+
         services.backup.jobs.tandoor = {
           paths = [
             "${tandoorDataDir}/postgres"

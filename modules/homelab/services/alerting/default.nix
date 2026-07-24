@@ -37,6 +37,7 @@ in
       "d ${alertingAppDir} 0750 ${alertingUser} ${alertingGroup} -"
       "d ${alertingAppDir}/alertmanager 0750 ${alertingUser} ${alertingGroup} -"
       "d ${alertingAppDir}/alertmanager/data 0750 ${alertingUser} ${alertingGroup} -"
+      "d ${alertingAppDir}/containers 0750 ${alertingUser} ${alertingGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -164,6 +165,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${alertingAppDir}/containers"
+        '';
+
         services.backup.jobs.alertmanager = {
           paths = [ "${alertingAppDir}/alertmanager/data" ];
           schedule = "weekly";

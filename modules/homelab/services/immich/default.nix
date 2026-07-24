@@ -50,6 +50,7 @@ in
       "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/photos 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgres 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/containers 0750 ${immichUser} ${immichGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -147,6 +148,11 @@ in
     in
     {
       config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${immichAppDir}/containers"
+        '';
+
         services.backup.jobs.immich = {
           paths = [
             "${immichAppDir}/photos/library"
