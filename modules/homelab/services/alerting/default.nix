@@ -147,15 +147,20 @@ in
         }
       );
 
-      entrypointScript = pkgs.writeShellScript "alertmanager-ntfy-entrypoint" ''
-        set -e
-        cat > /etc/auth.yml << EOF
-        ntfy:
-          auth:
-            token: "$NTFY_TOKEN"
-        EOF
-        exec /usr/local/bin/alertmanager-ntfy --configs /etc/config.yml,/etc/auth.yml
-      '';
+      entrypointScript = pkgs.writeTextFile {
+        name = "alertmanager-ntfy-entrypoint";
+        executable = true;
+        text = ''
+          #!/bin/sh
+          set -e
+          cat > /etc/auth.yml << EOF
+          ntfy:
+            auth:
+              token: "$NTFY_TOKEN"
+          EOF
+          exec /usr/local/bin/alertmanager-ntfy --configs /etc/config.yml,/etc/auth.yml
+        '';
+      };
     in
     {
       config = {
@@ -210,9 +215,15 @@ in
             NTFY_TOKEN = alertingNtfyTokenSecretPath;
           };
 
-          extraConfig.Container = {
-            Entrypoint = [ "/entrypoint.sh" ];
-            NoNewPrivileges = true;
+          extraConfig = {
+            Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
+            };
+            Container = {
+              Entrypoint = [ "/entrypoint.sh" ];
+              NoNewPrivileges = true;
+            };
           };
         };
       };

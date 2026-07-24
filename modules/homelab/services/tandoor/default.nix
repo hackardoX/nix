@@ -161,12 +161,18 @@ in
             POSTGRES_PASSWORD = tandoorDbPasswordFile;
           };
 
-          extraConfig.Container = {
-            HealthCmd = "pg_isready -U ${tandoorDbUser} -d ${tandoorDbName}";
-            HealthInterval = "5s";
-            HealthTimeout = "5s";
-            HealthRetries = 5;
-            NoNewPrivileges = true;
+          extraConfig = {
+            Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
+            };
+            Container = {
+              HealthCmd = "pg_isready -U ${tandoorDbUser} -d ${tandoorDbName}";
+              HealthInterval = "5s";
+              HealthTimeout = "5s";
+              HealthRetries = 5;
+              NoNewPrivileges = true;
+            };
           };
         };
 
@@ -205,8 +211,12 @@ in
 
           extraConfig = {
             Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [
+                "opnix-secrets.service"
+                "podman-tandoor-db.service"
+              ];
               Requires = [ "podman-tandoor-db.service" ];
-              After = [ "podman-tandoor-db.service" ];
             };
             Container.NoNewPrivileges = true;
           };

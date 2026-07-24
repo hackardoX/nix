@@ -165,12 +165,18 @@ in
             POSTGRES_PASSWORD = sureFinanceDbPasswordFile;
           };
 
-          extraConfig.Container = {
-            HealthCmd = "pg_isready -U ${sureFinanceDbUser} -d ${sureFinanceDbName}";
-            HealthInterval = "5s";
-            HealthTimeout = "5s";
-            HealthRetries = 5;
-            NoNewPrivileges = true;
+          extraConfig = {
+            Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
+            };
+            Container = {
+              HealthCmd = "pg_isready -U ${sureFinanceDbUser} -d ${sureFinanceDbName}";
+              HealthInterval = "5s";
+              HealthTimeout = "5s";
+              HealthRetries = 5;
+              NoNewPrivileges = true;
+            };
           };
         };
 
@@ -213,11 +219,13 @@ in
 
           extraConfig = {
             Unit = {
-              Requires = [
+              Wants = [ "opnix-secrets.service" ];
+              After = [
+                "opnix-secrets.service"
                 "podman-sure-finance-db.service"
                 "podman-sure-finance-redis.service"
               ];
-              After = [
+              Requires = [
                 "podman-sure-finance-db.service"
                 "podman-sure-finance-redis.service"
               ];
@@ -247,11 +255,13 @@ in
 
           extraConfig = {
             Unit = {
-              Requires = [
+              Wants = [ "opnix-secrets.service" ];
+              After = [
+                "opnix-secrets.service"
                 "podman-sure-finance-db.service"
                 "podman-sure-finance-redis.service"
               ];
-              After = [
+              Requires = [
                 "podman-sure-finance-db.service"
                 "podman-sure-finance-redis.service"
               ];

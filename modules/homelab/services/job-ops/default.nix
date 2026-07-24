@@ -207,12 +207,18 @@ in
               ADZUNA_APP_KEY = jobOpsAdzunaAppKeyFile;
             };
 
-          extraConfig.Container = {
-            HealthCmd = "curl -f http://localhost:3001/health || exit 1";
-            HealthInterval = "30s";
-            HealthTimeout = "5s";
-            HealthRetries = 3;
-            NoNewPrivileges = true;
+          extraConfig = {
+            Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
+            };
+            Container = {
+              HealthCmd = "curl -f http://localhost:3001/health || exit 1";
+              HealthInterval = "30s";
+              HealthTimeout = "5s";
+              HealthRetries = 3;
+              NoNewPrivileges = true;
+            };
           };
         };
       };

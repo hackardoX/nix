@@ -203,14 +203,8 @@ in
 
           extraConfig = {
             Unit = {
-              Requires = [
-                "podman-immich-db.service"
-                "podman-immich-redis.service"
-              ];
-              After = [
-                "podman-immich-db.service"
-                "podman-immich-redis.service"
-              ];
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
             };
             Container = {
               SecurityLabelDisable = false;
@@ -238,51 +232,63 @@ in
             DB_PASSWORD = immichDbPasswordFile;
           };
 
-          extraConfig.Container.NoNewPrivileges = true;
-        };
-
-        services.podman.containers.immich-redis = {
-          image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
-          autoStart = true;
-          userNS = "keep-id";
-          network = [ "immich.network" ];
-          networkAlias = [ "immich-redis" ];
-          volumes = [ "${immichDataDir}/redis:/data" ];
-
-          extraConfig.Container = {
-            HealthCmd = "redis-cli ping || exit 1";
-            HealthInterval = "5s";
-            HealthTimeout = "5s";
-            HealthRetries = 5;
-            NoNewPrivileges = true;
-          };
-        };
-
-        services.podman.containers.immich-db = {
-          image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
-          autoStart = true;
-          userNS = "keep-id";
-          network = [ "immich.network" ];
-          networkAlias = [ "immich-db" ];
-          volumes = [ "${immichDataDir}/postgres:/var/lib/postgresql/data" ];
-
-          environment = {
-            POSTGRES_USER = immichDbUser;
-            POSTGRES_DB = immichDbName;
-            POSTGRES_INITDB_ARGS = "--data-checksums";
+          extraConfig = {
+            Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
+            };
+            Container.NoNewPrivileges = true;
           };
 
-          secrets = {
-            POSTGRES_PASSWORD = immichDbPasswordFile;
+          services.podman.containers.immich-redis = {
+            image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
+            autoStart = true;
+            userNS = "keep-id";
+            network = [ "immich.network" ];
+            networkAlias = [ "immich-redis" ];
+            volumes = [ "${immichDataDir}/redis:/data" ];
+
+            extraConfig.Container = {
+              HealthCmd = "redis-cli ping || exit 1";
+              HealthInterval = "5s";
+              HealthTimeout = "5s";
+              HealthRetries = 5;
+              NoNewPrivileges = true;
+            };
           };
 
-          extraConfig.Container = {
-            ShmSize = "128m";
-            NoNewPrivileges = true;
-            HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";
-            HealthInterval = "5s";
-            HealthTimeout = "5s";
-            HealthRetries = 5;
+          services.podman.containers.immich-db = {
+            image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
+            autoStart = true;
+            userNS = "keep-id";
+            network = [ "immich.network" ];
+            networkAlias = [ "immich-db" ];
+            volumes = [ "${immichDataDir}/postgres:/var/lib/postgresql/data" ];
+
+            environment = {
+              POSTGRES_USER = immichDbUser;
+              POSTGRES_DB = immichDbName;
+              POSTGRES_INITDB_ARGS = "--data-checksums";
+            };
+
+            secrets = {
+              POSTGRES_PASSWORD = immichDbPasswordFile;
+            };
+
+            extraConfig = {
+              Unit = {
+                Wants = [ "opnix-secrets.service" ];
+                After = [ "opnix-secrets.service" ];
+              };
+              Container = {
+                ShmSize = "128m";
+                NoNewPrivileges = true;
+                HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";
+                HealthInterval = "5s";
+                HealthTimeout = "5s";
+                HealthRetries = 5;
+              };
+            };
           };
         };
       };
