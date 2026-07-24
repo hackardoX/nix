@@ -160,8 +160,14 @@
           Restart = "on-failure";
           RestartSec = "5s";
         };
-        wants = [ "geoipupdate.service" ];
-        after = [ "geoipupdate.service" ];
+        wants = [
+          "geoipupdate.service"
+          "opnix-secrets.service"
+        ];
+        after = [
+          "geoipupdate.service"
+          "opnix-secrets.service"
+        ];
       };
 
       boot.initrd.impermanence.persist.directories = [

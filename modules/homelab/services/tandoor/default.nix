@@ -106,7 +106,7 @@ in
   };
 
   flake.modules.homeManager.homelab-tandoor =
-    hmArgs@{ osConfig, ... }:
+    { osConfig, ... }:
     let
       sharedEnv = {
         ALLOWED_HOSTS = "*";
