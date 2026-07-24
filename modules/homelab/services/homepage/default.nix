@@ -41,12 +41,19 @@ let
     }
   ];
   homepageBookmarks = [ ];
-  homepageDocker = {
-    local = {
-      host = "dockerproxy";
-      port = 2375;
-    };
-  };
+  homepageServices = [
+    {
+      Productivity = [
+        {
+          "Reactive Resume" = {
+            icon = "mdi-file-document-outline";
+            href = "https://rxresume.${domain}";
+            description = "Resume Builder";
+          };
+        }
+      ];
+    }
+  ];
 in
 {
   flake.modules.nixos.homelab-homepage = { pkgs, ... }: {
@@ -116,7 +123,7 @@ in
           "${pkgs.writeText "settings.yaml" (builtins.toJSON homepageSettings)}:/app/config/settings.yaml:ro"
           "${pkgs.writeText "bookmarks.yaml" (builtins.toJSON homepageBookmarks)}:/app/config/bookmarks.yaml:ro"
           "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
-          "${pkgs.writeText "docker.yaml" (builtins.toJSON homepageDocker)}:/app/config/docker.yaml:ro"
+          "${pkgs.writeText "services.yaml" (builtins.toJSON homepageServices)}:/app/config/services.yaml:ro"
         ];
 
         environment = {
