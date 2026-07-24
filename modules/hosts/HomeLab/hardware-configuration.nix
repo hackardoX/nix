@@ -48,6 +48,7 @@
           };
           secrets = lib.mkForce {
             "/etc/secrets/initrd/ssh_host_ed25519_key" = "/persist/etc/secrets/initrd/ssh_host_ed25519_key";
+            "/luks-keyfile" = "/boot/luks-keyfile";
           };
         };
         kernelParams = [ "ip=dhcp" ];
