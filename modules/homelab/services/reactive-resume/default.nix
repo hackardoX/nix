@@ -160,12 +160,18 @@ in
             POSTGRES_PASSWORD = reactiveResumeDbPasswordFile;
           };
 
-          extraConfig.Container = {
-            HealthCmd = "pg_isready -U ${reactiveResumeDbUser} -d ${reactiveResumeDbName}";
-            HealthInterval = "5s";
-            HealthTimeout = "5s";
-            HealthRetries = 5;
-            NoNewPrivileges = true;
+          extraConfig = {
+            Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [ "opnix-secrets.service" ];
+            };
+            Container = {
+              HealthCmd = "pg_isready -U ${reactiveResumeDbUser} -d ${reactiveResumeDbName}";
+              HealthInterval = "5s";
+              HealthTimeout = "5s";
+              HealthRetries = 5;
+              NoNewPrivileges = true;
+            };
           };
         };
 
@@ -207,8 +213,12 @@ in
 
           extraConfig = {
             Unit = {
+              Wants = [ "opnix-secrets.service" ];
+              After = [
+                "opnix-secrets.service"
+                "podman-reactive-resume-db.service"
+              ];
               Requires = [ "podman-reactive-resume-db.service" ];
-              After = [ "podman-reactive-resume-db.service" ];
             };
             Container = {
               Entrypoint = [ "/entrypoint.sh" ];

@@ -5,6 +5,7 @@ let
       path = "/run/secrets/koofr/password";
       reference = "op://Homelab/Rclone remotes/Koofr/password";
       group = "rclone";
+      mode = "0440";
     };
   };
 in
