@@ -42,6 +42,7 @@ in
     systemd.tmpfiles.rules = [
       "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/storage 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceDataDir}/postgres 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [

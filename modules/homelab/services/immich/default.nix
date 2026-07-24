@@ -49,6 +49,7 @@ in
     systemd.tmpfiles.rules = [
       "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/photos 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir}/postgres 0750 ${immichUser} ${immichGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [

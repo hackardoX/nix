@@ -44,6 +44,7 @@ in
       "d ${tandoorAppDir} 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/staticfiles 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/mediafiles 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgres 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [

@@ -87,6 +87,7 @@ in
     systemd.tmpfiles.rules = [
       "d ${reactiveResumeAppDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeDataDir}/postgres 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
