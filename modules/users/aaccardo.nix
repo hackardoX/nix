@@ -33,7 +33,6 @@
       base
       dev
       file-sync
-      file-mount
       media
       password-manager
       shell

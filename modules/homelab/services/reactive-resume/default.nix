@@ -203,7 +203,7 @@ in
 
           volumes = [
             "${entrypointScript}:/entrypoint.sh:ro"
-            "${reactiveResumeAppDir}/data:/app/data"
+            "${reactiveResumeAppDir}/data:/app/data:U"
           ];
 
           environment = {

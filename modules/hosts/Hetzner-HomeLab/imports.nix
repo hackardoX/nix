@@ -11,6 +11,7 @@
         hetzner
         deploy
         homelab
+        impermanence
         root
         ssh
         sudo
