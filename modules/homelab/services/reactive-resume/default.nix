@@ -109,12 +109,16 @@ in
   flake.modules.homeManager.homelab-reactive-resume =
     { osConfig, pkgs, ... }:
     let
-      entrypointScript = pkgs.writeShellScript "reactive-resume-entrypoint" ''
-        DB_PASSWORD=$(cat /run/secrets/DATABASE_PASSWORD)
-        export DATABASE_URL="postgresql://${reactiveResumeDbUser}:''${DB_PASSWORD}@db:5432/${reactiveResumeDbName}"
-        exec "$@"
-      '';
-
+      entrypointScript = pkgs.writeTextFile {
+        name = "reactive-resume-entrypoint";
+        executable = true;
+        text = ''
+          #!/bin/sh
+          DB_PASSWORD=$(cat /run/secrets/DATABASE_PASSWORD)
+          export DATABASE_URL="postgresql://${reactiveResumeDbUser}:''${DB_PASSWORD}@db:5432/${reactiveResumeDbName}"
+          exec "$@"
+        '';
+      };
       oidcEnv = lib.optionalAttrs (reactiveResumeOidcSecretFile != null) {
         OIDC_ENABLED = "true";
         OIDC_PROVIDER = "authelia";
