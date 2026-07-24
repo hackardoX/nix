@@ -195,11 +195,11 @@ in
                       - client_id: "${config.flake.meta.oidc-clients.reactive-resume.clientId}"
                         client_name: "${config.flake.meta.oidc-clients.reactive-resume.clientName}"
                         public: false
-                        authorization_policy: "one_factor"
+                        authorization_policy: "two_factor"
                         token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${hashedSecretsDir}/reactive-resume_oidc_secret" | msquote }}
                         redirect_uris:
-                          - "https://rxresume.${domain}/api/auth/callback"
+                          - "https://rxresume.${domain}/api/auth/oauth2/callback/custom"
                         scopes:
                           - "openid"
                           - "profile"

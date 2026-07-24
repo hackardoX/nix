@@ -120,15 +120,14 @@ in
         '';
       };
       oidcEnv = lib.optionalAttrs (reactiveResumeOidcSecretFile != null) {
-        OIDC_ENABLED = "true";
-        OIDC_PROVIDER = "authelia";
-        OIDC_CLIENT_ID = reactiveResumeOidcClientId;
-        OIDC_ISSUER = "https://auth.${domain}";
-        OIDC_SCOPES = "openid profile email";
+        OAUTH_CLIENT_ID = reactiveResumeOidcClientId;
+        OAUTH_PROVIDER_NAME = "Authelia";
+        OAUTH_DISCOVERY_URL = "https://auth.${domain}/.well-known/openid-configuration";
+        OAUTH_SCOPES = "openid profile email";
       };
 
       oidcSecrets = lib.optionalAttrs (reactiveResumeOidcSecretFile != null) {
-        OIDC_CLIENT_SECRET = reactiveResumeOidcSecretFile;
+        OAUTH_CLIENT_SECRET = reactiveResumeOidcSecretFile;
       };
     in
     {

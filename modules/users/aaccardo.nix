@@ -26,6 +26,7 @@
         home = "/Users/${config.flake.meta.users.aaccardo.name}";
         shell = pkgs.zsh;
       };
+      users.groups.onepassword-secrets.members = [ config.flake.meta.users.aaccardo.name ];
     };
 
   flake.modules.homeManager.aaccardo = {
