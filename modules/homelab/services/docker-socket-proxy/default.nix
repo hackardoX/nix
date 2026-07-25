@@ -6,6 +6,7 @@ in
     hmArgs@{
       osConfig,
       lib,
+      pkgs,
       ...
     }:
     let
@@ -39,6 +40,11 @@ in
           ports = [ "127.0.0.1:${toString cfg.port}:2375" ];
           extraConfig.Container.NoNewPrivileges = true;
         };
+
+        home.activation.enablePodmanSocket = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          run ${pkgs.systemd}/bin/systemctl --user daemon-reload
+          run ${pkgs.systemd}/bin/systemctl --user start podman.socket
+        '';
       };
     };
 }

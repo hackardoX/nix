@@ -36,7 +36,7 @@ let
     }
     {
       resources = {
-        network = "eth0";
+        network = "tap0";
         label = "Network";
       };
     }
