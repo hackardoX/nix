@@ -43,13 +43,13 @@ let
   ];
   homepageBookmarks = [ ];
   homepageDocker = {
-    homepage = {
-      host = "127.0.0.1";
-      port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
-    };
     reactive-resume = {
       host = "127.0.0.1";
       port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
+    };
+    job-ops = {
+      host = "127.0.0.1";
+      port = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
     };
   };
   homepageServices = [ ];

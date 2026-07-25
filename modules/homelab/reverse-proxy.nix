@@ -9,7 +9,7 @@
       immich = 9000;
       immich-docker-socket-proxy = 9001;
       job-ops = 10000;
-      jobs-ops--docker-socket-proxy = 10001;
+      job-ops-docker-socket-proxy = 10001;
       reactive-resume = 18000;
       reactive-resume-docker-socket-proxy = 18001;
       sure-finance = 19000;

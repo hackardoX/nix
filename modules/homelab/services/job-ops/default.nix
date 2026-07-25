@@ -38,7 +38,6 @@ in
       isSystemUser = true;
       group = jobOpsGroup;
       extraGroups = [
-        "podman"
         "homelab-users"
         "rclone"
       ];
@@ -129,7 +128,7 @@ in
   };
 
   flake.modules.homeManager.homelab-job-ops =
-    hmArgs@{ osConfig, ... }:
+    { osConfig, ... }:
     let
       env = {
         TZ = osConfig.time.timeZone;

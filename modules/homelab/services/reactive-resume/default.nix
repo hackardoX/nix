@@ -30,7 +30,6 @@ in
       isSystemUser = true;
       group = reactiveResumeGroup;
       extraGroups = [
-        "podman"
         "homelab-users"
         "rclone"
       ];
