@@ -34,7 +34,7 @@ in
             SOCKET_PATH = "/run/podman/podman.sock";
           };
           volumes = [
-            "%t/podman/podman.sock:/run/podman/podman.sock:ro"
+            "%t/systemd/user/podman.socket:/run/podman/podman.sock:ro"
           ];
           ports = [ "127.0.0.1:${toString cfg.port}:2375" ];
           extraConfig.Container.NoNewPrivileges = true;
