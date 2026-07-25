@@ -28,7 +28,7 @@ in
 
     home-manager.users.${dockerProxyUser} = {
       home.username = dockerProxyUser;
-      home.stateVersion = "24.11";
+      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [ homelab-docker-socket-proxy ];
     };
   };

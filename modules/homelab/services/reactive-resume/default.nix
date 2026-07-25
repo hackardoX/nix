@@ -208,6 +208,8 @@ in
           environment = {
             TZ = osConfig.time.timeZone;
             APP_URL = reactiveResumeAppUrl;
+            AUTH_TRUST_HOST = "true";
+            BETTER_AUTH_URL = reactiveResumeAppUrl;
             FLAG_DISABLE_EMAIL_AUTH = "true";
             FLAG_DISABLE_IMAGE_PROCESSING = "false";
           }
