@@ -52,21 +52,7 @@ let
       port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
     };
   };
-  homepageServices = [
-    {
-      Productivity = [
-        {
-          "Reactive Resume" = {
-            icon = "mdi-file-document-outline";
-            href = "https://rxresume.${domain}";
-            description = "Resume Builder";
-            server = "reactive-resume";
-            container = "reactive-resume";
-          };
-        }
-      ];
-    }
-  ];
+  homepageServices = [ ];
   pastaArgs = lib.concatStringsSep "," (
     [ "-t,${toString reverseProxyPort}:${toString homepagePort}" ]
     ++ (map (proxy: "-T,${toString proxy.port}") (lib.attrValues homepageDocker))
