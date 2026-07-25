@@ -175,6 +175,7 @@ in
               After = [ "opnix-secrets.service" ];
             };
             Container = {
+              LogDriver = "journald";
               HealthCmd = "pg_isready -U ${reactiveResumeDbUser} -d ${reactiveResumeDbName}";
               HealthInterval = "5s";
               HealthTimeout = "5s";
@@ -231,6 +232,7 @@ in
               Requires = [ "podman-reactive-resume-db.service" ];
             };
             Container = {
+              LogDriver = "journald";
               Entrypoint = [ "/entrypoint.sh" ];
               Exec = "node apps/server/dist/index.mjs";
               HealthCmd = "node -e \"fetch('http://127.0.0.1:3000/api/health').then((r) => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1));\"";
