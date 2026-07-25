@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   ...
 }:
 let
@@ -41,6 +42,16 @@ let
     }
   ];
   homepageBookmarks = [ ];
+  homepageDocker = {
+    homepage = {
+      host = "127.0.0.1";
+      port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+    };
+    reactive-resume = {
+      host = "127.0.0.1";
+      port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
+    };
+  };
   homepageServices = [
     {
       Productivity = [
@@ -49,11 +60,17 @@ let
             icon = "mdi-file-document-outline";
             href = "https://rxresume.${domain}";
             description = "Resume Builder";
+            server = "reactive-resume";
+            container = "reactive-resume";
           };
         }
       ];
     }
   ];
+  pastaArgs = lib.concatStringsSep "," (
+    [ "-t,${toString reverseProxyPort}:${toString homepagePort}" ]
+    ++ (map (proxy: "-T,${toString proxy.port}") (lib.attrValues homepageDocker))
+  );
 in
 {
   flake.modules.nixos.homelab-homepage = { pkgs, ... }: {
@@ -77,9 +94,14 @@ in
       home.username = homepageUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
+        homelab-docker-socket-proxy
         homelab-homepage
         homelab-podman-extension
       ];
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+      };
     };
 
     systemd.tmpfiles.rules = [
@@ -106,15 +128,12 @@ in
   flake.modules.homeManager.homelab-homepage = { osConfig, pkgs, ... }: {
     config = {
       services.podman.enable = true;
-      services.podman.networks.homepage.driver = "bridge";
 
       services.podman.containers.homepage = {
         image = "ghcr.io/gethomepage/homepage:latest";
         autoStart = true;
         userNS = "keep-id";
-        network = [ "homepage.network" ];
-        networkAlias = [ "homepage" ];
-        ports = [ "${toString reverseProxyPort}:${toString homepagePort}" ];
+        network = [ "pasta:${pastaArgs}" ];
 
         monitoring.enable = true;
 
@@ -124,6 +143,7 @@ in
           "${pkgs.writeText "bookmarks.yaml" (builtins.toJSON homepageBookmarks)}:/app/config/bookmarks.yaml:ro"
           "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
           "${pkgs.writeText "services.yaml" (builtins.toJSON homepageServices)}:/app/config/services.yaml:ro"
+          "${pkgs.writeText "docker.yaml" (builtins.toJSON homepageDocker)}:/app/config/docker.yaml:ro"
         ];
 
         environment = {

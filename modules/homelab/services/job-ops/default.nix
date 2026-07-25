@@ -219,6 +219,7 @@ in
               After = [ "opnix-secrets.service" ];
             };
             Container = {
+              LogDriver = "journald";
               HealthCmd = "curl -f http://localhost:3001/health || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "5s";

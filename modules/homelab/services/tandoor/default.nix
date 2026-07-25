@@ -173,6 +173,7 @@ in
               After = [ "opnix-secrets.service" ];
             };
             Container = {
+              LogDriver = "journald";
               HealthCmd = "pg_isready -U ${tandoorDbUser} -d ${tandoorDbName}";
               HealthInterval = "5s";
               HealthTimeout = "5s";

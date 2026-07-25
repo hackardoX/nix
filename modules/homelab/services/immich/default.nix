@@ -213,6 +213,7 @@ in
               After = [ "opnix-secrets.service" ];
             };
             Container = {
+              LogDriver = "journald";
               SecurityLabelDisable = false;
               NoNewPrivileges = true;
             };
@@ -255,6 +256,7 @@ in
             volumes = [ "${immichDataDir}/redis:/data" ];
 
             extraConfig.Container = {
+              LogDriver = "journald";
               HealthCmd = "redis-cli ping || exit 1";
               HealthInterval = "5s";
               HealthTimeout = "5s";
@@ -287,6 +289,7 @@ in
                 After = [ "opnix-secrets.service" ];
               };
               Container = {
+                LogDriver = "journald";
                 ShmSize = "128m";
                 NoNewPrivileges = true;
                 HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";

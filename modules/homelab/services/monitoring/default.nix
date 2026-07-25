@@ -363,6 +363,7 @@ in
           exec = "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=30d --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles";
 
           extraConfig.Container = {
+            LogDriver = "journald";
             NoNewPrivileges = true;
           };
         };
@@ -386,6 +387,7 @@ in
           ];
 
           extraConfig.Container = {
+            LogDriver = "journald";
             SecurityLabelDisable = true;
             NoNewPrivileges = true;
           };
@@ -423,6 +425,7 @@ in
             };
 
           extraConfig.Container = {
+            LogDriver = "journald";
             NoNewPrivileges = true;
           };
         };
@@ -455,6 +458,7 @@ in
             };
 
           extraConfig.Container = {
+            LogDriver = "journald";
             NoNewPrivileges = true;
           };
         };
@@ -481,6 +485,7 @@ in
           exec = "run --server.http.listen-addr=0.0.0.0:${toString alloyContainerPort} --storage.path=/var/lib/alloy/data /etc/alloy/config.river";
 
           extraConfig.Container = {
+            LogDriver = "journald";
             NoNewPrivileges = true;
           };
         };

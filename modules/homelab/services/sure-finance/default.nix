@@ -177,6 +177,7 @@ in
               After = [ "opnix-secrets.service" ];
             };
             Container = {
+              LogDriver = "journald";
               HealthCmd = "pg_isready -U ${sureFinanceDbUser} -d ${sureFinanceDbName}";
               HealthInterval = "5s";
               HealthTimeout = "5s";
@@ -195,6 +196,7 @@ in
           volumes = [ "${sureFinanceDataDir}/redis:/data" ];
 
           extraConfig.Container = {
+            LogDriver = "journald";
             HealthCmd = "redis-cli ping";
             HealthInterval = "5s";
             HealthTimeout = "5s";
@@ -237,6 +239,7 @@ in
               ];
             };
             Container = {
+              LogDriver = "journald";
               NoNewPrivileges = true;
               DNS = [
                 "8.8.8.8"
@@ -273,6 +276,7 @@ in
               ];
             };
             Container = {
+              LogDriver = "journald";
               NoNewPrivileges = true;
               DNS = [
                 "8.8.8.8"

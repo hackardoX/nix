@@ -227,6 +227,7 @@ in
               After = [ "opnix-secrets.service" ];
             };
             Container = {
+              LogDriver = "journald";
               Entrypoint = [ "/entrypoint.sh" ];
               NoNewPrivileges = true;
             };

@@ -43,15 +43,20 @@ in
     users.groups.${reactiveResumeGroup} = { };
 
     home-manager.users.${reactiveResumeUser} = {
-      services.rclone.remotes = [ "koofr" ];
-      home.username = reactiveResumeUser;
-      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
         podman-secrets
+        homelab-docker-socket-proxy
         homelab-reactive-resume
       ];
+      home.username = reactiveResumeUser;
+      home.stateVersion = "26.05";
+      services.rclone.remotes = [ "koofr" ];
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
+      };
     };
 
     services.onepassword-secrets.secrets = {
