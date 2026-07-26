@@ -200,7 +200,7 @@ in
             category = "Productivity";
             name = "Reactive Resume";
             description = "Resume Builder";
-            icon = "mdi-file-document-outline";
+            icon = "sh-reactive-resume-light.webp";
             href = "https://rxresume.${domain}";
             ping = "http://localhost:${toString reverseProxyPort}/api/health";
           };
