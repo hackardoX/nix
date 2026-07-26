@@ -59,9 +59,9 @@
             SPOTIFY_UPDATE_DIR="$HOME/Library/Application Support/Spotify/PersistentCache/Update"
 
             if ! /usr/bin/stat -f "%Sf" "$SPOTIFY_UPDATE_DIR" 2> /dev/null | grep -q uchg; then
-              rm -rf "$SPOTIFY_UPDATE_DIR"
-              mkdir -p "$SPOTIFY_UPDATE_DIR"
-              /usr/bin/chflags uchg "$SPOTIFY_UPDATE_DIR"
+              run rm -rf "$SPOTIFY_UPDATE_DIR"
+              run mkdir -p "$SPOTIFY_UPDATE_DIR"
+              run /usr/bin/chflags uchg "$SPOTIFY_UPDATE_DIR"
             fi
           '';
     };

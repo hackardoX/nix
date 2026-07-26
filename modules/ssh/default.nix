@@ -161,7 +161,7 @@ in
             known_hosts_file="$HOME/.ssh/known_hosts"
             temp_file="$(mktemp)"
 
-            mkdir -p "$HOME/.ssh"
+            run mkdir -p "$HOME/.ssh"
 
             ${lib.concatMapStringsSep "\n" (hostname: ''
               echo "Scanning ${hostname}..."
@@ -170,13 +170,13 @@ in
 
             if [[ -s "$temp_file" ]]; then
               grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
-              chmod 644 "$known_hosts_file"
+              run chmod 644 "$known_hosts_file"
               echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
             else
               echo "No SSH keys were scanned"
             fi
 
-            rm "$temp_file"
+            run rm "$temp_file"
           '';
         };
       };

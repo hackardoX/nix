@@ -6,9 +6,9 @@
       home.activation = {
         copyNixApps = inputs.home-manager.lib.hm.dag.entryAfter [ "linkGeneration" ] ''
           # Create directory for the applications
-          mkdir -p "$HOME/Applications/Nix Apps"
+          run mkdir -p "$HOME/Applications/Nix Apps"
           # Remove old entries
-          rm -rf "$HOME/Applications/Nix Apps"/*
+          run rm -rf "$HOME/Applications/Nix Apps"/*
           # Get the target of the symlink from home-manager
           NIXAPPS="$newGenPath/home-path/Applications"
           # For each application
@@ -20,31 +20,31 @@
                 target="$HOME/Applications/Nix Apps/$appname"
                 
                 # Create the basic structure
-                mkdir -p "$target"
-                mkdir -p "$target/Contents"
+                run mkdir -p "$target"
+                run mkdir -p "$target/Contents"
                 
                 # Copy the Info.plist file
                 if [ -f "$app_source/Contents/Info.plist" ]; then
-                  mkdir -p "$target/Contents"
-                  cp -f "$app_source/Contents/Info.plist" "$target/Contents/"
+                  run mkdir -p "$target/Contents"
+                  run cp -f "$app_source/Contents/Info.plist" "$target/Contents/"
                 fi
                 
                 # Copy icon files
                 if [ -d "$app_source/Contents/Resources" ]; then
-                  mkdir -p "$target/Contents/Resources"
-                  find "$app_source/Contents/Resources" -name "*.icns" -exec cp -f {} "$target/Contents/Resources/" \;
+                  run mkdir -p "$target/Contents/Resources"
+                  run find "$app_source/Contents/Resources" -name "*.icns" -exec cp -f {} "$target/Contents/Resources/" \;
                 fi
                 
                 # Symlink the MacOS directory (contains the actual binary)
                 if [ -d "$app_source/Contents/MacOS" ]; then
-                  ln -sfn "$app_source/Contents/MacOS" "$target/Contents/MacOS"
+                  run ln -sfn "$app_source/Contents/MacOS" "$target/Contents/MacOS"
                 fi
                 
                 # Symlink other directories
                 for dir in "$app_source/Contents"/*; do
                   dirname=$(basename "$dir")
                   if [ "$dirname" != "Info.plist" ] && [ "$dirname" != "Resources" ] && [ "$dirname" != "MacOS" ]; then
-                    ln -sfn "$dir" "$target/Contents/$dirname"
+                    run ln -sfn "$dir" "$target/Contents/$dirname"
                   fi
                 done
               fi
