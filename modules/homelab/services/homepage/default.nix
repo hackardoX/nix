@@ -19,6 +19,7 @@ let
     color = "slate";
     statusStyle = "dot";
     useEqualHeights = true;
+    showStats = true;
   };
   homepageWidgets = [
     {

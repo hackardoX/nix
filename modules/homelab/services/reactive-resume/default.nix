@@ -11,7 +11,6 @@ let
 
   domain = config.flake.meta.reverse-proxy.domain;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume;
-  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
   reactiveResumeImage = "amruthpillai/reactive-resume:latest";
   reactiveResumePort = 3000;
@@ -197,17 +196,18 @@ in
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString reactiveResumePort}" ];
 
-          labels = mkHomepageLabels {
+          labels = config.flake.lib.mkHomepageLabels {
             category = "Productivity";
             name = "Reactive Resume";
             description = "Resume Builder";
             icon = "mdi-file-document-outline";
-            href = "http://localhost:${toString reverseProxyPort}";
+            href = "https://rxresume.${domain}";
+            ping = "http://localhost:${toString reverseProxyPort}/api/health";
           };
 
           volumes = [
             "${entrypointScript}:/entrypoint.sh:ro"
-            "${reactiveResumeAppDir}/data:/app/data:U"
+            "${reactiveResumeAppDir}/data:/app/data"
           ];
 
           environment = {

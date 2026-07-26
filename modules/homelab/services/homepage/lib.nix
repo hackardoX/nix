@@ -23,20 +23,17 @@ let
       icon ? null,
       href ? null,
       widget ? null,
-      # Additional optional fields
       ping ? null,
       siteMonitor ? null,
       showStats ? null,
       statusStyle ? null,
     }:
     let
-      # Base labels (always present)
       baseLabels = {
         "homepage.group" = category;
         "homepage.name" = name;
       };
 
-      # Optional string labels
       optionalLabels =
         (lib.optionalAttrs (description != null) { "homepage.description" = description; })
         // (lib.optionalAttrs (icon != null) { "homepage.icon" = icon; })
