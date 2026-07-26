@@ -157,6 +157,7 @@ in
         services.podman.containers.reactive-resume-db = {
           image = "docker.io/library/postgres:16";
           autoStart = true;
+          user = "989:988";
           userNS = "keep-id";
           network = [ "reactive-resume.network" ];
           networkAlias = [ "db" ];
@@ -191,6 +192,7 @@ in
         services.podman.containers.reactive-resume = {
           image = reactiveResumeImage;
           autoStart = true;
+          user = "989:988";
           userNS = "keep-id";
           network = [ "reactive-resume.network" ];
           networkAlias = [ "app" ];

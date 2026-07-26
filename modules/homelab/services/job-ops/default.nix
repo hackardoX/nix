@@ -187,7 +187,8 @@ in
             name = "Job-Ops";
             description = "AI Job Application Assistant";
             icon = "mdi-briefcase-outline";
-            href = "http://localhost:${toString reverseProxyPort}";
+            href = "https://jobs.${domain}";
+            ping = "http://localhost:${toString reverseProxyPort}";
           };
 
           volumes = [ "${jobOpsAppDir}/data:/app/data" ];
