@@ -81,14 +81,14 @@ in
       home.username = homepageUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
-        homelab-docker-socket-proxy
+        # homelab-docker-socket-proxy
         homelab-homepage
         homelab-podman-extension
       ];
-      services.homelab-docker-socket-proxy = {
-        enable = true;
-        port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
-      };
+      # services.homelab-docker-socket-proxy = {
+      #   enable = true;
+      #   port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+      # };
     };
 
     systemd.tmpfiles.rules = [
