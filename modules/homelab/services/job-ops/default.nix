@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   ...
 }:
 let
@@ -127,113 +126,87 @@ in
 
     services.caddy.virtualHosts."jobs.${domain}" = {
       extraConfig = ''
+        import auth_protected
         import reverse_proxy_common
         reverse_proxy localhost:${toString reverseProxyPort}
       '';
     };
   };
 
-  flake.modules.homeManager.homelab-job-ops =
-    { osConfig, ... }:
-    let
-      env = {
+  flake.modules.homeManager.homelab-job-ops = { osConfig, ... }: {
+    xdg.configFile."containers/storage.conf".text = ''
+      [storage]
+      graphroot = "${jobOpsAppDir}/containers"
+    '';
+
+    services.backup.jobs.job-ops = {
+      paths = [ "${jobOpsAppDir}/data" ];
+      schedule = "daily";
+      retention = "standard";
+      providers = [ "koofr" ];
+      encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
+    };
+
+    services.podman.enable = true;
+    services.podman.networks.job-ops.driver = "bridge";
+
+    services.podman.containers.job-ops = {
+      image = jobOpsImage;
+      autoStart = true;
+      userNS = "keep-id";
+      user = "%U";
+      group = "%G";
+      network = [ "job-ops.network" ];
+      networkAlias = [ "job-ops" ];
+      ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];
+
+      labels = mkHomepageLabels {
+        category = "Productivity";
+        name = "Job-Ops";
+        description = "AI Job Application Assistant";
+        icon = "mdi-briefcase-outline";
+        href = "https://jobs.${domain}";
+        ping = "http://localhost:${toString reverseProxyPort}";
+      };
+
+      volumes = [ "${jobOpsAppDir}/data:/app/data" ];
+
+      environment = {
         TZ = osConfig.time.timeZone;
         MODEL = jobOpsModel;
         LLM_PROVIDER = jobOpsLlmProvider;
         UKVISAJOBS_HEADLESS = "true";
         UKVISAJOBS_FILE_DIR = "/app/data";
-      }
-      // lib.optionalAttrs (jobOpsLlmBaseUrl != "") {
         OPENAI_BASE_URL = jobOpsLlmBaseUrl;
-      }
-      // lib.optionalAttrs (jobOpsPublicBaseUrl != "") {
         JOBOPS_PUBLIC_BASE_URL = jobOpsPublicBaseUrl;
-      }
-      // lib.optionalAttrs (jobOpsBasicAuthUser != "") {
-        BASIC_AUTH_USER = jobOpsBasicAuthUser;
-      }
-      // lib.optionalAttrs (jobOpsRxresumeUrl != "") {
         RXRESUME_URL = jobOpsRxresumeUrl;
-      }
-      // lib.optionalAttrs (jobOpsGmailOauthClientId != "") {
         GMAIL_OAUTH_CLIENT_ID = jobOpsGmailOauthClientId;
-      }
-      // lib.optionalAttrs (jobOpsAdzunaAppId != "") {
         ADZUNA_APP_ID = jobOpsAdzunaAppId;
-      };
-    in
-    {
-      xdg.configFile."containers/storage.conf".text = ''
-        [storage]
-        graphroot = "${jobOpsAppDir}/containers"
-      '';
-
-      services.backup.jobs.job-ops = {
-        paths = [ "${jobOpsAppDir}/data" ];
-        schedule = "daily";
-        retention = "standard";
-        providers = [ "koofr" ];
-        encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
+        BASIC_AUTH_USER = jobOpsBasicAuthUser;
       };
 
-      services.podman.enable = true;
-      services.podman.networks.job-ops.driver = "bridge";
+      secrets = {
+        OPENAI_API_KEY = jobOpsLlmApiKeyFile;
+        BASIC_AUTH_PASSWORD = jobOpsBasicAuthPasswordFile;
+        RXRESUME_API_KEY = jobOpsRxresumeApiKeyFile;
+        GMAIL_OAUTH_CLIENT_SECRET = jobOpsGmailOauthSecretFile;
+        ADZUNA_APP_KEY = jobOpsAdzunaAppKeyFile;
+      };
 
-      services.podman.containers.job-ops = {
-        image = jobOpsImage;
-        autoStart = true;
-        userNS = "keep-id";
-        user = "%U";
-        group = "%G";
-        network = [ "job-ops.network" ];
-        networkAlias = [ "job-ops" ];
-        ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];
-
-        labels = mkHomepageLabels {
-          category = "Productivity";
-          name = "Job-Ops";
-          description = "AI Job Application Assistant";
-          icon = "mdi-briefcase-outline";
-          href = "https://jobs.${domain}";
-          ping = "http://10.0.2.2:${toString reverseProxyPort}";
+      extraConfig = {
+        Unit = {
+          Wants = [ "opnix-secrets.service" ];
+          After = [ "opnix-secrets.service" ];
         };
-
-        volumes = [ "${jobOpsAppDir}/data:/app/data" ];
-
-        environment = env;
-
-        secrets =
-          { }
-          // lib.optionalAttrs (jobOpsLlmApiKeyFile != "") {
-            OPENAI_API_KEY = jobOpsLlmApiKeyFile;
-          }
-          // lib.optionalAttrs (jobOpsBasicAuthPasswordFile != "") {
-            BASIC_AUTH_PASSWORD = jobOpsBasicAuthPasswordFile;
-          }
-          // lib.optionalAttrs (jobOpsRxresumeApiKeyFile != "") {
-            RXRESUME_API_KEY = jobOpsRxresumeApiKeyFile;
-          }
-          // lib.optionalAttrs (jobOpsGmailOauthSecretFile != "") {
-            GMAIL_OAUTH_CLIENT_SECRET = jobOpsGmailOauthSecretFile;
-          }
-          // lib.optionalAttrs (jobOpsAdzunaAppKeyFile != "") {
-            ADZUNA_APP_KEY = jobOpsAdzunaAppKeyFile;
-          };
-
-        extraConfig = {
-          Unit = {
-            Wants = [ "opnix-secrets.service" ];
-            After = [ "opnix-secrets.service" ];
-          };
-          Container = {
-            LogDriver = "journald";
-            HealthCmd = "curl -f http://localhost:3001/health || exit 1";
-            HealthInterval = "30s";
-            HealthTimeout = "5s";
-            HealthRetries = 3;
-            NoNewPrivileges = true;
-          };
+        Container = {
+          LogDriver = "journald";
+          HealthCmd = "curl -f http://localhost:3001/health || exit 1";
+          HealthInterval = "30s";
+          HealthTimeout = "5s";
+          HealthRetries = 3;
+          NoNewPrivileges = true;
         };
       };
     };
+  };
 }

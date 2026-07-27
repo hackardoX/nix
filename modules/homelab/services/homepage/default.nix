@@ -53,10 +53,15 @@ let
       port = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
     };
   };
+  homepagePingPorts = [
+    config.flake.meta.reverse-proxy.ports.job-ops
+    config.flake.meta.reverse-proxy.ports.reactive-resume
+  ];
   homepageServices = [ ];
   pastaArgs = lib.concatStringsSep "," (
     [ "-t,${toString reverseProxyPort}:${toString homepagePort}" ]
     ++ (map (proxy: "-T,${toString proxy.port}") (lib.attrValues homepageDocker))
+    ++ (map (port: "-T,${toString port}") homepagePingPorts)
   );
 in
 {
