@@ -40,7 +40,7 @@ let
     }
     {
       resources = {
-        network = "tap0";
+        network = "end0";
         label = "Network";
       };
     }
@@ -149,6 +149,7 @@ in
           "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
           "${pkgs.writeText "services.yaml" (builtins.toJSON homepageServices)}:/app/config/services.yaml:ro"
           "${pkgs.writeText "docker.yaml" (builtins.toJSON homepageDocker)}:/app/config/docker.yaml:ro"
+          "/sys:/sys:ro"
         ];
 
         environment = {
