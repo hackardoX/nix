@@ -177,7 +177,7 @@ in
         description = "AI Job Application Assistant";
         icon = "mdi-briefcase-outline";
         href = "https://${hosts.jobs}";
-        ping = "http://localhost:${toString reverseProxyPort}";
+        siteMonitor = "http://localhost:${toString reverseProxyPort}";
       };
 
       volumes = [ "${jobOpsAppDir}/data:/app/data" ];
