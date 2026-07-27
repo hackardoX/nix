@@ -335,6 +335,8 @@ in
           image = "prom/prometheus:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "monitoring.network" ];
           networkAlias = [ prometheusHost ];
           ports = [ "${toString prometheusHostPort}:${toString prometheusContainerPort}" ];
@@ -372,6 +374,8 @@ in
           image = "quay.io/navidys/prometheus-podman-exporter:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "monitoring.network" ];
           networkAlias = [ podmanExporterHost ];
 
@@ -397,6 +401,8 @@ in
           image = "grafana/grafana:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "monitoring.network" ];
           networkAlias = [ grafanaHost ];
           ports = [ "${toString grafanaHostPort}:${toString grafanaContainerPort}" ];
@@ -434,6 +440,8 @@ in
           image = "grafana/loki:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "monitoring.network" ];
           networkAlias = [ lokiHost ];
           ports = [ "${toString lokiHostPort}:${toString lokiContainerPort}" ];
@@ -467,6 +475,8 @@ in
           image = "grafana/alloy:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "monitoring.network" ];
           networkAlias = [ alloyHost ];
           ports = [ "${toString alloyHostPort}:${toString alloyContainerPort}" ];

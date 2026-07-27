@@ -158,6 +158,8 @@ in
           image = "docker.io/library/postgres:16";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "sure-finance.network" ];
           networkAlias = [ "db" ];
           volumes = [ "${sureFinanceDataDir}/postgres:/var/lib/postgresql/data" ];
@@ -191,6 +193,8 @@ in
           image = "docker.io/library/redis:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "sure-finance.network" ];
           networkAlias = [ "redis" ];
           volumes = [ "${sureFinanceDataDir}/redis:/data" ];
@@ -209,6 +213,8 @@ in
           image = sureFinanceImage;
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "sure-finance.network" ];
           networkAlias = [ "web" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
@@ -253,6 +259,8 @@ in
           image = sureFinanceImage;
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "sure-finance.network" ];
           networkAlias = [ "worker" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];

@@ -153,6 +153,8 @@ in
           image = "docker.io/library/postgres:16";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "tandoor.network" ];
           networkAlias = [ "db" ];
           volumes = [ "${tandoorDataDir}/postgres:/var/lib/postgresql/data" ];
@@ -187,6 +189,8 @@ in
           image = tandoorImage;
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];

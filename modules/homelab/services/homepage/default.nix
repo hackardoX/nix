@@ -120,6 +120,8 @@ in
         image = "ghcr.io/gethomepage/homepage:latest";
         autoStart = true;
         userNS = "keep-id";
+        user = "%U";
+        group = "%G";
         network = [ "pasta:${pastaArgs}" ];
 
         monitoring.enable = true;

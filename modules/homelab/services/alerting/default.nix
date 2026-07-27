@@ -185,6 +185,8 @@ in
           image = "prom/alertmanager:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager" ];
           ports = [ "${toString alertmanagerHostPort}:${toString alertmanagerContainerPort}" ];
@@ -205,6 +207,8 @@ in
           image = "ghcr.io/alexbakker/alertmanager-ntfy:latest";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager-ntfy" ];
           ports = [ "${toString alertmanagerNtfyHostPort}:${toString alertmanagerNtfyContainerPort}" ];

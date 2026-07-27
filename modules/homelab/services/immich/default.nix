@@ -173,6 +173,8 @@ in
           image = "ghcr.io/immich-app/immich-server:release";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "immich.network" ];
           networkAlias = [ "immich-server" ];
           ports = [ "${toString reverseProxyPort}:${toString immichPort}" ];
@@ -224,6 +226,8 @@ in
           image = "ghcr.io/immich-app/immich-machine-learning:release";
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "immich.network" ];
           networkAlias = [ "immich-machine-learning" ];
 
@@ -251,6 +255,8 @@ in
             image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
             autoStart = true;
             userNS = "keep-id";
+            user = "%U";
+            group = "%G";
             network = [ "immich.network" ];
             networkAlias = [ "immich-redis" ];
             volumes = [ "${immichDataDir}/redis:/data" ];
@@ -269,6 +275,8 @@ in
             image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
             autoStart = true;
             userNS = "keep-id";
+            user = "%U";
+            group = "%G";
             network = [ "immich.network" ];
             networkAlias = [ "immich-db" ];
             volumes = [ "${immichDataDir}/postgres:/var/lib/postgresql/data" ];

@@ -178,6 +178,8 @@ in
           image = jobOpsImage;
           autoStart = true;
           userNS = "keep-id";
+          user = "%U";
+          group = "%G";
           network = [ "job-ops.network" ];
           networkAlias = [ "job-ops" ];
           ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];
