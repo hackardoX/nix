@@ -4,6 +4,8 @@
   ...
 }:
 let
+  sureFinanceUid = 905;
+  sureFinanceGid = 905;
   sureFinanceUser = "sure-finance";
   sureFinanceGroup = "sure-finance";
   sureFinanceAppDir = "/var/lib/containers/sure-finance";
@@ -25,6 +27,7 @@ in
 {
   flake.modules.nixos.homelab-sure-finance = {
     users.users.${sureFinanceUser} = {
+      uid = sureFinanceUid;
       isSystemUser = true;
       group = sureFinanceGroup;
       extraGroups = [
@@ -38,7 +41,9 @@ in
       linger = true;
     };
 
-    users.groups.${sureFinanceGroup} = { };
+    users.groups.${sureFinanceGroup} = {
+      gid = sureFinanceGid;
+    };
 
     systemd.tmpfiles.rules = [
       "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
@@ -46,6 +51,11 @@ in
       "d ${sureFinanceDataDir}/postgres 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/containers 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
     ];
+
+    systemd.services."home-manager-${sureFinanceUser}" = {
+      after = [ "user@${toString sureFinanceUid}.service" ];
+      wants = [ "user@${toString sureFinanceUid}.service" ];
+    };
 
     boot.initrd.impermanence.persist.directories = [
       {

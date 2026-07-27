@@ -4,6 +4,8 @@
   ...
 }:
 let
+  reactiveResumeUid = 907;
+  reactiveResumeGid = 907;
   reactiveResumeUser = "reactive-resume";
   reactiveResumeGroup = "reactive-resume";
   reactiveResumeAppDir = "/var/lib/containers/reactive-resume";
@@ -27,6 +29,7 @@ in
 {
   flake.modules.nixos.homelab-reactive-resume = {
     users.users.${reactiveResumeUser} = {
+      uid = reactiveResumeUid;
       isSystemUser = true;
       group = reactiveResumeGroup;
       extraGroups = [
@@ -39,7 +42,9 @@ in
       linger = true;
     };
 
-    users.groups.${reactiveResumeGroup} = { };
+    users.groups.${reactiveResumeGroup} = {
+      gid = reactiveResumeGid;
+    };
 
     home-manager.users.${reactiveResumeUser} = {
       imports = with config.flake.modules.homeManager; [
@@ -94,6 +99,11 @@ in
       "d ${reactiveResumeDataDir}/postgres 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/storage 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
+
+    systemd.services."home-manager-${reactiveResumeUser}" = {
+      after = [ "user@${toString reactiveResumeUid}.service" ];
+      wants = [ "user@${toString reactiveResumeUid}.service" ];
+    };
 
     boot.initrd.impermanence.persist.directories = [
       {

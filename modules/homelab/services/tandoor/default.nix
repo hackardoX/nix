@@ -4,6 +4,8 @@
   ...
 }:
 let
+  tandoorUid = 904;
+  tandoorGid = 904;
   tandoorUser = "tandoor";
   tandoorGroup = "tandoor";
   tandoorAppDir = "/var/lib/containers/tandoor";
@@ -26,6 +28,7 @@ in
 {
   flake.modules.nixos.homelab-tandoor = {
     users.users.${tandoorUser} = {
+      uid = tandoorUid;
       isSystemUser = true;
       group = tandoorGroup;
       extraGroups = [
@@ -39,7 +42,9 @@ in
       linger = true;
     };
 
-    users.groups.${tandoorGroup} = { };
+    users.groups.${tandoorGroup} = {
+      gid = tandoorGid;
+    };
 
     systemd.tmpfiles.rules = [
       "d ${tandoorAppDir} 0750 ${tandoorUser} ${tandoorGroup} -"
@@ -48,6 +53,11 @@ in
       "d ${tandoorDataDir}/postgres 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/containers 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
+
+    systemd.services."home-manager-${tandoorUser}" = {
+      after = [ "user@${toString tandoorUid}.service" ];
+      wants = [ "user@${toString tandoorUid}.service" ];
+    };
 
     boot.initrd.impermanence.persist.directories = [
       {

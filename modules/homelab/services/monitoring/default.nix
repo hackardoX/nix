@@ -4,6 +4,8 @@
   ...
 }:
 let
+  monitoringUid = 906;
+  monitoringGid = 906;
   monitoringUser = "monitoring";
   monitoringGroup = "monitoring";
   monitoringAppDir = "/var/lib/containers/monitoring";
@@ -39,6 +41,7 @@ in
 {
   flake.modules.nixos.homelab-monitoring = {
     users.users.${monitoringUser} = {
+      uid = monitoringUid;
       isSystemUser = true;
       group = monitoringGroup;
       extraGroups = [
@@ -53,7 +56,9 @@ in
       linger = true;
     };
 
-    users.groups.${monitoringGroup} = { };
+    users.groups.${monitoringGroup} = {
+      gid = monitoringGid;
+    };
 
     systemd.tmpfiles.rules = [
       "d ${monitoringAppDir} 0750 ${monitoringUser} ${monitoringGroup} -"
@@ -65,6 +70,11 @@ in
       "d ${monitoringAppDir}/alloy/data 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/containers 0750 ${monitoringUser} ${monitoringGroup} -"
     ];
+
+    systemd.services."home-manager-${monitoringUser}" = {
+      after = [ "user@${toString monitoringUid}.service" ];
+      wants = [ "user@${toString monitoringUid}.service" ];
+    };
 
     boot.initrd.impermanence.persist.directories = [
       {

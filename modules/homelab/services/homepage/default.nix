@@ -4,6 +4,8 @@
   ...
 }:
 let
+  homepageUid = 901;
+  homepageGid = 901;
   homepageUser = "homepage";
   homepageGroup = "homepage";
   homepagePort = 3000;
@@ -68,6 +70,7 @@ in
 {
   flake.modules.nixos.homelab-homepage = { pkgs, ... }: {
     users.users.${homepageUser} = {
+      uid = homepageUid;
       isSystemUser = true;
       group = homepageGroup;
       shell = pkgs.bash;
@@ -81,7 +84,9 @@ in
       linger = true;
     };
 
-    users.groups.${homepageGroup} = { };
+    users.groups.${homepageGroup} = {
+      gid = homepageGid;
+    };
 
     home-manager.users.${homepageUser} = {
       home.username = homepageUser;
@@ -101,6 +106,11 @@ in
       "d ${homepageAppDir} 0750 ${homepageUser} ${homepageGroup} -"
       "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
     ];
+
+    systemd.services."home-manager-${homepageUser}" = {
+      after = [ "user@${toString homepageUid}.service" ];
+      wants = [ "user@${toString homepageUid}.service" ];
+    };
 
     services.caddy.virtualHosts."${domain}" = {
       extraConfig = ''

@@ -4,6 +4,8 @@
   ...
 }:
 let
+  immichUid = 903;
+  immichGid = 903;
   immichUser = "immich";
   immichGroup = "immich";
   immichAppDir = "/var/lib/containers/immich";
@@ -32,6 +34,7 @@ in
 {
   flake.modules.nixos.homelab-immich = {
     users.users.${immichUser} = {
+      uid = immichUid;
       isSystemUser = true;
       group = immichGroup;
       extraGroups = [
@@ -45,7 +48,9 @@ in
       linger = true;
     };
 
-    users.groups.${immichGroup} = { };
+    users.groups.${immichGroup} = {
+      gid = immichGid;
+    };
 
     systemd.tmpfiles.rules = [
       "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
@@ -53,6 +58,11 @@ in
       "d ${immichDataDir}/postgres 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/containers 0750 ${immichUser} ${immichGroup} -"
     ];
+
+    systemd.services."home-manager-${immichUser}" = {
+      after = [ "user@${toString immichUid}.service" ];
+      wants = [ "user@${toString immichUid}.service" ];
+    };
 
     boot.initrd.impermanence.persist.directories = [
       {

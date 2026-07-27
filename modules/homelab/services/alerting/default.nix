@@ -18,6 +18,7 @@ in
 {
   flake.modules.nixos.homelab-alerting = {
     users.users.${alertingUser} = {
+      uid = 992;
       isSystemUser = true;
       group = alertingGroup;
       extraGroups = [
