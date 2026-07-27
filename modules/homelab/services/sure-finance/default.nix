@@ -10,6 +10,7 @@ let
   sureFinanceDataDir = "/var/lib/data/sure-finance";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
@@ -102,7 +103,7 @@ in
       };
     };
 
-    services.caddy.virtualHosts."finance.${domain}" = {
+    services.caddy.virtualHosts."${hosts.finance}" = {
       extraConfig = ''
         import reverse_proxy_common
         reverse_proxy localhost:${toString reverseProxyPort}

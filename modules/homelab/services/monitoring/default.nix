@@ -9,6 +9,7 @@ let
   monitoringAppDir = "/var/lib/containers/monitoring";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
   prometheusHost = "prometheus";
@@ -305,12 +306,12 @@ in
         GF_AUTH_GENERIC_OAUTH_NAME = "Authelia";
         GF_AUTH_GENERIC_OAUTH_CLIENT_ID = grafanaOidcClientId;
         GF_AUTH_GENERIC_OAUTH_SCOPES = "openid profile email";
-        GF_AUTH_GENERIC_OAUTH_AUTH_URL = "https://auth.${domain}/api/oidc/authorization";
-        GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "https://auth.${domain}/api/oidc/token";
-        GF_AUTH_GENERIC_OAUTH_API_URL = "https://auth.${domain}/api/oidc/userinfo";
+        GF_AUTH_GENERIC_OAUTH_AUTH_URL = "https://${hosts.auth}/api/oidc/authorization";
+        GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "https://${hosts.auth}/api/oidc/token";
+        GF_AUTH_GENERIC_OAUTH_API_URL = "https://${hosts.auth}/api/oidc/userinfo";
         GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP = "true";
         GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN = "true";
-        GF_SERVER_ROOT_URL = "https://grafana.${domain}";
+        GF_SERVER_ROOT_URL = "https://${hosts.grafana}";
       };
     in
     {

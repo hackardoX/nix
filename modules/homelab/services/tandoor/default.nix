@@ -10,6 +10,7 @@ let
   tandoorDataDir = "/var/lib/data/tandoor";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
@@ -98,7 +99,7 @@ in
       };
     };
 
-    services.caddy.virtualHosts."recipes.${domain}" = {
+    services.caddy.virtualHosts."${hosts.recipes}" = {
       extraConfig = ''
         import reverse_proxy_common
         reverse_proxy localhost:${toString reverseProxyPort}
@@ -119,7 +120,7 @@ in
       };
 
       oidcEnv = lib.optionalAttrs (tandoorOidcSecretFile != null) {
-        OIDC_ENDPOINT = "https://auth.${domain}";
+        OIDC_ENDPOINT = "https://${hosts.auth}";
         OIDC_CLIENT_ID = tandoorOidcClientId;
         OIDC_SCOPES = "openid,profile,email";
       };

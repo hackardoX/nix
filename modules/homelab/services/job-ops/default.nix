@@ -8,6 +8,7 @@ let
   jobOpsAppDir = "/var/lib/containers/job-ops";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.job-ops;
 
   jobOpsImage = "ghcr.io/dakheera47/job-ops:latest";
@@ -16,14 +17,14 @@ let
   jobOpsLlmProvider = "openai_compatible";
   jobOpsLlmBaseUrl = "https://opencode.ai/zen/v1/chat/completions";
 
-  jobOpsPublicBaseUrl = "https://jobs.${domain}";
+  jobOpsPublicBaseUrl = "https://${hosts.jobs}";
   jobOpsBasicAuthUser = "admin";
 
   # Secret file paths — configure before enabling
   jobOpsLlmApiKeyFile = "/run/secrets/job-ops/llm_api_key";
   jobOpsBasicAuthPasswordFile = "/run/secrets/job-ops/basic_auth_password";
   jobOpsRxresumeApiKeyFile = "/run/secrets/job-ops/rxresume_api_key";
-  jobOpsRxresumeUrl = "https://rxresume.${domain}";
+  jobOpsRxresumeUrl = "https://${hosts.rxresume}";
   jobOpsGmailOauthClientId = "776086063215-ue41fr70dcfbqs70pg5p26r9emndv7m1.apps.googleusercontent.com";
   jobOpsGmailOauthSecretFile = "/run/secrets/job-ops/gmail_oauth_secret";
   jobOpsAdzunaAppId = "47ca24d5";
@@ -124,7 +125,7 @@ in
       };
     };
 
-    services.caddy.virtualHosts."jobs.${domain}" = {
+    services.caddy.virtualHosts."${hosts.jobs}" = {
       extraConfig = ''
         import auth_protected
         import reverse_proxy_common
@@ -165,7 +166,7 @@ in
         name = "Job-Ops";
         description = "AI Job Application Assistant";
         icon = "mdi-briefcase-outline";
-        href = "https://jobs.${domain}";
+        href = "https://${hosts.jobs}";
         ping = "http://localhost:${toString reverseProxyPort}";
       };
 

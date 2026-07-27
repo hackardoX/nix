@@ -8,6 +8,7 @@
     nixosArgs:
     let
       domain = config.flake.meta.reverse-proxy.domain;
+      hosts = config.flake.meta.reverse-proxy.hosts;
       tunnelUuid = "7ba3afe7-dd5d-4972-9035-6e181d2beedb";
     in
     {
@@ -28,7 +29,7 @@
               originServerName = domain;
             };
             ingress = {
-              "ssh.${domain}" = "ssh://localhost:22";
+              "${hosts.ssh}" = "ssh://localhost:22";
             };
             default = "https://localhost:443";
           };

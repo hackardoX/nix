@@ -10,6 +10,7 @@ let
   reactiveResumeDataDir = "/var/lib/data/reactive-resume";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume;
 
   reactiveResumeImage = "amruthpillai/reactive-resume:latest";
@@ -19,7 +20,7 @@ let
   reactiveResumeDbPasswordFile = "/run/secrets/reactive-resume/db_password";
   reactiveResumeAuthSecretFile = "/run/secrets/reactive-resume/auth_secret";
 
-  reactiveResumeAppUrl = "https://rxresume.${domain}";
+  reactiveResumeAppUrl = "https://${hosts.rxresume}";
   reactiveResumeOidcClientId = config.flake.meta.oidc-clients.reactive-resume.clientId or "";
   reactiveResumeOidcSecretFile = "/run/secrets/reactive-resume/oidc_client_secret";
 in
@@ -102,7 +103,7 @@ in
       }
     ];
 
-    services.caddy.virtualHosts."rxresume.${domain}" = {
+    services.caddy.virtualHosts."${hosts.rxresume}" = {
       extraConfig = ''
         import reverse_proxy_common
         reverse_proxy localhost:${toString reverseProxyPort}
@@ -125,7 +126,7 @@ in
       oidcEnv = lib.optionalAttrs (reactiveResumeOidcSecretFile != null) {
         OAUTH_CLIENT_ID = reactiveResumeOidcClientId;
         OAUTH_PROVIDER_NAME = "Authelia";
-        OAUTH_DISCOVERY_URL = "https://auth.${domain}/.well-known/openid-configuration";
+        OAUTH_DISCOVERY_URL = "https://${hosts.auth}/.well-known/openid-configuration";
         OAUTH_SCOPES = "openid profile email";
       };
 
@@ -205,7 +206,7 @@ in
             name = "Reactive Resume";
             description = "Resume Builder";
             icon = "sh-reactive-resume-light.webp";
-            href = "https://rxresume.${domain}";
+            href = "https://${hosts.rxresume}";
             ping = "http://localhost:${toString reverseProxyPort}/api/health";
           };
 

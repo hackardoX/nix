@@ -10,6 +10,7 @@ let
   homepageAppDir = "/var/lib/containers/homepage";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.homepage;
 
   homepageSettings = {
@@ -86,14 +87,14 @@ in
       home.username = homepageUser;
       home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
-        # homelab-docker-socket-proxy
+        homelab-docker-socket-proxy
         homelab-homepage
         homelab-podman-extension
       ];
-      # services.homelab-docker-socket-proxy = {
-      #   enable = true;
-      #   port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
-      # };
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+      };
     };
 
     systemd.tmpfiles.rules = [
@@ -104,11 +105,11 @@ in
     services.caddy.virtualHosts."${domain}" = {
       extraConfig = ''
         import reverse_proxy_common
-        redir https://homepage.${domain}{uri}
+        redir https://${hosts.homepage}{uri}
       '';
     };
 
-    services.caddy.virtualHosts."homepage.${domain}" = {
+    services.caddy.virtualHosts."${hosts.homepage}" = {
       extraConfig = ''
         import auth_protected
         import reverse_proxy_common
@@ -142,7 +143,7 @@ in
 
         environment = {
           TZ = osConfig.time.timeZone;
-          HOMEPAGE_ALLOWED_HOSTS = "localhost,homepage.${domain}";
+          HOMEPAGE_ALLOWED_HOSTS = "localhost,${hosts.homepage}";
         };
 
         extraConfig.Container.NoNewPrivileges = true;

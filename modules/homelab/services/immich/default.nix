@@ -10,6 +10,7 @@ let
   immichDataDir = "/var/lib/data/immich";
 
   domain = config.flake.meta.reverse-proxy.domain;
+  hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.immich;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
@@ -100,7 +101,7 @@ in
       };
     };
 
-    services.caddy.virtualHosts."immich.${domain}" = {
+    services.caddy.virtualHosts."${hosts.immich}" = {
       extraConfig = ''
         import reverse_proxy_common
 
@@ -135,7 +136,7 @@ in
 
       oidcEnv = lib.optionalAttrs (immichOidcSecretFile != null) {
         IMMICH_OAUTH_ENABLED = "true";
-        IMMICH_OAUTH_ISSUER_URL = "https://auth.${domain}";
+        IMMICH_OAUTH_ISSUER_URL = "https://${hosts.auth}";
         IMMICH_OAUTH_CLIENT_ID = immichOidcClientId;
         IMMICH_OAUTH_SCOPE = "openid profile email";
         IMMICH_OAUTH_AUTO_LAUNCH = "true";

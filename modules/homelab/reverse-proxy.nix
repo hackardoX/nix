@@ -1,7 +1,21 @@
 { config, lib, ... }:
+let
+  domain = "homelab4.fun";
+in
 {
   flake.meta.reverse-proxy = {
-    domain = "homelab4.fun";
+    inherit domain;
+    hosts = {
+      auth = "auth.${domain}";
+      homepage = "homepage.${domain}";
+      immich = "immich.${domain}";
+      jobs = "jobs.${domain}";
+      rxresume = "rxresume.${domain}";
+      recipes = "recipes.${domain}";
+      finance = "finance.${domain}";
+      grafana = "grafana.${domain}";
+      ssh = "ssh.${domain}";
+    };
     ports = {
       authelia = 1024;
       homepage = 8000;

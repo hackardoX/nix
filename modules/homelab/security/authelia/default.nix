@@ -1,7 +1,8 @@
 { config, lib, ... }:
 let
   domain = config.flake.meta.reverse-proxy.domain;
-  authDomain = "auth.${domain}";
+  hosts = config.flake.meta.reverse-proxy.hosts;
+  authDomain = hosts.auth;
   autheliaPort = config.flake.meta.reverse-proxy.ports.authelia;
 in
 {
@@ -129,9 +130,9 @@ in
                 cors = {
                   endpoints = [ "token" ];
                   allowed_origins = [
-                    "https://immich.${domain}"
-                    "https://grafana.${domain}"
-                    "https://rxresume.${domain}"
+                    "https://${hosts.immich}"
+                    "https://${hosts.grafana}"
+                    "https://${hosts.rxresume}"
                   ];
                 };
               };
@@ -162,8 +163,8 @@ in
                         token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${hashedSecretsDir}/immich_oidc_secret" | msquote }}
                         redirect_uris:
-                          - "https://immich.${domain}/auth/login-callback"
-                          - "https://immich.${domain}/api/oauth/mobile"
+                          - "https://${hosts.immich}/auth/login-callback"
+                          - "https://${hosts.immich}/api/oauth/mobile"
                         scopes:
                           - "openid"
                           - "profile"
@@ -175,7 +176,7 @@ in
                         token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${hashedSecretsDir}/tandoor_oidc_secret" | msquote }}
                         redirect_uris:
-                          - "https://recipes.${domain}/accounts/oidc/authelia/login/callback/"
+                          - "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/"
                         scopes:
                           - "openid"
                           - "profile"
@@ -187,7 +188,7 @@ in
                         token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${hashedSecretsDir}/grafana_oidc_secret" | msquote }}
                         redirect_uris:
-                          - "https://grafana.${domain}/login/generic_oauth"
+                          - "https://${hosts.grafana}/login/generic_oauth"
                         scopes:
                           - "openid"
                           - "profile"
@@ -199,7 +200,7 @@ in
                         token_endpoint_auth_method: "client_secret_post"
                         client_secret: {{ secret "${hashedSecretsDir}/reactive-resume_oidc_secret" | msquote }}
                         redirect_uris:
-                          - "https://rxresume.${domain}/api/auth/oauth2/callback/custom"
+                          - "https://${hosts.rxresume}/api/auth/oauth2/callback/custom"
                         scopes:
                           - "openid"
                           - "profile"
