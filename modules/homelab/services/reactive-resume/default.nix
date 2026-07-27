@@ -206,7 +206,7 @@ in
             description = "Resume Builder";
             icon = "sh-reactive-resume-light.webp";
             href = "https://rxresume.${domain}";
-            ping = "http://localhost:${toString reverseProxyPort}/api/health";
+            ping = "http://10.0.2.2:${toString reverseProxyPort}/api/health";
           };
 
           volumes = [
