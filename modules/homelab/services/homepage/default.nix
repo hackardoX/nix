@@ -107,6 +107,11 @@ in
       "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
     ];
 
+    systemd.services."home-manager-${homepageUser}" = {
+      after = [ "user@${toString homepageUid}.service" ];
+      wants = [ "user@${toString homepageUid}.service" ];
+    };
+
     services.caddy.virtualHosts."${domain}" = {
       extraConfig = ''
         import reverse_proxy_common

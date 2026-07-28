@@ -52,6 +52,11 @@ in
       "d ${sureFinanceAppDir}/containers 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
     ];
 
+    systemd.services."home-manager-${sureFinanceUser}" = {
+      after = [ "user@${toString sureFinanceUid}.service" ];
+      wants = [ "user@${toString sureFinanceUid}.service" ];
+    };
+
     boot.initrd.impermanence.persist.directories = [
       {
         directory = sureFinanceAppDir;

@@ -59,6 +59,11 @@ in
       "d ${immichAppDir}/containers 0750 ${immichUser} ${immichGroup} -"
     ];
 
+    systemd.services."home-manager-${immichUser}" = {
+      after = [ "user@${toString immichUid}.service" ];
+      wants = [ "user@${toString immichUid}.service" ];
+    };
+
     boot.initrd.impermanence.persist.directories = [
       {
         directory = immichAppDir;

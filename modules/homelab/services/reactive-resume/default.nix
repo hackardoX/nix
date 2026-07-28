@@ -97,6 +97,11 @@ in
       "d ${reactiveResumeAppDir}/storage 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
 
+    systemd.services."home-manager-${reactiveResumeUser}" = {
+      after = [ "user@${toString reactiveResumeUid}.service" ];
+      wants = [ "user@${toString reactiveResumeUid}.service" ];
+    };
+
     boot.initrd.impermanence.persist.directories = [
       {
         directory = reactiveResumeAppDir;
