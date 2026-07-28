@@ -133,7 +133,7 @@ in
       services.podman.enable = true;
 
       services.podman.containers.homepage = {
-        image = "ghcr.io/gethomepage/homepage:latest";
+        image = "ghcr.io/gethomepage/homepage:v1.13.2";
         autoStart = true;
         userNS = "keep-id";
         user = "%U";

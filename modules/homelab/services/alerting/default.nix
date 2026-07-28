@@ -182,7 +182,7 @@ in
         services.podman.networks.alerting.driver = "bridge";
 
         services.podman.containers.alertmanager = {
-          image = "prom/alertmanager:latest";
+          image = "prom/alertmanager:v0.33.1";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -204,7 +204,7 @@ in
         };
 
         services.podman.containers.alertmanager-ntfy = {
-          image = "ghcr.io/alexbakker/alertmanager-ntfy:latest";
+          image = "ghcr.io/alexbakker/alertmanager-ntfy:v1.2.1";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";

@@ -16,7 +16,7 @@ let
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
-  sureFinanceImage = "ghcr.io/we-promise/sure:stable";
+  sureFinanceImage = "ghcr.io/we-promise/sure:v0.7.2";
   sureFinancePort = 3000;
   sureFinanceDbName = "sure_production";
   sureFinanceDbUser = "sure_user";
@@ -157,7 +157,7 @@ in
         services.podman.networks.sure-finance.driver = "bridge";
 
         services.podman.containers.sure-finance-db = {
-          image = "docker.io/library/postgres:16";
+          image = "docker.io/library/postgres:16.14";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -188,7 +188,7 @@ in
         };
 
         services.podman.containers.sure-finance-redis = {
-          image = "docker.io/library/redis:latest";
+          image = "docker.io/library/redis:8.8.0";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";

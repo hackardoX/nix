@@ -1,5 +1,5 @@
 let
-  dockerProxyImage = "ghcr.io/tecnativa/docker-socket-proxy:latest";
+  dockerProxyImage = "ghcr.io/tecnativa/docker-socket-proxy:v0.4.2";
 in
 {
   flake.modules.homeManager.homelab-docker-socket-proxy =

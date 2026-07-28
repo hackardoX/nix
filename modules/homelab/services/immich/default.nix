@@ -175,7 +175,7 @@ in
         services.podman.networks.immich.driver = "bridge";
 
         services.podman.containers.immich-server = {
-          image = "ghcr.io/immich-app/immich-server:release";
+          image = "ghcr.io/immich-app/immich-server:v3.0.3";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -224,7 +224,7 @@ in
         };
 
         services.podman.containers.immich-machine-learning = {
-          image = "ghcr.io/immich-app/immich-machine-learning:release";
+          image = "ghcr.io/immich-app/immich-machine-learning:v3.0.3";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";

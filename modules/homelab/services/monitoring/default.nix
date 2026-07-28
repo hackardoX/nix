@@ -343,7 +343,7 @@ in
         services.podman.networks.monitoring.driver = "bridge";
 
         services.podman.containers.prometheus = {
-          image = "prom/prometheus:latest";
+          image = "prom/prometheus:v3.13.1";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -382,7 +382,7 @@ in
         };
 
         services.podman.containers.podman-exporter = {
-          image = "quay.io/navidys/prometheus-podman-exporter:latest";
+          image = "quay.io/navidys/prometheus-podman-exporter:v1.21.2";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -409,7 +409,7 @@ in
         };
 
         services.podman.containers.grafana = {
-          image = "grafana/grafana:latest";
+          image = "grafana/grafana:13.1.1";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -448,7 +448,7 @@ in
         };
 
         services.podman.containers.loki = {
-          image = "grafana/loki:latest";
+          image = "grafana/loki:v3.7.4";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
@@ -483,7 +483,7 @@ in
         };
 
         services.podman.containers.alloy = {
-          image = "grafana/alloy:latest";
+          image = "grafana/alloy:v1.18.0";
           autoStart = true;
           userNS = "keep-id";
           user = "%U";
