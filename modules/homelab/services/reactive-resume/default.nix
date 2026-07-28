@@ -178,10 +178,6 @@ in
           };
 
           extraConfig = {
-            Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [ "opnix-secrets.service" ];
-            };
             Container = {
               LogDriver = "journald";
               HealthCmd = "pg_isready -U ${reactiveResumeDbUser} -d ${reactiveResumeDbName}";
@@ -235,11 +231,7 @@ in
 
           extraConfig = {
             Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [
-                "opnix-secrets.service"
-                "podman-reactive-resume-db.service"
-              ];
+              After = [ "podman-reactive-resume-db.service" ];
               Requires = [ "podman-reactive-resume-db.service" ];
             };
             Container = {

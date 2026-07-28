@@ -195,10 +195,6 @@ in
       };
 
       extraConfig = {
-        Unit = {
-          Wants = [ "opnix-secrets.service" ];
-          After = [ "opnix-secrets.service" ];
-        };
         Container = {
           LogDriver = "journald";
           HealthCmd = "curl -f http://localhost:3001/health || exit 1";

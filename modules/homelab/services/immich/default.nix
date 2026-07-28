@@ -210,10 +210,6 @@ in
           // oidcSecrets;
 
           extraConfig = {
-            Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [ "opnix-secrets.service" ];
-            };
             Container = {
               LogDriver = "journald";
               SecurityLabelDisable = false;
@@ -244,10 +240,6 @@ in
           };
 
           extraConfig = {
-            Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [ "opnix-secrets.service" ];
-            };
             Container.NoNewPrivileges = true;
           };
 
@@ -292,10 +284,6 @@ in
             };
 
             extraConfig = {
-              Unit = {
-                Wants = [ "opnix-secrets.service" ];
-                After = [ "opnix-secrets.service" ];
-              };
               Container = {
                 LogDriver = "journald";
                 ShmSize = "128m";

@@ -171,10 +171,6 @@ in
           };
 
           extraConfig = {
-            Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [ "opnix-secrets.service" ];
-            };
             Container = {
               LogDriver = "journald";
               HealthCmd = "pg_isready -U ${sureFinanceDbUser} -d ${sureFinanceDbName}";
@@ -230,9 +226,7 @@ in
 
           extraConfig = {
             Unit = {
-              Wants = [ "opnix-secrets.service" ];
               After = [
-                "opnix-secrets.service"
                 "podman-sure-finance-db.service"
                 "podman-sure-finance-redis.service"
               ];
@@ -269,9 +263,7 @@ in
 
           extraConfig = {
             Unit = {
-              Wants = [ "opnix-secrets.service" ];
               After = [
-                "opnix-secrets.service"
                 "podman-sure-finance-db.service"
                 "podman-sure-finance-redis.service"
               ];

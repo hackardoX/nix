@@ -226,10 +226,6 @@ in
           };
 
           extraConfig = {
-            Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [ "opnix-secrets.service" ];
-            };
             Container = {
               LogDriver = "journald";
               Entrypoint = [ "/entrypoint.sh" ];

@@ -173,10 +173,6 @@ in
           };
 
           extraConfig = {
-            Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [ "opnix-secrets.service" ];
-            };
             Container = {
               LogDriver = "journald";
               HealthCmd = "pg_isready -U ${tandoorDbUser} -d ${tandoorDbName}";
@@ -225,11 +221,7 @@ in
 
           extraConfig = {
             Unit = {
-              Wants = [ "opnix-secrets.service" ];
-              After = [
-                "opnix-secrets.service"
-                "podman-tandoor-db.service"
-              ];
+              After = [ "podman-tandoor-db.service" ];
               Requires = [ "podman-tandoor-db.service" ];
             };
             Container.NoNewPrivileges = true;
