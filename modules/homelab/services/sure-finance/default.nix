@@ -78,27 +78,18 @@ in
         reference = "op://HomeLab/Sure Finance/Authentication/secret key";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
-        services = [
-          "podman-sure-finance-web.service"
-          "podman-sure-finance-worker.service"
-        ];
       };
       sureFinancePostgresPassword = {
         path = "/run/secrets/sure-finance/postgres_password";
         reference = "op://HomeLab/Sure Finance/Database/password";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
-        services = [ "podman-sure-finance-db.service" ];
       };
       sureFinanceOpenAiToken = {
         path = "/run/secrets/sure-finance/openai_token";
         reference = "op://HomeLab/Sure Finance/AI/api key";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
-        services = [
-          "podman-sure-finance-web.service"
-          "podman-sure-finance-worker.service"
-        ];
       };
       backupSureFinanceEncryptionKey = {
         path = "/run/secrets/sure-finance/backup_encryption_key";

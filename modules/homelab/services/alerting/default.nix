@@ -68,7 +68,6 @@ in
         reference = "op://Homelab/Alerting/ntfy token";
         owner = alertingUser;
         group = alertingGroup;
-        services = [ "podman-alertmanager-ntfy.service" ];
       };
       backupAlertmanagerEncryptionKey = {
         path = "/run/secrets/alerting/backup_encryption_key";

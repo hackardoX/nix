@@ -69,21 +69,18 @@ in
         reference = "op://Homelab/Reactive Resume/Authentication/secret";
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
-        services = [ "podman-reactive-resume.service" ];
       };
       reactiveResumeDbPassword = {
         path = "/run/secrets/reactive-resume/db_password";
         reference = "op://Homelab/Reactive Resume/Database/password";
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
-        services = [ "podman-reactive-resume.service" ];
       };
       reactiveResumeOidcClientSecret = {
         path = "/run/secrets/reactive-resume/oidc_client_secret";
         reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secret";
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
-        services = [ "podman-reactive-resume.service" ];
       };
       backupReactiveResumeEncryptionKey = {
         path = "/run/secrets/reactive-resume/backup_encryption_key";

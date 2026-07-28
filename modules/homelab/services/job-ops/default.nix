@@ -92,35 +92,30 @@ in
         reference = "op://Homelab/Job Ops/Authentication/password";
         owner = jobOpsUser;
         group = jobOpsGroup;
-        services = [ "podman-job-ops.service" ];
       };
       jobOpsLlmApiKey = {
         path = "/run/secrets/job-ops/llm_api_key";
         reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
         owner = jobOpsUser;
         group = jobOpsGroup;
-        services = [ "podman-job-ops.service" ];
       };
       jobOpsRxresumeApiKey = {
         path = "/run/secrets/job-ops/rxresume_api_key";
         reference = "op://Homelab/Job Ops/RxResume/api key";
         owner = jobOpsUser;
         group = jobOpsGroup;
-        services = [ "podman-job-ops.service" ];
       };
       jobOpsGmailSecret = {
         path = "/run/secrets/job-ops/gmail_oauth_secret";
         reference = "op://Homelab/Job Ops/Gmail/oauth secret";
         owner = jobOpsUser;
         group = jobOpsGroup;
-        services = [ "podman-job-ops.service" ];
       };
       jobOpsAdzunaKey = {
         path = "/run/secrets/job-ops/adzuna_api_key";
         reference = "op://Homelab/Job Ops/Adzuna/api key";
         owner = jobOpsUser;
         group = jobOpsGroup;
-        services = [ "podman-job-ops.service" ];
       };
       backupJobOpsEncryptionKey = {
         path = "/run/secrets/job-ops/backup_encryption_key";

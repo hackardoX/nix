@@ -85,18 +85,12 @@ in
         reference = "op://Homelab/Immich/Database/password";
         owner = immichUser;
         group = immichGroup;
-        services = [
-          "podman-immich-server.service"
-          "podman-immich-machine-learning.service"
-          "podman-immich-db.service"
-        ];
       };
       immichOidcClientSecret = {
         path = "/run/secrets/immich/oidc_client_secret";
         reference = "op://Homelab/Immich/Authentication/OIDC client secret";
         owner = immichUser;
         group = immichGroup;
-        services = [ "podman-immich-server.service" ];
       };
       backupImmichEncryptionKey = {
         path = "/run/secrets/immich/backup_encryption_key";

@@ -80,21 +80,18 @@ in
         reference = "op://Homelab/Tandoor/Authentication/secret key";
         owner = tandoorUser;
         group = tandoorGroup;
-        services = [ "podman-tandoor.service" ];
       };
       tandoorDbPassword = {
         path = "/run/secrets/tandoor/db_password";
         reference = "op://Homelab/Tandoor/Database/password";
         owner = tandoorUser;
         group = tandoorGroup;
-        services = [ "podman-tandoor-db.service" ];
       };
       tandoorOidcClientSecret = {
         path = "/run/secrets/tandoor/oidc_client_secret";
         reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
         owner = tandoorUser;
         group = tandoorGroup;
-        services = [ "podman-tandoor.service" ];
       };
       backupTandoorEncryptionKey = {
         path = "/run/secrets/tandoor/backup_encryption_key";
