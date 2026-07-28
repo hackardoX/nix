@@ -54,11 +54,6 @@ in
       "d ${tandoorAppDir}/containers 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
 
-    systemd.services."home-manager-${tandoorUser}" = {
-      after = [ "user@${toString tandoorUid}.service" ];
-      wants = [ "user@${toString tandoorUid}.service" ];
-    };
-
     boot.initrd.impermanence.persist.directories = [
       {
         directory = tandoorAppDir;

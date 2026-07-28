@@ -60,11 +60,6 @@ in
       "d ${jobOpsAppDir}/containers 0750 ${jobOpsUser} ${jobOpsGroup} -"
     ];
 
-    systemd.services."home-manager-${jobOpsUser}" = {
-      after = [ "user@${toString jobOpsUid}.service" ];
-      wants = [ "user@${toString jobOpsUid}.service" ];
-    };
-
     boot.initrd.impermanence.persist.directories = [
       {
         directory = jobOpsAppDir;

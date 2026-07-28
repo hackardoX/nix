@@ -18,8 +18,14 @@
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
+      startAsUserService = true;
       backupFileExtension = "hm.old";
       verbose = true;
+    };
+
+    systemd.user.services.home-manager = {
+      wantedBy = [ "default.target" ];
+      before = [ "default.target" ];
     };
   };
 }
