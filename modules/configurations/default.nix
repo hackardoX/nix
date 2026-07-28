@@ -19,14 +19,18 @@ let
     if builtins.isString imp then
       imp
     else if builtins.isPath imp then
-      builtins.toString imp
+      toString imp
     else if builtins.isAttrs imp && imp ? _file then
       imp._file
     else
       "<anonymous>";
 
   nixosSystems = lib.flip lib.mapAttrs config.configurations.nixos (
-    _name: { module, ... }: lib.nixosSystem { modules = [ module ]; }
+    _name: cfg:
+    lib.nixosSystem {
+      pkgs = cfg.nixpkgs;
+      modules = [ cfg.module ];
+    }
   );
 
   darwinSystems = lib.flip lib.mapAttrs config.configurations.darwin (
@@ -38,8 +42,15 @@ in
     configurations.nixos = lib.mkOption {
       type = lib.types.lazyAttrsOf (
         lib.types.submodule {
-          options.module = lib.mkOption {
-            type = lib.types.deferredModule;
+          options = {
+            module = lib.mkOption {
+              type = lib.types.deferredModule;
+            };
+            nixpkgs = lib.mkOption {
+              type = lib.types.raw;
+              default = inputs.nixpkgs;
+              description = "nixpkgs input to use for this host";
+            };
           };
         }
       );
@@ -78,12 +89,13 @@ in
             duplicates = findDuplicates allImports;
             duplicateNames = map getImportName duplicates;
             system = nixos.config.nixpkgs.hostPlatform.system;
+            hostNixpkgs = config.configurations.nixos.${name}.nixpkgs;
           in
           {
             ${system} = {
               "duplicate-imports/nixos/${name}" =
                 if duplicates != [ ] then
-                  inputs.nixpkgs.legacyPackages.${system}.runCommand "duplicate-imports-nixos-${name}" { } (
+                  hostNixpkgs.legacyPackages.${system}.runCommand "duplicate-imports-nixos-${name}" { } (
                     ''
                       echo "Host '${name}' has ${toString (builtins.length duplicates)} duplicate module import(s):"
                     ''
@@ -95,7 +107,7 @@ in
                     ''
                   )
                 else
-                  inputs.nixpkgs.legacyPackages.${system}.runCommand "duplicate-imports-ok-nixos-${name}" { }
+                  hostNixpkgs.legacyPackages.${system}.runCommand "duplicate-imports-ok-nixos-${name}" { }
                     "touch $out";
             };
           }
