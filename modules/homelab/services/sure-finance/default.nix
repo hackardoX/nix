@@ -11,18 +11,22 @@ let
   sureFinanceAppDir = "/var/lib/containers/sure-finance";
   sureFinanceDataDir = "/var/lib/data/sure-finance";
 
-  domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
-  sureFinanceImage = "ghcr.io/we-promise/sure:v0.7.2";
+  sureFinanceImage = "ghcr.io/we-promise/sure:0.7.2";
   sureFinancePort = 3000;
   sureFinanceDbName = "sure_production";
   sureFinanceDbUser = "sure_user";
   sureFinanceDbPasswordFile = "/run/secrets/sure-finance/postgres_password";
   sureFinanceSecretKeyBaseFile = "/run/secrets/sure-finance/secret_key";
   sureFinanceOpenaiTokenFile = "/run/secrets/sure-finance/openai_token";
+  sureFinanceResendApiKeyFile = "/run/secrets/sure-finance/resend_api_key";
+  sureFinanceBrandFetchApiKeyFile = "/run/secrets/sure-finance/brand_fetch_api_key";
+  sureFinanceTwelveDataApiKeyFile = "/run/secrets/sure-finance/twelve_data_api_key";
+  sureFinanceOidcClientId = config.flake.meta.oidc-clients.sure-finance.clientId or "";
+  sureFinanceOidcSecretFile = "/run/secrets/sure-finance/oidc_client_secret";
 in
 {
   flake.modules.nixos.homelab-sure-finance = {
@@ -49,6 +53,7 @@ in
       "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/storage 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceDataDir}/postgres 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceDataDir}/redis 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/containers 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
     ];
 
@@ -102,6 +107,30 @@ in
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
+      sureFinanceResendApiKey = {
+        path = "/run/secrets/sure-finance/resend_api_key";
+        reference = "op://HomeLab/Sure Finance/Resend/api key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
+      sureFinanceBrandFetchApiKey = {
+        path = "/run/secrets/sure-finance/brand_fetch_api_key";
+        reference = "op://HomeLab/Sure Finance/Brand Fetch/api key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
+      sureFinanceTwelveDataApiKey = {
+        path = "/run/secrets/sure-finance/twelve_data_api_key";
+        reference = "op://HomeLab/Sure Finance/Twelve Data/api key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
+      sureFinanceOidcClientSecret = {
+        path = "/run/secrets/sure-finance/oidc_client_secret";
+        reference = "op://HomeLab/Sure Finance/Authentication/OIDC client secret";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
     };
 
     services.caddy.virtualHosts."${hosts.finance}" = {
@@ -113,26 +142,47 @@ in
   };
 
   flake.modules.homeManager.homelab-sure-finance =
-    hmArgs@{ osConfig, ... }:
+    { osConfig, ... }:
     let
       sharedEnv = {
         POSTGRES_USER = sureFinanceDbUser;
         POSTGRES_DB = sureFinanceDbName;
         SELF_HOSTED = "true";
+        # TODO: switch to "invite_only" after creating the first admin
+        ONBOARDING_STATE = "open";
         RAILS_FORCE_SSL = "false";
-        RAILS_ASSUME_SSL = "false";
+        RAILS_ASSUME_SSL = "true";
         DB_HOST = "db";
         DB_PORT = "5432";
         REDIS_URL = "redis://redis:6379/1";
+        APP_DOMAIN = hosts.finance;
+        SMTP_ADDRESS = "smtp.resend.com";
+        SMTP_PORT = "587";
+        SMTP_USERNAME = "resend";
+        SMTP_TLS_ENABLED = "true";
+        EMAIL_SENDER = "sure-finance@${osConfig.flake.meta.reverse-proxy.domain}";
+        EXCHANGE_RATE_PROVIDER = "twelve_data";
+        SECURITIES_PROVIDER = "twelve_data";
         TZ = osConfig.time.timeZone;
+      }
+      // lib.optionalAttrs (sureFinanceOidcSecretFile != null) {
+        OIDC_CLIENT_ID = sureFinanceOidcClientId;
+        OIDC_ISSUER = "https://${hosts.auth}";
+        OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
       };
 
       sharedSecrets = {
         POSTGRES_PASSWORD = sureFinanceDbPasswordFile;
         SECRET_KEY_BASE = sureFinanceSecretKeyBaseFile;
+        SMTP_PASSWORD = sureFinanceResendApiKeyFile;
+        BRAND_FETCH_CLIENT_ID = sureFinanceBrandFetchApiKeyFile;
+        TWELVE_DATA_API_KEY = sureFinanceTwelveDataApiKeyFile;
       }
       // lib.optionalAttrs (sureFinanceOpenaiTokenFile != null) {
         OPENAI_ACCESS_TOKEN = sureFinanceOpenaiTokenFile;
+      }
+      // lib.optionalAttrs (sureFinanceOidcSecretFile != null) {
+        OIDC_CLIENT_SECRET = sureFinanceOidcSecretFile;
       };
     in
     {
@@ -222,8 +272,9 @@ in
             category = "Finance";
             name = "Sure Finance";
             description = "Personal Finance Tracker";
-            icon = "mdi-cash-multiple";
+            icon = "sh-sure-finance-dark.webp";
             href = "http://localhost:${toString reverseProxyPort}";
+            siteMonitor = "http://localhost:${toString reverseProxyPort}/up";
           };
 
           environment = sharedEnv;
@@ -242,11 +293,11 @@ in
             };
             Container = {
               LogDriver = "journald";
+              HealthCmd = "curl -sf http://localhost:${toString sureFinancePort}/up || exit 1";
+              HealthInterval = "30s";
+              HealthTimeout = "10s";
+              HealthRetries = 3;
               NoNewPrivileges = true;
-              DNS = [
-                "8.8.8.8"
-                "1.1.1.1"
-              ];
             };
           };
         };
@@ -279,11 +330,11 @@ in
             };
             Container = {
               LogDriver = "journald";
+              HealthCmd = "ps aux | grep -q '[s]idekiq' || exit 1";
+              HealthInterval = "30s";
+              HealthTimeout = "10s";
+              HealthRetries = 3;
               NoNewPrivileges = true;
-              DNS = [
-                "8.8.8.8"
-                "1.1.1.1"
-              ];
             };
           };
         };

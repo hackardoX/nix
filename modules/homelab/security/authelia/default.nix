@@ -29,6 +29,10 @@ in
         clientId = "reactive-resume";
         clientName = "Reactive Resume";
       };
+      sure-finance = {
+        clientId = "sure-finance";
+        clientName = "Sure Finance";
+      };
     };
   };
 
@@ -57,6 +61,11 @@ in
           name = "reactive-resume";
           secretPath =
             nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret;
+        }
+        {
+          name = "sure-finance";
+          secretPath =
+            nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaSureFinanceOidcSecret;
         }
       ];
     in
@@ -133,6 +142,7 @@ in
                     "https://${hosts.immich}"
                     "https://${hosts.grafana}"
                     "https://${hosts.rxresume}"
+                    "https://${hosts.finance}"
                   ];
                 };
               };
@@ -201,6 +211,18 @@ in
                         client_secret: {{ secret "${hashedSecretsDir}/reactive-resume_oidc_secret" | msquote }}
                         redirect_uris:
                           - "https://${hosts.rxresume}/api/auth/oauth2/callback/custom"
+                        scopes:
+                          - "openid"
+                          - "profile"
+                          - "email"
+                      - client_id: "${config.flake.meta.oidc-clients.sure-finance.clientId}"
+                        client_name: "${config.flake.meta.oidc-clients.sure-finance.clientName}"
+                        public: false
+                        authorization_policy: "one_factor"
+                        token_endpoint_auth_method: "client_secret_post"
+                        client_secret: {{ secret "${hashedSecretsDir}/sure-finance_oidc_secret" | msquote }}
+                        redirect_uris:
+                          - "https://${hosts.finance}/auth/openid_connect/callback"
                         scopes:
                           - "openid"
                           - "profile"
@@ -305,6 +327,13 @@ in
           autheliaReactiveResumeOidcSecret = {
             path = "/run/secrets/authelia/reactive-resume_oidc_secret";
             reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
+          };
+          autheliaSureFinanceOidcSecret = {
+            path = "/run/secrets/authelia/sure-finance_oidc_secret";
+            reference = "op://HomeLab/Sure Finance/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
             services = [ autheliaService ];

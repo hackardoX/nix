@@ -11,7 +11,6 @@ let
   reactiveResumeAppDir = "/var/lib/containers/reactive-resume";
   reactiveResumeDataDir = "/var/lib/data/reactive-resume";
 
-  domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume;
 
