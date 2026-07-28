@@ -24,6 +24,43 @@ in
       config = lib.mkIf cfg.enable {
         services.podman.enable = true;
 
+        # Let home-manager itself reconcile *live* sessions gracefully.
+        # sd-switch checks `systemctl --user is-system-running` before
+        # touching anything, so it no-ops safely if the session isn't
+        # reachable instead of throwing.
+        systemd.user.startServices = "sd-switch";
+
+        # Declare podman.socket ourselves instead of relying on
+        # `systemctl --user enable` from an activation script. Writing
+        # these files + the Install symlink is pure filesystem work done
+        # by the HM build/activation — it needs no D-Bus/session at all.
+        # Because the user has `linger = true`, systemd-logind starts
+        # user@901.service at boot regardless of any login, and it will
+        # pick these enabled units up on its own.
+        systemd.user.sockets.podman = {
+          Unit.Description = "Podman API Socket";
+          Socket = {
+            ListenStream = "%t/podman/podman.sock";
+            SocketMode = "0660";
+          };
+          Install.WantedBy = [ "sockets.target" ];
+        };
+
+        systemd.user.services.podman = {
+          Unit = {
+            Description = "Podman API Service";
+            Requires = [ "podman.socket" ];
+            After = [ "podman.socket" ];
+            StartLimitIntervalSec = 0;
+          };
+          Service = {
+            Delegate = true;
+            Type = "exec";
+            KillMode = "process";
+            ExecStart = "${pkgs.podman}/bin/podman system service";
+          };
+        };
+
         services.podman.containers.dockerproxy = {
           image = dockerProxyImage;
           autoStart = true;
@@ -38,15 +75,16 @@ in
             "%t/podman/podman.sock:/run/podman/podman.sock:ro"
           ];
           ports = [ "127.0.0.1:${toString cfg.port}:2375" ];
-          extraConfig.Container.NoNewPrivileges = true;
+          extraConfig = {
+            Container.NoNewPrivileges = true;
+            # Make the container's generated quadlet unit wait for the
+            # socket to actually be listening before it tries to bind-mount it.
+            Unit = {
+              Requires = [ "podman.socket" ];
+              After = [ "podman.socket" ];
+            };
+          };
         };
-
-        home.activation.enablePodmanSocket = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-          export XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-          export DBUS_SESSION_BUS_ADDRESS="''${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
-          run ${pkgs.systemd}/bin/systemctl --user daemon-reload
-          run ${pkgs.systemd}/bin/systemctl --user start podman.socket
-        '';
       };
     };
 }
