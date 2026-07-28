@@ -18,7 +18,7 @@ This creates the following containers on a `immich` bridge network:
 - `immich-server` - main app (exposed on `port`)
 - `immich-machine-learning` - smart search & face detection
 - `immich-redis` - cache (Valkey 9)
-- `immich-db` - PostgreSQL with pgvecto.rs
+- `immich-db` - PostgreSQL with VectorChord
 
 ## Storage Layout
 

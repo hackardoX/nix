@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   ...
 }:
 let
@@ -11,7 +10,6 @@ let
   immichAppDir = "/var/lib/containers/immich";
   immichDataDir = "/var/lib/data/immich";
 
-  domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.immich;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
@@ -20,7 +18,7 @@ let
   immichDbUser = "postgres";
   immichDbName = "immich";
   immichDbPasswordFile = "/run/secrets/immich/db_password";
-  immichOidcClientId = config.flake.meta.oidc-clients.immich.clientId or "";
+  immichOidcClientId = config.flake.meta.oidc-clients.immich.clientId;
   immichOidcSecretFile = "/run/secrets/immich/oidc_client_secret";
 
   immichConfig = {
@@ -86,13 +84,13 @@ in
 
     services.onepassword-secrets.secrets = {
       immichDbPassword = {
-        path = "/run/secrets/immich/db_password";
+        path = immichDbPasswordFile;
         reference = "op://Homelab/Immich/Database/password";
         owner = immichUser;
         group = immichGroup;
       };
       immichOidcClientSecret = {
-        path = "/run/secrets/immich/oidc_client_secret";
+        path = immichOidcSecretFile;
         reference = "op://Homelab/Immich/Authentication/OIDC client secret";
         owner = immichUser;
         group = immichGroup;
@@ -131,25 +129,24 @@ in
         DB_PORT = "5432";
         DB_DATABASE_NAME = immichDbName;
         DB_USERNAME = immichDbUser;
-        REDIS_HOSTNAME = "immich-redis";
-        REDIS_PORT = "6379";
-        TZ = osConfig.time.timeZone;
-      };
-
-      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
-
-      oidcEnv = lib.optionalAttrs (immichOidcSecretFile != null) {
+        DB_VECTOR_EXTENSION = "vectorchord";
         IMMICH_OAUTH_ENABLED = "true";
         IMMICH_OAUTH_ISSUER_URL = "https://${hosts.auth}";
         IMMICH_OAUTH_CLIENT_ID = immichOidcClientId;
         IMMICH_OAUTH_SCOPE = "openid profile email";
         IMMICH_OAUTH_AUTO_LAUNCH = "true";
         IMMICH_OAUTH_AUTO_REGISTRATION = "true";
+        REDIS_HOSTNAME = "immich-redis";
+        REDIS_PORT = "6379";
+        TZ = osConfig.time.timeZone;
       };
 
-      oidcSecrets = lib.optionalAttrs (immichOidcSecretFile != null) {
+      sharedSecrets = {
+        DB_PASSWORD = immichDbPasswordFile;
         IMMICH_OAUTH_CLIENT_SECRET = immichOidcSecretFile;
       };
+
+      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
     in
     {
       config = {
@@ -180,6 +177,7 @@ in
           userNS = "keep-id";
           user = "%U";
           group = "%G";
+          capDrop = [ "NET_RAW" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-server" ];
           ports = [ "${toString reverseProxyPort}:${toString immichPort}" ];
@@ -188,8 +186,9 @@ in
             category = "Media";
             name = "Immich";
             description = "Photo & Video Management";
-            icon = "immich.png";
+            icon = "sh-immich-light.webp";
             href = "http://localhost:${toString reverseProxyPort}";
+            siteMonitor = "http://localhost:${toString reverseProxyPort}";
             widget = {
               type = "immich";
               url = "http://localhost:${toString reverseProxyPort}";
@@ -202,23 +201,24 @@ in
             "${immichConfigFile}:/config/immich.json:ro"
           ];
 
-          environment =
-            sharedEnv
-            // {
-              IMMICH_CONFIG_FILE = "/config/immich.json";
-            }
-            // oidcEnv;
+          environment = sharedEnv // {
+            IMMICH_CONFIG_FILE = "/config/immich.json";
+            # Set to "false" after initial admin registration to disable /auth/admin-sign-up
+            IMMICH_ALLOW_SETUP = "true";
+            IMMICH_TRUSTED_PROXIES = "10.89.0.0/16";
+          };
 
-          secrets = {
-            DB_PASSWORD = immichDbPasswordFile;
-          }
-          // oidcSecrets;
+          secrets = sharedSecrets;
 
           extraConfig = {
             Container = {
               LogDriver = "journald";
               SecurityLabelDisable = false;
               NoNewPrivileges = true;
+              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
+              HealthInterval = "30s";
+              HealthTimeout = "10s";
+              HealthRetries = 3;
             };
           };
         };
@@ -229,6 +229,7 @@ in
           userNS = "keep-id";
           user = "%U";
           group = "%G";
+          capDrop = [ "NET_RAW" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-machine-learning" ];
 
@@ -245,15 +246,22 @@ in
           };
 
           extraConfig = {
-            Container.NoNewPrivileges = true;
+            Container = {
+              NoNewPrivileges = true;
+              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3003/ping || exit 1";
+              HealthInterval = "30s";
+              HealthTimeout = "10s";
+              HealthRetries = 3;
+            };
           };
 
           services.podman.containers.immich-redis = {
-            image = "docker.io/valkey/valkey:9@sha256:8436e10bc65c94886a91d4415b6a6dfa9cb5a306fb3b996e5bb67cd2b4854193";
+            image = "docker.io/valkey/valkey:9@sha256:4963247afc4cd33c7d3b2d2816b9f7f8eeebab148d29056c2ca4d7cbc966f2d9";
             autoStart = true;
             userNS = "keep-id";
             user = "%U";
             group = "%G";
+            capDrop = [ "NET_RAW" ];
             network = [ "immich.network" ];
             networkAlias = [ "immich-redis" ];
             volumes = [ "${immichDataDir}/redis:/data" ];
@@ -274,6 +282,7 @@ in
             userNS = "keep-id";
             user = "%U";
             group = "%G";
+            capDrop = [ "NET_RAW" ];
             network = [ "immich.network" ];
             networkAlias = [ "immich-db" ];
             volumes = [ "${immichDataDir}/postgres:/var/lib/postgresql/data" ];
