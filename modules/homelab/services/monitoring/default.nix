@@ -71,8 +71,14 @@ in
     ];
 
     systemd.services."home-manager-${monitoringUser}" = {
-      after = [ "user@${toString monitoringUid}.service" ];
-      wants = [ "user@${toString monitoringUid}.service" ];
+      after = [
+        "user@${toString monitoringUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString monitoringUid}.service"
+        "opnix-secrets.service"
+      ];
     };
 
     boot.initrd.impermanence.persist.directories = [

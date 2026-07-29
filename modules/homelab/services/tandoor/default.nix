@@ -54,8 +54,14 @@ in
     ];
 
     systemd.services."home-manager-${tandoorUser}" = {
-      after = [ "user@${toString tandoorUid}.service" ];
-      wants = [ "user@${toString tandoorUid}.service" ];
+      after = [
+        "user@${toString tandoorUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString tandoorUid}.service"
+        "opnix-secrets.service"
+      ];
     };
 
     boot.initrd.impermanence.persist.directories = [

@@ -58,8 +58,14 @@ in
     ];
 
     systemd.services."home-manager-${sureFinanceUser}" = {
-      after = [ "user@${toString sureFinanceUid}.service" ];
-      wants = [ "user@${toString sureFinanceUid}.service" ];
+      after = [
+        "user@${toString sureFinanceUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString sureFinanceUid}.service"
+        "opnix-secrets.service"
+      ];
     };
 
     boot.initrd.impermanence.persist.directories = [

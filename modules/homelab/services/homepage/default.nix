@@ -108,8 +108,14 @@ in
     ];
 
     systemd.services."home-manager-${homepageUser}" = {
-      after = [ "user@${toString homepageUid}.service" ];
-      wants = [ "user@${toString homepageUid}.service" ];
+      after = [
+        "user@${toString homepageUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString homepageUid}.service"
+        "opnix-secrets.service"
+      ];
     };
 
     services.caddy.virtualHosts."${domain}" = {

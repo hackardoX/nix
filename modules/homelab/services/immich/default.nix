@@ -58,8 +58,14 @@ in
     ];
 
     systemd.services."home-manager-${immichUser}" = {
-      after = [ "user@${toString immichUid}.service" ];
-      wants = [ "user@${toString immichUid}.service" ];
+      after = [
+        "user@${toString immichUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString immichUid}.service"
+        "opnix-secrets.service"
+      ];
     };
 
     boot.initrd.impermanence.persist.directories = [

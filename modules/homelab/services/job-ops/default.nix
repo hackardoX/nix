@@ -60,8 +60,14 @@ in
     ];
 
     systemd.services."home-manager-${jobOpsUser}" = {
-      after = [ "user@${toString jobOpsUid}.service" ];
-      wants = [ "user@${toString jobOpsUid}.service" ];
+      after = [
+        "user@${toString jobOpsUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString jobOpsUid}.service"
+        "opnix-secrets.service"
+      ];
     };
 
     boot.initrd.impermanence.persist.directories = [
