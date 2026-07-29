@@ -293,7 +293,7 @@ in
             name = "Sure Finance";
             description = "Personal Finance Tracker";
             icon = "sh-sure-finance-dark.webp";
-            href = "http://localhost:${toString reverseProxyPort}";
+            href = "https://${hosts.finance}";
             siteMonitor = "http://localhost:${toString reverseProxyPort}/up";
           };
 
