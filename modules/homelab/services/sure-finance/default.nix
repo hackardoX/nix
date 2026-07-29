@@ -160,7 +160,7 @@ in
         SMTP_PORT = "587";
         SMTP_USERNAME = "resend";
         SMTP_TLS_ENABLED = "true";
-        EMAIL_SENDER = "sure-finance@${osConfig.flake.meta.reverse-proxy.domain}";
+        EMAIL_SENDER = "sure-finance@${config.flake.meta.reverse-proxy.domain}";
         EXCHANGE_RATE_PROVIDER = "twelve_data";
         SECURITIES_PROVIDER = "twelve_data";
         TZ = osConfig.time.timeZone;
