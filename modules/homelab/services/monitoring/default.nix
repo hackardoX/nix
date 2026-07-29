@@ -10,7 +10,6 @@ let
   monitoringGroup = "monitoring";
   monitoringAppDir = "/var/lib/containers/monitoring";
 
-  domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 
@@ -19,7 +18,7 @@ let
   prometheusHostPort = 9090;
 
   podmanExporterHost = "podman-exporter";
-  podmanExporterContainerPort = 9882;
+  # podmanExporterContainerPort = 9882;
   podmanExporterHostPort = 9882;
 
   grafanaHost = "grafana";
@@ -36,7 +35,7 @@ let
 
   oidcEnabled = true;
   grafanaOidcClientId = config.flake.meta.oidc-clients.grafana.clientId or "";
-  grafanaOidcSecretFile = "/run/secrets/monitoring/grafana/oidc_client_secret";
+  # grafanaOidcSecretFile = "/run/secrets/monitoring/grafana/oidc_client_secret";
 in
 {
   flake.modules.nixos.homelab-monitoring = {
@@ -136,7 +135,7 @@ in
   };
 
   flake.modules.homeManager.homelab-monitoring =
-    hmArgs@{
+    {
       osConfig,
       pkgs,
       ...

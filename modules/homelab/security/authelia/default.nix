@@ -100,7 +100,7 @@ in
                     policy = "bypass";
                   }
                   {
-                    domain = domain;
+                    inherit domain;
                     policy = "one_factor";
                   }
                   {
@@ -113,7 +113,7 @@ in
                 name = "authelia_session";
                 cookies = [
                   {
-                    domain = domain;
+                    inherit domain;
                     authelia_url = "https://${authDomain}";
                     default_redirection_url = "https://${domain}";
                     inactivity = "1h";

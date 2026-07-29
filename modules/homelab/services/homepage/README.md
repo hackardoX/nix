@@ -10,13 +10,13 @@ Enable Homepage in your configuration:
 services.homepage = {
   enable = true;
   port = 3000;
-  
+
   settings = {
     title = "My Homelab";
     theme = "dark";
     color = "slate";
   };
-  
+
   widgets = [
     {
       resources = {
@@ -37,7 +37,7 @@ Use `config.flake.lib.mkHomepageLabels` to add services to the dashboard:
 services.podman.containers.my-service = {
   image = "...";
   # ... other config ...
-  
+
   labels = config.flake.lib.mkHomepageLabels {
     category = "Media";
     name = "My Service";

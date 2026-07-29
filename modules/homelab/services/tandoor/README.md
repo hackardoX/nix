@@ -21,6 +21,7 @@ services.tandoor = {
 ```
 
 This creates the following containers on a `tandoor` bridge network:
+
 - `tandoor` - the app (exposed on `port`)
 - `tandoor-db` - PostgreSQL 16
 

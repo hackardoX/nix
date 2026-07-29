@@ -5,6 +5,7 @@ Enables rclone and installs macFUSE when mounts are configured.
 ## Usage
 
 Rclone is automatically enabled when either:
+
 - `services.restic.enable = true` (backup module), or
 - Any rclone remote has `mounts` configured (file-mount module)
 

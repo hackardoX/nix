@@ -11,7 +11,7 @@ let
   tandoorAppDir = "/var/lib/containers/tandoor";
   tandoorDataDir = "/var/lib/data/tandoor";
 
-  domain = config.flake.meta.reverse-proxy.domain;
+  
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;

@@ -16,6 +16,7 @@ services.backup.jobs.immich = {
 ```
 
 This creates:
+
 - Repository: `koofr:immich/backup`
 - Timer: `restic-backup-immich-koofr.timer`
 - Integrity check: runs after each backup
@@ -30,6 +31,7 @@ For each backup job, create a secret in 1Password:
 **Reference**: `op://Homelab/Backup/<job-name>/password`
 
 Example for job `immich`:
+
 - Item: `Backup immich`
 - Field: `password`
 - Reference: `op://Homelab/Backup/immich/password`
@@ -39,6 +41,7 @@ The module automatically creates the secret file at `.secrets/backup/<job-name>/
 ## Retention Policy
 
 Uses time-based retention with `--keep-within`:
+
 - `hourly`: keeps backups from last hour
 - `daily`: keeps backups from last day
 - `weekly`: keeps backups from last week

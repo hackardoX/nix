@@ -40,7 +40,7 @@
         {
           repository = "rclone:${provider}:${destination}/backup";
           passwordFile = jobCfg.encryptionKey;
-          paths = jobCfg.paths;
+          inherit (jobCfg) paths;
           initialize = true;
           runCheck = true;
           checkOpts = [ "--read-data" ];

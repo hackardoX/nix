@@ -13,7 +13,7 @@ in
     {
       users.users.${fail2ban.owner} = {
         isSystemUser = true;
-        group = fail2ban.group;
+        inherit (fail2ban) group;
       };
 
       users.groups.${fail2ban.group} = { };
@@ -89,8 +89,8 @@ in
           resendApiKey = {
             path = "/run/secrets/resend_api_key";
             reference = "op://HomeLab/Resend/Fail2ban/api key";
-            owner = fail2ban.owner;
-            group = fail2ban.group;
+            inherit (fail2ban) owner;
+            inherit (fail2ban) group;
             services = [ "fail2ban" ];
           };
         };

@@ -22,6 +22,7 @@ services.sure-finance = {
 ```
 
 This creates the following containers on a `sure-finance` bridge network:
+
 - `sure-finance-web` - Rails web app (exposed on `port`)
 - `sure-finance-worker` - Sidekiq background worker
 - `sure-finance-db` - PostgreSQL 16

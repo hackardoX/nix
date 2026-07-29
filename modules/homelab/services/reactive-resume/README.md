@@ -22,6 +22,7 @@ services.reactive-resume = {
 ```
 
 This creates the following containers on a `reactive-resume` bridge network:
+
 - `reactive-resume` - the app (exposed on `port`)
 - `reactive-resume-db` - PostgreSQL 16
 

@@ -3,18 +3,22 @@
 ## Add a new user
 
 1. Generate the password hash:
+
    ```bash
    docker run --rm -it authelia/authelia:latest authelia hash-password
    ```
+
    Type the user's password when prompted. Copy the Argon2id hash line (starts with `$argon2id$...`).
 
 2. Store the hash in 1Password:
+
    ```bash
    op item create --category password --title "Authelia <Username> Password Hash" \
      credential="<hash>" --vault Homelab
    ```
 
 3. Declare the opnix secret in `modules/security/authelia.nix` (in the `onepassword-secrets.secrets` block):
+
    ```nix
    authelia<Username>PasswordHash = {
      path = "/run/secrets/authelia/<username>_password_hash";
@@ -25,6 +29,7 @@
    ```
 
 4. Add the user to the `autheliaUsers` let binding at the top of `modules/security/authelia.nix`:
+
    ```nix
    autheliaUsers = {
      hal = { ... };  # existing user
@@ -41,6 +46,7 @@
 ## Add an OIDC client
 
 1. Generate the client secret:
+
    ```bash
    result=$(docker run --rm authelia/authelia:latest \
      authelia crypto hash generate pbkdf2 --variant sha512 --random --random.length 72 --random.charset rfc3986)
@@ -49,6 +55,7 @@
    ```
 
 2. Store the hashed secret (for Authelia) and the unhashed secret (for the app):
+
    ```bash
    op item create --category password --title "Authelia <App> OIDC Client Secret" \
      credential="$hashed" --vault Homelab

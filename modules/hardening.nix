@@ -21,7 +21,6 @@
           AllowTcpForwarding = false;
           UseDNS = false;
         };
-        allowSFTP = true;
       };
     };
 

@@ -79,7 +79,7 @@ in
   };
 
   flake.modules.homeManager.homelab-alerting =
-    hmArgs@{
+    {
       osConfig,
       pkgs,
       ...

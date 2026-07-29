@@ -8,8 +8,8 @@ let
   jobOpsUser = "job-ops";
   jobOpsGroup = "job-ops";
   jobOpsAppDir = "/var/lib/containers/job-ops";
+  jobOpsDataDir = "/var/lib/data";
 
-  domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.job-ops;
 
@@ -22,7 +22,6 @@ let
   jobOpsPublicBaseUrl = "https://${hosts.jobs}";
   jobOpsBasicAuthUser = "admin";
 
-  # Secret file paths — configure before enabling
   jobOpsLlmApiKeyFile = "/run/secrets/job-ops/llm_api_key";
   jobOpsBasicAuthPasswordFile = "/run/secrets/job-ops/basic_auth_password";
   jobOpsRxresumeApiKeyFile = "/run/secrets/job-ops/rxresume_api_key";
@@ -56,7 +55,7 @@ in
 
     systemd.tmpfiles.rules = [
       "d ${jobOpsAppDir} 0750 ${jobOpsUser} ${jobOpsGroup} -"
-      "d ${jobOpsAppDir}/data 0750 ${jobOpsUser} ${jobOpsGroup} -"
+      "d ${jobOpsDataDir} 0750 ${jobOpsUser} ${jobOpsGroup} -"
       "d ${jobOpsAppDir}/containers 0750 ${jobOpsUser} ${jobOpsGroup} -"
     ];
 
@@ -93,31 +92,31 @@ in
 
     services.onepassword-secrets.secrets = {
       jobOpsBasicAuthPassword = {
-        path = "/run/secrets/job-ops/basic_auth_password";
+        path = jobOpsBasicAuthPasswordFile;
         reference = "op://Homelab/Job Ops/Authentication/password";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsLlmApiKey = {
-        path = "/run/secrets/job-ops/llm_api_key";
+        path = jobOpsLlmApiKeyFile;
         reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsRxresumeApiKey = {
-        path = "/run/secrets/job-ops/rxresume_api_key";
+        path = jobOpsRxresumeApiKeyFile;
         reference = "op://Homelab/Job Ops/RxResume/api key";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsGmailSecret = {
-        path = "/run/secrets/job-ops/gmail_oauth_secret";
+        path = jobOpsGmailOauthSecretFile;
         reference = "op://Homelab/Job Ops/Gmail/oauth secret";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsAdzunaKey = {
-        path = "/run/secrets/job-ops/adzuna_api_key";
+        path = jobOpsAdzunaAppKeyFile;
         reference = "op://Homelab/Job Ops/Adzuna/api key";
         owner = jobOpsUser;
         group = jobOpsGroup;
@@ -146,7 +145,7 @@ in
     '';
 
     services.backup.jobs.job-ops = {
-      paths = [ "${jobOpsAppDir}/data" ];
+      paths = [ jobOpsDataDir ];
       schedule = "daily";
       retention = "standard";
       providers = [ "koofr" ];
@@ -175,14 +174,13 @@ in
         siteMonitor = "http://localhost:${toString reverseProxyPort}";
       };
 
-      volumes = [ "${jobOpsAppDir}/data:/app/data" ];
+      volumes = [ "${jobOpsDataDir}:/app/data" ];
 
       environment = {
         TZ = osConfig.time.timeZone;
         MODEL = jobOpsModel;
         LLM_PROVIDER = jobOpsLlmProvider;
         UKVISAJOBS_HEADLESS = "true";
-        UKVISAJOBS_FILE_DIR = "/app/data";
         OPENAI_BASE_URL = jobOpsLlmBaseUrl;
         JOBOPS_PUBLIC_BASE_URL = jobOpsPublicBaseUrl;
         RXRESUME_URL = jobOpsRxresumeUrl;

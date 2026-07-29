@@ -37,18 +37,22 @@ Before deploying, update `disk.nix` with the actual disk ID and partition UUIDs:
 
 **1. Disk ID**
 Run on the Mac Mini to find the actual NVMe device ID:
+
 ```bash
 ls -l /dev/disk/by-id/
 ```
+
 Update `disko.devices.disk.main.device` in `disk.nix` with the result (e.g., `/dev/disk/by-id/nvme-APPLE_SSD_AP1024Q_...`).
 
 **2. Partition UUIDs**
 Run one of the following to get each partition's UUID:
+
 ```bash
 sgdisk /dev/nvme0n1 -p
 # or
 lsblk -o NAME,PARTUUID,LABEL,PARTLABEL
 ```
+
 Update the `uuid` field for each partition in `disk.nix` (`iBootSystemContainer`, `Container`, `AsahiStub`, `ESP`, `RecoveryOSContainer`).
 
 ### What Disko Will Do
@@ -71,17 +75,21 @@ Before deploying, update `hardware-configuration.nix` with actual UUIDs:
 
 **1. LUKS device UUID**
 After creating the LUKS partition, get its UUID:
+
 ```bash
 cryptsetup luksUUID /dev/nvme0n1p5
 # or
 lsblk -o NAME,UUID /dev/nvme0n1p5
 ```
+
 Update `boot.initrd.luks.devices."crypted".device` in `hardware-configuration.nix`.
 
 **2. ESP UUID**
+
 ```bash
 blkid /dev/nvme0n1p4
 ```
+
 Update `fileSystems."/boot".device` in `hardware-configuration.nix`.
 
 ### Peripheral Firmware
