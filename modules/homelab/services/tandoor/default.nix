@@ -166,9 +166,7 @@ in
         services.podman.containers.tandoor-db = {
           image = "docker.io/library/postgres:16.14";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=999,gid=999";
           network = [ "tandoor.network" ];
           networkAlias = [ "db" ];
           volumes = [ "${tandoorDataDir}/postgres:/var/lib/postgresql/data" ];
@@ -198,9 +196,7 @@ in
         services.podman.containers.tandoor = {
           image = tandoorImage;
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=0,gid=0";
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];

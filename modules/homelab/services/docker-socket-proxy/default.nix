@@ -64,7 +64,7 @@ in
         services.podman.containers.dockerproxy = {
           image = dockerProxyImage;
           autoStart = true;
-          userNS = "keep-id";
+          userNS = "keep-id:uid=0,gid=0";
           environment = {
             TZ = osConfig.time.timeZone;
             CONTAINERS = "1";

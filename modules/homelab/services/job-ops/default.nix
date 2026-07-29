@@ -165,9 +165,7 @@ in
     services.podman.containers.job-ops = {
       image = jobOpsImage;
       autoStart = true;
-      userNS = "keep-id";
-      user = "%U";
-      group = "%G";
+      userNS = "keep-id:uid=0,gid=0";
       network = [ "job-ops.network" ];
       networkAlias = [ "job-ops" ];
       ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];

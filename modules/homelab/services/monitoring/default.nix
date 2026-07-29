@@ -351,9 +351,7 @@ in
         services.podman.containers.prometheus = {
           image = "prom/prometheus:v3.13.1";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=65534,gid=65534";
           network = [ "monitoring.network" ];
           networkAlias = [ prometheusHost ];
           ports = [ "${toString prometheusHostPort}:${toString prometheusContainerPort}" ];
@@ -417,9 +415,7 @@ in
         services.podman.containers.grafana = {
           image = "grafana/grafana:13.1.1";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=472,gid=0";
           network = [ "monitoring.network" ];
           networkAlias = [ grafanaHost ];
           ports = [ "${toString grafanaHostPort}:${toString grafanaContainerPort}" ];
@@ -456,9 +452,7 @@ in
         services.podman.containers.loki = {
           image = "grafana/loki:v3.7.4";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=10001,gid=10001";
           network = [ "monitoring.network" ];
           networkAlias = [ lokiHost ];
           ports = [ "${toString lokiHostPort}:${toString lokiContainerPort}" ];
@@ -491,9 +485,7 @@ in
         services.podman.containers.alloy = {
           image = "grafana/alloy:v1.18.0";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=0,gid=0";
           network = [ "monitoring.network" ];
           networkAlias = [ alloyHost ];
           ports = [ "${toString alloyHostPort}:${toString alloyContainerPort}" ];

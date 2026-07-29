@@ -185,9 +185,7 @@ in
         services.podman.containers.alertmanager = {
           image = "prom/alertmanager:v0.33.1";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=65534,gid=65534";
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager" ];
           ports = [ "${toString alertmanagerHostPort}:${toString alertmanagerContainerPort}" ];

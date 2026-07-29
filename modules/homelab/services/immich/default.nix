@@ -181,9 +181,7 @@ in
         services.podman.containers.immich-server = {
           image = "ghcr.io/immich-app/immich-server:v3.0.3";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=1000,gid=1000";
           capDrop = [ "NET_RAW" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-server" ];
@@ -233,9 +231,7 @@ in
         services.podman.containers.immich-machine-learning = {
           image = "ghcr.io/immich-app/immich-machine-learning:v3.0.3";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=1000,gid=1000";
           capDrop = [ "NET_RAW" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-machine-learning" ];
@@ -265,9 +261,7 @@ in
           services.podman.containers.immich-redis = {
             image = "docker.io/valkey/valkey:9@sha256:4963247afc4cd33c7d3b2d2816b9f7f8eeebab148d29056c2ca4d7cbc966f2d9";
             autoStart = true;
-            userNS = "keep-id";
-            user = "%U";
-            group = "%G";
+            userNS = "keep-id:uid=999,gid=999";
             capDrop = [ "NET_RAW" ];
             network = [ "immich.network" ];
             networkAlias = [ "immich-redis" ];
@@ -286,9 +280,7 @@ in
           services.podman.containers.immich-db = {
             image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
             autoStart = true;
-            userNS = "keep-id";
-            user = "%U";
-            group = "%G";
+            userNS = "keep-id:uid=999,gid=999";
             capDrop = [ "NET_RAW" ];
             network = [ "immich.network" ];
             networkAlias = [ "immich-db" ];
