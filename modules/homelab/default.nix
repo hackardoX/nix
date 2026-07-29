@@ -10,7 +10,7 @@
       # homelab-monitoring
       homelab-reactive-resume
       homelab-security
-      # homelab-sure-finance
+      homelab-sure-finance
       # homelab-tandoor
       rclone
     ];
