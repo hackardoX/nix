@@ -62,13 +62,13 @@ in
 
         onepassword-secrets.secrets = {
           maxmindLicenseKey = {
-            path = "/run/secrets/.maxmind_license_key";
+            path = "/run/secrets/caddy/maxmind_license_key";
             reference = "op://Homelab/MaxMind License Key/credential";
             owner = "caddy";
             group = "caddy";
           };
           cloudflareApiToken = {
-            path = "/run/secrets/cloudflare_api_token";
+            path = "/run/secrets/caddy/cloudflare_api_token";
             reference = "op://HomeLab/CloudFlare/homelab4.fun/dns api token";
             owner = "caddy";
             group = "caddy";
@@ -85,7 +85,7 @@ in
           };
 
           globalConfig = ''
-            acme_dns cloudflare {file./run/secrets/cloudflare_api_token}
+            acme_dns cloudflare {file./run/secrets/caddy/cloudflare_api_token}
 
             log access-log {
               include http.log.access
