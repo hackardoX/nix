@@ -216,9 +216,7 @@ in
         services.podman.containers.sure-finance-db = {
           image = "docker.io/library/postgres:16.14";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=1000,gid=1000";
           network = [ "sure-finance.network" ];
           networkAlias = [ "db" ];
           volumes = [ "${sureFinanceDataDir}/postgres:/var/lib/postgresql/data" ];
@@ -233,6 +231,12 @@ in
           };
 
           extraConfig = {
+            Service = {
+              ExecStartPre = [
+                "-/run/current-system/sw/bin/mkdir -p ${sureFinanceDataDir}/postgres"
+                "-/run/current-system/sw/bin/chown ${sureFinanceUser}:${sureFinanceGroup} ${sureFinanceDataDir}/postgres"
+              ];
+            };
             Container = {
               LogDriver = "journald";
               HealthCmd = "pg_isready -U ${sureFinanceDbUser} -d ${sureFinanceDbName}";
@@ -247,29 +251,33 @@ in
         services.podman.containers.sure-finance-redis = {
           image = "docker.io/library/redis:8.8.0";
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=1000,gid=1000";
           network = [ "sure-finance.network" ];
           networkAlias = [ "redis" ];
           volumes = [ "${sureFinanceDataDir}/redis:/data" ];
 
-          extraConfig.Container = {
-            LogDriver = "journald";
-            HealthCmd = "redis-cli ping";
-            HealthInterval = "5s";
-            HealthTimeout = "5s";
-            HealthRetries = 5;
-            NoNewPrivileges = true;
+          extraConfig = {
+            Service = {
+              ExecStartPre = [
+                "-/run/current-system/sw/bin/mkdir -p ${sureFinanceDataDir}/redis"
+                "-/run/current-system/sw/bin/chown ${sureFinanceUser}:${sureFinanceGroup} ${sureFinanceDataDir}/redis"
+              ];
+            };
+            Container = {
+              LogDriver = "journald";
+              HealthCmd = "redis-cli ping";
+              HealthInterval = "5s";
+              HealthTimeout = "5s";
+              HealthRetries = 5;
+              NoNewPrivileges = true;
+            };
           };
         };
 
         services.podman.containers.sure-finance-web = {
           image = sureFinanceImage;
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=1000,gid=1000";
           network = [ "sure-finance.network" ];
           networkAlias = [ "web" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
@@ -312,9 +320,7 @@ in
         services.podman.containers.sure-finance-worker = {
           image = sureFinanceImage;
           autoStart = true;
-          userNS = "keep-id";
-          user = "%U";
-          group = "%G";
+          userNS = "keep-id:uid=1000,gid=1000";
           network = [ "sure-finance.network" ];
           networkAlias = [ "worker" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
