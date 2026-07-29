@@ -85,8 +85,13 @@ in
         base
         backup
         podman-secrets
+        homelab-docker-socket-proxy
         homelab-sure-finance
       ];
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
+      };
     };
 
     services.onepassword-secrets.secrets = {
@@ -216,7 +221,7 @@ in
         services.podman.containers.sure-finance-db = {
           image = "docker.io/library/postgres:16.14";
           autoStart = true;
-          userNS = "keep-id:uid=1000,gid=1000";
+          userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
           networkAlias = [ "db" ];
           volumes = [ "${sureFinanceDataDir}/postgres:/var/lib/postgresql/data" ];
@@ -251,7 +256,7 @@ in
         services.podman.containers.sure-finance-redis = {
           image = "docker.io/library/redis:8.8.0";
           autoStart = true;
-          userNS = "keep-id:uid=1000,gid=1000";
+          userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
           networkAlias = [ "redis" ];
           volumes = [ "${sureFinanceDataDir}/redis:/data" ];
