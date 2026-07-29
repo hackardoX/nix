@@ -8,7 +8,7 @@ let
   jobOpsUser = "job-ops";
   jobOpsGroup = "job-ops";
   jobOpsAppDir = "/var/lib/containers/job-ops";
-  jobOpsDataDir = "/var/lib/data";
+  jobOpsDataDir = "/var/lib/data/job-ops";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.job-ops;
