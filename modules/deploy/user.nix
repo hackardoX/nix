@@ -17,12 +17,6 @@ in
           config.flake.meta.users.${nixosArgs.config.system.primaryUser}.authorizedKeys;
       };
 
-      security = {
-        pam.sshAgentAuth = {
-          enable = true;
-        };
-      };
-
       nix.settings.trusted-users = [ user ];
     };
   };
