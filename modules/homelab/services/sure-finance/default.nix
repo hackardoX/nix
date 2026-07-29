@@ -67,6 +67,7 @@ in
         directory = sureFinanceAppDir;
         user = sureFinanceUser;
         group = sureFinanceGroup;
+        mode = "0750";
       }
     ];
 

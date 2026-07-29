@@ -196,6 +196,7 @@ in
           directory = "/var/lib/caddy";
           user = "caddy";
           group = "caddy";
+          mode = "0750";
         }
       ];
     };

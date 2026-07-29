@@ -80,6 +80,7 @@ in
         directory = monitoringAppDir;
         user = monitoringUser;
         group = monitoringGroup;
+        mode = "0750";
       }
     ];
 

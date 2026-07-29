@@ -46,6 +46,7 @@ in
         directory = alertingAppDir;
         user = alertingUser;
         group = alertingGroup;
+        mode = "0750";
       }
     ];
 

@@ -69,6 +69,7 @@ in
         directory = jobOpsAppDir;
         user = jobOpsUser;
         group = jobOpsGroup;
+        mode = "0750";
       }
     ];
 

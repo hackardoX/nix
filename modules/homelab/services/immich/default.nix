@@ -67,6 +67,7 @@ in
         directory = immichAppDir;
         user = immichUser;
         group = immichGroup;
+        mode = "0750";
       }
     ];
 

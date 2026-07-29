@@ -11,7 +11,6 @@ let
   tandoorAppDir = "/var/lib/containers/tandoor";
   tandoorDataDir = "/var/lib/data/tandoor";
 
-  
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   mkHomepageLabels = config.flake.lib.mkHomepageLabels;
@@ -64,6 +63,7 @@ in
         directory = tandoorAppDir;
         user = tandoorUser;
         group = tandoorGroup;
+        mode = "0750";
       }
     ];
 

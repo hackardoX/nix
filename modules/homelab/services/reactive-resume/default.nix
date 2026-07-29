@@ -106,6 +106,7 @@ in
         directory = reactiveResumeAppDir;
         user = reactiveResumeUser;
         group = reactiveResumeGroup;
+        mode = "0750";
       }
     ];
 
