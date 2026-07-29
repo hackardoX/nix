@@ -55,10 +55,20 @@ let
       host = "127.0.0.1";
       port = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
     };
+    sure-finance = {
+      host = "127.0.0.1";
+      port = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
+    };
+    tandoor = {
+      host = "127.0.0.1";
+      port = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
+    };
   };
   homepagePingPorts = [
     config.flake.meta.reverse-proxy.ports.job-ops
     config.flake.meta.reverse-proxy.ports.reactive-resume
+    config.flake.meta.reverse-proxy.ports.sure-finance
+    config.flake.meta.reverse-proxy.ports.tandoor
   ];
   homepageServices = [ ];
   pastaArgs = lib.concatStringsSep "," (
