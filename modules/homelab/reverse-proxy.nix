@@ -173,6 +173,8 @@ in
         wants = [ "opnix-secrets.service" ];
       };
 
+      users.users.caddy.extraGroups = [ "homelab-users" ];
+
       systemd.services.caddy = {
         serviceConfig = {
           Environment = [ "XDG_DATA_HOME=/var/lib" ];

@@ -341,6 +341,8 @@ in
         };
       };
 
+      users.users.${config.flake.meta.authelia.user}.extraGroups = [ "homelab-users" ];
+
       systemd.tmpfiles.rules = [
         "d ${hashedSecretsDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
       ];
