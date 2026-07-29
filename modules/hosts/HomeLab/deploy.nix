@@ -1,10 +1,9 @@
 {
   configurations.nixos.HomeLab = {
     deploy = {
-      hostname = "HomeLab";
+      hostname = "ssh.homelab4.fun";
       remoteBuild = true;
-      interactiveSudo = true;
-      user = "hal";
+      user = "root";
     };
   };
 }
