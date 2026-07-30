@@ -26,6 +26,19 @@ let
   reactiveResumeOidcSecretFile = "/run/secrets/reactive-resume/oidc_client_secret";
 in
 {
+  flake.homepage.services.reactive-resume = {
+    category = "Productivity";
+    name = "Reactive Resume";
+    description = "Resume Builder";
+    icon = "sh-reactive-resume-light.webp";
+    href = "https://${hosts.rxresume}";
+    siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
+    container = "reactive-resume";
+    dockerServer = "reactive-resume";
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
+    pingPort = reverseProxyPort;
+  };
+
   flake.modules.nixos.homelab-reactive-resume = {
     users.users.${reactiveResumeUser} = {
       uid = reactiveResumeUid;
@@ -156,13 +169,21 @@ in
 
         services.backup.jobs.reactive-resume = {
           paths = [
-            "${reactiveResumeDataDir}/postgres"
             "${reactiveResumeAppDir}/data"
           ];
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
+          db = {
+            type = "postgres";
+            user = "rxresume";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
+            container = {
+              type = "podman";
+              name = "reactive-resume-db";
+            };
+          };
         };
 
         services.podman.enable = true;
@@ -205,15 +226,6 @@ in
           network = [ "reactive-resume.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString reactiveResumePort}" ];
-
-          labels = config.flake.lib.mkHomepageLabels {
-            category = "Productivity";
-            name = "Reactive Resume";
-            description = "Resume Builder";
-            icon = "sh-reactive-resume-light.webp";
-            href = "https://${hosts.rxresume}";
-            siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
-          };
 
           volumes = [
             "${entrypointScript}:/entrypoint.sh:ro"

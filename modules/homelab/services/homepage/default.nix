@@ -46,31 +46,40 @@ let
     }
   ];
   homepageBookmarks = [ ];
-  homepageDocker = {
-    reactive-resume = {
-      host = "127.0.0.1";
-      port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
-    };
-    job-ops = {
-      host = "127.0.0.1";
-      port = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
-    };
-    sure-finance = {
-      host = "127.0.0.1";
-      port = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
-    };
-    tandoor = {
-      host = "127.0.0.1";
-      port = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
-    };
-  };
-  homepagePingPorts = [
-    config.flake.meta.reverse-proxy.ports.job-ops
-    config.flake.meta.reverse-proxy.ports.reactive-resume
-    config.flake.meta.reverse-proxy.ports.sure-finance
-    config.flake.meta.reverse-proxy.ports.tandoor
-  ];
-  homepageServices = [ ];
+
+  allServices = config.flake.homepage.services;
+  categories = lib.unique (lib.mapAttrsToList (_: s: s.category) allServices);
+
+  servicesInCategory =
+    cat:
+    lib.mapAttrsToList (_: svc: {
+      ${svc.name} = lib.filterAttrs (k: v: v != null) {
+        inherit (svc)
+          href
+          description
+          icon
+          ping
+          siteMonitor
+          showStats
+          statusStyle
+          ;
+        widget = svc.widget;
+        server = svc.dockerServer;
+        container = svc.container;
+      };
+    }) (lib.filterAttrs (_: s: s.category == cat) allServices);
+
+  homepageServices = map (cat: { ${cat} = servicesInCategory cat; }) categories;
+
+  homepageDocker = lib.mapAttrs (_: svc: {
+    host = "127.0.0.1";
+    port = svc.dockerSocketProxyPort;
+  }) (lib.filterAttrs (_: s: s.dockerSocketProxyPort != null) allServices);
+
+  homepagePingPorts = lib.attrValues (
+    lib.mapAttrs (_: s: s.pingPort) (lib.filterAttrs (_: s: s.pingPort != null) allServices)
+  );
+
   pastaArgs = lib.concatStringsSep "," (
     [ "-t,${toString reverseProxyPort}:${toString homepagePort}" ]
     ++ (map (proxy: "-T,${toString proxy.port}") (lib.attrValues homepageDocker))
