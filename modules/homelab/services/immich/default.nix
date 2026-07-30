@@ -12,8 +12,6 @@ let
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.immich;
-  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
-
   immichPort = 2283;
   immichDbUser = "postgres";
   immichDbName = "immich";
@@ -30,6 +28,23 @@ let
   };
 in
 {
+  flake.homepage.services.immich = {
+    category = "Media";
+    name = "Immich";
+    description = "Photo & Video Management";
+    icon = "sh-immich-light.webp";
+    href = "http://localhost:${toString reverseProxyPort}";
+    siteMonitor = "http://localhost:${toString reverseProxyPort}";
+    widget = {
+      type = "immich";
+      url = "http://localhost:${toString reverseProxyPort}";
+    };
+    container = "immich-server";
+    dockerServer = "immich";
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.immich-docker-socket-proxy;
+    pingPort = reverseProxyPort;
+  };
+
   flake.modules.nixos.homelab-immich = {
     users.users.${immichUser} = {
       uid = immichUid;
@@ -186,19 +201,6 @@ in
           network = [ "immich.network" ];
           networkAlias = [ "immich-server" ];
           ports = [ "${toString reverseProxyPort}:${toString immichPort}" ];
-
-          labels = mkHomepageLabels {
-            category = "Media";
-            name = "Immich";
-            description = "Photo & Video Management";
-            icon = "sh-immich-light.webp";
-            href = "http://localhost:${toString reverseProxyPort}";
-            siteMonitor = "http://localhost:${toString reverseProxyPort}";
-            widget = {
-              type = "immich";
-              url = "http://localhost:${toString reverseProxyPort}";
-            };
-          };
 
           volumes = [
             "${immichAppDir}/photos:/data"

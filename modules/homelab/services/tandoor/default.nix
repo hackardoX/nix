@@ -13,8 +13,6 @@ let
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
-  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
-
   tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13";
   tandoorPort = 8080;
   tandoorDbName = "tandoor";
@@ -25,6 +23,22 @@ let
   tandoorOidcSecretFile = "/run/secrets/tandoor/oidc_client_secret";
 in
 {
+  flake.homepage.services.tandoor = {
+    category = "General";
+    name = "Tandoor Recipes";
+    description = "Recipe Management";
+    icon = "tandoor-recipes";
+    href = "http://localhost:${toString reverseProxyPort}";
+    widget = {
+      type = "tandoor";
+      url = "http://localhost:${toString reverseProxyPort}";
+    };
+    container = "tandoor";
+    dockerServer = "tandoor";
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
+    pingPort = reverseProxyPort;
+  };
+
   flake.modules.nixos.homelab-tandoor = {
     users.users.${tandoorUser} = {
       uid = tandoorUid;
@@ -200,18 +214,6 @@ in
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];
-
-          labels = mkHomepageLabels {
-            category = "General";
-            name = "Tandoor Recipes";
-            description = "Recipe Management";
-            icon = "tandoor-recipes";
-            href = "http://localhost:${toString reverseProxyPort}";
-            widget = {
-              type = "tandoor";
-              url = "http://localhost:${toString reverseProxyPort}";
-            };
-          };
 
           volumes = [
             "${tandoorAppDir}/staticfiles:/opt/recipes/staticfiles"

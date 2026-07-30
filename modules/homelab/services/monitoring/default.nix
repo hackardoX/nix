@@ -11,8 +11,6 @@ let
   monitoringAppDir = "/var/lib/containers/monitoring";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
-  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
-
   prometheusHost = "prometheus";
   prometheusContainerPort = 9090;
   prometheusHostPort = 9090;
@@ -38,6 +36,33 @@ let
   # grafanaOidcSecretFile = "/run/secrets/monitoring/grafana/oidc_client_secret";
 in
 {
+  flake.homepage.services.prometheus = {
+    category = "Monitoring";
+    name = "Prometheus";
+    description = "Metrics Storage";
+    icon = "prometheus.png";
+    href = "http://localhost:${toString prometheusHostPort}";
+    pingPort = prometheusHostPort;
+  };
+
+  flake.homepage.services.grafana = {
+    category = "Monitoring";
+    name = "Grafana";
+    description = "Metrics & Dashboards";
+    icon = "grafana.png";
+    href = "http://localhost:${toString grafanaHostPort}";
+    pingPort = grafanaHostPort;
+  };
+
+  flake.homepage.services.loki = {
+    category = "Monitoring";
+    name = "Loki";
+    description = "Log Aggregation";
+    icon = "grafana.png";
+    href = "http://localhost:${toString lokiHostPort}";
+    pingPort = lokiHostPort;
+  };
+
   flake.modules.nixos.homelab-monitoring = {
     users.users.${monitoringUser} = {
       uid = monitoringUid;
@@ -365,17 +390,9 @@ in
             "${alertRulesFile}:/etc/prometheus/alert-rules.yml:ro"
           ];
 
-          labels =
-            mkHomepageLabels {
-              category = "Monitoring";
-              name = "Prometheus";
-              description = "Metrics Storage";
-              icon = "prometheus.png";
-              href = "http://localhost:${toString prometheusHostPort}";
-            }
-            // {
-              "logging.alloy" = "true";
-            };
+          labels = {
+            "logging.alloy" = "true";
+          };
 
           exec = "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=30d --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles";
 
@@ -431,17 +448,9 @@ in
           }
           // grafanaOidcEnv;
 
-          labels =
-            mkHomepageLabels {
-              category = "Monitoring";
-              name = "Grafana";
-              description = "Metrics & Dashboards";
-              icon = "grafana.png";
-              href = "http://localhost:${toString grafanaHostPort}";
-            }
-            // {
-              "logging.alloy" = "true";
-            };
+          labels = {
+            "logging.alloy" = "true";
+          };
 
           extraConfig.Container = {
             LogDriver = "journald";
@@ -464,17 +473,9 @@ in
             "${lokiConfig}:/etc/loki/local-config.yml:ro"
           ];
 
-          labels =
-            mkHomepageLabels {
-              category = "Monitoring";
-              name = "Loki";
-              description = "Log Aggregation";
-              icon = "grafana.png";
-              href = "http://localhost:${toString lokiHostPort}";
-            }
-            // {
-              "logging.alloy" = "true";
-            };
+          labels = {
+            "logging.alloy" = "true";
+          };
 
           extraConfig.Container = {
             LogDriver = "journald";
