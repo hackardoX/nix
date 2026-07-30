@@ -169,13 +169,12 @@ in
     };
 
     home-manager.users.${beszelUser} = {
-      home.username = beszelUser;
-      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        rclone
       ];
+      home.username = beszelUser;
+      home.stateVersion = "26.05";
       services.rclone.remotes = [ "koofr" ];
       services.backup.jobs.beszel = {
         paths = [ beszelAppDir ];

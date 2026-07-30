@@ -89,9 +89,6 @@ in
     ];
 
     home-manager.users.${sureFinanceUser} = {
-      services.rclone.remotes = [ "koofr" ];
-      home.username = sureFinanceUser;
-      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
@@ -99,10 +96,13 @@ in
         homelab-docker-socket-proxy
         homelab-sure-finance
       ];
+      home.username = sureFinanceUser;
+      home.stateVersion = "26.05";
       services.homelab-docker-socket-proxy = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
       };
+      services.rclone.remotes = [ "koofr" ];
     };
 
     services.onepassword-secrets.secrets = {
