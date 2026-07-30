@@ -63,6 +63,7 @@ in
         base
         backup
         podman-secrets
+        homelab-beszel-agent
         homelab-docker-socket-proxy
         homelab-reactive-resume
       ];
@@ -72,6 +73,10 @@ in
       services.homelab-docker-socket-proxy = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
+      };
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-reactive-resume;
       };
     };
 

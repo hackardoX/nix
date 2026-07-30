@@ -13,6 +13,10 @@ in
     };
 
     oidc-clients = {
+      beszel = {
+        clientId = "beszel";
+        clientName = "Monitoring";
+      };
       immich = {
         clientId = "immich";
         clientName = "Immich";
@@ -45,6 +49,10 @@ in
       hashedSecretsDir = "${autheliaDataDir}/hashed-oidc-secrets";
 
       oidcClients = [
+        {
+          name = "beszel";
+          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaBeszelOidcSecret;
+        }
         {
           name = "immich";
           secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaImmichOidcSecret;
@@ -139,6 +147,7 @@ in
                 cors = {
                   endpoints = [ "token" ];
                   allowed_origins = [
+                    "https://${hosts.monitoring}"
                     "https://${hosts.immich}"
                     "https://${hosts.grafana}"
                     "https://${hosts.rxresume}"
@@ -166,6 +175,18 @@ in
                 identity_providers:
                   oidc:
                     clients:
+                      - client_id: "${config.flake.meta.oidc-clients.beszel.clientId}"
+                        client_name: "${config.flake.meta.oidc-clients.beszel.clientName}"
+                        public: false
+                        authorization_policy: "one_factor"
+                        token_endpoint_auth_method: "client_secret_post"
+                        client_secret: {{ secret "${hashedSecretsDir}/beszel_oidc_secret" | msquote }}
+                        redirect_uris:
+                          - "https://${hosts.monitoring}/api/oauth2-redirect"
+                        scopes:
+                          - "openid"
+                          - "profile"
+                          - "email"
                       - client_id: "${config.flake.meta.oidc-clients.immich.clientId}"
                         client_name: "${config.flake.meta.oidc-clients.immich.clientName}"
                         public: false
@@ -299,6 +320,13 @@ in
           autheliaResendApiKey = {
             path = "/run/secrets/authelia/resend_api_key";
             reference = "op://HomeLab/Resend/Authelia/api key";
+            owner = config.flake.meta.authelia.user;
+            group = config.flake.meta.authelia.group;
+            services = [ autheliaService ];
+          };
+          autheliaBeszelOidcSecret = {
+            path = "/run/secrets/authelia/beszel_oidc_secret";
+            reference = "op://HomeLab/Beszel/Authentication/OIDC client secret";
             owner = config.flake.meta.authelia.user;
             group = config.flake.meta.authelia.group;
             services = [ autheliaService ];

@@ -10,6 +10,7 @@ in
       homepage = "homepage.${domain}";
       immich = "immich.${domain}";
       jobs = "jobs.${domain}";
+      monitoring = "monitoring.${domain}";
       rxresume = "rxresume.${domain}";
       recipes = "recipes.${domain}";
       finance = "finance.${domain}";
@@ -18,6 +19,12 @@ in
     };
     ports = {
       authelia = 1024;
+      beszel = 2000;
+      beszel-agent-alerting = 2001;
+      beszel-agent-homepage = 2002;
+      beszel-agent-job-ops = 2003;
+      beszel-agent-reactive-resume = 2004;
+      beszel-agent-sure-finance = 2005;
       homepage = 8000;
       homepage-docker-socket-proxy = 8001;
       immich = 9000;
