@@ -129,7 +129,6 @@ in
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        rclone
         homelab-beszel
       ];
       home.username = beszelUser;
