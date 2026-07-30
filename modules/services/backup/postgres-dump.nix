@@ -56,7 +56,7 @@
         instances = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule (
-              { name, ... }: {
+              { name, config, ... }: {
                 options = {
                   type = lib.mkOption {
                     type = lib.types.enum [ "postgres" ];
