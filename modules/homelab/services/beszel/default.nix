@@ -9,18 +9,20 @@ let
   beszelUser = "beszel";
   beszelGroup = "beszel";
   beszelAppDir = "/var/lib/beszel-hub";
+  beszelContainerDir = "/var/lib/containers/beszel";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   beszelHubPort = config.flake.meta.reverse-proxy.ports.beszel;
-  beszelOidcClientId = config.flake.meta.oidc-clients.beszel.clientId;
 
-  # Agent ports are defined per-service; this module only provides the agent home-manager module.
-  # The hub connects to agents on 127.0.0.1 via SSH keys.
+  agentPorts = with config.flake.meta.reverse-proxy.ports; [
+    beszel-agent-alerting
+    beszel-agent-homepage
+    beszel-agent-job-ops
+    beszel-agent-reactive-resume
+    beszel-agent-sure-finance
+  ];
 
   beszelEnvFile = "/run/beszel/environment";
-  beszelEmailSecret = "/run/secrets/beszel/email";
-  beszelPasswordSecret = "/run/secrets/beszel/password";
-  beszelBackupKeySecret = "/run/secrets/beszel/backup_encryption_key";
 in
 {
   flake.homepage.services.beszel = {
@@ -33,167 +35,179 @@ in
     pingPort = beszelHubPort;
   };
 
-  flake.modules.nixos.homelab-beszel =
-    hmArgs@{ pkgs, ... }:
-    {
-      users.users.${beszelUser} = {
-        uid = beszelUid;
-        isSystemUser = true;
-        group = beszelGroup;
-        extraGroups = [
-          "homelab-users"
-          "rclone"
-        ];
-        createHome = true;
-        home = "/var/lib/${beszelUser}";
-        autoSubUidGidRange = true;
-        linger = true;
-      };
-
-      users.groups.${beszelGroup} = {
-        gid = beszelGid;
-      };
-
-      systemd.tmpfiles.rules = [
-        "d ${beszelAppDir} 0750 ${beszelUser} ${beszelGroup} -"
+  flake.modules.nixos.homelab-beszel = {
+    users.users.${beszelUser} = {
+      uid = beszelUid;
+      isSystemUser = true;
+      group = beszelGroup;
+      extraGroups = [
+        "homelab-users"
+        "rclone"
       ];
+      createHome = true;
+      home = "/var/lib/${beszelUser}";
+      autoSubUidGidRange = true;
+      linger = true;
+    };
 
-      # Override the native beszel-hub service to run as our static user instead of DynamicUser.
-      # This lets us add home-manager (backup, rclone) for the beszel user.
-      systemd.services.beszel-hub = {
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
-        serviceConfig = {
-          DynamicUser = lib.mkForce false;
-          User = lib.mkForce beszelUser;
-          Group = lib.mkForce beszelGroup;
-          PrivateUsers = lib.mkForce false;
-          StateDirectory = lib.mkForce null;
-          WorkingDirectory = lib.mkForce beszelAppDir;
-          ReadWritePaths = lib.mkForce [ beszelAppDir ];
-          EnvironmentFile = lib.mkIf (builtins.pathExists beszelEnvFile) beszelEnvFile;
-        };
+    users.groups.${beszelGroup} = {
+      gid = beszelGid;
+    };
+
+    systemd.tmpfiles.rules = [
+      "d ${beszelAppDir} 0750 ${beszelUser} ${beszelGroup} -"
+      "d ${beszelContainerDir} 0750 ${beszelUser} ${beszelGroup} -"
+    ];
+
+    # One-shot service to assemble environment file from 1Password secrets.
+    # Runs before the beszel user session starts so the container can mount it.
+    systemd.services.beszel-setup-env = {
+      description = "Assemble Beszel Hub environment file";
+      before = [ "user@${toString beszelUid}.service" ];
+      requiredBy = [ "user@${toString beszelUid}.service" ];
+      after = [ "opnix-secrets.service" ];
+      wants = [ "opnix-secrets.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "root";
+      };
+      script = ''
+        set -e
+        mkdir -p /run/beszel
+        {
+          echo "USER_EMAIL=$(cat ${beszelEmailSecret})"
+          echo "USER_PASSWORD=$(cat ${beszelPasswordSecret})"
+        } > ${beszelEnvFile}
+        chown ${beszelUser}:${beszelGroup} ${beszelEnvFile}
+        chmod 400 ${beszelEnvFile}
+      '';
+    };
+
+    services.caddy.virtualHosts."${hosts.monitoring}" = {
+      extraConfig = ''
+        import auth_protected
+        import reverse_proxy_common
+        reverse_proxy localhost:${toString beszelHubPort}
+      '';
+    };
+
+    services.onepassword-secrets.secrets = {
+      beszelEmail = {
+        path = "/run/secrets/beszel/email";
+        reference = "op://HomeLab/Beszel/Authentication/email";
+        owner = beszelUser;
+        group = beszelGroup;
+      };
+      beszelPassword = {
+        path = "/run/secrets/beszel/password";
+        reference = "op://HomeLab/Beszel/Authentication/password";
+        owner = beszelUser;
+        group = beszelGroup;
+      };
+      beszelSshPrivateKey = {
+        path = "/run/secrets/beszel/ssh_private_key";
+        reference = "op://HomeLab/Beszel SSH Key/private key";
+        owner = beszelUser;
+        group = beszelGroup;
+      };
+      beszelSshPublicKey = {
+        path = "/run/secrets/beszel/ssh_public_key";
+        reference = "op://HomeLab/Beszel SSH Key/public key";
+        owner = beszelUser;
+        group = beszelGroup;
+      };
+      beszelBackupEncryptionKey = {
+        path = "/run/secrets/beszel/backup_encryption_key";
+        reference = "op://Homelab/Backup/Beszel/password";
+        owner = beszelUser;
+        group = beszelGroup;
+      };
+    };
+
+    home-manager.users.${beszelUser} = {
+      imports = with config.flake.modules.homeManager; [
+        base
+        backup
+        rclone
+        homelab-beszel
+      ];
+      home.username = beszelUser;
+      home.stateVersion = "26.05";
+    };
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = beszelAppDir;
+        user = beszelUser;
+        group = beszelGroup;
+        mode = "0750";
+      }
+    ];
+  };
+
+  flake.modules.homeManager.homelab-beszel =
+    { osConfig, ... }:
+    let
+      beszelPastaArgs = lib.concatStringsSep "," (
+        [ "-t,${toString beszelHubPort}:8090" ]
+        ++ (map (port: "-T,${toString port}:${toString port}") agentPorts)
+      );
+    in
+    {
+      xdg.configFile."containers/storage.conf".text = ''
+        [storage]
+        graphroot = "${beszelContainerDir}"
+      '';
+
+      services.rclone.remotes = [ "koofr" ];
+
+      services.backup.jobs.beszel = {
+        paths = [ beszelAppDir ];
+        schedule = "weekly";
+        retention = "extended";
+        providers = [ "koofr" ];
+        encryptionKey = osConfig.services.onepassword-secrets.secretPaths.beszelBackupEncryptionKey;
       };
 
-      services.beszel.hub = {
-        enable = true;
-        port = beszelHubPort;
-        dataDir = beszelAppDir;
+      services.podman.enable = true;
+
+      services.podman.containers.beszel-hub = {
+        image = "ghcr.io/henrygd/beszel/beszel:0.18.7";
+        autoStart = true;
+        userNS = "keep-id:uid=0,gid=0";
+        network = [ "pasta:${beszelPastaArgs}" ];
+
         environment = {
+          TZ = osConfig.time.timeZone;
           APP_URL = "https://${hosts.monitoring}";
-          DISABLE_PASSWORD_AUTH = "true";
+          # Password auth must stay enabled until the admin manually configures Authelia OIDC
+          # in the PocketBase Admin UI. After setup, it can optionally be disabled.
+          DISABLE_PASSWORD_AUTH = "false";
           USER_CREATION = "true";
         };
-      };
 
-      # One-shot service to assemble environment file from 1Password secrets
-      systemd.services.beszel-setup-env = {
-        description = "Assemble Beszel Hub environment file";
-        before = [ "beszel-hub.service" ];
-        requiredBy = [ "beszel-hub.service" ];
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          User = "root";
-        };
-        script = ''
-          set -e
-          mkdir -p /run/beszel
-          {
-            echo "USER_EMAIL=$(cat ${beszelEmailSecret})"
-            echo "USER_PASSWORD=$(cat ${beszelPasswordSecret})"
-          } > ${beszelEnvFile}
-          chown ${beszelUser}:${beszelGroup} ${beszelEnvFile}
-          chmod 400 ${beszelEnvFile}
-        '';
-      };
-
-      # Extract the Hub's SSH public key so agents can authenticate it.
-      # Runs after the Hub has started (and generated its Ed25519 keypair).
-      systemd.services.beszel-agent-keys = {
-        description = "Extract Beszel Hub SSH public key for agents";
-        after = [ "beszel-hub.service" ];
-        requires = [ "beszel-hub.service" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          User = "root";
-        };
-        script = ''
-          set -e
-          mkdir -p /run/beszel
-          # Wait up to 30 seconds for the Hub to generate its keypair
-          for i in $(seq 1 30); do
-            if [ -f ${beszelAppDir}/id_ed25519 ]; then
-              break
-            fi
-            sleep 1
-          done
-          if [ ! -f ${beszelAppDir}/id_ed25519 ]; then
-            echo "Timeout waiting for beszel-hub SSH key" >&2
-            exit 1
-          fi
-          ${pkgs.openssh}/bin/ssh-keygen -y -f ${beszelAppDir}/id_ed25519 > /run/beszel/agent-key.pub
-          chmod 644 /run/beszel/agent-key.pub
-        '';
-      };
-
-      services.caddy.virtualHosts."${hosts.monitoring}" = {
-        extraConfig = ''
-          import auth_protected
-          import reverse_proxy_common
-          reverse_proxy localhost:${toString beszelHubPort}
-        '';
-      };
-
-      services.onepassword-secrets.secrets = {
-        beszelEmail = {
-          path = beszelEmailSecret;
-          reference = "op://HomeLab/Beszel/Authentication/email";
-          owner = beszelUser;
-          group = beszelGroup;
-        };
-        beszelPassword = {
-          path = beszelPasswordSecret;
-          reference = "op://HomeLab/Beszel/Authentication/password";
-          owner = beszelUser;
-          group = beszelGroup;
-        };
-        beszelBackupEncryptionKey = {
-          path = beszelBackupKeySecret;
-          reference = "op://Homelab/Backup/Beszel/password";
-          owner = beszelUser;
-          group = beszelGroup;
-        };
-      };
-
-      home-manager.users.${beszelUser} = {
-        imports = with config.flake.modules.homeManager; [
-          base
-          backup
+        volumes = [
+          "${beszelAppDir}:/beszel_data"
+          "${beszelSshPrivateKeySecret}:/beszel_data/id_ed25519:ro"
+          "${beszelSshPublicKeySecret}:/beszel_data/id_ed25519.pub:ro"
         ];
-        home.username = beszelUser;
-        home.stateVersion = "26.05";
-        services.rclone.remotes = [ "koofr" ];
-        services.backup.jobs.beszel = {
-          paths = [ beszelAppDir ];
-          schedule = "weekly";
-          retention = "extended";
-          providers = [ "koofr" ];
-          encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.beszelBackupEncryptionKey;
+
+        extraConfig = {
+          Unit = {
+            After = [
+              "beszel-setup-env.service"
+              "network-online.target"
+            ];
+            Wants = [ "beszel-setup-env.service" ];
+          };
+          Container = {
+            EnvironmentFile = beszelEnvFile;
+            LogDriver = "journald";
+            NoNewPrivileges = true;
+          };
         };
       };
-
-      boot.initrd.impermanence.persist.directories = [
-        {
-          directory = beszelAppDir;
-          user = beszelUser;
-          group = beszelGroup;
-          mode = "0750";
-        }
-      ];
     };
 
   # Reusable home-manager module: each service user can import this to run a beszel agent
@@ -216,7 +230,7 @@ in
         services.podman.enable = true;
 
         services.podman.containers.homelab-beszel-agent = {
-          image = "henrygd/beszel-agent:latest";
+          image = "ghcr.io/henrygd/beszel/beszel-agent:0.18.7";
           autoStart = true;
           userNS = "keep-id";
           ports = [ "127.0.0.1:${toString cfg.port}:45876" ];
@@ -230,7 +244,7 @@ in
 
           volumes = [
             "%t/podman/podman.sock:/run/podman/podman.sock:ro"
-            "/run/beszel/agent-key.pub:/run/beszel/agent-key.pub:ro"
+            "${beszelSshPublicKeySecret}:/run/beszel/agent-key.pub:ro"
           ];
 
           extraConfig.Container = {
