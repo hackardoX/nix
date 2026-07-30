@@ -31,9 +31,21 @@ let
   jobOpsAdzunaAppId = "47ca24d5";
   jobOpsAdzunaAppKeyFile = "/run/secrets/job-ops/adzuna_api_key";
 
-  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
 in
 {
+  flake.homepage.services.job-ops = {
+    category = "Productivity";
+    name = "Job-Ops";
+    description = "AI Job Application Assistant";
+    icon = "mdi-briefcase-outline";
+    href = "https://${hosts.jobs}";
+    siteMonitor = "http://localhost:${toString reverseProxyPort}";
+    container = "job-ops";
+    dockerServer = "job-ops";
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
+    pingPort = reverseProxyPort;
+  };
+
   flake.modules.nixos.homelab-job-ops = {
     users.users.${jobOpsUser} = {
       uid = jobOpsUid;
@@ -169,15 +181,6 @@ in
       network = [ "job-ops.network" ];
       networkAlias = [ "job-ops" ];
       ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];
-
-      labels = mkHomepageLabels {
-        category = "Productivity";
-        name = "Job-Ops";
-        description = "AI Job Application Assistant";
-        icon = "mdi-briefcase-outline";
-        href = "https://${hosts.jobs}";
-        siteMonitor = "http://localhost:${toString reverseProxyPort}";
-      };
 
       volumes = [ "${jobOpsDataDir}:/app/data" ];
 

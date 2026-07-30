@@ -13,8 +13,6 @@ let
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance;
-  mkHomepageLabels = config.flake.lib.mkHomepageLabels;
-
   sureFinanceImage = "ghcr.io/we-promise/sure:0.7.2";
   sureFinancePort = 3000;
   sureFinanceDbName = "sure_production";
@@ -29,6 +27,19 @@ let
   sureFinanceOidcSecretFile = "/run/secrets/sure-finance/oidc_client_secret";
 in
 {
+  flake.homepage.services.sure-finance = {
+    category = "Finance";
+    name = "Sure Finance";
+    description = "Personal Finance Tracker";
+    icon = "sh-sure-finance-dark.webp";
+    href = "https://${hosts.finance}";
+    siteMonitor = "http://localhost:${toString reverseProxyPort}/up";
+    container = "sure-finance-web";
+    dockerServer = "sure-finance";
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
+    pingPort = reverseProxyPort;
+  };
+
   flake.modules.nixos.homelab-sure-finance = {
     users.users.${sureFinanceUser} = {
       uid = sureFinanceUid;
@@ -287,15 +298,6 @@ in
           networkAlias = [ "web" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
           ports = [ "${toString reverseProxyPort}:${toString sureFinancePort}" ];
-
-          labels = mkHomepageLabels {
-            category = "Finance";
-            name = "Sure Finance";
-            description = "Personal Finance Tracker";
-            icon = "sh-sure-finance-dark.webp";
-            href = "https://${hosts.finance}";
-            siteMonitor = "http://localhost:${toString reverseProxyPort}/up";
-          };
 
           environment = sharedEnv;
           secrets = sharedSecrets;
