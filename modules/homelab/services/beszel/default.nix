@@ -35,7 +35,7 @@ in
     pingPort = beszelHubPort;
   };
 
-  flake.modules.nixos.homelab-beszel = {
+  flake.modules.nixos.homelab-beszel = nixosArgs: {
     users.users.${beszelUser} = {
       uid = beszelUid;
       isSystemUser = true;
@@ -76,8 +76,8 @@ in
         set -e
         mkdir -p /run/beszel
         {
-          echo "USER_EMAIL=$(cat ${beszelEmailSecret})"
-          echo "USER_PASSWORD=$(cat ${beszelPasswordSecret})"
+          echo "USER_EMAIL=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelEmail})"
+          echo "USER_PASSWORD=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelPassword})"
         } > ${beszelEnvFile}
         chown ${beszelUser}:${beszelGroup} ${beszelEnvFile}
         chmod 400 ${beszelEnvFile}
@@ -189,8 +189,8 @@ in
 
         volumes = [
           "${beszelAppDir}:/beszel_data"
-          "${beszelSshPrivateKeySecret}:/beszel_data/id_ed25519:ro"
-          "${beszelSshPublicKeySecret}:/beszel_data/id_ed25519.pub:ro"
+          "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPrivateKey}:/beszel_data/id_ed25519:ro"
+          "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPublicKey}:/beszel_data/id_ed25519.pub:ro"
         ];
 
         extraConfig = {
@@ -244,7 +244,7 @@ in
 
           volumes = [
             "%t/podman/podman.sock:/run/podman/podman.sock:ro"
-            "${beszelSshPublicKeySecret}:/run/beszel/agent-key.pub:ro"
+            "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPublicKey}:/run/beszel/agent-key.pub:ro"
           ];
 
           extraConfig.Container = {
