@@ -11,6 +11,7 @@
       # homelab-monitoring
       homelab-reactive-resume
       homelab-security
+      homelab-ssh-watchdog
       homelab-sure-finance
       # homelab-tandoor
       rclone

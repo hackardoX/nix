@@ -36,32 +36,32 @@ let
   # grafanaOidcSecretFile = "/run/secrets/monitoring/grafana/oidc_client_secret";
 in
 {
-  flake.homepage.services.prometheus = {
-    category = "Monitoring";
-    name = "Prometheus";
-    description = "Metrics Storage";
-    icon = "prometheus.png";
-    href = "http://localhost:${toString prometheusHostPort}";
-    pingPort = prometheusHostPort;
-  };
-
-  flake.homepage.services.grafana = {
-    category = "Monitoring";
-    name = "Grafana";
-    description = "Metrics & Dashboards";
-    icon = "grafana.png";
-    href = "http://localhost:${toString grafanaHostPort}";
-    pingPort = grafanaHostPort;
-  };
-
-  flake.homepage.services.loki = {
-    category = "Monitoring";
-    name = "Loki";
-    description = "Log Aggregation";
-    icon = "grafana.png";
-    href = "http://localhost:${toString lokiHostPort}";
-    pingPort = lokiHostPort;
-  };
+  # flake.homepage.services.prometheus = {
+  #   category = "Monitoring";
+  #   name = "Prometheus";
+  #   description = "Metrics Storage";
+  #   icon = "prometheus.png";
+  #   href = "http://localhost:${toString prometheusHostPort}";
+  #   pingPort = prometheusHostPort;
+  # };
+  #
+  # flake.homepage.services.grafana = {
+  #   category = "Monitoring";
+  #   name = "Grafana";
+  #   description = "Metrics & Dashboards";
+  #   icon = "grafana.png";
+  #   href = "http://localhost:${toString grafanaHostPort}";
+  #   pingPort = grafanaHostPort;
+  # };
+  #
+  # flake.homepage.services.loki = {
+  #   category = "Monitoring";
+  #   name = "Loki";
+  #   description = "Log Aggregation";
+  #   icon = "grafana.png";
+  #   href = "http://localhost:${toString lokiHostPort}";
+  #   pingPort = lokiHostPort;
+  # };
 
   flake.modules.nixos.homelab-monitoring = {
     users.users.${monitoringUser} = {
