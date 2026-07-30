@@ -34,7 +34,7 @@ in
     pingPort = beszelHubPort;
   };
 
-  flake.modules.nixos.homelab-beszel = {
+  flake.modules.nixos.homelab-beszel = hmArgs: {
     users.users.${beszelUser} = {
       uid = beszelUid;
       isSystemUser = true;
@@ -182,7 +182,7 @@ in
         schedule = "weekly";
         retention = "extended";
         providers = [ "koofr" ];
-        encryptionKey = config.services.onepassword-secrets.secretPaths.beszelBackupEncryptionKey;
+        encryptionKey = hmArgs.config.services.onepassword-secrets.secretPaths.beszelBackupEncryptionKey;
       };
     };
 
