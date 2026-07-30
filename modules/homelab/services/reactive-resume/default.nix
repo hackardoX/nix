@@ -22,7 +22,7 @@ let
   reactiveResumeAuthSecretFile = "/run/secrets/reactive-resume/auth_secret";
 
   reactiveResumeAppUrl = "https://${hosts.rxresume}";
-  reactiveResumeOidcClientId = config.flake.meta.oidc-clients.reactive-resume.clientId or "";
+  reactiveResumeOidcClientId = config.flake.meta.oidc-clients.reactive-resume.clientId;
   reactiveResumeOidcSecretFile = "/run/secrets/reactive-resume/oidc_client_secret";
 in
 {
