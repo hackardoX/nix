@@ -29,20 +29,8 @@ in
     description = "Recipe Management";
     icon = "tandoor-recipes";
     href = "http://localhost:${toString reverseProxyPort}";
-    widget = {
-      type = "beszel";
-      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
-      version = 2;
+    widget = config.flake.lib.mkBeszelWidget {
       systemId = "Tandoor";
-      fields = [
-        "name"
-        "status"
-        "updated"
-        "cpu"
-        "memory"
-        "disk"
-        "network"
-      ];
     };
     container = "tandoor";
     dockerServer = "tandoor";
@@ -99,20 +87,25 @@ in
     ];
 
     home-manager.users.${tandoorUser} = {
-      services.rclone.remotes = [ "koofr" ];
-      home.username = tandoorUser;
-      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
         podman-secrets
-        homelab-tandoor
         homelab-beszel-agent
+        homelab-docker-socket-proxy
+        homelab-tandoor
       ];
+      home.username = tandoorUser;
+      home.stateVersion = "26.05";
       services.homelab-beszel-agent = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.beszel-agent-tandoor;
       };
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+      };
+      services.rclone.remotes = [ "koofr" ];
     };
 
     services.onepassword-secrets.secrets = {

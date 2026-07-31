@@ -1,64 +1,36 @@
-{ lib, ... }:
+{ config, ... }:
 let
-  # Convert structured Homepage configuration to Docker labels
+  beszelHubPort = toString config.flake.meta.reverse-proxy.ports.beszel;
+  defaultBeszelUrl = "http://localhost:${beszelHubPort}";
+
+  # Build a Beszel single-system widget for Homepage.
+  # Default fields metrics enabled:
+  #   cpu, memory, disk, network
   # Usage:
-  #   labels = config.flake.lib.mkHomepageLabels {
-  #     category = "Media";
-  #     name = "Immich";
-  #     description = "Photo & Video Management";
-  #     icon = "immich.png";
-  #     href = "http://localhost:9000";
-  #     widget = {
-  #       type = "immich";
-  #       url = "http://localhost:9000";
-  #     };
+  #   widget = config.flake.lib.mkBeszelWidget {
+  #     systemId = "My System";
+  #     fields = [ "cpu" "memory" "disk" ];   # optional
   #   };
-  mkHomepageLabels =
+  mkBeszelWidget =
     {
-      # Required fields
-      category,
-      name,
-      # Optional fields
-      description ? null,
-      icon ? null,
-      href ? null,
-      widget ? null,
-      ping ? null,
-      siteMonitor ? null,
-      showStats ? null,
-      statusStyle ? null,
+      systemId,
+      fields ? [
+        "cpu"
+        "memory"
+        "disk"
+        "network"
+      ],
     }:
-    let
-      baseLabels = {
-        "homepage.group" = category;
-        "homepage.name" = name;
-      };
-
-      optionalLabels =
-        (lib.optionalAttrs (description != null) { "homepage.description" = description; })
-        // (lib.optionalAttrs (icon != null) { "homepage.icon" = icon; })
-        // (lib.optionalAttrs (href != null) { "homepage.href" = href; })
-        // (lib.optionalAttrs (ping != null) { "homepage.ping" = ping; })
-        // (lib.optionalAttrs (siteMonitor != null) { "homepage.siteMonitor" = siteMonitor; })
-        // (lib.optionalAttrs (showStats != null) { "homepage.showStats" = lib.boolToString showStats; })
-        // (lib.optionalAttrs (statusStyle != null) { "homepage.statusStyle" = statusStyle; });
-
-      widgetLabels =
-        if widget == null then
-          { }
-        else
-          lib.concatMapAttrs (
-            key: value:
-            let
-              labelValue = if builtins.isBool value then lib.boolToString value else toString value;
-            in
-            {
-              "homepage.widget.${key}" = labelValue;
-            }
-          ) widget;
-    in
-    baseLabels // optionalLabels // widgetLabels;
+    {
+      type = "beszel";
+      url = defaultBeszelUrl;
+      version = 2;
+      inherit
+        systemId
+        fields
+        ;
+    };
 in
 {
-  flake.lib.mkHomepageLabels = mkHomepageLabels;
+  flake.lib.mkBeszelWidget = mkBeszelWidget;
 }

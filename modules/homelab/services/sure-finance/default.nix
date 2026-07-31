@@ -38,20 +38,8 @@ in
     dockerServer = "sure-finance";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
     pingPort = reverseProxyPort;
-    widget = {
-      type = "beszel";
-      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
-      version = 2;
+    widget = config.flake.lib.mkBeszelWidget {
       systemId = "Sure Finance";
-      fields = [
-        "name"
-        "status"
-        "updated"
-        "cpu"
-        "memory"
-        "disk"
-        "network"
-      ];
     };
   };
 

@@ -44,20 +44,8 @@ in
     dockerServer = "job-ops";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
     pingPort = reverseProxyPort;
-    widget = {
-      type = "beszel";
-      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
-      version = 2;
+    widget = config.flake.lib.mkBeszelWidget {
       systemId = "Job Ops";
-      fields = [
-        "name"
-        "status"
-        "updated"
-        "cpu"
-        "memory"
-        "disk"
-        "network"
-      ];
     };
   };
 

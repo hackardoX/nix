@@ -35,20 +35,8 @@ in
     icon = "sh-immich-light.webp";
     href = "http://localhost:${toString reverseProxyPort}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
-    widget = {
-      type = "beszel";
-      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
-      version = 2;
+    widget = config.flake.lib.mkBeszelWidget {
       systemId = "Immich";
-      fields = [
-        "name"
-        "status"
-        "updated"
-        "cpu"
-        "memory"
-        "disk"
-        "network"
-      ];
     };
     container = "immich-server";
     dockerServer = "immich";

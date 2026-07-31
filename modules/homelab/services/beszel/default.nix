@@ -31,20 +31,8 @@ in
     href = "https://${hosts.monitoring}";
     siteMonitor = "http://localhost:${toString beszelHubPort}";
     pingPort = beszelHubPort;
-    widget = {
-      type = "beszel";
-      url = "http://localhost:${toString beszelHubPort}";
-      version = 2;
+    widget = config.flake.lib.mkBeszelWidget {
       systemId = "HomeLab";
-      fields = [
-        "name"
-        "status"
-        "updated"
-        "cpu"
-        "memory"
-        "disk"
-        "network"
-      ];
     };
   };
 
