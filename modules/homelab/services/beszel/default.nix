@@ -109,6 +109,17 @@ in
       home.stateVersion = "26.05";
     };
 
+    systemd.services."home-manager-${beszelUser}" = {
+      after = [
+        "user@${toString beszelUid}.service"
+        "opnix-secrets.service"
+      ];
+      wants = [
+        "user@${toString beszelUid}.service"
+        "opnix-secrets.service"
+      ];
+    };
+
     boot.initrd.impermanence.persist.directories = [
       {
         directory = beszelAppDir;
