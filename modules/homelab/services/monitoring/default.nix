@@ -95,17 +95,6 @@ in
       "d ${monitoringAppDir}/containers 0750 ${monitoringUser} ${monitoringGroup} -"
     ];
 
-    systemd.services."home-manager-${monitoringUser}" = {
-      after = [
-        "user@${toString monitoringUid}.service"
-        "opnix-secrets.service"
-      ];
-      wants = [
-        "user@${toString monitoringUid}.service"
-        "opnix-secrets.service"
-      ];
-    };
-
     boot.initrd.impermanence.persist.directories = [
       {
         directory = monitoringAppDir;
