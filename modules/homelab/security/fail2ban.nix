@@ -10,92 +10,129 @@ in
 
   flake.modules.nixos.homelab-security =
     nixosArgs@{ pkgs, ... }:
+    let
+      cfg = nixosArgs.config.homelab.fail2ban;
+    in
     {
-      users.users.${fail2ban.owner} = {
-        isSystemUser = true;
-        inherit (fail2ban) group;
-      };
-
-      users.groups.${fail2ban.group} = { };
-
-      environment.etc."fail2ban/action.d/sendmail-common.local".text = ''
-        [Init]
-        mailcmd = sendmail --account=fail2ban -f "<sender>" "<dest>"
-      '';
-
-      programs.msmtp = {
-        enable = true;
-        setSendmail = true;
-        defaults = {
-          port = 587;
-          auth = "plain";
-          tls = "on";
-          tls_starttls = "on";
-        };
-        accounts.fail2ban = {
-          host = "smtp.resend.com";
-          user = "resend";
-          passwordeval = "cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.resendApiKey}";
-          from = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
+      options.homelab.fail2ban = {
+        notificationMethod = lib.mkOption {
+          type = lib.types.enum [
+            "email"
+            "ntfy"
+          ];
+          default = "email";
+          description = "How fail2ban sends ban/unban alerts";
         };
       };
 
-      services = {
-        fail2ban = {
+      config = {
+        users.users.${fail2ban.owner} = {
+          isSystemUser = true;
+          inherit (fail2ban) group;
+        };
+
+        users.groups.${fail2ban.group} = { };
+
+        environment.etc."fail2ban/action.d/sendmail-common.local".text = ''
+          [Init]
+          mailcmd = sendmail --account=fail2ban -f "<sender>" "<dest>"
+        '';
+
+        environment.etc."fail2ban/action.d/ntfy.conf".text = ''
+          [Definition]
+          norestored = true
+
+          ntfy_topic = homelab-alerts
+          ntfy_url = https://ntfy.sh
+          ntfy_token = ${nixosArgs.config.services.onepassword-secrets.secretPaths.fail2banNtfyToken}
+
+          actionstart = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for start"
+          actionstop = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for stop"
+          actioncheck =
+          actionban = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: high" -H "Tags: warning,skull" -d "Banned <ip> in <name> after <failures> failed attempts" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for ban <ip>"
+          actionunban = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: default" -H "Tags: white_check_mark" -d "Unbanned <ip> in <name>" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for unban <ip>"
+        '';
+
+        programs.msmtp = {
           enable = true;
-          maxretry = 3;
-          bantime = "24h";
-          daemonSettings.Definition.dbfile = lib.mkForce "/var/lib/data/fail2ban/fail2ban.sqlite3";
-          extraPackages = [ pkgs.msmtp ];
-          jails = {
-            ssh-iptables.settings = {
-              enabled = true;
-              port = "ssh";
-              filter = "sshd";
-              logpath = "/var/log/auth.log";
-              maxretry = 3;
-              bantime = "1w";
-              sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
-              destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
-              action = ''
-                %(action_mwl)s
-              '';
-            };
-            caddy-auth = {
-              filter = {
-                Definition = {
-                  failregex = ''^<HOST>.*"(GET|POST|OPTION).*" (4[0-9][0-9])[ \d]*$'';
-                  ignoreregex = "";
-                };
-              };
-              settings = {
+          setSendmail = true;
+          defaults = {
+            port = 587;
+            auth = "plain";
+            tls = "on";
+            tls_starttls = "on";
+          };
+          accounts.fail2ban = {
+            host = "smtp.resend.com";
+            user = "resend";
+            passwordeval = "cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.resendApiKey}";
+            from = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
+          };
+        };
+
+        services = {
+          fail2ban = {
+            enable = true;
+            maxretry = 3;
+            bantime = "24h";
+            daemonSettings.Definition.dbfile = lib.mkForce "/var/lib/data/fail2ban/fail2ban.sqlite3";
+            extraPackages = [
+              pkgs.msmtp
+              pkgs.curl
+            ];
+            jails = {
+              ssh-iptables.settings = {
                 enabled = true;
-                port = "http,https";
-                logpath = "/var/lib/caddy/access.log";
-                maxretry = 5;
-                findtime = "10m";
-                bantime = "1h";
+                port = "ssh";
+                filter = "sshd";
+                logpath = "/var/log/auth.log";
+                maxretry = 3;
+                bantime = "1w";
                 sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
                 destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
-                action = ''
-                  %(action_mwl)s
-                '';
+                action = if cfg.notificationMethod == "email" then "%(action_mwl)s" else "ntfy";
               };
+              caddy-auth = {
+                filter = {
+                  Definition = {
+                    failregex = ''^<HOST>.*"(GET|POST|OPTION).*" (4[0-9][0-9])[ \d]*$'';
+                    ignoreregex = "";
+                  };
+                };
+                settings = {
+                  enabled = true;
+                  port = "http,https";
+                  logpath = "/var/lib/caddy/access.log";
+                  maxretry = 5;
+                  findtime = "10m";
+                  bantime = "1h";
+                  sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
+                  destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
+                  action = if cfg.notificationMethod == "email" then "%(action_mwl)s" else "ntfy";
+                };
+              };
+            };
+          };
+
+          onepassword-secrets.secrets = {
+            resendApiKey = {
+              path = "/run/secrets/resend_api_key";
+              reference = "op://HomeLab/Resend/Fail2ban/api key";
+              inherit (fail2ban) owner;
+              inherit (fail2ban) group;
+              services = [ "fail2ban" ];
+            };
+            fail2banNtfyToken = {
+              path = "/run/secrets/fail2ban_ntfy_token";
+              reference = "op://Homelab/Alerting/ntfy token";
+              inherit (fail2ban) owner;
+              inherit (fail2ban) group;
+              services = [ "fail2ban" ];
             };
           };
         };
 
-        onepassword-secrets.secrets = {
-          resendApiKey = {
-            path = "/run/secrets/resend_api_key";
-            reference = "op://HomeLab/Resend/Fail2ban/api key";
-            inherit (fail2ban) owner;
-            inherit (fail2ban) group;
-            services = [ "fail2ban" ];
-          };
-        };
+        systemd.services.fail2ban.serviceConfig.StateDirectory = lib.mkForce "data/fail2ban";
       };
-
-      systemd.services.fail2ban.serviceConfig.StateDirectory = lib.mkForce "data/fail2ban";
     };
 }
