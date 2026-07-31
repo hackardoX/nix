@@ -88,7 +88,7 @@ let
 in
 {
   flake.modules.nixos.homelab-homepage =
-    { pkgs, ... }:
+    nixosArgs@{ pkgs, ... }:
     let
       homepageServicesTemplate = pkgs.writeText "services-template.json" (
         builtins.toJSON homepageServices
@@ -147,8 +147,8 @@ in
           set -e
           mkdir -p ${homepageAppDir}/config
 
-          BESZEL_USER="$(cat /run/secrets/beszel/email 2>/dev/null || true)"
-          BESZEL_PASS="$(cat /run/secrets/beszel/password 2>/dev/null || true)"
+          BESZEL_USER="$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelEmail} 2>/dev/null || true)"
+          BESZEL_PASS="$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelPassword} 2>/dev/null || true)"
 
           ${pkgs.jq}/bin/jq \
             --arg beszel_user "$BESZEL_USER" \

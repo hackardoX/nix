@@ -17,10 +17,7 @@ let
   tandoorPort = 8080;
   tandoorDbName = "tandoor";
   tandoorDbUser = "tandoor";
-  tandoorDbPasswordFile = "/run/secrets/tandoor/db_password";
-  tandoorSecretKeyFile = "/run/secrets/tandoor/secret_key";
-  tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId or "";
-  tandoorOidcSecretFile = "/run/secrets/tandoor/oidc_client_secret";
+  tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
 in
 {
   flake.homepage.services.tandoor = {
@@ -145,15 +142,19 @@ in
         TZ = osConfig.time.timeZone;
       };
 
-      oidcEnv = lib.optionalAttrs (tandoorOidcSecretFile != null) {
-        OIDC_ENDPOINT = "https://${hosts.auth}";
-        OIDC_CLIENT_ID = tandoorOidcClientId;
-        OIDC_SCOPES = "openid,profile,email";
-      };
+      oidcEnv =
+        lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? tandoorOidcClientSecret)
+          {
+            OIDC_ENDPOINT = "https://${hosts.auth}";
+            OIDC_CLIENT_ID = tandoorOidcClientId;
+            OIDC_SCOPES = "openid,profile,email";
+          };
 
-      oidcSecrets = lib.optionalAttrs (tandoorOidcSecretFile != null) {
-        OIDC_CLIENT_SECRET = tandoorOidcSecretFile;
-      };
+      oidcSecrets =
+        lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? tandoorOidcClientSecret)
+          {
+            OIDC_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.tandoorOidcClientSecret;
+          };
     in
     {
       config = {
@@ -191,7 +192,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = tandoorDbPasswordFile;
+            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
           };
 
           extraConfig = {
@@ -222,8 +223,8 @@ in
           environment = sharedEnv // oidcEnv;
 
           secrets = {
-            SECRET_KEY = tandoorSecretKeyFile;
-            POSTGRES_PASSWORD = tandoorDbPasswordFile;
+            SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
+            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
           }
           // oidcSecrets;
 

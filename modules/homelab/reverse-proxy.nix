@@ -96,7 +96,7 @@ in
           };
 
           globalConfig = ''
-            acme_dns cloudflare {file./run/secrets/caddy/cloudflare_api_token}
+            acme_dns cloudflare {file.${nixosArgs.config.services.onepassword-secrets.secretPaths.cloudflareApiToken}}
 
             log access-log {
               include http.log.access

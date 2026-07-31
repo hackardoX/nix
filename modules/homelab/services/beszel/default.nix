@@ -113,7 +113,7 @@ in
       enable = true;
       smartmon.enable = true;
       environment = {
-        KEY_FILE = "/run/secrets/beszel/ssh_public_key";
+        KEY_FILE = nixosArgs.config.services.onepassword-secrets.secretPaths.beszelSshPublicKey;
         LISTEN = "127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.beszel-agent-homelab}";
       };
     };
