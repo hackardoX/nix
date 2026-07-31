@@ -71,17 +71,6 @@ in
       "d ${immichAppDir}/containers 0750 ${immichUser} ${immichGroup} -"
     ];
 
-    systemd.services."home-manager-${immichUser}" = {
-      after = [
-        "user@${toString immichUid}.service"
-        "opnix-secrets.service"
-      ];
-      wants = [
-        "user@${toString immichUid}.service"
-        "opnix-secrets.service"
-      ];
-    };
-
     boot.initrd.impermanence.persist.directories = [
       {
         directory = immichAppDir;

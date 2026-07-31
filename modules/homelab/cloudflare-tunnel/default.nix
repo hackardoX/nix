@@ -49,6 +49,7 @@
       systemd.services."cloudflared-tunnel-${tunnelUuid}" = {
         after = [ "opnix-secrets.service" ];
         wants = [ "opnix-secrets.service" ];
+        overrideStrategy = "asDropin";
       };
     };
 }
