@@ -189,6 +189,7 @@ in
         OIDC_CLIENT_ID = sureFinanceOidcClientId;
         OIDC_ISSUER = "https://${hosts.auth}";
         OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
+        OIDC_BUTTON_LABEL = "Sign in with Authelia";
       };
 
       sharedSecrets = {

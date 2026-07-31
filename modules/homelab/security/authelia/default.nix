@@ -250,7 +250,11 @@ in
                         client_name: "${config.flake.meta.oidc-clients.sure-finance.clientName}"
                         public: false
                         authorization_policy: "one_factor"
-                        token_endpoint_auth_method: "client_secret_post"
+                        token_endpoint_auth_method: "client_secret_basic"
+                        require_pkce: true
+                        pkce_challenge_method: "S256"
+                        access_token_signed_response_alg: "none"
+                        userinfo_signed_response_alg: "none"
                         client_secret: {{ secret "${hashedSecretsDir}/sure-finance_oidc_secret" | msquote }}
                         redirect_uris:
                           - "https://${hosts.finance}/auth/openid_connect/callback"
