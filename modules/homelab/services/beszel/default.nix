@@ -89,6 +89,7 @@ in
         reference = "op://HomeLab/Beszel SSH Key/public key";
         owner = beszelUser;
         group = beszelGroup;
+        mode = "0644";
       };
       beszelBackupEncryptionKey = {
         path = "/run/secrets/beszel/backup_encryption_key";
