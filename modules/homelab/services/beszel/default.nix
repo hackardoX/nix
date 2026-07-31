@@ -104,14 +104,24 @@ in
         backup
         podman-secrets
         homelab-beszel
-        homelab-beszel-agent
       ];
-      services.homelab-beszel-agent = {
-        enable = true;
-        port = config.flake.meta.reverse-proxy.ports.beszel-agent-homelab;
-      };
       home.username = beszelUser;
       home.stateVersion = "26.05";
+    };
+
+    services.beszel.agent = {
+      enable = true;
+      smartmon.enable = true;
+      environment = {
+        KEY_FILE = "/run/secrets/beszel/ssh_public_key";
+        LISTEN = "127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.beszel-agent-homelab}";
+      };
+    };
+
+    systemd.services.beszel-agent = {
+      after = [ "opnix-secrets.service" ];
+      wants = [ "opnix-secrets.service" ];
+      overrideStrategy = "asDropin";
     };
 
     boot.initrd.impermanence.persist.directories = [

@@ -28,6 +28,7 @@ in
       beszel-agent-tandoor = 2006;
       beszel-agent-immich = 2007;
       beszel-agent-homelab = 2008;
+      beszel-agent-monitoring = 2009;
       homepage = 8000;
       homepage-docker-socket-proxy = 8001;
       immich = 9000;
