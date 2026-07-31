@@ -111,14 +111,13 @@ in
     };
 
     systemd.services."home-manager-${beszelUser}" = {
-      after = [
-        "user@${toString beszelUid}.service"
-        "opnix-secrets.service"
-      ];
-      wants = [
-        "user@${toString beszelUid}.service"
-        "opnix-secrets.service"
-      ];
+      after = [ "user@${toString beszelUid}.service" ];
+      wants = [ "user@${toString beszelUid}.service" ];
+    };
+
+    systemd.services."user@${toString beszelUid}.service" = {
+      after = [ "opnix-secrets.service" ];
+      wants = [ "opnix-secrets.service" ];
     };
 
     boot.initrd.impermanence.persist.directories = [
@@ -168,7 +167,7 @@ in
           APP_URL = "https://${hosts.monitoring}";
           # Password auth must stay enabled until the admin manually configures Authelia OIDC
           # in the PocketBase Admin UI. After setup, it can optionally be disabled.
-          DISABLE_PASSWORD_AUTH = "false";
+          DISABLE_PASSWORD_AUTH = "true";
           USER_CREATION = "true";
         };
 
