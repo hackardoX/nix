@@ -162,8 +162,8 @@ in
         };
 
         secrets = {
-          USER_EMAIL = osConfig.config.services.onepassword-secrets.secretPaths.beszelEmail;
-          USER_PASSWORD = osConfig.config.services.onepassword-secrets.secretPaths.beszelPassword;
+          USER_EMAIL = osConfig.services.onepassword-secrets.secretPaths.beszelEmail;
+          USER_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.beszelPassword;
         };
 
         volumes = [
