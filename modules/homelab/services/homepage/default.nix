@@ -87,66 +87,110 @@ let
   );
 in
 {
-  flake.modules.nixos.homelab-homepage = { pkgs, ... }: {
-    users.users.${homepageUser} = {
-      uid = homepageUid;
-      isSystemUser = true;
-      group = homepageGroup;
-      shell = pkgs.bash;
-      extraGroups = [
-        "podman"
-        "homelab-users"
+  flake.modules.nixos.homelab-homepage =
+    { pkgs, ... }:
+    let
+      homepageServicesTemplate = pkgs.writeText "services-template.json" (
+        builtins.toJSON homepageServices
+      );
+    in
+    {
+      users.users.${homepageUser} = {
+        uid = homepageUid;
+        isSystemUser = true;
+        group = homepageGroup;
+        shell = pkgs.bash;
+        extraGroups = [
+          "podman"
+          "homelab-users"
+        ];
+        createHome = true;
+        home = "/var/lib/${homepageUser}";
+        autoSubUidGidRange = true;
+        linger = true;
+      };
+
+      users.groups.${homepageGroup} = {
+        gid = homepageGid;
+      };
+
+      home-manager.users.${homepageUser} = {
+        home.username = homepageUser;
+        home.stateVersion = "26.05";
+        imports = with config.flake.modules.homeManager; [
+          homelab-homepage
+          homelab-podman-extension
+        ];
+      };
+
+      systemd.tmpfiles.rules = [
+        "d ${homepageAppDir} 0750 ${homepageUser} ${homepageGroup} -"
+        "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
       ];
-      createHome = true;
-      home = "/var/lib/${homepageUser}";
-      autoSubUidGidRange = true;
-      linger = true;
-    };
 
-    users.groups.${homepageGroup} = {
-      gid = homepageGid;
-    };
+      systemd.services.homepage-generate-config = {
+        description = "Generate Homepage services.yaml with runtime secrets";
+        before = [ "user@${toString homepageUid}.service" ];
+        requiredBy = [ "user@${toString homepageUid}.service" ];
+        after = [ "opnix-secrets.service" ];
+        wants = [ "opnix-secrets.service" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          set -e
+          mkdir -p ${homepageAppDir}/config
 
-    home-manager.users.${homepageUser} = {
-      home.username = homepageUser;
-      home.stateVersion = "26.05";
-      imports = with config.flake.modules.homeManager; [
-        homelab-homepage
-        homelab-podman-extension
-      ];
-    };
+          BESZEL_USER="$(cat /run/secrets/beszel/email 2>/dev/null || true)"
+          BESZEL_PASS="$(cat /run/secrets/beszel/password 2>/dev/null || true)"
 
-    systemd.tmpfiles.rules = [
-      "d ${homepageAppDir} 0750 ${homepageUser} ${homepageGroup} -"
-      "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
-    ];
+          ${pkgs.jq}/bin/jq \
+            --arg beszel_user "$BESZEL_USER" \
+            --arg beszel_pass "$BESZEL_PASS" \
+            'walk(
+              if type == "object" and .widget != null and .widget.type == "beszel" then
+                .widget.username = $beszel_user |
+                .widget.password = $beszel_pass
+              else .
+              end
+            )' \
+            ${homepageServicesTemplate} \
+            > ${homepageAppDir}/config/services.yaml
 
-    systemd.services."home-manager-${homepageUser}" = {
-      after = [
-        "user@${toString homepageUid}.service"
-        "opnix-secrets.service"
-      ];
-      wants = [
-        "user@${toString homepageUid}.service"
-        "opnix-secrets.service"
-      ];
-    };
+          chown ${homepageUser}:${homepageGroup} ${homepageAppDir}/config/services.yaml
+          chmod 640 ${homepageAppDir}/config/services.yaml
+        '';
+      };
 
-    services.caddy.virtualHosts."${domain}" = {
-      extraConfig = ''
-        import reverse_proxy_common
-        redir https://${hosts.homepage}{uri}
-      '';
-    };
+      systemd.services."home-manager-${homepageUser}" = {
+        after = [
+          "user@${toString homepageUid}.service"
+          "opnix-secrets.service"
+          "homepage-generate-config.service"
+        ];
+        wants = [
+          "user@${toString homepageUid}.service"
+          "opnix-secrets.service"
+          "homepage-generate-config.service"
+        ];
+      };
 
-    services.caddy.virtualHosts."${hosts.homepage}" = {
-      extraConfig = ''
-        import auth_protected
-        import reverse_proxy_common
-        reverse_proxy localhost:${toString reverseProxyPort}
-      '';
+      services.caddy.virtualHosts."${domain}" = {
+        extraConfig = ''
+          import reverse_proxy_common
+          redir https://${hosts.homepage}{uri}
+        '';
+      };
+
+      services.caddy.virtualHosts."${hosts.homepage}" = {
+        extraConfig = ''
+          import auth_protected
+          import reverse_proxy_common
+          reverse_proxy localhost:${toString reverseProxyPort}
+        '';
+      };
     };
-  };
 
   flake.modules.homeManager.homelab-homepage = { osConfig, pkgs, ... }: {
     config = {
@@ -165,7 +209,6 @@ in
           "${pkgs.writeText "settings.yaml" (builtins.toJSON homepageSettings)}:/app/config/settings.yaml:ro"
           "${pkgs.writeText "bookmarks.yaml" (builtins.toJSON homepageBookmarks)}:/app/config/bookmarks.yaml:ro"
           "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
-          "${pkgs.writeText "services.yaml" (builtins.toJSON homepageServices)}:/app/config/services.yaml:ro"
           "${pkgs.writeText "docker.yaml" (builtins.toJSON homepageDocker)}:/app/config/docker.yaml:ro"
           "/sys:/sys:ro"
         ];

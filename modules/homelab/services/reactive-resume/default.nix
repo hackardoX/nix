@@ -125,7 +125,7 @@ in
       ];
     };
 
-    systemd.services."user@${toString reactiveResumeUid}.service" = {
+    systemd.services."user@${toString reactiveResumeUid}" = {
       after = [ "opnix-secrets.service" ];
       wants = [ "opnix-secrets.service" ];
     };

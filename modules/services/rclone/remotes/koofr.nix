@@ -13,19 +13,21 @@ in
   flake.modules.nixos.rclone = polyModule;
   flake.modules.darwin.rclone = polyModule;
 
-  flake.modules.homeManager.rclone = hmArgs: {
-    programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {
-      koofr = {
-        config = {
-          type = "koofr";
-          endpoint = "https://app.koofr.net";
-          user = config.flake.meta.users.aaccardo.email;
-        };
+  flake.modules.homeManager.rclone =
+    hmArgs@{ osConfig, ... }:
+    {
+      programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {
+        koofr = {
+          config = {
+            type = "koofr";
+            endpoint = "https://app.koofr.net";
+            user = config.flake.meta.users.aaccardo.email;
+          };
 
-        secrets = {
-          password = "/run/secrets/koofr/password";
+          secrets = {
+            password = osConfig.services.onepassword-secrets.secretPaths.koofrPassword;
+          };
         };
       };
     };
-  };
 }
