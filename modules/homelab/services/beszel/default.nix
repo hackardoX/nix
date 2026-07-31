@@ -27,7 +27,7 @@ in
     category = "Monitoring";
     name = "Beszel";
     description = "Server Monitoring";
-    icon = "beszel.png";
+    icon = "beszel";
     href = "https://${hosts.monitoring}";
     siteMonitor = "http://localhost:${toString beszelHubPort}";
     pingPort = beszelHubPort;

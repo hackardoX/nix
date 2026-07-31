@@ -30,7 +30,7 @@ in
     category = "Productivity";
     name = "Reactive Resume";
     description = "Resume Builder";
-    icon = "sh-reactive-resume-light.webp";
+    icon = "reactive-resume";
     href = "https://${hosts.rxresume}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
     container = "reactive-resume";
