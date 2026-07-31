@@ -21,8 +21,6 @@ let
     beszel-agent-reactive-resume
     beszel-agent-sure-finance
   ];
-
-  beszelEnvFile = "/run/beszel/environment";
 in
 {
   flake.homepage.services.beszel = {
@@ -104,6 +102,7 @@ in
       imports = with config.flake.modules.homeManager; [
         base
         backup
+        podman-secrets
         homelab-beszel
       ];
       home.username = beszelUser;
