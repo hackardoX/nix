@@ -28,7 +28,8 @@ in
     name = "Tandoor Recipes";
     description = "Recipe Management";
     icon = "tandoor-recipes";
-    href = "http://localhost:${toString reverseProxyPort}";
+    href = "https://${hosts.recipes}";
+    siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
     widget = config.flake.lib.mkBeszelWidget {
       systemId = "Tandoor";
     };
@@ -65,17 +66,6 @@ in
       "d ${tandoorDataDir}/postgres 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/containers 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
-
-    systemd.services."home-manager-${tandoorUser}" = {
-      after = [
-        "user@${toString tandoorUid}.service"
-        "opnix-secrets.service"
-      ];
-      wants = [
-        "user@${toString tandoorUid}.service"
-        "opnix-secrets.service"
-      ];
-    };
 
     boot.initrd.impermanence.persist.directories = [
       {
@@ -147,7 +137,7 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        ALLOWED_HOSTS = "*";
+        ALLOWED_HOSTS = hosts.recipes;
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
         POSTGRES_DB = tandoorDbName;
