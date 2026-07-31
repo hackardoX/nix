@@ -13,7 +13,7 @@
       homelab-security
       homelab-ssh-watchdog
       homelab-sure-finance
-      # homelab-tandoor
+      homelab-tandoor
       rclone
     ];
 
