@@ -125,6 +125,11 @@ in
       ];
     };
 
+    systemd.services."user@${toString reactiveResumeUid}.service" = {
+      after = [ "opnix-secrets.service" ];
+      wants = [ "opnix-secrets.service" ];
+    };
+
     boot.initrd.impermanence.persist.directories = [
       {
         directory = reactiveResumeAppDir;
