@@ -59,31 +59,6 @@ in
       "d ${beszelContainerDir} 0750 ${beszelUser} ${beszelGroup} -"
     ];
 
-    # One-shot service to assemble environment file from 1Password secrets.
-    # Runs before the beszel user session starts so the container can mount it.
-    systemd.services.beszel-setup-env = {
-      description = "Assemble Beszel Hub environment file";
-      before = [ "user@${toString beszelUid}.service" ];
-      requiredBy = [ "user@${toString beszelUid}.service" ];
-      after = [ "opnix-secrets.service" ];
-      wants = [ "opnix-secrets.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        User = "root";
-      };
-      script = ''
-        set -e
-        mkdir -p /run/beszel
-        {
-          echo "USER_EMAIL=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelEmail})"
-          echo "USER_PASSWORD=$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelPassword})"
-        } > ${beszelEnvFile}
-        chown ${beszelUser}:${beszelGroup} ${beszelEnvFile}
-        chmod 400 ${beszelEnvFile}
-      '';
-    };
-
     services.caddy.virtualHosts."${hosts.monitoring}" = {
       extraConfig = ''
         import auth_protected
@@ -186,6 +161,11 @@ in
           USER_CREATION = "true";
         };
 
+        secrets = {
+          USER_EMAIL = osConfig.config.services.onepassword-secrets.secretPaths.beszelEmail;
+          USER_PASSWORD = osConfig.config.services.onepassword-secrets.secretPaths.beszelPassword;
+        };
+
         volumes = [
           "${beszelAppDir}:/beszel_data"
           "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPrivateKey}:/beszel_data/id_ed25519:ro"
@@ -193,15 +173,7 @@ in
         ];
 
         extraConfig = {
-          Unit = {
-            After = [
-              "beszel-setup-env.service"
-              "network-online.target"
-            ];
-            Wants = [ "beszel-setup-env.service" ];
-          };
           Container = {
-            EnvironmentFile = beszelEnvFile;
             LogDriver = "journald";
             NoNewPrivileges = true;
           };

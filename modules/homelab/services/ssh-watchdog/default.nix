@@ -1,5 +1,3 @@
-{ config, ... }:
-
 {
   flake.modules.nixos.homelab-ssh-watchdog = { pkgs, ... }: {
     systemd.services.ssh-watchdog = {
