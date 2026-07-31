@@ -151,6 +151,7 @@ in
     systemd.services."user@${toString beszelUid}" = {
       after = [ "opnix-secrets.service" ];
       wants = [ "opnix-secrets.service" ];
+      overrideStrategy = "asDropin";
     };
 
     boot.initrd.impermanence.persist.directories = [

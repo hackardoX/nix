@@ -115,19 +115,14 @@ in
     ];
 
     systemd.services."home-manager-${reactiveResumeUser}" = {
-      after = [
-        "user@${toString reactiveResumeUid}.service"
-        "opnix-secrets.service"
-      ];
-      wants = [
-        "user@${toString reactiveResumeUid}.service"
-        "opnix-secrets.service"
-      ];
+      after = [ "opnix-secrets.service" ];
+      wants = [ "opnix-secrets.service" ];
     };
 
     systemd.services."user@${toString reactiveResumeUid}" = {
       after = [ "opnix-secrets.service" ];
       wants = [ "opnix-secrets.service" ];
+      overrideStrategy = "asDropin";
     };
 
     boot.initrd.impermanence.persist.directories = [
