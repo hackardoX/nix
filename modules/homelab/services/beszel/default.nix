@@ -35,25 +35,7 @@ in
       type = "beszel";
       url = "http://localhost:${toString beszelHubPort}";
       version = 2;
-      fields = [
-        "systems"
-        "up"
-      ];
-    };
-  };
-
-  # Beszel single-system widget — set systemId to the "nice name" from the Beszel UI.
-  flake.homepage.services.beszel-single = {
-    category = "Monitoring";
-    name = "Beszel System";
-    description = "Beszel Single System Monitoring";
-    icon = "beszel.png";
-    href = "https://${hosts.monitoring}";
-    widget = {
-      type = "beszel";
-      url = "http://localhost:${toString beszelHubPort}";
-      version = 2;
-      systemId = "HomeLab"; # TODO: change to your system's Beszel "nice name" or PocketBase ID
+      systemId = "HomeLab";
       fields = [
         "name"
         "status"
@@ -141,17 +123,6 @@ in
       ];
       home.username = beszelUser;
       home.stateVersion = "26.05";
-    };
-
-    systemd.services."home-manager-${beszelUser}" = {
-      after = [ "user@${toString beszelUid}.service" ];
-      wants = [ "user@${toString beszelUid}.service" ];
-    };
-
-    systemd.services."user@${toString beszelUid}" = {
-      after = [ "opnix-secrets.service" ];
-      wants = [ "opnix-secrets.service" ];
-      overrideStrategy = "asDropin";
     };
 
     boot.initrd.impermanence.persist.directories = [

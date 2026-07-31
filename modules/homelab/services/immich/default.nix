@@ -36,8 +36,19 @@ in
     href = "http://localhost:${toString reverseProxyPort}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
     widget = {
-      type = "immich";
-      url = "http://localhost:${toString reverseProxyPort}";
+      type = "beszel";
+      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
+      version = 2;
+      systemId = "Immich";
+      fields = [
+        "name"
+        "status"
+        "updated"
+        "cpu"
+        "memory"
+        "disk"
+        "network"
+      ];
     };
     container = "immich-server";
     dockerServer = "immich";
@@ -101,7 +112,12 @@ in
         backup
         homelab-immich
         podman-secrets
+        homelab-beszel-agent
       ];
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-immich;
+      };
     };
 
     services.onepassword-secrets.secrets = {

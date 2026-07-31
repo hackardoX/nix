@@ -30,8 +30,19 @@ in
     icon = "tandoor-recipes";
     href = "http://localhost:${toString reverseProxyPort}";
     widget = {
-      type = "tandoor";
-      url = "http://localhost:${toString reverseProxyPort}";
+      type = "beszel";
+      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
+      version = 2;
+      systemId = "Tandoor";
+      fields = [
+        "name"
+        "status"
+        "updated"
+        "cpu"
+        "memory"
+        "disk"
+        "network"
+      ];
     };
     container = "tandoor";
     dockerServer = "tandoor";
@@ -96,7 +107,12 @@ in
         backup
         podman-secrets
         homelab-tandoor
+        homelab-beszel-agent
       ];
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-tandoor;
+      };
     };
 
     services.onepassword-secrets.secrets = {

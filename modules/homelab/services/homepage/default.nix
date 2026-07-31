@@ -120,7 +120,12 @@ in
         imports = with config.flake.modules.homeManager; [
           homelab-homepage
           homelab-podman-extension
+          homelab-beszel-agent
         ];
+        services.homelab-beszel-agent = {
+          enable = true;
+          port = config.flake.meta.reverse-proxy.ports.beszel-agent-homepage;
+        };
       };
 
       systemd.tmpfiles.rules = [

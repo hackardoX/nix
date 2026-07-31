@@ -38,6 +38,21 @@ in
     dockerServer = "sure-finance";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
     pingPort = reverseProxyPort;
+    widget = {
+      type = "beszel";
+      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
+      version = 2;
+      systemId = "Sure Finance";
+      fields = [
+        "name"
+        "status"
+        "updated"
+        "cpu"
+        "memory"
+        "disk"
+        "network"
+      ];
+    };
   };
 
   flake.modules.nixos.homelab-sure-finance = {
@@ -94,6 +109,7 @@ in
         backup
         podman-secrets
         homelab-docker-socket-proxy
+        homelab-beszel-agent
         homelab-sure-finance
       ];
       home.username = sureFinanceUser;
@@ -101,6 +117,10 @@ in
       services.homelab-docker-socket-proxy = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.sure-finance-docker-socket-proxy;
+      };
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-sure-finance;
       };
       services.rclone.remotes = [ "koofr" ];
     };

@@ -37,6 +37,21 @@ in
     dockerServer = "reactive-resume";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
     pingPort = reverseProxyPort;
+    widget = {
+      type = "beszel";
+      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
+      version = 2;
+      systemId = "Reactive Resume";
+      fields = [
+        "name"
+        "status"
+        "updated"
+        "cpu"
+        "memory"
+        "disk"
+        "network"
+      ];
+    };
   };
 
   flake.modules.nixos.homelab-reactive-resume = {

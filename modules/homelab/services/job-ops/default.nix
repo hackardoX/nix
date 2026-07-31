@@ -44,6 +44,21 @@ in
     dockerServer = "job-ops";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
     pingPort = reverseProxyPort;
+    widget = {
+      type = "beszel";
+      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.beszel}";
+      version = 2;
+      systemId = "Job Ops";
+      fields = [
+        "name"
+        "status"
+        "updated"
+        "cpu"
+        "memory"
+        "disk"
+        "network"
+      ];
+    };
   };
 
   flake.modules.nixos.homelab-job-ops = {
@@ -86,6 +101,7 @@ in
         backup
         podman-secrets
         homelab-docker-socket-proxy
+        homelab-beszel-agent
         homelab-job-ops
       ];
       home.username = jobOpsUser;
@@ -95,7 +111,10 @@ in
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
       };
-
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-job-ops;
+      };
     };
 
     services.onepassword-secrets.secrets = {

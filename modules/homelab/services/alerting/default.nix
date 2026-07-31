@@ -60,7 +60,12 @@ in
         backup
         homelab-podman-extension
         podman-secrets
+        homelab-beszel-agent
       ];
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-alerting;
+      };
     };
 
     services.onepassword-secrets.secrets = {
