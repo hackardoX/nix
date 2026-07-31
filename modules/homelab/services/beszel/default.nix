@@ -14,13 +14,9 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   beszelHubPort = config.flake.meta.reverse-proxy.ports.beszel;
 
-  agentPorts = with config.flake.meta.reverse-proxy.ports; [
-    beszel-agent-alerting
-    beszel-agent-homepage
-    beszel-agent-job-ops
-    beszel-agent-reactive-resume
-    beszel-agent-sure-finance
-  ];
+  agentPorts = lib.mapAttrsToList (_: v: v) (
+    lib.filterAttrs (n: _: lib.hasPrefix "beszel-agent-" n) config.flake.meta.reverse-proxy.ports
+  );
 in
 {
   flake.homepage.services.beszel = {
@@ -108,7 +104,12 @@ in
         backup
         podman-secrets
         homelab-beszel
+        homelab-beszel-agent
       ];
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-homelab;
+      };
       home.username = beszelUser;
       home.stateVersion = "26.05";
     };
