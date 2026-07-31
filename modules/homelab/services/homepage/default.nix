@@ -168,19 +168,6 @@ in
         '';
       };
 
-      systemd.services."home-manager-${homepageUser}" = {
-        after = [
-          "user@${toString homepageUid}.service"
-          "opnix-secrets.service"
-          "homepage-generate-config.service"
-        ];
-        wants = [
-          "user@${toString homepageUid}.service"
-          "opnix-secrets.service"
-          "homepage-generate-config.service"
-        ];
-      };
-
       services.caddy.virtualHosts."${domain}" = {
         extraConfig = ''
           import reverse_proxy_common
