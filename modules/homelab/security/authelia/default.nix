@@ -87,6 +87,16 @@ in
               log.level = "info";
               server = {
                 address = "tcp://127.0.0.1:${toString autheliaPort}";
+                endpoints = {
+                  authz = {
+                    forward-auth = {
+                      implementation = "ForwardAuth";
+                      authn_strategies = [
+                        { name = "CookieSession"; }
+                      ];
+                    };
+                  };
+                };
               };
               totp = {
                 issuer = domain;
