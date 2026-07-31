@@ -35,7 +35,7 @@ in
     };
     container = "tandoor";
     dockerServer = "tandoor";
-    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
     pingPort = reverseProxyPort;
   };
 
@@ -232,7 +232,13 @@ in
               After = [ "podman-tandoor-db.service" ];
               Requires = [ "podman-tandoor-db.service" ];
             };
-            Container.NoNewPrivileges = true;
+            Container = {
+              NoNewPrivileges = true;
+              HealthCmd = "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health/')\"";
+              HealthInterval = "30s";
+              HealthTimeout = "10s";
+              HealthRetries = 3;
+            };
           };
         };
       };
