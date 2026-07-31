@@ -25,6 +25,8 @@ in
       beszel-agent-job-ops = 2003;
       beszel-agent-reactive-resume = 2004;
       beszel-agent-sure-finance = 2005;
+      beszel-agent-tandoor = 2006;
+      beszel-agent-immich = 2007;
       homepage = 8000;
       homepage-docker-socket-proxy = 8001;
       immich = 9000;
