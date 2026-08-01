@@ -1,6 +1,6 @@
 { inputs, lib, ... }:
 let
-  isFirstInitialization = false;
+  isFirstInitialization = true;
 in
 {
   flake.modules.darwin.base = darwinArgs: {
@@ -11,7 +11,10 @@ in
     imports = [ inputs.nix-rosetta-builder.darwinModules.default ];
 
     config = {
-      nix.linux-builder.enable = darwinArgs.config.linux-builder.enable && isFirstInitialization;
+      nix.linux-builder = {
+        enable = darwinArgs.config.linux-builder.enable && isFirstInitialization;
+        ephemeral = true;
+      };
       nix-rosetta-builder = {
         enable = darwinArgs.config.linux-builder.enable && !isFirstInitialization;
         onDemand = true;

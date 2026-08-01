@@ -1,4 +1,4 @@
-{
+{ lib, ... }: {
   flake.modules.homeManager.dev =
     { pkgs, ... }:
     {
@@ -21,7 +21,7 @@
           json = [ "prettierd" ];
         };
         formatters = {
-          prettierd.command = "${pkgs.prettierd}/bin/prettierd";
+          prettierd.command = lib.getExe pkgs.prettierd;
         };
       };
     };

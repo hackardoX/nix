@@ -16,11 +16,10 @@ let
       ])
     );
   knownHosts = myReachableHosts |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
-  email = config.flake.meta.users.hackardo.email;
 in
 {
   flake.modules.homeManager.dev =
-    { config, pkgs, ... }:
+    hmArgs@{ pkgs, ... }:
     {
       options.ssh = {
         extraConfig = lib.mkOption {
@@ -65,6 +64,23 @@ in
                   example = 22;
                   default = null;
                 };
+                requestTTY = lib.mkOption {
+                  type = lib.types.nullOr lib.types.bool;
+                  description = "Whether to request a TTY.";
+                  default = null;
+                };
+                remoteCommand = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  description = "Command to execute on the remote host.";
+                  example = "systemd-tty-ask-password-agent";
+                  default = null;
+                };
+                proxyCommand = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  description = "Proxy command to use for this host.";
+                  example = "cloudflared access ssh --hostname %h";
+                  default = null;
+                };
               };
             }
           );
@@ -87,6 +103,8 @@ in
       };
 
       config = {
+        home.packages = [ pkgs.cloudflared ];
+
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
@@ -102,7 +120,7 @@ in
                       name = lib.replaceStrings [ "-" ] [ "" ] host.config.networking.hostName;
                       secretName = lib.toLower (lib.substring 0 1 name) + lib.substring 1 (-1) name + "PublicKey";
                     in
-                    config.programs.onepassword-secrets.secretPaths.${secretName};
+                    hmArgs.config.programs.onepassword-secrets.secretPaths.${secretName};
                   port = builtins.head host.config.services.openssh.ports;
                   user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
                 };
@@ -118,39 +136,32 @@ in
                   forwardAgent = false;
                   hashKnownHosts = true;
                   identitiesOnly = true;
-                  identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
+                  identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/id_ed25519";
                   serverAliveInterval = 60;
                   setEnv = "TERM=xterm-256color";
                 };
               }
             ]
-            |> lib.concat [ config.ssh.extraHosts ]
+            |> lib.concat [ hmArgs.config.ssh.extraHosts ]
             |> lib.mkMerge;
           extraConfig = ''
             StreamLocalBindUnlink yes
           ''
-          + config.ssh.extraConfig;
+          + hmArgs.config.ssh.extraConfig;
         };
 
         home = {
           # shellAliases = lib.mapAttrs' (system: _: {
           #   name = "ssh-${system}";
           #   value = "ssh ${system}";
-          # }) config.hosts;
-
-          file = {
-            ".ssh/allowed_signers".text = ''
-              ${email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H
-            '';
-
-          };
+          # }) hmArgs.config.hosts;
 
           activation.generateKnownHosts = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             PATH=${pkgs.openssh}/bin:$PATH
             known_hosts_file="$HOME/.ssh/known_hosts"
             temp_file="$(mktemp)"
 
-            mkdir -p "$HOME/.ssh"
+            run mkdir -p "$HOME/.ssh"
 
             ${lib.concatMapStringsSep "\n" (hostname: ''
               echo "Scanning ${hostname}..."
@@ -159,13 +170,13 @@ in
 
             if [[ -s "$temp_file" ]]; then
               grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
-              chmod 644 "$known_hosts_file"
+              run chmod 644 "$known_hosts_file"
               echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
             else
               echo "No SSH keys were scanned"
             fi
 
-            rm "$temp_file"
+            run rm "$temp_file"
           '';
         };
       };

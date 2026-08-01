@@ -169,4 +169,5 @@ Configurations that inspired this setup:
   Configuration inspiration
 
 Documentation:
+
 - [dendritic pattern](https://github.com/Doc-Steve/dendritic-design-with-flake-parts)

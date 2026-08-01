@@ -8,10 +8,11 @@
   flake.modules.homeManager.dev =
     hmArgs@{ pkgs, ... }:
     let
-      nixvim = inputs.nixvim.legacyPackages.${pkgs.stdenv.hostPlatform.system}.makeNixvimWithModule {
-        inherit pkgs;
+      system = pkgs.stdenv.hostPlatform.system;
+      nixvim = inputs.nixvim.lib.nixvim.modules.buildNixvimWith {
+        inherit system;
+        modules = [ config.flake.modules.nixvim.dev ];
         extraSpecialArgs.homeConfig = hmArgs.config;
-        module = config.flake.modules.nixvim.dev;
       };
     in
     {

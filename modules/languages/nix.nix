@@ -16,7 +16,7 @@
 
       plugins.conform-nvim.settings = {
         formatters_by_ft.nix = [ "nixfmt" ];
-        formatters.nixfmt.command = "${pkgs.nixfmt}/bin/nixfmt";
+        formatters.nixfmt.command = lib.getExe pkgs.nixfmt;
       };
 
       plugins.lsp.servers = {

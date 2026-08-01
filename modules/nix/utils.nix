@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.laptop =
+  flake.modules.homeManager.base =
     hmArgs@{
       pkgs,
       ...
@@ -13,9 +13,21 @@
           enable = true;
           extraArgs = "--keep-since 1w --keep 2";
         };
-        flake = "${hmArgs.config.home.homeDirectory}/Github/nix";
+        flake =
+          # TODO: make this configurable
+          if pkgs.stdenv.hostPlatform.isDarwin then
+            "${hmArgs.config.home.homeDirectory}/Github/nix"
+          else
+            "${hmArgs.config.home.homeDirectory}/nixos-config";
       };
+    };
 
+  flake.modules.homeManager.shell =
+    hmArgs@{
+      pkgs,
+      ...
+    }:
+    {
       home.shellAliases = {
         # nix specific aliases
         bloat = "nix path-info -Sh /run/current-system";

@@ -1,47 +1,49 @@
 { lib, ... }:
 {
-  flake.modules.darwin.laptop.security = {
-    pam.services = {
-      sudo_local = {
-        reattach = true;
-        touchIdAuth = true;
+  flake.modules.darwin.base = {
+    security = {
+      pam.services = {
+        sudo_local = {
+          reattach = true;
+          touchIdAuth = true;
+        };
       };
+      sudo.extraConfig = "Defaults timestamp_timeout=30";
     };
-
-    # Set sudo timeout to 30 minutes
-    sudo.extraConfig = "Defaults    timestamp_timeout=30";
   };
 
-  flake.modules.nixos.homelab =
-    { config, ... }:
-    {
-      security.sudo.extraRules = lib.mkAfter [
-        {
-          users = [ config.system.primaryUser ];
-          commands = [
-            # {
-            #   command = "/nix/store/*/bin/switch-to-configuration";
-            #   options = [
-            #     "NOPASSWD"
-            #     "SETENV"
-            #   ];
-            # }
-            # {
-            #   command = "/run/current-system/sw/bin/nixos-rebuild";
-            #   options = [
-            #     "NOPASSWD"
-            #     "SETENV"
-            #   ];
-            # }
-            # {
-            #   command = "/run/current-system/sw/bin/systemctl";
-            #   options = [
-            #     "NOPASSWD"
-            #     "SETENV"
-            #   ];
-            # }
-          ];
-        }
-      ];
+  flake.modules.nixos.sudo = {
+    security = {
+      sudo-rs = {
+        enable = true;
+        execWheelOnly = true;
+        extraConfig = ''
+          Defaults timestamp_timeout=0
+          Defaults env_keep += "SSH_AUTH_SOCK"
+        '';
+      };
+      pam = {
+        rssh = {
+          enable = true;
+          settings.auth_key_file = "/etc/ssh/authorized_sudo_keys/$ruser";
+        };
+        services = {
+          sudo = {
+            rssh = true;
+            unixAuth = false;
+          };
+          su = {
+            rssh = true;
+            unixAuth = false;
+            logFailures = lib.mkForce false;
+          };
+          su-l = {
+            rssh = true;
+            unixAuth = false;
+            logFailures = lib.mkForce false;
+          };
+        };
+      };
     };
+  };
 }

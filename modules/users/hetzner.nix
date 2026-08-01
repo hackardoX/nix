@@ -1,50 +1,39 @@
 { config, ... }:
 {
-  flake = {
-    meta.users.hetzner = {
-      email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
-      description = "Hetzner HomeLab";
-      name = "hetzner";
-      uid = 501;
-      authorizedKeys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu"
-      ];
+  flake.meta.users.hetzner = {
+    email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+    description = "Hetzner HomeLab";
+    name = "hetzner";
+    uid = 1001;
+    authorizedKeys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu hetzner"
+    ];
+  };
+
+  flake.modules.nixos.hetzner =
+    { pkgs, ... }:
+    {
+      users.users.${config.flake.meta.users.hetzner.name} = {
+        inherit (config.flake.meta.users.hetzner) description uid;
+        isNormalUser = true;
+        group = config.flake.meta.users.hetzner.name;
+        shell = pkgs.zsh;
+        hashedPassword = "$y$j9T$eFjRG1wVzfAXzCCa2nD05.$.p8T4gfUxacJwCapOI9MuPLDBbL4tmHIrj4SYqvKTO5";
+        extraGroups = [
+          "wheel"
+          "onepassword-secrets"
+        ];
+        openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
+      };
+
+      users.groups.${config.flake.meta.users.hetzner.name} = {
+        gid = config.flake.meta.users.hetzner.uid;
+      };
     };
 
-    modules = {
-      nixos.hetzner =
-        nixosArgs@{ pkgs, ... }:
-        {
-          users = {
-            mutableUsers = false;
-            users = {
-              ${config.flake.meta.users.hetzner.name} = {
-                inherit (config.flake.meta.users.hetzner) description;
-                isNormalUser = true;
-                shell = pkgs.zsh;
-                hashedPasswordFile =
-                  nixosArgs.config.services.onepassword-secrets.secretPaths.hetznerHashedUserPassword;
-                extraGroups = [
-                  "wheel"
-                  "onepassword-secrets"
-                ];
-                openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
-              };
-
-              root.hashedPassword = "!";
-            };
-          };
-          services = {
-            openssh.settings.AllowUsers = [ config.flake.meta.users.hetzner.name ];
-            onepassword-secrets.secrets = {
-              hetznerHashedUserPassword = {
-                path = "/run/secrets/.hetzner_password";
-                reference = "op://Development/Hetzner HomeLab/hashed user password";
-                group = "wheel";
-              };
-            };
-          };
-        };
-    };
+  flake.modules.homeManager.hetzner = {
+    imports = with config.flake.modules.homeManager; [ base ];
+    home.username = config.flake.meta.users.hetzner.name;
+    home.stateVersion = "26.05";
   };
 }

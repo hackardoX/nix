@@ -170,6 +170,27 @@
               }
             }
 
+            move {
+              bind "h" "Left" {
+                MovePane "Left"
+              }
+              bind "j" "Down" {
+                MovePane "Down"
+              }
+              bind "k" "Up" {
+                MovePane "Up"
+              }
+              bind "l" "Right" {
+                MovePane "Right"
+              }
+              bind "n" "Tab" {
+                MovePane
+              }
+              bind "p" {
+                MovePaneBackwards
+              }
+            }
+
             scroll {
               bind "e" {
                 EditScrollback
@@ -308,19 +329,19 @@
               }
             }
 
-            shared_except "normal" "locked" {
+            shared_except "normal" "locked" "entersearch" "renametab" "renamepane" {
               bind "Enter" "Esc" {
                 SwitchToMode "Locked"
               }
             }
 
-            shared_except "pane" "locked" {
+            shared_except "pane" "locked" "entersearch" "renametab" "renamepane" {
               bind "p" {
                 SwitchToMode "Pane"
               }
             }
 
-            shared_except "resize" "locked" {
+            shared_except "resize" "locked" "entersearch" "renametab" "renamepane" {
               bind "r" {
                 SwitchToMode "Resize"
               }
@@ -332,21 +353,27 @@
               }
             }
 
-            shared_except "scroll" "locked" {
+            shared_except "scroll" "locked" "entersearch" "renametab" "renamepane" {
               bind "l" {
                 SwitchToMode "Scroll"
               }
             }
 
-            shared_except "session" "locked" {
+            shared_except "session" "locked" "entersearch" "renametab" "renamepane" {
               bind "x" {
                 SwitchToMode "Session"
               }
             }
 
-            shared_except "tab" "locked" {
+            shared_except "tab" "locked" "entersearch" "renametab" "renamepane" {
               bind "t" {
                 SwitchToMode "Tab"
+              }
+            }
+
+            shared_except "locked" "entersearch" "renametab" "renamepane" {
+              bind "m" {
+                SwitchToMode "Move"
               }
             }
 

@@ -1,11 +1,11 @@
 { config, ... }:
 {
-  flake.modules.homeManager.base = homeManagerArgs: {
+  flake.modules.homeManager.base = hmArgs: {
     programs.git = {
       enable = true;
       settings = {
         user = {
-          inherit (config.flake.meta.users.hackardo) email name;
+          inherit (config.flake.meta.users.aaccardo) email name;
         };
         branch.sort = "-committerdate";
         column.ui = "auto";
@@ -13,7 +13,7 @@
         init.defaultBranch = "main";
         safe = {
           directory = [
-            "${homeManagerArgs.config.home.homeDirectory}"
+            "${hmArgs.config.home.homeDirectory}"
             "/etc/nixos"
             "/etc/nix-darwin"
           ];

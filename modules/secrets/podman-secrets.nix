@@ -1,0 +1,57 @@
+{
+  lib,
+  ...
+}:
+{
+  flake.modules.homeManager.podman-secrets = { pkgs, ... }: {
+    options.services.podman.containers = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule (
+          { name, config, ... }:
+          {
+            options.secrets = lib.mkOption {
+              type = lib.types.attrsOf lib.types.path;
+              default = { };
+              example = lib.literalExpression ''
+                {
+                  DB_PASSWORD = config.programs.onepassword-secrets.secretPaths.db_password;
+                  API_KEY     = config.programs.onepassword-secrets.secretPaths.api_key;
+                }
+              '';
+              description = ''
+                Secrets to inject as environment variables into the container.
+                Each key becomes an environment variable whose value is the
+                content of the specified file, read at container start time
+                via the systemd ExecStartPre hook.
+              '';
+            };
+
+            config = lib.mkIf (config.secrets != { }) {
+              environmentFile = [
+                "/run/user/%U/podman-secrets/${name}"
+              ];
+
+              extraConfig.Service.ExecStartPre = [
+                (lib.getExe (
+                  pkgs.writeShellApplication {
+                    name = "podman-secrets-${name}";
+                    runtimeInputs = [ pkgs.coreutils ];
+                    text = ''
+                      uid="$(id -u)"
+                      install -D -m 600 /dev/null "/run/user/$uid/podman-secrets/${name}"
+                      {
+                      ${lib.concatStringsSep "\n" (
+                        lib.mapAttrsToList (envName: path: ''echo "${envName}=$(<${path})"'') config.secrets
+                      )}
+                      } > "/run/user/$uid/podman-secrets/${name}"
+                    '';
+                  }
+                ))
+              ];
+            };
+          }
+        )
+      );
+    };
+  };
+}

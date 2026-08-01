@@ -1,3 +1,4 @@
+{ lib, ... }:
 let
   formatterLanguages = [
     "typescript"
@@ -6,7 +7,6 @@ let
     "typescriptreact"
   ];
 in
-{ lib, ... }:
 {
   flake.modules.homeManager.dev =
     { pkgs, ... }:
@@ -45,6 +45,7 @@ in
       extraPackages = with pkgs; [
         biome
         eslint_d
+        typescript-go
       ];
       plugins = {
         conform-nvim = {

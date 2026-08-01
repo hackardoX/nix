@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.laptop.homebrew.casks = [
+  flake.modules.darwin.media.homebrew.casks = [
     "stremio"
   ];
 }

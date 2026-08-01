@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.darwin.laptop =
+  flake.modules.darwin.base =
     { config, ... }:
     {
       imports = [
@@ -36,8 +36,11 @@
 
         onActivation = {
           autoUpdate = true;
-          cleanup = "zap";
+          # cleanup = "zap";
           upgrade = true;
+          # extraFlags = [
+          #   "--force-cleanup"
+          # ];
         };
 
         taps = builtins.attrNames config.nix-homebrew.taps;

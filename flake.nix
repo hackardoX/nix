@@ -8,6 +8,10 @@
     #     nixpkgs.follows = "nixpkgs";
     #   };
     # };
+    asahi-firmware = {
+      url = "git+ssh://git@github.com/hackardoX/nixos-asahi-firmware.git?shallow=1";
+      flake = false;
+    };
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -45,12 +49,15 @@
       inputs = {
         nixpkgs.follows = "nixpkgs";
         # Optional inputs removed
-        gitignore.follows = "";
         flake-compat.follows = "";
       };
     };
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    impermanence = {
+      url = "github:nix-community/impermanence";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     homebrew-cask = {
@@ -81,7 +88,7 @@
     };
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
-      inputs.brew-src.url = "github:Homebrew/brew/5.1.12";
+      # inputs.brew-src.url = "github:Homebrew/brew/5.1.12";
     };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -118,8 +125,15 @@
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
     };
+    nixpkgs-stable = {
+      url = "github:nixos/nixpkgs?ref=nixos-26.05";
+    };
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware";
+    };
+    nixos-apple-silicon = {
+      url = "github:nix-community/nixos-apple-silicon";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
