@@ -103,7 +103,9 @@ in
               output file /var/lib/caddy/access.log {
                 roll_disabled
               }
-              format transform "{common_log}"
+              format transform `{request>client_ip} {request>host} - - [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size}` {
+                time_format "02/Jan/2006:15:04:05 -0700"
+              }
             }
           '';
 
@@ -135,7 +137,6 @@ in
                   maxmind_geolocation {
                     db_path "${geoipDbPath}/GeoLite2-Country.mmdb"
                     allow_countries ${lib.concatStringsSep " " allowedCountries}
-                    ip_header Cf-Connecting-Ip
                   }
                 }
               }
@@ -145,8 +146,11 @@ in
             (rate_limit_common) {
               rate_limit {
                 zone dynamic {
-                  key    {http.request.remote.host}
-                  events 100
+                  match {
+                    path /api/* /auth/* /login /graphql
+                  }
+                  key    {http.request.client_ip}
+                  events 60
                   window 1m
                 }
               }
@@ -163,6 +167,7 @@ in
               import common_headers
               import geoblock
               import tls_hardened
+              import rate_limit_common
 
               request_body {
                 max_size 10MB

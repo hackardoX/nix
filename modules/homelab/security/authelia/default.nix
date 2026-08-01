@@ -48,34 +48,87 @@ in
       autheliaDataDir = "/var/lib/data/authelia";
       hashedSecretsDir = "${autheliaDataDir}/hashed-oidc-secrets";
 
-      oidcClients = [
-        {
-          name = "beszel";
+      oidcClientRegistry = {
+        beszel = {
+          policy = "one_factor";
+          redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
           secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaBeszelOidcSecret;
-        }
-        {
-          name = "immich";
+        };
+        immich = {
+          policy = "one_factor";
+          redirectUris = [
+            "https://${hosts.immich}/auth/login-callback"
+            "https://${hosts.immich}/api/oauth/mobile"
+          ];
           secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaImmichOidcSecret;
-        }
-        {
-          name = "tandoor";
+        };
+        tandoor = {
+          policy = "one_factor";
+          redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
           secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaTandoorOidcSecret;
-        }
-        {
-          name = "grafana";
+        };
+        grafana = {
+          policy = "one_factor";
+          redirectUris = [ "https://${hosts.grafana}/login/generic_oauth" ];
           secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaGrafanaOidcSecret;
-        }
-        {
-          name = "reactive-resume";
+        };
+        reactive-resume = {
+          policy = "two_factor";
+          redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
           secretPath =
             nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret;
-        }
-        {
-          name = "sure-finance";
+        };
+        sure-finance = {
+          policy = "one_factor";
+          redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
           secretPath =
             nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaSureFinanceOidcSecret;
-        }
-      ];
+          extraYamlLines = [
+            ''token_endpoint_auth_method: "client_secret_basic"''
+            "require_pkce: true"
+            ''pkce_challenge_method: "S256"''
+            ''access_token_signed_response_alg: "none"''
+            ''userinfo_signed_response_alg: "none"''
+          ];
+        };
+      };
+
+      oidcClients = lib.mapAttrsToList (name: client: {
+        inherit name;
+        inherit (client) secretPath;
+      }) oidcClientRegistry;
+
+      mkOidcClientYaml =
+        name: client:
+        let
+          meta = config.flake.meta.oidc-clients.${name};
+          extra = lib.concatStringsSep "\n        " (client.extraYamlLines or [ ]);
+        in
+        ''
+          - client_id: "${meta.clientId}"
+            client_name: "${meta.clientName}"
+            public: false
+            authorization_policy: "${client.policy}"
+            token_endpoint_auth_method: "client_secret_post"
+            ${
+              lib.optionalString (client ? extraYamlLines) (extra + "\n            ")
+            }client_secret: {{ secret "${hashedSecretsDir}/${name}_oidc_secret" | msquote }}
+            redirect_uris:
+              ${lib.concatMapStringsSep "\n              " (u: ''- "${u}"'') client.redirectUris}
+            scopes:
+              - "openid"
+              - "profile"
+              - "email"
+        '';
+
+      oidcClientsYaml = ''
+        identity_providers:
+          oidc:
+            clients:
+              ${lib.concatStrings (lib.mapAttrsToList mkOidcClientYaml oidcClientRegistry)}
+      '';
+
+      oidcClientsFile = builtins.toFile "oidc_clients.yaml" oidcClientsYaml;
     in
     {
       services = {
@@ -180,90 +233,7 @@ in
               AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE =
                 nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaResendApiKey;
             };
-            settingsFiles = [
-              (builtins.toFile "oidc_clients.yaml" ''
-                identity_providers:
-                  oidc:
-                    clients:
-                      - client_id: "${config.flake.meta.oidc-clients.beszel.clientId}"
-                        client_name: "${config.flake.meta.oidc-clients.beszel.clientName}"
-                        public: false
-                        authorization_policy: "one_factor"
-                        token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${hashedSecretsDir}/beszel_oidc_secret" | msquote }}
-                        redirect_uris:
-                          - "https://${hosts.monitoring}/api/oauth2-redirect"
-                        scopes:
-                          - "openid"
-                          - "profile"
-                          - "email"
-                      - client_id: "${config.flake.meta.oidc-clients.immich.clientId}"
-                        client_name: "${config.flake.meta.oidc-clients.immich.clientName}"
-                        public: false
-                        authorization_policy: "one_factor"
-                        token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${hashedSecretsDir}/immich_oidc_secret" | msquote }}
-                        redirect_uris:
-                          - "https://${hosts.immich}/auth/login-callback"
-                          - "https://${hosts.immich}/api/oauth/mobile"
-                        scopes:
-                          - "openid"
-                          - "profile"
-                          - "email"
-                      - client_id: "${config.flake.meta.oidc-clients.tandoor.clientId}"
-                        client_name: "${config.flake.meta.oidc-clients.tandoor.clientName}"
-                        public: false
-                        authorization_policy: "one_factor"
-                        token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${hashedSecretsDir}/tandoor_oidc_secret" | msquote }}
-                        redirect_uris:
-                          - "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/"
-                        scopes:
-                          - "openid"
-                          - "profile"
-                          - "email"
-                      - client_id: "${config.flake.meta.oidc-clients.grafana.clientId}"
-                        client_name: "${config.flake.meta.oidc-clients.grafana.clientName}"
-                        public: false
-                        authorization_policy: "one_factor"
-                        token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${hashedSecretsDir}/grafana_oidc_secret" | msquote }}
-                        redirect_uris:
-                          - "https://${hosts.grafana}/login/generic_oauth"
-                        scopes:
-                          - "openid"
-                          - "profile"
-                          - "email"
-                      - client_id: "${config.flake.meta.oidc-clients.reactive-resume.clientId}"
-                        client_name: "${config.flake.meta.oidc-clients.reactive-resume.clientName}"
-                        public: false
-                        authorization_policy: "two_factor"
-                        token_endpoint_auth_method: "client_secret_post"
-                        client_secret: {{ secret "${hashedSecretsDir}/reactive-resume_oidc_secret" | msquote }}
-                        redirect_uris:
-                          - "https://${hosts.rxresume}/api/auth/oauth2/callback/custom"
-                        scopes:
-                          - "openid"
-                          - "profile"
-                          - "email"
-                      - client_id: "${config.flake.meta.oidc-clients.sure-finance.clientId}"
-                        client_name: "${config.flake.meta.oidc-clients.sure-finance.clientName}"
-                        public: false
-                        authorization_policy: "one_factor"
-                        token_endpoint_auth_method: "client_secret_basic"
-                        require_pkce: true
-                        pkce_challenge_method: "S256"
-                        access_token_signed_response_alg: "none"
-                        userinfo_signed_response_alg: "none"
-                        client_secret: {{ secret "${hashedSecretsDir}/sure-finance_oidc_secret" | msquote }}
-                        redirect_uris:
-                          - "https://${hosts.finance}/auth/openid_connect/callback"
-                        scopes:
-                          - "openid"
-                          - "profile"
-                          - "email"
-              '')
-            ];
+            settingsFiles = [ oidcClientsFile ];
           };
         };
 

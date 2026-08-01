@@ -85,31 +85,11 @@ in
                 enabled = true;
                 port = "ssh";
                 filter = "sshd";
-                logpath = "/var/log/auth.log";
                 maxretry = 3;
                 bantime = "1w";
                 sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
                 destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
                 action = if cfg.notificationMethod == "email" then "%(action_mwl)s" else "ntfy";
-              };
-              caddy-auth = {
-                filter = {
-                  Definition = {
-                    failregex = ''^<HOST>.*"(GET|POST|OPTION).*" (4[0-9][0-9])[ \d]*$'';
-                    ignoreregex = "";
-                  };
-                };
-                settings = {
-                  enabled = true;
-                  port = "http,https";
-                  logpath = "/var/lib/caddy/access.log";
-                  maxretry = 5;
-                  findtime = "10m";
-                  bantime = "1h";
-                  sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
-                  destemail = config.flake.meta.users.${nixosArgs.config.system.primaryUser}.email;
-                  action = if cfg.notificationMethod == "email" then "%(action_mwl)s" else "ntfy";
-                };
               };
             };
           };
