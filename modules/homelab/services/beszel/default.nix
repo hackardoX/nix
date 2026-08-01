@@ -32,7 +32,7 @@ in
     };
   };
 
-  flake.modules.nixos.homelab-beszel = nixosArgs: {
+  flake.modules.nixos.homelab-beszel = {
     users.users.${beszelUser} = {
       uid = beszelUid;
       isSystemUser = true;
