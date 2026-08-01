@@ -1,6 +1,6 @@
 { inputs, lib, ... }:
 {
-  flake.modules.nixos.hardening = nixosArgs: {
+  flake.modules.nixos.hardening = {
     imports = [
       inputs.nix-mineral.nixosModules.nix-mineral
     ];

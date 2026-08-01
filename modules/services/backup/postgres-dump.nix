@@ -1,10 +1,4 @@
 {
-  lib,
-  config,
-  pkgs,
-  ...
-}:
-{
   flake.modules.homeManager.postgresDump =
     {
       config,

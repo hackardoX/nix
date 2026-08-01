@@ -1,6 +1,6 @@
 { config, ... }:
 {
-  configurations.nixos.Hetzner-HomeLab.module = nixosArgs: {
+  configurations.nixos.Hetzner-HomeLab.module = {
     boot = {
       loader.grub.enable = true;
       initrd = {

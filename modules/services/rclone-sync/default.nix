@@ -171,7 +171,7 @@
         lib.optionalAttrs (jobCfg.schedule != null) (
           lib.listToAttrs (
             map (
-              provider:
+              _:
               let
                 serviceName = jobName;
               in

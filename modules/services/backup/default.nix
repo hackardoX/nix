@@ -191,7 +191,7 @@
           ) cfg.jobs;
         };
 
-        services.postgres-dump.instances = lib.mapAttrs (name: jobCfg: {
+        services.postgres-dump.instances = lib.mapAttrs (_: jobCfg: {
           inherit (jobCfg.db)
             type
             user

@@ -53,7 +53,7 @@ let
   servicesInCategory =
     cat:
     lib.mapAttrsToList (_: svc: {
-      ${svc.name} = lib.filterAttrs (k: v: v != null) {
+      ${svc.name} = lib.filterAttrs (_: v: v != null) {
         inherit (svc)
           href
           description
