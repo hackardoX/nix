@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-24.04-arm]
+        os: [macos-latest, ubuntu-26.04-arm]
     steps:
       - uses: actions/checkout@v7
       - uses: webfactory/ssh-agent@v0.9.0
@@ -32,5 +32,5 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: nix build .#checks.aarch64-darwin."configurations/darwin/Andrea-MacBook-Air-CI" --print-build-logs
       - name: HomeLab Build
-        if: matrix.os == 'ubuntu-24.04-arm'
+        if: matrix.os == 'ubuntu-26.04-arm'
         run: nix build .#checks.aarch64-linux."configurations/nixos/HomeLab" --print-build-logs
