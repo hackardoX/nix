@@ -16,26 +16,47 @@ in
       beszel = {
         clientId = "beszel";
         clientName = "Monitoring";
+        policy = "two_factor";
+        redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
+        secretName = "autheliaBeszelOidcSecret";
       };
       immich = {
         clientId = "immich";
         clientName = "Immich";
+        policy = "two_factor";
+        redirectUris = [
+          "https://${hosts.immich}/auth/login-callback"
+          "https://${hosts.immich}/api/oauth/mobile"
+        ];
+        secretName = "autheliaImmichOidcSecret";
       };
       tandoor = {
         clientId = "tandoor";
         clientName = "Tandoor Recipes";
-      };
-      grafana = {
-        clientId = "grafana";
-        clientName = "Grafana";
+        policy = "two_factor";
+        redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
+        secretName = "autheliaTandoorOidcSecret";
       };
       reactive-resume = {
         clientId = "reactive-resume";
         clientName = "Reactive Resume";
+        policy = "two_factor";
+        redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
+        secretName = "autheliaReactiveResumeOidcSecret";
       };
       sure-finance = {
         clientId = "sure-finance";
         clientName = "Sure Finance";
+        policy = "two_factor";
+        redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
+        secretName = "autheliaSureFinanceOidcSecret";
+        extraYamlLines = [
+          ''token_endpoint_auth_method: "client_secret_basic"''
+          "require_pkce: true"
+          ''pkce_challenge_method: "S256"''
+          ''access_token_signed_response_alg: "none"''
+          ''userinfo_signed_response_alg: "none"''
+        ];
       };
     };
   };
@@ -43,89 +64,21 @@ in
   flake.modules.nixos.homelab-security =
     nixosArgs@{ pkgs, ... }:
     let
-      autheliaService = "authelia-default.service";
-
       autheliaDataDir = "/var/lib/data/authelia";
       hashedSecretsDir = "${autheliaDataDir}/hashed-oidc-secrets";
 
-      oidcClientRegistry = {
-        beszel = {
-          policy = "one_factor";
-          redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
-          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaBeszelOidcSecret;
-        };
-        immich = {
-          policy = "one_factor";
-          redirectUris = [
-            "https://${hosts.immich}/auth/login-callback"
-            "https://${hosts.immich}/api/oauth/mobile"
-          ];
-          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaImmichOidcSecret;
-        };
-        tandoor = {
-          policy = "one_factor";
-          redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
-          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaTandoorOidcSecret;
-        };
-        grafana = {
-          policy = "one_factor";
-          redirectUris = [ "https://${hosts.grafana}/login/generic_oauth" ];
-          secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaGrafanaOidcSecret;
-        };
-        reactive-resume = {
-          policy = "two_factor";
-          redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
-          secretPath =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaReactiveResumeOidcSecret;
-        };
-        sure-finance = {
-          policy = "one_factor";
-          redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
-          secretPath =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaSureFinanceOidcSecret;
-          extraYamlLines = [
-            ''token_endpoint_auth_method: "client_secret_basic"''
-            "require_pkce: true"
-            ''pkce_challenge_method: "S256"''
-            ''access_token_signed_response_alg: "none"''
-            ''userinfo_signed_response_alg: "none"''
-          ];
-        };
-      };
-
       oidcClients = lib.mapAttrsToList (name: client: {
         inherit name;
-        inherit (client) secretPath;
-      }) oidcClientRegistry;
-
-      mkOidcClientYaml =
-        name: client:
-        let
-          meta = config.flake.meta.oidc-clients.${name};
-          extra = lib.concatStringsSep "\n        " (client.extraYamlLines or [ ]);
-        in
-        ''
-          - client_id: "${meta.clientId}"
-            client_name: "${meta.clientName}"
-            public: false
-            authorization_policy: "${client.policy}"
-            token_endpoint_auth_method: "client_secret_post"
-            ${
-              lib.optionalString (client ? extraYamlLines) (extra + "\n            ")
-            }client_secret: {{ secret "${hashedSecretsDir}/${name}_oidc_secret" | msquote }}
-            redirect_uris:
-              ${lib.concatMapStringsSep "\n              " (u: ''- "${u}"'') client.redirectUris}
-            scopes:
-              - "openid"
-              - "profile"
-              - "email"
-        '';
+        secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.${client.secretName};
+      }) config.flake.meta.oidc-clients;
 
       oidcClientsYaml = ''
         identity_providers:
           oidc:
             clients:
-              ${lib.concatStrings (lib.mapAttrsToList mkOidcClientYaml oidcClientRegistry)}
+              ${lib.concatStrings (
+                lib.mapAttrsToList config.flake.lib.authelia.mkOidcClientYaml config.flake.meta.oidc-clients
+              )}
       '';
 
       oidcClientsFile = builtins.toFile "oidc_clients.yaml" oidcClientsYaml;
@@ -209,13 +162,7 @@ in
               identity_providers.oidc = {
                 cors = {
                   endpoints = [ "token" ];
-                  allowed_origins = [
-                    "https://${hosts.monitoring}"
-                    "https://${hosts.immich}"
-                    "https://${hosts.grafana}"
-                    "https://${hosts.rxresume}"
-                    "https://${hosts.finance}"
-                  ];
+                  allowed_origins = config.flake.lib.authelia.mkAllowedOrigins config.flake.meta.oidc-clients;
                 };
               };
             };
@@ -256,100 +203,6 @@ in
               }
             }
           '';
-        };
-
-        onepassword-secrets.secrets = {
-          autheliaJwtSecret = {
-            path = "/run/secrets/authelia/jwt_secret";
-            reference = "op://HomeLab/Authelia/JWT Secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaStorageEncryption = {
-            path = "/run/secrets/authelia/storage_encryption";
-            reference = "op://HomeLab/Authelia/Storage Encryption Key";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaSessionSecret = {
-            path = "/run/secrets/authelia/session_secret";
-            reference = "op://HomeLab/Authelia/Session Secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaOidcHmacSecret = {
-            path = "/run/secrets/authelia/oidc_hmac_secret";
-            reference = "op://HomeLab/Authelia/OIDC HMAC Secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaUsersFile = {
-            path = "/run/secrets/authelia/users.yml";
-            reference = "op://HomeLab/Authelia Users/notesPlain";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaJwksKey = {
-            path = "/run/secrets/authelia/jwks_key";
-            reference = "op://HomeLab/Authelia JWKS Key/private key";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaResendApiKey = {
-            path = "/run/secrets/authelia/resend_api_key";
-            reference = "op://HomeLab/Resend/Authelia/api key";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaBeszelOidcSecret = {
-            path = "/run/secrets/authelia/beszel_oidc_secret";
-            reference = "op://HomeLab/Beszel/Authentication/OIDC client secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaImmichOidcSecret = {
-            path = "/run/secrets/authelia/immich_oidc_secret";
-            reference = "op://HomeLab/Immich/Authentication/OIDC client secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaTandoorOidcSecret = {
-            path = "/run/secrets/authelia/tandoor_oidc_secret";
-            reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaGrafanaOidcSecret = {
-            path = "/run/secrets/authelia/grafana_oidc_secret";
-            reference = "op://HomeLab/Grafana/Authentication/OIDC client secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaReactiveResumeOidcSecret = {
-            path = "/run/secrets/authelia/reactive-resume_oidc_secret";
-            reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
-          autheliaSureFinanceOidcSecret = {
-            path = "/run/secrets/authelia/sure-finance_oidc_secret";
-            reference = "op://HomeLab/Sure Finance/Authentication/OIDC client secret";
-            owner = config.flake.meta.authelia.user;
-            group = config.flake.meta.authelia.group;
-            services = [ autheliaService ];
-          };
         };
       };
 
