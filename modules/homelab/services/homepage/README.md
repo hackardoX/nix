@@ -29,42 +29,6 @@ services.homepage = {
 };
 ```
 
-## Adding Services
-
-Use `config.flake.lib.mkHomepageLabels` to add services to the dashboard:
-
-```nix
-services.podman.containers.my-service = {
-  image = "...";
-  # ... other config ...
-
-  labels = config.flake.lib.mkHomepageLabels {
-    category = "Media";
-    name = "My Service";
-    description = "Service description";
-    icon = "service-icon.png";
-    href = "http://localhost:8080";
-    widget = {
-      type = "service-type";
-      url = "http://localhost:8080";
-    };
-  };
-};
-```
-
-### mkHomepageLabels Options
-
-- `category` (required): Group/category for the service
-- `name` (required): Display name
-- `description` (optional): Service description
-- `icon` (optional): Icon name from [dashboard-icons](https://github.com/walkxcode/dashboard-icons) or URL
-- `href` (optional): URL to open when clicking the service
-- `widget` (optional): Widget configuration (type-specific)
-- `ping` (optional): URL to ping for status
-- `siteMonitor` (optional): URL to monitor
-- `showStats` (optional): Show container stats (boolean)
-- `statusStyle` (optional): Status display style
-
 ## Configuration Options
 
 ### services.homepage

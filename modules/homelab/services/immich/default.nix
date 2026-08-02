@@ -33,7 +33,7 @@ in
     icon = "immich";
     href = "http://localhost:${toString reverseProxyPort}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.beszel.mkWidget {
       systemId = "Immich";
     };
     container = "immich-server";

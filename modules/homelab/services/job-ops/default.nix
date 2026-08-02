@@ -39,7 +39,7 @@ in
     dockerServer = "job-ops";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;
     pingPort = reverseProxyPort;
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.beszel.mkWidget {
       systemId = "Job Ops";
     };
   };

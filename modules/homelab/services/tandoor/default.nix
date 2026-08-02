@@ -27,7 +27,7 @@ in
     icon = "tandoor-recipes";
     href = "https://${hosts.recipes}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.beszel.mkWidget {
       systemId = "Tandoor";
     };
     container = "tandoor";

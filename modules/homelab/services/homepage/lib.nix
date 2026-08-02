@@ -7,7 +7,7 @@ let
   # Default fields metrics enabled:
   #   cpu, memory, disk, network
   # Usage:
-  #   widget = config.flake.lib.mkBeszelWidget {
+  #   widget = config.flake.lib.beszel.mkWidget {
   #     systemId = "My System";
   #     fields = [ "cpu" "memory" "disk" ];   # optional
   #   };
@@ -32,5 +32,5 @@ let
     };
 in
 {
-  flake.lib.mkBeszelWidget = mkBeszelWidget;
+  flake.lib.beszel.mkWidget = mkBeszelWidget;
 }

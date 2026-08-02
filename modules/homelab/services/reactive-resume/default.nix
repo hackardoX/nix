@@ -34,7 +34,7 @@ in
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
     showStats = false;
     pingPort = reverseProxyPort;
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.bseszel.mkWidget {
       systemId = "Reactive Resume";
     };
   };
