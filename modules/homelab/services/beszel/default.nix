@@ -32,7 +32,7 @@ in
     };
   };
 
-  flake.modules.nixos.homelab-beszel = {
+  flake.modules.nixos.homelab-beszel = nixosArgs: {
     users.users.${beszelUser} = {
       uid = beszelUid;
       isSystemUser = true;
@@ -104,14 +104,25 @@ in
         backup
         podman-secrets
         homelab-beszel
-        homelab-beszel-agent
       ];
-      services.homelab-beszel-agent = {
-        enable = true;
-        port = config.flake.meta.reverse-proxy.ports.beszel-agent-homelab;
-      };
       home.username = beszelUser;
       home.stateVersion = "26.05";
+    };
+
+    services.beszel.agent = {
+      enable = true;
+      smartmon.enable = true;
+      # If SMART data doesn't appear, uncomment and list your devices:
+      # smartmon.deviceAllow = [ "/dev/sda" "/dev/sdb" "/dev/nvme0" ];
+      environment = {
+        KEY_FILE = nixosArgs.config.services.onepassword-secrets.secretPaths.beszelSshPublicKey;
+        LISTEN = "127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.beszel-agent-homelab}";
+      };
+    };
+
+    systemd.services.beszel-agent = {
+      after = [ "opnix-secrets.service" ];
+      wants = [ "opnix-secrets.service" ];
     };
 
     boot.initrd.impermanence.persist.directories = [

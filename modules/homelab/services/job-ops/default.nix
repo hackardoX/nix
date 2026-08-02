@@ -22,14 +22,9 @@ let
   jobOpsPublicBaseUrl = "https://${hosts.jobs}";
   jobOpsBasicAuthUser = "admin";
 
-  jobOpsLlmApiKeyFile = "/run/secrets/job-ops/llm_api_key";
-  jobOpsBasicAuthPasswordFile = "/run/secrets/job-ops/basic_auth_password";
-  jobOpsRxresumeApiKeyFile = "/run/secrets/job-ops/rxresume_api_key";
   jobOpsRxresumeUrl = "https://${hosts.rxresume}";
   jobOpsGmailOauthClientId = "776086063215-ue41fr70dcfbqs70pg5p26r9emndv7m1.apps.googleusercontent.com";
-  jobOpsGmailOauthSecretFile = "/run/secrets/job-ops/gmail_oauth_secret";
   jobOpsAdzunaAppId = "47ca24d5";
-  jobOpsAdzunaAppKeyFile = "/run/secrets/job-ops/adzuna_api_key";
 
 in
 {
@@ -107,31 +102,31 @@ in
 
     services.onepassword-secrets.secrets = {
       jobOpsBasicAuthPassword = {
-        path = jobOpsBasicAuthPasswordFile;
+        path = "/run/secrets/job-ops/basic_auth_password";
         reference = "op://Homelab/Job Ops/Authentication/password";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsLlmApiKey = {
-        path = jobOpsLlmApiKeyFile;
+        path = "/run/secrets/job-ops/llm_api_key";
         reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsRxresumeApiKey = {
-        path = jobOpsRxresumeApiKeyFile;
+        path = "/run/secrets/job-ops/rxresume_api_key";
         reference = "op://Homelab/Job Ops/RxResume/api key";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsGmailSecret = {
-        path = jobOpsGmailOauthSecretFile;
+        path = "/run/secrets/job-ops/gmail_oauth_secret";
         reference = "op://Homelab/Job Ops/Gmail/oauth secret";
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
       jobOpsAdzunaKey = {
-        path = jobOpsAdzunaAppKeyFile;
+        path = "/run/secrets/job-ops/adzuna_api_key";
         reference = "op://Homelab/Job Ops/Adzuna/api key";
         owner = jobOpsUser;
         group = jobOpsGroup;
@@ -194,11 +189,11 @@ in
       };
 
       secrets = {
-        OPENAI_API_KEY = jobOpsLlmApiKeyFile;
-        BASIC_AUTH_PASSWORD = jobOpsBasicAuthPasswordFile;
-        RXRESUME_API_KEY = jobOpsRxresumeApiKeyFile;
-        GMAIL_OAUTH_CLIENT_SECRET = jobOpsGmailOauthSecretFile;
-        ADZUNA_APP_KEY = jobOpsAdzunaAppKeyFile;
+        OPENAI_API_KEY = osConfig.services.onepassword-secrets.secretPaths.jobOpsLlmApiKey;
+        BASIC_AUTH_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.jobOpsBasicAuthPassword;
+        RXRESUME_API_KEY = osConfig.services.onepassword-secrets.secretPaths.jobOpsRxresumeApiKey;
+        GMAIL_OAUTH_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.jobOpsGmailSecret;
+        ADZUNA_APP_KEY = osConfig.services.onepassword-secrets.secretPaths.jobOpsAdzunaKey;
       };
 
       extraConfig = {

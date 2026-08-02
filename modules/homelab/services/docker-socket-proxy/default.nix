@@ -1,3 +1,4 @@
+{ lib, ... }:
 let
   dockerProxyImage = "ghcr.io/tecnativa/docker-socket-proxy:v0.4.2";
 in
@@ -5,7 +6,6 @@ in
   flake.modules.homeManager.homelab-docker-socket-proxy =
     hmArgs@{
       osConfig,
-      lib,
       pkgs,
       ...
     }:

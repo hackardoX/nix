@@ -13,7 +13,6 @@ let
   alertmanagerNtfyContainerPort = 8000;
   alertingNtfyTopic = "homelab-alerts";
 
-  alertingNtfyTokenSecretPath = "/run/secrets/alerting_ntfy_token";
 in
 {
   flake.modules.nixos.homelab-alerting = {
@@ -70,7 +69,7 @@ in
 
     services.onepassword-secrets.secrets = {
       alertingNtfyToken = {
-        path = alertingNtfyTokenSecretPath;
+        path = "/run/secrets/alerting_ntfy_token";
         reference = "op://Homelab/Alerting/ntfy token";
         owner = alertingUser;
         group = alertingGroup;
@@ -226,7 +225,7 @@ in
           ];
 
           secrets = {
-            NTFY_TOKEN = alertingNtfyTokenSecretPath;
+            NTFY_TOKEN = osConfig.services.onepassword-secrets.secretPaths.alertingNtfyToken;
           };
 
           extraConfig = {

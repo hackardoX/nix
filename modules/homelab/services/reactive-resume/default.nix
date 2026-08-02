@@ -18,12 +18,8 @@ let
   reactiveResumePort = 3000;
   reactiveResumeDbName = "rxresume";
   reactiveResumeDbUser = "rxresume";
-  reactiveResumeDbPasswordFile = "/run/secrets/reactive-resume/db_password";
-  reactiveResumeAuthSecretFile = "/run/secrets/reactive-resume/auth_secret";
-
   reactiveResumeAppUrl = "https://${hosts.rxresume}";
   reactiveResumeOidcClientId = config.flake.meta.oidc-clients.reactive-resume.clientId;
-  reactiveResumeOidcSecretFile = "/run/secrets/reactive-resume/oidc_client_secret";
 in
 {
   flake.homepage.services.reactive-resume = {
@@ -147,16 +143,23 @@ in
           exec "$@"
         '';
       };
-      oidcEnv = lib.optionalAttrs (reactiveResumeOidcSecretFile != null) {
-        OAUTH_CLIENT_ID = reactiveResumeOidcClientId;
-        OAUTH_PROVIDER_NAME = "Authelia";
-        OAUTH_DISCOVERY_URL = "https://${hosts.auth}/.well-known/openid-configuration";
-        OAUTH_SCOPES = "openid profile email";
-      };
+      oidcEnv =
+        lib.optionalAttrs
+          (osConfig.services.onepassword-secrets.secretPaths ? reactiveResumeOidcClientSecret)
+          {
+            OAUTH_CLIENT_ID = reactiveResumeOidcClientId;
+            OAUTH_PROVIDER_NAME = "Authelia";
+            OAUTH_DISCOVERY_URL = "https://${hosts.auth}/.well-known/openid-configuration";
+            OAUTH_SCOPES = "openid profile email";
+          };
 
-      oidcSecrets = lib.optionalAttrs (reactiveResumeOidcSecretFile != null) {
-        OAUTH_CLIENT_SECRET = reactiveResumeOidcSecretFile;
-      };
+      oidcSecrets =
+        lib.optionalAttrs
+          (osConfig.services.onepassword-secrets.secretPaths ? reactiveResumeOidcClientSecret)
+          {
+            OAUTH_CLIENT_SECRET =
+              osConfig.services.onepassword-secrets.secretPaths.reactiveResumeOidcClientSecret;
+          };
     in
     {
       config = {
@@ -202,7 +205,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = reactiveResumeDbPasswordFile;
+            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
           };
 
           extraConfig = {
@@ -241,8 +244,8 @@ in
           // oidcEnv;
 
           secrets = {
-            AUTH_SECRET = reactiveResumeAuthSecretFile;
-            DATABASE_PASSWORD = reactiveResumeDbPasswordFile;
+            AUTH_SECRET = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeAuthSecret;
+            DATABASE_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
           }
           // oidcSecrets;
 

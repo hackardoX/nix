@@ -117,6 +117,7 @@ rulesets:
           strict_required_status_checks_policy: true
           required_status_checks:
             - context: "Build on macos-latest"
+            - context: "Build on ubuntu-26.04-arm"
             - context: "Flake checks on aarch64-darwin"
             - context: "Dead code analysis"
             - context: "Formatting checks"

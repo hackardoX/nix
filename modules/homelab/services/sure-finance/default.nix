@@ -17,14 +17,7 @@ let
   sureFinancePort = 3000;
   sureFinanceDbName = "sure_production";
   sureFinanceDbUser = "sure_user";
-  sureFinanceDbPasswordFile = "/run/secrets/sure-finance/postgres_password";
-  sureFinanceSecretKeyBaseFile = "/run/secrets/sure-finance/secret_key";
-  sureFinanceOpenaiTokenFile = "/run/secrets/sure-finance/openai_token";
-  sureFinanceResendApiKeyFile = "/run/secrets/sure-finance/resend_api_key";
-  sureFinanceBrandFetchApiKeyFile = "/run/secrets/sure-finance/brand_fetch_api_key";
-  sureFinanceTwelveDataApiKeyFile = "/run/secrets/sure-finance/twelve_data_api_key";
-  sureFinanceOidcClientId = config.flake.meta.oidc-clients.sure-finance.clientId or "";
-  sureFinanceOidcSecretFile = "/run/secrets/sure-finance/oidc_client_secret";
+  sureFinanceOidcClientId = config.flake.meta.oidc-clients.sure-finance.clientId;
 in
 {
   flake.homepage.services.sure-finance = {
@@ -185,25 +178,31 @@ in
         SECURITIES_PROVIDER = "twelve_data";
         TZ = osConfig.time.timeZone;
       }
-      // lib.optionalAttrs (sureFinanceOidcSecretFile != null) {
-        OIDC_CLIENT_ID = sureFinanceOidcClientId;
-        OIDC_ISSUER = "https://${hosts.auth}";
-        OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
-      };
+      //
+        lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? sureFinanceOidcClientSecret)
+          {
+            OIDC_CLIENT_ID = sureFinanceOidcClientId;
+            OIDC_ISSUER = "https://${hosts.auth}";
+            OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
+            OIDC_BUTTON_LABEL = "Sign in with Authelia";
+          };
 
       sharedSecrets = {
-        POSTGRES_PASSWORD = sureFinanceDbPasswordFile;
-        SECRET_KEY_BASE = sureFinanceSecretKeyBaseFile;
-        SMTP_PASSWORD = sureFinanceResendApiKeyFile;
-        BRAND_FETCH_CLIENT_ID = sureFinanceBrandFetchApiKeyFile;
-        TWELVE_DATA_API_KEY = sureFinanceTwelveDataApiKeyFile;
+        POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
+        SECRET_KEY_BASE = osConfig.services.onepassword-secrets.secretPaths.sureFinanceSecretKey;
+        SMTP_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinanceResendApiKey;
+        BRAND_FETCH_CLIENT_ID =
+          osConfig.services.onepassword-secrets.secretPaths.sureFinanceBrandFetchApiKey;
+        TWELVE_DATA_API_KEY = osConfig.services.onepassword-secrets.secretPaths.sureFinanceTwelveDataApiKey;
       }
-      // lib.optionalAttrs (sureFinanceOpenaiTokenFile != null) {
-        OPENAI_ACCESS_TOKEN = sureFinanceOpenaiTokenFile;
+      // lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? sureFinanceOpenAiToken) {
+        OPENAI_ACCESS_TOKEN = osConfig.services.onepassword-secrets.secretPaths.sureFinanceOpenAiToken;
       }
-      // lib.optionalAttrs (sureFinanceOidcSecretFile != null) {
-        OIDC_CLIENT_SECRET = sureFinanceOidcSecretFile;
-      };
+      //
+        lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? sureFinanceOidcClientSecret)
+          {
+            OIDC_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.sureFinanceOidcClientSecret;
+          };
     in
     {
       config = {
@@ -240,7 +239,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = sureFinanceDbPasswordFile;
+            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
           };
 
           extraConfig = {

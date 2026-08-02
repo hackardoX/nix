@@ -15,9 +15,7 @@ let
   immichPort = 2283;
   immichDbUser = "postgres";
   immichDbName = "immich";
-  immichDbPasswordFile = "/run/secrets/immich/db_password";
   immichOidcClientId = config.flake.meta.oidc-clients.immich.clientId;
-  immichOidcSecretFile = "/run/secrets/immich/oidc_client_secret";
 
   immichConfig = {
     storageTemplate = {
@@ -99,13 +97,13 @@ in
 
     services.onepassword-secrets.secrets = {
       immichDbPassword = {
-        path = immichDbPasswordFile;
+        path = "/run/secrets/immich/db_password";
         reference = "op://Homelab/Immich/Database/password";
         owner = immichUser;
         group = immichGroup;
       };
       immichOidcClientSecret = {
-        path = immichOidcSecretFile;
+        path = "/run/secrets/immich/oidc_client_secret";
         reference = "op://Homelab/Immich/Authentication/OIDC client secret";
         owner = immichUser;
         group = immichGroup;
@@ -157,8 +155,9 @@ in
       };
 
       sharedSecrets = {
-        DB_PASSWORD = immichDbPasswordFile;
-        IMMICH_OAUTH_CLIENT_SECRET = immichOidcSecretFile;
+        DB_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+        IMMICH_OAUTH_CLIENT_SECRET =
+          osConfig.services.onepassword-secrets.secretPaths.immichOidcClientSecret;
       };
 
       immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
@@ -240,7 +239,7 @@ in
           environment = sharedEnv;
 
           secrets = {
-            DB_PASSWORD = immichDbPasswordFile;
+            DB_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
           };
 
           extraConfig = {
@@ -288,7 +287,7 @@ in
             };
 
             secrets = {
-              POSTGRES_PASSWORD = immichDbPasswordFile;
+              POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
             };
 
             extraConfig = {

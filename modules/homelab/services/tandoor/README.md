@@ -4,28 +4,43 @@ Self-hosted recipe management application running in Podman containers.
 
 ## Usage
 
-```nix
-services.tandoor = {
-  enable = true;
-  port = 8080;                                    # default: 8080
-  appDir = "/var/lib/containers/tandoor";           # default
-  dataDir = "/var/lib/data/tandoor";               # default
-  secretKeyFile = /path/to/secret/key;
+Import the module via your flake:
 
-  database = {
-    name = "tandoor";                             # default
-    user = "tandoor";                             # default
-    passwordFile = /path/to/db/password;
-  };
-};
+```nix
+# NixOS configuration
+imports = [ config.flake.modules.nixos.homelab-tandoor ];
+
+# Or as a home-manager module for the tandoor user
+imports = [ config.flake.modules.homeManager.homelab-tandoor ];
 ```
 
 This creates the following containers on a `tandoor` bridge network:
 
-- `tandoor` - the app (exposed on `port`)
+- `tandoor` - the app (exposed on the configured reverse-proxy port)
 - `tandoor-db` - PostgreSQL 16
 
 ## 1Password Secrets Required
 
-- `op://Homelab/Tandoor/Secret Key/credential` - Django SECRET_KEY
+- `op://Homelab/Tandoor/Authentication/secret key` - Django SECRET_KEY
 - `op://Homelab/Tandoor/Database/password` - PostgreSQL password
+- `op://Homelab/Tandoor/Authentication/OIDC client secret` - OIDC client secret (if OIDC is enabled)
+- `op://Homelab/Backup/Tandoor/password` - Backup encryption key
+
+## OIDC Authentication
+
+OIDC is enabled automatically when the `oidc_client_secret` secret is available. The module configures:
+
+- `OIDC_ENDPOINT` - pointing to `hosts.auth`
+- `OIDC_CLIENT_ID` - from `config.flake.meta.oidc-clients.tandoor.clientId`
+- `OIDC_SCOPES` - `openid,profile,email`
+
+Ensure your OIDC provider (e.g. Authelia) has a client registered for Tandoor.
+
+## Backup
+
+The module configures a daily backup job that captures:
+
+- PostgreSQL data (`/var/lib/data/tandoor/postgres`)
+- User media files (`/var/lib/containers/tandoor/mediafiles`)
+
+Backups are encrypted with the `backup_encryption_key` secret and uploaded to the `koofr` provider.

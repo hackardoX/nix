@@ -23,7 +23,6 @@
           lib.nameValuePair "home-manager-${name}" {
             after = [ "user@${toString u.uid}.service" ];
             wants = [ "user@${toString u.uid}.service" ];
-            overrideStrategy = "asDropin";
           }
         ) homelabUsers);
     };
