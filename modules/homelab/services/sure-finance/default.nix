@@ -8,7 +8,7 @@ let
   sureFinanceGid = 905;
   sureFinanceUser = "sure-finance";
   sureFinanceGroup = "sure-finance";
-  sureFinanceAppDir = "/var/lib/containers/sure-finance";
+  sureFinanceAppDir = "/var/lib/podman/sure-finance";
   sureFinanceDataDir = "/var/lib/data/sure-finance";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -59,9 +59,9 @@ in
     systemd.tmpfiles.rules = [
       "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/storage 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
-      "d ${sureFinanceDataDir}/postgres 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceDataDir}/postgresql/data 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceDataDir}/postgresql/wal 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceDataDir}/redis 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
-      "d ${sureFinanceAppDir}/containers 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -206,14 +206,9 @@ in
     in
     {
       config = {
-        xdg.configFile."containers/storage.conf".text = ''
-          [storage]
-          graphroot = "${sureFinanceAppDir}/containers"
-        '';
-
         services.backup.jobs.sure-finance = {
           paths = [
-            "${sureFinanceDataDir}/postgres"
+            "${sureFinanceDataDir}/postgresql/data"
             "${sureFinanceAppDir}/storage"
           ];
           schedule = "daily";
@@ -231,11 +226,15 @@ in
           userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
           networkAlias = [ "db" ];
-          volumes = [ "${sureFinanceDataDir}/postgres:/var/lib/postgresql/data" ];
+          volumes = [
+            "${sureFinanceDataDir}/postgresql/data:/var/lib/postgresql/data"
+            "${sureFinanceDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
+          ];
 
           environment = {
             POSTGRES_USER = sureFinanceDbUser;
             POSTGRES_DB = sureFinanceDbName;
+            POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
           };
 
           secrets = {
@@ -245,8 +244,10 @@ in
           extraConfig = {
             Service = {
               ExecStartPre = [
-                "-/run/current-system/sw/bin/mkdir -p ${sureFinanceDataDir}/postgres"
-                "-/run/current-system/sw/bin/chown ${sureFinanceUser}:${sureFinanceGroup} ${sureFinanceDataDir}/postgres"
+                "-/run/current-system/sw/bin/mkdir -p ${sureFinanceDataDir}/postgresql/data"
+                "-/run/current-system/sw/bin/chown ${sureFinanceUser}:${sureFinanceGroup} ${sureFinanceDataDir}/postgresql/data"
+                "-/run/current-system/sw/bin/mkdir -p ${sureFinanceDataDir}/postgresql/wal"
+                "-/run/current-system/sw/bin/chown ${sureFinanceUser}:${sureFinanceGroup} ${sureFinanceDataDir}/postgresql/wal"
               ];
             };
             Container = {

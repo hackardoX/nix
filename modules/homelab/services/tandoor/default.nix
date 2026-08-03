@@ -8,7 +8,7 @@ let
   tandoorGid = 904;
   tandoorUser = "tandoor";
   tandoorGroup = "tandoor";
-  tandoorAppDir = "/var/lib/containers/tandoor";
+  tandoorAppDir = "/var/lib/podman/tandoor";
   tandoorDataDir = "/var/lib/data/tandoor";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -60,8 +60,8 @@ in
       "d ${tandoorAppDir} 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/staticfiles 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/mediafiles 0750 ${tandoorUser} ${tandoorGroup} -"
-      "d ${tandoorDataDir}/postgres 0750 ${tandoorUser} ${tandoorGroup} -"
-      "d ${tandoorAppDir}/containers 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgresql/data 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgresql/wal 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -158,14 +158,9 @@ in
     in
     {
       config = {
-        xdg.configFile."containers/storage.conf".text = ''
-          [storage]
-          graphroot = "${tandoorAppDir}/containers"
-        '';
-
         services.backup.jobs.tandoor = {
           paths = [
-            "${tandoorDataDir}/postgres"
+            "${tandoorDataDir}/postgresql/data"
             "${tandoorAppDir}/mediafiles"
           ];
           schedule = "daily";
@@ -183,12 +178,16 @@ in
           userNS = "keep-id:uid=999,gid=999";
           network = [ "tandoor.network" ];
           networkAlias = [ "db" ];
-          volumes = [ "${tandoorDataDir}/postgres:/var/lib/postgresql/data" ];
+          volumes = [
+            "${tandoorDataDir}/postgresql/data:/var/lib/postgresql/data"
+            "${tandoorDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
+          ];
 
           environment = {
             TZ = osConfig.time.timeZone;
             POSTGRES_USER = tandoorDbUser;
             POSTGRES_DB = tandoorDbName;
+            POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
           };
 
           secrets = {

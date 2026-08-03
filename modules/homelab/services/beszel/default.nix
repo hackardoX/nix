@@ -8,8 +8,7 @@ let
   beszelGid = 908;
   beszelUser = "beszel";
   beszelGroup = "beszel";
-  beszelAppDir = "/var/lib/beszel-hub";
-  beszelContainerDir = "/var/lib/containers/beszel";
+  beszelDataDir = "/var/lib/data/beszel";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   beszelHubPort = config.flake.meta.reverse-proxy.ports.beszel;
@@ -52,8 +51,7 @@ in
     };
 
     systemd.tmpfiles.rules = [
-      "d ${beszelAppDir} 0750 ${beszelUser} ${beszelGroup} -"
-      "d ${beszelContainerDir} 0750 ${beszelUser} ${beszelGroup} -"
+      "d ${beszelDataDir} 0750 ${beszelUser} ${beszelGroup} -"
     ];
 
     services.caddy.virtualHosts."${hosts.monitoring}" = {
@@ -124,15 +122,6 @@ in
       after = [ "opnix-secrets.service" ];
       wants = [ "opnix-secrets.service" ];
     };
-
-    boot.initrd.impermanence.persist.directories = [
-      {
-        directory = beszelAppDir;
-        user = beszelUser;
-        group = beszelGroup;
-        mode = "0750";
-      }
-    ];
   };
 
   flake.modules.homeManager.homelab-beszel =
@@ -144,15 +133,10 @@ in
       );
     in
     {
-      xdg.configFile."containers/storage.conf".text = ''
-        [storage]
-        graphroot = "${beszelContainerDir}"
-      '';
-
       services.rclone.remotes = [ "koofr" ];
 
       services.backup.jobs.beszel = {
-        paths = [ beszelAppDir ];
+        paths = [ beszelDataDir ];
         schedule = "weekly";
         retention = "extended";
         providers = [ "koofr" ];
@@ -182,7 +166,7 @@ in
         };
 
         volumes = [
-          "${beszelAppDir}:/beszel_data"
+          "${beszelDataDir}:/beszel_data"
           "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPrivateKey}:/beszel_data/id_ed25519:ro"
           "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPublicKey}:/beszel_data/id_ed25519.pub:ro"
         ];

@@ -8,7 +8,7 @@ let
   monitoringGid = 906;
   monitoringUser = "monitoring";
   monitoringGroup = "monitoring";
-  monitoringAppDir = "/var/lib/containers/monitoring";
+  monitoringAppDir = "/var/lib/podman/monitoring";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   prometheusHost = "prometheus";

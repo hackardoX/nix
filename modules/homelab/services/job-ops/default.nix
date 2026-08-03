@@ -7,7 +7,7 @@ let
   jobOpsGid = 902;
   jobOpsUser = "job-ops";
   jobOpsGroup = "job-ops";
-  jobOpsAppDir = "/var/lib/containers/job-ops";
+  jobOpsAppDir = "/var/lib/podman/job-ops";
   jobOpsDataDir = "/var/lib/data/job-ops";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -66,7 +66,9 @@ in
     systemd.tmpfiles.rules = [
       "d ${jobOpsAppDir} 0750 ${jobOpsUser} ${jobOpsGroup} -"
       "d ${jobOpsDataDir} 0750 ${jobOpsUser} ${jobOpsGroup} -"
-      "d ${jobOpsAppDir}/containers 0750 ${jobOpsUser} ${jobOpsGroup} -"
+      "f ${jobOpsDataDir}/jobs.db 0640 ${jobOpsUser} ${jobOpsGroup} -"
+      "f ${jobOpsDataDir}/jobs.db-shm 0640 ${jobOpsUser} ${jobOpsGroup} -"
+      "f ${jobOpsDataDir}/jobs.db-wal 0640 ${jobOpsUser} ${jobOpsGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -149,11 +151,6 @@ in
   };
 
   flake.modules.homeManager.homelab-job-ops = { osConfig, ... }: {
-    xdg.configFile."containers/storage.conf".text = ''
-      [storage]
-      graphroot = "${jobOpsAppDir}/containers"
-    '';
-
     services.backup.jobs.job-ops = {
       paths = [ jobOpsDataDir ];
       schedule = "daily";
@@ -173,7 +170,12 @@ in
       networkAlias = [ "job-ops" ];
       ports = [ "${toString reverseProxyPort}:${toString jobOpsPort}" ];
 
-      volumes = [ "${jobOpsDataDir}:/app/data" ];
+      volumes = [
+        "${jobOpsAppDir}:/app/data"
+        "${jobOpsDataDir}/jobs.db:/app/data/jobs.db"
+        "${jobOpsDataDir}/jobs.db-shm:/app/data/jobs.db-shm"
+        "${jobOpsDataDir}/jobs.db-wal:/app/data/jobs.db-wal"
+      ];
 
       environment = {
         TZ = osConfig.time.timeZone;

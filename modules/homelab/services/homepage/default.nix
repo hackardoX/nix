@@ -9,7 +9,7 @@ let
   homepageUser = "homepage";
   homepageGroup = "homepage";
   homepagePort = 3000;
-  homepageAppDir = "/var/lib/containers/homepage";
+  homepageAppDir = "/var/lib/podman/homepage";
 
   domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -63,9 +63,9 @@ let
           showStats
           statusStyle
           ;
-        widget = svc.widget;
+        inherit (svc) widget;
         server = svc.dockerServer;
-        container = svc.container;
+        inherit (svc) container;
       };
     }) (lib.filterAttrs (_: s: s.category == cat) allServices);
 
