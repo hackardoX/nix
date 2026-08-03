@@ -235,7 +235,7 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              HealthCmd = "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health/')\"";
+              HealthCmd = "curl -sf http://localhost:8080/api/health || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
