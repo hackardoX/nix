@@ -14,7 +14,7 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13";
-  tandoorPort = 8080;
+  tandoorPort = 80;
   tandoorDbName = "tandoor";
   tandoorDbUser = "tandoor";
   tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
