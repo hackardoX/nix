@@ -113,6 +113,7 @@ in
               "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
               "github.com/mholt/caddy-ratelimit@v0.1.0"
+              "github.com/fvbommel/caddy-combine-ip-ranges@5624d08f5f9e788816bdd877b7c81280c69b434e"
             ];
             hash = "sha256-Rbv6AJKiWOnGK7T8zLRaq+CdWWOPOEu8DIqyM7ITWFQ=";
           };
