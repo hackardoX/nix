@@ -72,14 +72,20 @@ in
         secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.${client.secretName};
       }) config.flake.meta.oidc-clients;
 
-      oidcClientsYaml = ''
-        identity_providers:
-          oidc:
-            clients:
-              ${lib.concatStrings (
-                lib.mapAttrsToList config.flake.lib.authelia.mkOidcClientYaml config.flake.meta.oidc-clients
-              )}
-      '';
+      oidcClientsYaml =
+        let
+          indentClientYaml =
+            name: client:
+            lib.concatMapStringsSep "\n" (line: "      ${line}") (
+              lib.init (lib.splitString "\n" (config.flake.lib.authelia.mkOidcClientYaml name client))
+            );
+        in
+        ''
+          identity_providers:
+            oidc:
+              clients:
+          ${lib.concatStringsSep "\n" (lib.mapAttrsToList indentClientYaml config.flake.meta.oidc-clients)}
+        '';
 
       oidcClientsFile = builtins.toFile "oidc_clients.yaml" oidcClientsYaml;
     in
