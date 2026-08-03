@@ -113,9 +113,9 @@ in
               "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
               "github.com/mholt/caddy-ratelimit@v0.1.0"
-              "github.com/fvbommel/caddy-combine-ip-ranges@5624d08f5f9e788816bdd877b7c81280c69b434e"
+              "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
             ];
-            hash = "sha256-Rbv6AJKiWOnGK7T8zLRaq+CdWWOPOEu8DIqyM7ITWFQ=";
+            hash = "sha256-wlK7vJuKZDS4G+syrbwsS/CDd9AIm3Nj5y1DgC0NA48=";
           };
 
           extraConfig = ''
