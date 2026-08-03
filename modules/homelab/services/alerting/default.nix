@@ -70,7 +70,7 @@ in
     services.onepassword-secrets.secrets = {
       alertingNtfyToken = {
         path = "/run/secrets/alerting_ntfy_token";
-        reference = "op://Homelab/Alerting/ntfy token";
+        reference = "op://Homelab/Alerting/NTFY/token";
         owner = alertingUser;
         group = alertingGroup;
       };

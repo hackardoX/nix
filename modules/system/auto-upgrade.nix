@@ -1,7 +1,6 @@
 {
   self,
   config,
-  lib,
   ...
 }:
 let
@@ -67,7 +66,7 @@ in
 
       services.onepassword-secrets.secrets.autoUpgradeNtfyToken = {
         path = "/run/secrets/auto_upgrade_ntfy_token";
-        reference = "op://Homelab/Alerting/ntfy token";
+        reference = "op://Homelab/Alerting/NTFY/token";
         services.nixos-upgrade.restart = false;
       };
 

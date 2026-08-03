@@ -80,7 +80,7 @@
 
       services.onepassword-secrets.secrets.autheliaNtfyToken = {
         path = "/run/secrets/authelia/ntfy_token";
-        reference = "op://Homelab/Alerting/ntfy token";
+        reference = "op://Homelab/Alerting/NTFY/token";
         owner = config.flake.meta.authelia.user;
         group = config.flake.meta.authelia.group;
         services = [ autheliaNtfyService ];

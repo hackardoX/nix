@@ -104,7 +104,7 @@ in
             };
             fail2banNtfyToken = {
               path = "/run/secrets/fail2ban_ntfy_token";
-              reference = "op://Homelab/Alerting/ntfy token";
+              reference = "op://Homelab/Alerting/NTFY/token";
               inherit (fail2ban) owner;
               inherit (fail2ban) group;
               services = [ "fail2ban" ];
