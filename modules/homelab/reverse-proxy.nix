@@ -103,7 +103,7 @@ in
               output file /var/lib/caddy/access.log {
                 roll_disabled
               }
-              format transform `{request>remote_ip} {request>host} - - [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size}` {
+              format transform `{request>client_ip} {request>host} - - [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size}` {
                 time_format "02/Jan/2006:15:04:05 -0700"
               }
             }
