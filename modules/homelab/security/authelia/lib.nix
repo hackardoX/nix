@@ -16,17 +16,21 @@ let
     name: client:
     let
       meta = config.flake.meta.oidc-clients.${name};
-      extra = lib.concatStringsSep "\n  " (client.extraYamlLines or [ ]);
+      extraLines = client.extraYamlLines or [ ];
+      hasAuthMethodOverride = lib.any (lib.hasPrefix "token_endpoint_auth_method") extraLines;
+      defaultAuthMethodLine = lib.optional (
+        !hasAuthMethodOverride
+      ) ''token_endpoint_auth_method: "client_secret_post"'';
+      allExtraLines = defaultAuthMethodLine ++ extraLines;
+      extraYaml = lib.concatMapStringsSep "\n  " (line: line) allExtraLines;
     in
     ''
       - client_id: "${meta.clientId}"
         client_name: "${meta.clientName}"
         public: false
         authorization_policy: "${client.policy}"
-        token_endpoint_auth_method: "client_secret_post"
-        ${
-          lib.optionalString (client ? extraYamlLines) (extra + "\n  ")
-        }client_secret: {{ secret "${hashedSecretsDir}/${name}_oidc_secret" | msquote }}
+        ${extraYaml}
+        client_secret: {{ secret "${hashedSecretsDir}/${name}_oidc_secret" | msquote }}
         redirect_uris:
           ${lib.concatMapStringsSep "\n    " (u: ''- "${u}"'') client.redirectUris}
         scopes:
