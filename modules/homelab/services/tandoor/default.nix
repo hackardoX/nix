@@ -211,7 +211,7 @@ in
         services.podman.containers.tandoor = {
           image = tandoorImage;
           autoStart = true;
-          userNS = "keep-id:uid=0,gid=0";
+          userNS = "keep-id:uid=100,gid=100";
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];

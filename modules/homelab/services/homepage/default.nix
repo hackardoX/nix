@@ -121,10 +121,15 @@ in
           homelab-homepage
           homelab-podman-extension
           homelab-beszel-agent
+          homelab-docker-socket-proxy
         ];
         services.homelab-beszel-agent = {
           enable = true;
           port = config.flake.meta.reverse-proxy.ports.beszel-agent-homepage;
+        };
+        services.homelab-docker-socket-proxy = {
+          enable = true;
+          port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
         };
       };
 
