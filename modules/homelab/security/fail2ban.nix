@@ -79,12 +79,14 @@ in
             extraPackages = [
               pkgs.msmtp
               pkgs.curl
+              pkgs.whois
             ];
             jails = {
               ssh-iptables.settings = {
                 enabled = true;
                 port = "ssh";
                 filter = "sshd";
+                logpath = "/var/log/auth.log";
                 maxretry = 3;
                 bantime = "1w";
                 sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
