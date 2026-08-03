@@ -136,7 +136,7 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        ALLOWED_HOSTS = "localhost,127.0.0.1,::1,${hosts.recipes}";
+        ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
         DEBUG = "1";
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
