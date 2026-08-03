@@ -236,10 +236,10 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              HealthCmd = "curl -sf http://localhost:8080/api/health || exit 1";
-              HealthInterval = "30s";
-              HealthTimeout = "10s";
-              HealthRetries = 3;
+              # HealthCmd = "curl -sf http://localhost:8080/api/health || exit 1";
+              # HealthInterval = "30s";
+              # HealthTimeout = "10s";
+              # HealthRetries = 3;
             };
           };
         };
