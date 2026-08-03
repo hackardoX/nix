@@ -136,7 +136,7 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        ALLOWED_HOSTS = hosts.recipes;
+        ALLOWED_HOSTS = "localhost,${hosts.recipes}";
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
         POSTGRES_DB = tandoorDbName;
