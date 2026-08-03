@@ -137,6 +137,7 @@ in
     let
       sharedEnv = {
         ALLOWED_HOSTS = "localhost,${hosts.recipes}";
+        DEBUG = "1";
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
         POSTGRES_DB = tandoorDbName;
@@ -211,7 +212,7 @@ in
         services.podman.containers.tandoor = {
           image = tandoorImage;
           autoStart = true;
-          userNS = "keep-id:uid=100,gid=82";
+          userNS = "keep-id:uid=0,gid=0";
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];
