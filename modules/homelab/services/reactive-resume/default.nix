@@ -110,6 +110,7 @@ in
     systemd.tmpfiles.rules = [
       "d ${reactiveResumeAppDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeDataDir}/postgresql 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeDataDir}/postgresql/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeDataDir}/postgresql/wal 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];

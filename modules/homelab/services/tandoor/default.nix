@@ -60,6 +60,7 @@ in
       "d ${tandoorAppDir} 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/staticfiles 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/mediafiles 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgresql 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorDataDir}/postgresql/data 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorDataDir}/postgresql/wal 0750 ${tandoorUser} ${tandoorGroup} -"
     ];

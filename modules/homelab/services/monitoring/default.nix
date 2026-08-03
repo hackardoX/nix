@@ -92,7 +92,6 @@ in
       "d ${monitoringAppDir}/prometheus/data 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/alloy 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/alloy/data 0750 ${monitoringUser} ${monitoringGroup} -"
-      "d ${monitoringAppDir}/containers 0750 ${monitoringUser} ${monitoringGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [

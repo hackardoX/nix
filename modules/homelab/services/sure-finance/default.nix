@@ -59,6 +59,7 @@ in
     systemd.tmpfiles.rules = [
       "d ${sureFinanceAppDir} 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceAppDir}/storage 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
+      "d ${sureFinanceDataDir}/postgresql 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceDataDir}/postgresql/data 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceDataDir}/postgresql/wal 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
       "d ${sureFinanceDataDir}/redis 0750 ${sureFinanceUser} ${sureFinanceGroup} -"
