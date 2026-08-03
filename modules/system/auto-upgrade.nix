@@ -4,20 +4,19 @@
   ...
 }:
 let
-  ntfyUrl = "https://ntfy.sh";
-  ntfyTopic = "homelab-alerts";
+  ntfy = config.flake.meta.ntfy;
 in
 {
   flake.modules.nixos.base =
     nixosArgs@{ pkgs, ... }:
     let
-      tokenPath = nixosArgs.config.services.onepassword-secrets.secretPaths.autoUpgradeNtfyToken;
+      tokenPath = nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken;
 
       upgradeNotifyScript = pkgs.writeShellScript "ntfy-upgrade-notify" ''
         set -euo pipefail
 
         token_path="${tokenPath}"
-        url="${ntfyUrl}/${ntfyTopic}"
+        url="${ntfy.url}/${ntfy.topic}"
         host="${nixosArgs.config.networking.hostName}"
 
         case "$1" in
@@ -62,12 +61,6 @@ in
           lower = "02:00";
           upper = "04:00";
         };
-      };
-
-      services.onepassword-secrets.secrets.autoUpgradeNtfyToken = {
-        path = "/run/secrets/auto_upgrade_ntfy_token";
-        reference = "op://Homelab/Alerting/NTFY/token";
-        services.nixos-upgrade.restart = false;
       };
 
       systemd.services.nixos-upgrade.unitConfig = {

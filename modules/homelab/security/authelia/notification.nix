@@ -3,18 +3,15 @@
   flake.modules.nixos.homelab-security =
     nixosArgs@{ pkgs, ... }:
     let
+      ntfy = config.flake.meta.ntfy;
       autheliaDataDir = "/var/lib/data/authelia";
-      autheliaNtfyService = "authelia-ntfy.service";
-
-      ntfyTopic = "homelab-alerts";
-      ntfyUrl = "https://ntfy.sh";
 
       banNotifyScript = ''
         set -euo pipefail
 
         DB=${autheliaDataDir}/db.sqlite3
         STATE=/var/lib/authelia-ntfy/last_ids
-        TOKEN_FILE=${nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaNtfyToken}
+        TOKEN_FILE=${nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken}
 
         last_user=0
         last_ip=0
@@ -32,7 +29,7 @@
             -H "Priority: high" \
             -H "Tags: warning,skull" \
             -d "$kind '$value' banned by Authelia until $until" \
-            ${ntfyUrl}/${ntfyTopic} \
+            ${ntfy.url}/${ntfy.topic} \
             || logger -t authelia-ntfy "ntfy notification failed for $kind $value"
         }
 
@@ -76,14 +73,6 @@
           OnUnitActiveSec = "5m";
           AccuracySec = "1m";
         };
-      };
-
-      services.onepassword-secrets.secrets.autheliaNtfyToken = {
-        path = "/run/secrets/authelia/ntfy_token";
-        reference = "op://Homelab/Alerting/NTFY/token";
-        owner = config.flake.meta.authelia.user;
-        group = config.flake.meta.authelia.group;
-        services = [ autheliaNtfyService ];
       };
     };
 }
