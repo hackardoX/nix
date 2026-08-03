@@ -136,7 +136,7 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        ALLOWED_HOSTS = "localhost,${hosts.recipes}";
+        ALLOWED_HOSTS = "localhost,127.0.0.1,::1,${hosts.recipes}";
         DEBUG = "1";
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
@@ -237,7 +237,7 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              HealthCmd = "curl -sf http://localhost:${toString tandoorPort}/api/health || exit 1";
+              HealthCmd = "wget -qO- http://localhost:${toString tandoorPort}/api/health || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
