@@ -149,8 +149,10 @@ in
                     path /api/* /auth/* /login /graphql
                   }
                   key    {http.request.client_ip}
-                  events 60
+                  events 300
                   window 1m
+                  ipv6_prefix 64
+                  log_key
                 }
               }
             }
