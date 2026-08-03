@@ -21,7 +21,7 @@ in
             "email"
             "ntfy"
           ];
-          default = "email";
+          default = "ntfy";
           description = "How fail2ban sends ban/unban alerts";
         };
       };
