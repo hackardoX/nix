@@ -237,10 +237,10 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              HealthCmd = "wget -qO- http://localhost:${toString tandoorPort}/api/health || exit 1";
-              HealthInterval = "30s";
-              HealthTimeout = "10s";
-              HealthRetries = 3;
+              # HealthCmd = "wget -qO- http://localhost:${toString tandoorPort}/api/health || exit 1";
+              # HealthInterval = "30s";
+              # HealthTimeout = "10s";
+              # HealthRetries = 3;
             };
           };
         };
