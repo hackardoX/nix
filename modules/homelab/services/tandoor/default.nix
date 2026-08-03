@@ -24,7 +24,7 @@ in
     category = "General";
     name = "Tandoor Recipes";
     description = "Recipe Management";
-    icon = "tandoor-recipes";
+    icon = "sh-tandoor-recipes.webp";
     href = "https://${hosts.recipes}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
     widget = config.flake.lib.beszel.mkWidget {

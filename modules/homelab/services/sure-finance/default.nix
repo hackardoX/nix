@@ -24,7 +24,7 @@ in
     category = "Finance";
     name = "Sure Finance";
     description = "Personal Finance Tracker";
-    icon = "sure-finance";
+    icon = "sh-sure-finance.webp";
     href = "https://${hosts.finance}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}/up";
     container = "sure-finance-web";

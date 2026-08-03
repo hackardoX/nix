@@ -30,7 +30,7 @@ in
     category = "Media";
     name = "Immich";
     description = "Photo & Video Management";
-    icon = "immich";
+    icon = "sh-immich.webp";
     href = "http://localhost:${toString reverseProxyPort}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
     widget = config.flake.lib.beszel.mkWidget {
