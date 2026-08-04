@@ -7,7 +7,7 @@ let
   immichGid = 903;
   immichUser = "immich";
   immichGroup = "immich";
-  immichAppDir = "/var/lib/containers/immich";
+  immichAppDir = "/var/lib/podman/immich";
   immichDataDir = "/var/lib/data/immich";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -30,10 +30,10 @@ in
     category = "Media";
     name = "Immich";
     description = "Photo & Video Management";
-    icon = "immich";
+    icon = "sh-immich.webp";
     href = "http://localhost:${toString reverseProxyPort}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.beszel.mkWidget {
       systemId = "Immich";
     };
     container = "immich-server";
@@ -65,8 +65,10 @@ in
     systemd.tmpfiles.rules = [
       "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/photos 0750 ${immichUser} ${immichGroup} -"
-      "d ${immichDataDir}/postgres 0750 ${immichUser} ${immichGroup} -"
-      "d ${immichAppDir}/containers 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir} 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir}/postgresql 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir}/postgresql/data 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir}/postgresql/wal 0750 ${immichUser} ${immichGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -164,11 +166,6 @@ in
     in
     {
       config = {
-        xdg.configFile."containers/storage.conf".text = ''
-          [storage]
-          graphroot = "${immichAppDir}/containers"
-        '';
-
         services.backup.jobs.immich = {
           paths = [
             "${immichAppDir}/photos/library"
@@ -278,12 +275,15 @@ in
             capDrop = [ "NET_RAW" ];
             network = [ "immich.network" ];
             networkAlias = [ "immich-db" ];
-            volumes = [ "${immichDataDir}/postgres:/var/lib/postgresql/data" ];
+            volumes = [
+              "${immichDataDir}/postgresql/data:/var/lib/postgresql/data"
+              "${immichDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
+            ];
 
             environment = {
               POSTGRES_USER = immichDbUser;
               POSTGRES_DB = immichDbName;
-              POSTGRES_INITDB_ARGS = "--data-checksums";
+              POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
             };
 
             secrets = {

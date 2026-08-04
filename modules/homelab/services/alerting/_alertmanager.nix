@@ -1,0 +1,235 @@
+{
+  config,
+  ...
+}:
+let
+  ntfy = config.flake.meta.ntfy;
+
+  alertingUser = "alerting";
+  alertingGroup = "alerting";
+  alertingAppDir = "/var/lib/podman/alerting";
+
+  alertmanagerHostPort = 9093;
+  alertmanagerContainerPort = 9093;
+  alertmanagerNtfyHostPort = 8000;
+  alertmanagerNtfyContainerPort = 8000;
+
+in
+{
+  flake.modules.nixos.homelab-alerting = {
+    users.users.${alertingUser} = {
+      uid = 992;
+      isSystemUser = true;
+      group = alertingGroup;
+      extraGroups = [
+        "podman"
+        "homelab-users"
+        "rclone"
+      ];
+      createHome = true;
+      home = "/var/lib/${alertingUser}";
+      autoSubUidGidRange = true;
+      linger = true;
+    };
+
+    users.groups.${alertingGroup} = { };
+
+    systemd.tmpfiles.rules = [
+      "d ${alertingAppDir} 0750 ${alertingUser} ${alertingGroup} -"
+      "d ${alertingAppDir}/alertmanager 0750 ${alertingUser} ${alertingGroup} -"
+      "d ${alertingAppDir}/alertmanager/data 0750 ${alertingUser} ${alertingGroup} -"
+    ];
+
+    boot.initrd.impermanence.persist.directories = [
+      {
+        directory = alertingAppDir;
+        user = alertingUser;
+        group = alertingGroup;
+        mode = "0750";
+      }
+    ];
+
+    home-manager.users.${alertingUser} = {
+      services.rclone.remotes = [ "koofr" ];
+      home.username = alertingUser;
+      home.stateVersion = "26.05";
+      imports = with config.flake.modules.homeManager; [
+        base
+        homelab-alerting
+        backup
+        homelab-podman-extension
+        podman-secrets
+        homelab-beszel-agent
+      ];
+      services.homelab-beszel-agent = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.beszel-agent-alerting;
+      };
+    };
+
+    services.onepassword-secrets.secrets = {
+      backupAlertmanagerEncryptionKey = {
+        path = "/run/secrets/alerting/backup_encryption_key";
+        reference = "op://Homelab/Backup/Alert Manager/password";
+        owner = alertingUser;
+        group = alertingGroup;
+      };
+    };
+  };
+
+  flake.modules.homeManager.homelab-alerting =
+    {
+      osConfig,
+      pkgs,
+      ...
+    }:
+    let
+      alertmanagerConfig = pkgs.writeText "alertmanager.yml" (
+        builtins.toJSON {
+          global.resolve_timeout = "5m";
+          route = {
+            group_by = [ "alertname" ];
+            group_wait = "30s";
+            group_interval = "5m";
+            repeat_interval = "4h";
+            receiver = "ntfy";
+          };
+          receivers = [
+            {
+              name = "ntfy";
+              webhook_configs = [
+                {
+                  url = "http://alertmanager-ntfy:${toString alertmanagerNtfyContainerPort}/hook";
+                  send_resolved = true;
+                }
+              ];
+            }
+          ];
+        }
+      );
+
+      alertmanagerNtfyConfig = pkgs.writeText "config.yml" (
+        builtins.toJSON {
+          http.addr = ":${toString alertmanagerNtfyContainerPort}";
+          ntfy = {
+            baseurl = ntfy.url;
+            notification = {
+              topic = ntfy.topic;
+              priority = ''
+                alertname == "ContainerDown" ? "urgent" : "high"
+              '';
+              tags = [
+                {
+                  tag = "rotating_light";
+                  condition = ''status == "firing"'';
+                }
+                {
+                  tag = "white_check_mark";
+                  condition = ''status == "resolved"'';
+                }
+              ];
+              templates = {
+                title = ''
+                  {{ if eq .Status "resolved" }}Resolved: {{ end }}{{ .GroupLabels.alertname }}
+                '';
+                description = ''
+                  {{ range .Alerts }}
+                  Alert: {{ .Labels.alertname }}
+                  Severity: {{ .Labels.severity }}
+                  Instance: {{ .Labels.instance }}
+                  {{ if .Annotations.summary }}Summary: {{ .Annotations.summary }}{{ end }}
+                  {{ if .Annotations.description }}{{ .Annotations.description }}{{ end }}
+                  {{ end }}
+                '';
+              };
+            };
+          };
+        }
+      );
+
+      entrypointScript = pkgs.writeTextFile {
+        name = "alertmanager-ntfy-entrypoint";
+        executable = true;
+        text = ''
+          #!/bin/sh
+          set -e
+          cat > /etc/auth.yml << EOF
+          ntfy:
+            auth:
+              token: "$NTFY_TOKEN"
+          EOF
+          exec /usr/local/bin/alertmanager-ntfy --configs /etc/config.yml,/etc/auth.yml
+        '';
+      };
+    in
+    {
+      config = {
+        xdg.configFile."containers/storage.conf".text = ''
+          [storage]
+          graphroot = "${alertingAppDir}/containers"
+        '';
+
+        services.backup.jobs.alertmanager = {
+          paths = [ "${alertingAppDir}/alertmanager/data" ];
+          schedule = "weekly";
+          retention = "extended";
+          providers = [ "koofr" ];
+          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
+        };
+
+        services.podman.enable = true;
+        services.podman.networks.alerting.driver = "bridge";
+
+        services.podman.containers.alertmanager = {
+          image = "prom/alertmanager:v0.33.1";
+          autoStart = true;
+          userNS = "keep-id:uid=65534,gid=65534";
+          network = [ "alerting.network" ];
+          networkAlias = [ "alertmanager" ];
+          ports = [ "${toString alertmanagerHostPort}:${toString alertmanagerContainerPort}" ];
+          monitoring.enable = true;
+
+          environment.TZ = osConfig.time.timeZone;
+
+          volumes = [
+            "${alertingAppDir}/alertmanager/data:/alertmanager"
+            "${alertmanagerConfig}:/etc/alertmanager/alertmanager.yml:ro"
+          ];
+
+          exec = "--config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager";
+          extraConfig.Container.NoNewPrivileges = true;
+        };
+
+        services.podman.containers.alertmanager-ntfy = {
+          image = "ghcr.io/alexbakker/alertmanager-ntfy:v1.2.1";
+          autoStart = true;
+          userNS = "keep-id";
+          user = "%U";
+          group = "%G";
+          network = [ "alerting.network" ];
+          networkAlias = [ "alertmanager-ntfy" ];
+          ports = [ "${toString alertmanagerNtfyHostPort}:${toString alertmanagerNtfyContainerPort}" ];
+          monitoring.enable = true;
+
+          environment.TZ = osConfig.time.timeZone;
+
+          volumes = [
+            "${alertmanagerNtfyConfig}:/etc/config.yml:ro"
+            "${entrypointScript}:/entrypoint.sh:ro"
+          ];
+
+          secrets = {
+            NTFY_TOKEN = osConfig.services.onepassword-secrets.secretPaths.alertingNtfyToken;
+          };
+
+          extraConfig = {
+            Container = {
+              LogDriver = "journald";
+              Entrypoint = [ "/entrypoint.sh" ];
+              NoNewPrivileges = true;
+            };
+          };
+        };
+      };
+    };
+}

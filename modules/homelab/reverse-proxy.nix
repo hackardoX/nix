@@ -103,9 +103,6 @@ in
               output file /var/lib/caddy/access.log {
                 roll_disabled
               }
-              format transform `{request>client_ip} {request>host} - - [{ts}] "{request>method} {request>uri} {request>proto}" {status} {size}` {
-                time_format "02/Jan/2006:15:04:05 -0700"
-              }
             }
           '';
 
@@ -116,8 +113,9 @@ in
               "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
               "github.com/mholt/caddy-ratelimit@v0.1.0"
+              "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
             ];
-            hash = "sha256-Rbv6AJKiWOnGK7T8zLRaq+CdWWOPOEu8DIqyM7ITWFQ=";
+            hash = "sha256-wlK7vJuKZDS4G+syrbwsS/CDd9AIm3Nj5y1DgC0NA48=";
           };
 
           extraConfig = ''
@@ -137,6 +135,7 @@ in
                   maxmind_geolocation {
                     db_path "${geoipDbPath}/GeoLite2-Country.mmdb"
                     allow_countries ${lib.concatStringsSep " " allowedCountries}
+                    ip_header X-Forwarded-For
                   }
                 }
               }
@@ -150,8 +149,10 @@ in
                     path /api/* /auth/* /login /graphql
                   }
                   key    {http.request.client_ip}
-                  events 60
+                  events 300
                   window 1m
+                  ipv6_prefix 64
+                  log_key
                 }
               }
             }

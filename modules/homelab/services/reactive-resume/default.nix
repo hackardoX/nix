@@ -8,7 +8,7 @@ let
   reactiveResumeGid = 907;
   reactiveResumeUser = "reactive-resume";
   reactiveResumeGroup = "reactive-resume";
-  reactiveResumeAppDir = "/var/lib/containers/reactive-resume";
+  reactiveResumeAppDir = "/var/lib/podman/reactive-resume";
   reactiveResumeDataDir = "/var/lib/data/reactive-resume";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -26,7 +26,7 @@ in
     category = "Productivity";
     name = "Reactive Resume";
     description = "Resume Builder";
-    icon = "reactive-resume";
+    icon = "sh-reactive-resume.webp";
     href = "https://${hosts.rxresume}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
     container = "reactive-resume";
@@ -34,7 +34,7 @@ in
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;
     showStats = false;
     pingPort = reverseProxyPort;
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.beszel.mkWidget {
       systemId = "Reactive Resume";
     };
   };
@@ -110,8 +110,10 @@ in
     systemd.tmpfiles.rules = [
       "d ${reactiveResumeAppDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
       "d ${reactiveResumeAppDir}/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
-      "d ${reactiveResumeDataDir}/postgres 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
-      "d ${reactiveResumeAppDir}/storage 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeDataDir} 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeDataDir}/postgresql 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeDataDir}/postgresql/data 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
+      "d ${reactiveResumeDataDir}/postgresql/wal 0750 ${reactiveResumeUser} ${reactiveResumeGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -163,11 +165,6 @@ in
     in
     {
       config = {
-        xdg.configFile."containers/storage.conf".text = ''
-          [storage]
-          graphroot = "${reactiveResumeAppDir}/containers"
-        '';
-
         services.backup.jobs.reactive-resume = {
           paths = [
             "${reactiveResumeAppDir}/data"
@@ -196,12 +193,16 @@ in
           userNS = "keep-id:uid=999,gid=999";
           network = [ "reactive-resume.network" ];
           networkAlias = [ "db" ];
-          volumes = [ "${reactiveResumeDataDir}/postgres:/var/lib/postgresql/data" ];
+          volumes = [
+            "${reactiveResumeDataDir}/postgresql/data:/var/lib/postgresql/data"
+            "${reactiveResumeDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
+          ];
 
           environment = {
             TZ = osConfig.time.timeZone;
             POSTGRES_USER = reactiveResumeDbUser;
             POSTGRES_DB = reactiveResumeDbName;
+            POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
           };
 
           secrets = {

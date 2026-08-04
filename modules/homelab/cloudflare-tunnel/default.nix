@@ -38,9 +38,12 @@ in
       caddy = {
         globalConfig = lib.mkAfter ''
           servers {
-            trusted_proxies cloudflare
+            trusted_proxies combine {
+              cloudflare
+              static 127.0.0.1/32 ::1/128
+            }
             trusted_proxies_strict
-            client_ip_headers Cf-Connecting-Ip X-Forwarded-For
+            client_ip_headers Cf-Connecting-Ip
           }
         '';
       };

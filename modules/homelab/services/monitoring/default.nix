@@ -8,7 +8,7 @@ let
   monitoringGid = 906;
   monitoringUser = "monitoring";
   monitoringGroup = "monitoring";
-  monitoringAppDir = "/var/lib/containers/monitoring";
+  monitoringAppDir = "/var/lib/podman/monitoring";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   prometheusHost = "prometheus";
@@ -92,7 +92,6 @@ in
       "d ${monitoringAppDir}/prometheus/data 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/alloy 0750 ${monitoringUser} ${monitoringGroup} -"
       "d ${monitoringAppDir}/alloy/data 0750 ${monitoringUser} ${monitoringGroup} -"
-      "d ${monitoringAppDir}/containers 0750 ${monitoringUser} ${monitoringGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [

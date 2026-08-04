@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   inherit (config.flake.meta) fail2ban;
+  inherit (config.flake.meta) ntfy;
 in
 {
   flake.meta.fail2ban = {
@@ -20,7 +21,7 @@ in
             "email"
             "ntfy"
           ];
-          default = "email";
+          default = "ntfy";
           description = "How fail2ban sends ban/unban alerts";
         };
       };
@@ -42,9 +43,9 @@ in
           [Definition]
           norestored = true
 
-          ntfy_topic = homelab-alerts
-          ntfy_url = https://ntfy.sh
-          ntfy_token = ${nixosArgs.config.services.onepassword-secrets.secretPaths.fail2banNtfyToken}
+          ntfy_topic = ${ntfy.topic}
+          ntfy_url = ${ntfy.url}
+          ntfy_token = ${nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken}
 
           actionstart = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for start"
           actionstop = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for stop"
@@ -79,12 +80,14 @@ in
             extraPackages = [
               pkgs.msmtp
               pkgs.curl
+              pkgs.whois
             ];
             jails = {
               ssh-iptables.settings = {
                 enabled = true;
                 port = "ssh";
                 filter = "sshd";
+                logpath = "/var/log/auth.log";
                 maxretry = 3;
                 bantime = "1w";
                 sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
@@ -98,15 +101,7 @@ in
             resendApiKey = {
               path = "/run/secrets/resend_api_key";
               reference = "op://HomeLab/Resend/Fail2ban/api key";
-              inherit (fail2ban) owner;
-              inherit (fail2ban) group;
-              services = [ "fail2ban" ];
-            };
-            fail2banNtfyToken = {
-              path = "/run/secrets/fail2ban_ntfy_token";
-              reference = "op://Homelab/Alerting/ntfy token";
-              inherit (fail2ban) owner;
-              inherit (fail2ban) group;
+              inherit (fail2ban) owner group;
               services = [ "fail2ban" ];
             };
           };

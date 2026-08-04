@@ -8,13 +8,13 @@ let
   tandoorGid = 904;
   tandoorUser = "tandoor";
   tandoorGroup = "tandoor";
-  tandoorAppDir = "/var/lib/containers/tandoor";
+  tandoorAppDir = "/var/lib/podman/tandoor";
   tandoorDataDir = "/var/lib/data/tandoor";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13";
-  tandoorPort = 8080;
+  tandoorPort = 80;
   tandoorDbName = "tandoor";
   tandoorDbUser = "tandoor";
   tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
@@ -24,10 +24,10 @@ in
     category = "General";
     name = "Tandoor Recipes";
     description = "Recipe Management";
-    icon = "tandoor-recipes";
+    icon = "sh-tandoor-recipes.webp";
     href = "https://${hosts.recipes}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}/api/health";
-    widget = config.flake.lib.mkBeszelWidget {
+    widget = config.flake.lib.beszel.mkWidget {
       systemId = "Tandoor";
     };
     container = "tandoor";
@@ -60,8 +60,10 @@ in
       "d ${tandoorAppDir} 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/staticfiles 0750 ${tandoorUser} ${tandoorGroup} -"
       "d ${tandoorAppDir}/mediafiles 0750 ${tandoorUser} ${tandoorGroup} -"
-      "d ${tandoorDataDir}/postgres 0750 ${tandoorUser} ${tandoorGroup} -"
-      "d ${tandoorAppDir}/containers 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir} 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgresql 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgresql/data 0750 ${tandoorUser} ${tandoorGroup} -"
+      "d ${tandoorDataDir}/postgresql/wal 0750 ${tandoorUser} ${tandoorGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -134,7 +136,8 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        ALLOWED_HOSTS = hosts.recipes;
+        ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
+        DEBUG = "1";
         DB_ENGINE = "django.db.backends.postgresql";
         POSTGRES_HOST = "db";
         POSTGRES_DB = tandoorDbName;
@@ -158,14 +161,9 @@ in
     in
     {
       config = {
-        xdg.configFile."containers/storage.conf".text = ''
-          [storage]
-          graphroot = "${tandoorAppDir}/containers"
-        '';
-
         services.backup.jobs.tandoor = {
           paths = [
-            "${tandoorDataDir}/postgres"
+            "${tandoorDataDir}/postgresql/data"
             "${tandoorAppDir}/mediafiles"
           ];
           schedule = "daily";
@@ -183,12 +181,16 @@ in
           userNS = "keep-id:uid=999,gid=999";
           network = [ "tandoor.network" ];
           networkAlias = [ "db" ];
-          volumes = [ "${tandoorDataDir}/postgres:/var/lib/postgresql/data" ];
+          volumes = [
+            "${tandoorDataDir}/postgresql/data:/var/lib/postgresql/data"
+            "${tandoorDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
+          ];
 
           environment = {
             TZ = osConfig.time.timeZone;
             POSTGRES_USER = tandoorDbUser;
             POSTGRES_DB = tandoorDbName;
+            POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
           };
 
           secrets = {
@@ -235,10 +237,10 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              HealthCmd = "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health/')\"";
-              HealthInterval = "30s";
-              HealthTimeout = "10s";
-              HealthRetries = 3;
+              # HealthCmd = "wget -qO- http://localhost:${toString tandoorPort}/api/health || exit 1";
+              # HealthInterval = "30s";
+              # HealthTimeout = "10s";
+              # HealthRetries = 3;
             };
           };
         };

@@ -67,6 +67,7 @@
       imports = [
         config.flake.modules.homeManager.rclone
         config.flake.modules.homeManager.postgresDump
+        config.flake.modules.homeManager.backupAlert
       ];
 
       options.services.backup = {

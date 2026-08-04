@@ -63,19 +63,20 @@
      credential="$unhashed" --vault Homelab
    ```
 
-3. Add the OIDC client entry in `modules/security/authelia.nix`:
-   - Add to `flake.meta.oidc-clients`:
-     ```nix
-     <app> = {
-       clientId = "<app>";
-       clientName = "<Display Name>";
-     };
-     ```
-   - Add the client config to the `settingsFiles` template in `authelia.nix`, following the pattern of Immich/Tandoor.
-   - Declare the opnix secret for the hashed client secret.
+3. Add the OIDC client entry to `flake.meta.oidc-clients` in `modules/homelab/security/authelia/default.nix`, keyed by the client id:
+   ```nix
+   <app> = {
+     clientId = "<app>";
+     clientName = "<Display Name>";
+     policy = "one_factor";
+     redirectUris = [ "https://<app-host>/oauth/callback" ];
+     secretName = "authelia<App>OidcSecret";
+   };
+   ```
+   `clientId` is also the entry key. The `secretName` must match an opnix secret declared in `modules/homelab/security/authelia/secrets.nix` (the hashed client secret). Optional per-client Authelia YAML overrides go in `extraYamlLines`.
 
 4. Add the `oidcClientSecretFile` option to the app's homelab service module and wire it to a new opnix secret for the unhashed value.
 
-5. Configure the app to use Authelia's OIDC (issuer URL: `https://auth.<domain>`, client ID, client secret, scopes: `openid profile email`).
+5. Configure the app to use Authelia's OIDC (issuer URL: `https://auth.<domain>`, client ID from `config.flake.meta.oidc-clients.<app>.clientId`, client secret, scopes: `openid profile email`).
 
 6. Rebuild.

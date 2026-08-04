@@ -9,7 +9,7 @@ let
   homepageUser = "homepage";
   homepageGroup = "homepage";
   homepagePort = 3000;
-  homepageAppDir = "/var/lib/containers/homepage";
+  homepageAppDir = "/var/lib/podman/homepage";
 
   domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
@@ -63,9 +63,9 @@ let
           showStats
           statusStyle
           ;
-        widget = svc.widget;
+        inherit (svc) widget;
         server = svc.dockerServer;
-        container = svc.container;
+        inherit (svc) container;
       };
     }) (lib.filterAttrs (_: s: s.category == cat) allServices);
 
@@ -121,10 +121,15 @@ in
           homelab-homepage
           homelab-podman-extension
           homelab-beszel-agent
+          homelab-docker-socket-proxy
         ];
         services.homelab-beszel-agent = {
           enable = true;
           port = config.flake.meta.reverse-proxy.ports.beszel-agent-homepage;
+        };
+        services.homelab-docker-socket-proxy = {
+          enable = true;
+          port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
         };
       };
 

@@ -2,7 +2,7 @@
 {
   flake.modules.nixos.homelab = {
     imports = with config.flake.modules.nixos; [
-      # homelab-alerting
+      homelab-alerting
       homelab-beszel
       homelab-ingress
       homelab-homepage
