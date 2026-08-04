@@ -241,6 +241,7 @@ in
               # HealthInterval = "30s";
               # HealthTimeout = "10s";
               # HealthRetries = 3;
+              # HealthStartPeriod = "30s";
             };
           };
         };
