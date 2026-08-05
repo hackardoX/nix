@@ -57,7 +57,7 @@
             -H "Priority: $priority" \
             -H "Tags: $tags" \
             -d "$message" \
-            "$url" || "${lib.getExe pkgs.util-linux}" -t backup-alert "ntfy notification failed for ''${name}"
+            "$url" || "${lib.getExe' pkgs.util-linux "logger"}" -t backup-alert "ntfy notification failed for ''${name}"
         '';
     in
     {
