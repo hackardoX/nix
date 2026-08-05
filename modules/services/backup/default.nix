@@ -5,6 +5,7 @@
     let
       cfg = hmArgs.config.services.backup;
       rcloneRemotes = hmArgs.config.programs.rclone.remotes or { };
+      dbOptions = config.flake.lib.types.backup.db;
 
       retentionPresets = {
         short = [
@@ -30,15 +31,6 @@
         weekly = "weekly";
       };
 
-      mkDumpCalendar =
-        schedule:
-        {
-          hourly = "*-*-* *:30:00";
-          daily = "*-*-* 23:30:00";
-          weekly = "Sun *-*-* 23:30:00";
-        }
-        .${schedule};
-
       mkBackupName = jobName: provider: "${jobName}-${provider}";
 
       mkResticBackup =
@@ -47,7 +39,7 @@
           destination = if jobCfg.destination != null then jobCfg.destination else jobName;
           hasDb = jobCfg.db != null;
           dumpPath =
-            if hasDb then hmArgs.config.services.postgres-dump.instances.${jobName}.outputPath else null;
+            if hasDb then hmArgs.config.services.postgresql-dump.instances.${jobName}.outputPath else null;
         in
         {
           repository = "rclone:${provider}:${destination}/backup";
@@ -66,8 +58,6 @@
     {
       imports = [
         config.flake.modules.homeManager.rclone
-        config.flake.modules.homeManager.postgresDump
-        config.flake.modules.homeManager.backupAlert
       ];
 
       options.services.backup = {
@@ -118,51 +108,7 @@
                 };
 
                 db = lib.mkOption {
-                  type = lib.types.nullOr (
-                    lib.types.submodule {
-                      options = {
-                        type = lib.mkOption {
-                          type = lib.types.enum [ "postgres" ];
-                          default = "postgres";
-                          description = "Database type";
-                        };
-
-                        user = lib.mkOption {
-                          type = lib.types.str;
-                          default = "postgres";
-                          description = "Database superuser for pg_dumpall";
-                        };
-
-                        passwordFile = lib.mkOption {
-                          type = lib.types.nullOr lib.types.path;
-                          default = null;
-                          description = "Path to file containing the database password";
-                        };
-
-                        container = lib.mkOption {
-                          type = lib.types.nullOr (
-                            lib.types.submodule {
-                              options = {
-                                type = lib.mkOption {
-                                  type = lib.types.enum [
-                                    "podman"
-                                    "docker"
-                                  ];
-                                  description = "Container runtime";
-                                };
-                                name = lib.mkOption {
-                                  type = lib.types.str;
-                                  description = "Container name";
-                                };
-                              };
-                            }
-                          );
-                          default = null;
-                          description = "Container running the database. Null = local database.";
-                        };
-                      };
-                    }
-                  );
+                  type = lib.types.nullOr dbOptions;
                   default = null;
                   description = "Database configuration for automatic pre-backup dump";
                 };
@@ -192,15 +138,14 @@
           ) cfg.jobs;
         };
 
-        services.postgres-dump.instances = lib.mapAttrs (_: jobCfg: {
+        services.postgresql-dump.instances = lib.mapAttrs (_: jobCfg: {
           inherit (jobCfg.db)
             type
             user
             passwordFile
             container
             ;
-          calendar = lib.mkDefault (mkDumpCalendar jobCfg.schedule);
-        }) (lib.filterAttrs (_: jobCfg: jobCfg.db != null) cfg.jobs);
+        }) (lib.filterAttrs (_: jobCfg: jobCfg.db != null && jobCfg.db.type == "postgresql") cfg.jobs);
 
         systemd.user.services = lib.concatMapAttrs (
           name: jobCfg:
@@ -208,11 +153,14 @@
             map (provider: {
               name = "restic-backups-${mkBackupName name provider}";
               value = {
-                Unit.After = [ "postgres-dump-${name}.service" ];
+                Unit = {
+                  After = [ "postgresql-dump-${name}.service" ];
+                  Wants = [ "postgresql-dump-${name}.service" ];
+                };
               };
             }) jobCfg.providers
           )
-        ) (lib.filterAttrs (_: jobCfg: jobCfg.db != null) cfg.jobs);
+        ) (lib.filterAttrs (_: jobCfg: jobCfg.db != null && jobCfg.db.type == "postgresql") cfg.jobs);
       };
     };
 }
