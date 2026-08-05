@@ -47,7 +47,7 @@ let
   ];
   homepageBookmarks = [ ];
 
-  allServices = config.flake.homepage.services;
+  allServices = config.flake.meta.homepage.services;
   categories = lib.unique (lib.mapAttrsToList (_: s: s.category) allServices);
 
   servicesInCategory =

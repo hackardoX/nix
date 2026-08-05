@@ -3,8 +3,6 @@
   ...
 }:
 let
-  ntfy = config.flake.meta.ntfy;
-
   alertingUser = "alerting";
   alertingGroup = "alerting";
   alertingAppDir = "/var/lib/podman/alerting";
@@ -84,6 +82,8 @@ in
       ...
     }:
     let
+      ntfy = osConfig.services.ntfy-notify;
+
       alertmanagerConfig = pkgs.writeText "alertmanager.yml" (
         builtins.toJSON {
           global.resolve_timeout = "5m";

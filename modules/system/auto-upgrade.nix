@@ -3,13 +3,11 @@
   config,
   ...
 }:
-let
-  ntfy = config.flake.meta.ntfy;
-in
 {
   flake.modules.nixos.base =
     nixosArgs@{ pkgs, ... }:
     let
+      ntfy = nixosArgs.config.services.ntfy-notify;
       tokenPath = nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken;
 
       upgradeNotifyScript = pkgs.writeShellScript "ntfy-upgrade-notify" ''

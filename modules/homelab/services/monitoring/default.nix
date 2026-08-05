@@ -32,11 +32,11 @@ let
   alloyHostPort = 12345;
 
   oidcEnabled = true;
-  grafanaOidcClientId = config.flake.meta.oidc-clients.grafana.clientId or "";
+  grafanaOidcClientId = config.flake.meta.oidc-clients.grafana.clientId;
   # grafanaOidcSecretFile = "/run/secrets/monitoring/grafana/oidc_client_secret";
 in
 {
-  # flake.homepage.services.prometheus = {
+  # flake.meta.homepage.services.prometheus = {
   #   category = "Monitoring";
   #   name = "Prometheus";
   #   description = "Metrics Storage";
@@ -45,7 +45,7 @@ in
   #   pingPort = prometheusHostPort;
   # };
   #
-  # flake.homepage.services.grafana = {
+  # flake.meta.homepage.services.grafana = {
   #   category = "Monitoring";
   #   name = "Grafana";
   #   description = "Metrics & Dashboards";
@@ -54,7 +54,7 @@ in
   #   pingPort = grafanaHostPort;
   # };
   #
-  # flake.homepage.services.loki = {
+  # flake.meta.homepage.services.loki = {
   #   category = "Monitoring";
   #   name = "Loki";
   #   description = "Log Aggregation";
