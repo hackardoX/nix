@@ -1,18 +1,16 @@
 { config, lib, ... }:
 let
-  inherit (config.flake.meta) fail2ban;
-  inherit (config.flake.meta) ntfy;
-in
-{
-  flake.meta.fail2ban = {
+  fail2ban = {
     owner = "fail2ban";
     group = "fail2ban";
   };
-
+in
+{
   flake.modules.nixos.homelab-security =
     nixosArgs@{ pkgs, ... }:
     let
       cfg = nixosArgs.config.homelab.fail2ban;
+      ntfy = nixosArgs.config.services.ntfy-notify;
     in
     {
       options.homelab.fail2ban = {

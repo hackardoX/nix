@@ -26,7 +26,7 @@ let
   };
 in
 {
-  flake.homepage.services.immich = {
+  flake.meta.homepage.services.immich = {
     category = "Media";
     name = "Immich";
     description = "Photo & Video Management";

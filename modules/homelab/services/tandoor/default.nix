@@ -20,7 +20,7 @@ let
   tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
 in
 {
-  flake.homepage.services.tandoor = {
+  flake.meta.homepage.services.tandoor = {
     category = "General";
     name = "Tandoor Recipes";
     description = "Recipe Management";
@@ -241,6 +241,7 @@ in
               # HealthInterval = "30s";
               # HealthTimeout = "10s";
               # HealthRetries = 3;
+              # HealthStartPeriod = "30s";
             };
           };
         };

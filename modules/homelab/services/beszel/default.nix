@@ -18,7 +18,7 @@ let
   );
 in
 {
-  flake.homepage.services.beszel = {
+  flake.meta.homepage.services.beszel = {
     category = "Monitoring";
     name = "Beszel";
     description = "Server Monitoring";

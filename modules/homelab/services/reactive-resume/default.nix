@@ -22,7 +22,7 @@ let
   reactiveResumeOidcClientId = config.flake.meta.oidc-clients.reactive-resume.clientId;
 in
 {
-  flake.homepage.services.reactive-resume = {
+  flake.meta.homepage.services.reactive-resume = {
     category = "Productivity";
     name = "Reactive Resume";
     description = "Resume Builder";
@@ -174,7 +174,7 @@ in
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
           db = {
-            type = "postgres";
+            type = "postgresql";
             user = "rxresume";
             passwordFile = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
             container = {

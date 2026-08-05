@@ -1,17 +1,14 @@
 {
-  config,
   lib,
   ...
 }:
-let
-  ntfy = config.flake.meta.ntfy;
-in
 {
-  flake.modules.homeManager.backupAlert =
+  flake.modules.homeManager.backup =
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.backup;
       osConfig = hmArgs.osConfig;
+      ntfy = osConfig.services.ntfy-notify or { };
 
       tokenPath =
         if osConfig.services.onepassword-secrets.secretPaths ? alertingNtfyToken then
@@ -60,7 +57,7 @@ in
             -H "Priority: $priority" \
             -H "Tags: $tags" \
             -d "$message" \
-            "$url" || "${pkgs.util-linux}/bin/logger" -t backup-alert "ntfy notification failed for ''${name}"
+            "$url" || "${lib.getExe' pkgs.util-linux "logger"}" -t backup-alert "ntfy notification failed for ''${name}"
         '';
     in
     {
@@ -73,7 +70,7 @@ in
 
         url = lib.mkOption {
           type = lib.types.str;
-          default = "${ntfy.url}/${ntfy.topic}";
+          default = "${ntfy.url or "https://ntfy.sh"}/${ntfy.topic or ""}";
           description = "ntfy URL and topic";
         };
 
