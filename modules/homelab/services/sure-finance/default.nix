@@ -20,7 +20,7 @@ let
   sureFinanceOidcClientId = config.flake.meta.oidc-clients.sure-finance.clientId;
 in
 {
-  flake.homepage.services.sure-finance = {
+  flake.meta.homepage.services.sure-finance = {
     category = "Finance";
     name = "Sure Finance";
     description = "Personal Finance Tracker";

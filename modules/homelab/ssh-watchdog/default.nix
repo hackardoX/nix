@@ -1,6 +1,6 @@
-{ config, ... }:
+{ ... }:
 {
-  flake.modules.nixos.homelab-ssh-watchdog = { pkgs, ... }: {
+  flake.modules.nixos.homelab-ssh-watchdog = { pkgs, config, ... }: {
     systemd.services.ssh-watchdog = {
       description = "Check SSH availability and reboot if unresponsive";
       serviceConfig = {
@@ -8,7 +8,7 @@
       };
       script =
         let
-          tunnelUuid = config.flake.meta.cloudflare.tunnelUuid;
+          tunnelUuid = config.services.cloudflared.tunnelUuid;
         in
         ''
           set -euo pipefail

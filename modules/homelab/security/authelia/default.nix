@@ -7,11 +7,6 @@ let
 in
 {
   flake.meta = {
-    authelia = {
-      user = "authelia-default";
-      group = "authelia-default";
-    };
-
     oidc-clients = {
       beszel = {
         clientId = "beszel";
@@ -212,10 +207,10 @@ in
         };
       };
 
-      users.users.${config.flake.meta.authelia.user}.extraGroups = [ "homelab-users" ];
+      users.users.${config.flake.meta.users.authelia.name}.extraGroups = [ "homelab-users" ];
 
       systemd.tmpfiles.rules = [
-        "d ${hashedSecretsDir} 0750 ${config.flake.meta.authelia.user} ${config.flake.meta.authelia.group} -"
+        "d ${hashedSecretsDir} 0750 ${config.flake.meta.users.authelia.name} ${config.flake.meta.users.authelia.primaryGroup} -"
       ];
 
       systemd.services.authelia-init = {
@@ -227,8 +222,8 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          User = config.flake.meta.authelia.user;
-          Group = config.flake.meta.authelia.group;
+          User = config.flake.meta.users.authelia.name;
+          Group = config.flake.meta.users.authelia.primaryGroup;
         };
         script = lib.concatStringsSep "\n" (
           [

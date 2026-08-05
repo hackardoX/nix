@@ -1,25 +1,37 @@
 {
   config,
+  lib,
   ...
 }:
-let
-  ntfy = config.flake.meta.ntfy;
-in
 {
-  flake.meta.ntfy = {
-    url = "https://ntfy.sh";
-    topic = "xQE7urtm8kLErMDUUjGU3hvn8KKijmwyU6PkQMNs88EcunqhtFxFVfViXwzkvuqB";
-    tokenFile = "op://Homelab/Alerting/NTFY/token";
-  };
+  flake.modules.nixos.homelab-alerting =
+    { config, lib, ... }:
+    {
+      options.services.ntfy-notify = {
+        url = lib.mkOption {
+          type = lib.types.str;
+          default = "https://ntfy.sh";
+          description = "Base URL of the ntfy server.";
+        };
 
-  flake.modules.nixos.homelab-alerting = {
-    services.onepassword-secrets.secrets = {
-      alertingNtfyToken = {
+        topic = lib.mkOption {
+          type = lib.types.str;
+          default = "xQE7urtm8kLErMDUUjGU3hvn8KKijmwyU6PkQMNs88EcunqhtFxFVfViXwzkvuqB";
+          description = "ntfy topic for notifications.";
+        };
+
+        tokenFile = lib.mkOption {
+          type = lib.types.str;
+          default = "op://Homelab/Alerting/NTFY/token";
+          description = "1Password reference to the ntfy access token.";
+        };
+      };
+
+      config.services.onepassword-secrets.secrets.alertingNtfyToken = {
         path = "/run/secrets/alerting_ntfy_token";
-        reference = ntfy.tokenFile;
+        reference = config.services.ntfy-notify.tokenFile;
         group = "homelab-users";
         mode = "0640";
       };
     };
-  };
 }

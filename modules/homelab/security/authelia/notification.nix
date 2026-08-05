@@ -3,7 +3,7 @@
   flake.modules.nixos.homelab-security =
     nixosArgs@{ pkgs, ... }:
     let
-      ntfy = config.flake.meta.ntfy;
+      ntfy = nixosArgs.config.services.ntfy-notify;
       autheliaDataDir = "/var/lib/data/authelia";
 
       banNotifyScript = ''
@@ -58,8 +58,8 @@
         ];
         serviceConfig = {
           Type = "oneshot";
-          User = config.flake.meta.authelia.user;
-          Group = config.flake.meta.authelia.group;
+          User = config.flake.meta.users.authelia.name;
+          Group = config.flake.meta.users.authelia.primaryGroup;
           StateDirectory = "authelia-ntfy";
           ExecStart = "${lib.getExe pkgs.bash} -c ${lib.escapeShellArg banNotifyScript}";
         };

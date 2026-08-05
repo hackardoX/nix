@@ -28,7 +28,7 @@ let
 
 in
 {
-  flake.homepage.services.job-ops = {
+  flake.meta.homepage.services.job-ops = {
     category = "Productivity";
     name = "Job-Ops";
     description = "AI Job Application Assistant";
