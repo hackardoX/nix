@@ -1,9 +1,4 @@
 {
-  config,
-  lib,
-  ...
-}:
-{
   flake.modules.nixos.homelab-alerting =
     { config, lib, ... }:
     {
