@@ -209,10 +209,6 @@ in
     {
       config = {
         services.backup.jobs.sure-finance = {
-          paths = [
-            "${sureFinanceDataDir}/postgresql/data"
-            "${sureFinanceAppDir}/storage"
-          ];
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];

@@ -170,7 +170,6 @@ in
         '';
 
         services.backup.jobs.alertmanager = {
-          paths = [ "${alertingAppDir}/alertmanager/data" ];
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];

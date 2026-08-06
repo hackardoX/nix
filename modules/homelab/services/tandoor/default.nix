@@ -169,7 +169,6 @@ in
       config = {
         services.backup.jobs.tandoor = {
           paths = [
-            "${tandoorDataDir}/postgresql/data"
             "${tandoorAppDir}/mediafiles"
           ];
           schedule = "daily";

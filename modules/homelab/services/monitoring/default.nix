@@ -356,7 +356,6 @@ in
         '';
 
         services.backup.jobs.grafana = {
-          paths = [ "${monitoringAppDir}/grafana/data" ];
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
