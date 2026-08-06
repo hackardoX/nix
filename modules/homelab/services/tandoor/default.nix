@@ -244,13 +244,6 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              AddCapability = [
-                "CAP_CHOWN"
-                "CAP_SETUID"
-                "CAP_SETGID"
-                "CAP_DAC_OVERRIDE"
-                "CAP_FOWNER"
-              ];
               HealthCmd = "wget -qO- http://localhost:${toString tandoorPort} || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
