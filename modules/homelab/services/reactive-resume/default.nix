@@ -166,9 +166,6 @@ in
     {
       config = {
         services.backup.jobs.reactive-resume = {
-          paths = [
-            "${reactiveResumeAppDir}/data"
-          ];
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];

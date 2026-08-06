@@ -3,6 +3,7 @@
     programs = {
       git = {
         settings = {
+          merge.tool = "nvimdiff";
           merge.conflictstyle = "zdiff3";
           rerere.enabled = true;
         };

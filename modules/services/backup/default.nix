@@ -132,8 +132,11 @@
           enable = cfg.jobs != { };
           backups = lib.concatMapAttrs (
             jobName: jobCfg:
-            lib.genAttrs (map (provider: mkBackupName jobName provider) jobCfg.providers) (
-              provider: mkResticBackup jobName jobCfg provider
+            lib.listToAttrs (
+              map (provider: {
+                name = mkBackupName jobName provider;
+                value = mkResticBackup jobName jobCfg provider;
+              }) jobCfg.providers
             )
           ) cfg.jobs;
         };

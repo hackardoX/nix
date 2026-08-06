@@ -32,7 +32,7 @@ in
     };
     container = "tandoor";
     dockerServer = "tandoor";
-    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+    dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
     pingPort = reverseProxyPort;
   };
 
@@ -92,12 +92,18 @@ in
       };
       services.homelab-docker-socket-proxy = {
         enable = true;
-        port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+        port = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
       };
       services.rclone.remotes = [ "koofr" ];
     };
 
     services.onepassword-secrets.secrets = {
+      fdcApiKey = {
+        path = "/run/secrets/tandoor/fdc_api_key";
+        reference = "op://HomeLab/Tandoor/External API Keys/FDC";
+        owner = tandoorUser;
+        group = tandoorGroup;
+      };
       tandoorSecretKey = {
         path = "/run/secrets/tandoor/secret_key";
         reference = "op://Homelab/Tandoor/Authentication/secret key";
@@ -163,7 +169,6 @@ in
       config = {
         services.backup.jobs.tandoor = {
           paths = [
-            "${tandoorDataDir}/postgresql/data"
             "${tandoorAppDir}/mediafiles"
           ];
           schedule = "daily";
@@ -212,7 +217,7 @@ in
         services.podman.containers.tandoor = {
           image = tandoorImage;
           autoStart = true;
-          userNS = "keep-id:uid=0,gid=0";
+          userNS = "keep-id";
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];
@@ -225,6 +230,7 @@ in
           environment = sharedEnv // oidcEnv;
 
           secrets = {
+            FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.fdcApiKey;
             SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
             POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
           }
@@ -237,11 +243,11 @@ in
             };
             Container = {
               NoNewPrivileges = true;
-              # HealthCmd = "wget -qO- http://localhost:${toString tandoorPort}/api/health || exit 1";
-              # HealthInterval = "30s";
-              # HealthTimeout = "10s";
-              # HealthRetries = 3;
-              # HealthStartPeriod = "30s";
+              HealthCmd = "wget -qO- http://localhost:${toString tandoorPort} || exit 1";
+              HealthInterval = "30s";
+              HealthTimeout = "10s";
+              HealthRetries = 3;
+              HealthStartPeriod = "30s";
             };
           };
         };
