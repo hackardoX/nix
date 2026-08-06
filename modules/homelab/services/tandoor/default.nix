@@ -98,6 +98,12 @@ in
     };
 
     services.onepassword-secrets.secrets = {
+      fdcApiKey = {
+        path = "/run/secrets/tandoor/fdc_api_key";
+        reference = "op://HomeLab/Tandoor/External API Keys/FDC";
+        owner = tandoorUser;
+        group = tandoorGroup;
+      };
       tandoorSecretKey = {
         path = "/run/secrets/tandoor/secret_key";
         reference = "op://Homelab/Tandoor/Authentication/secret key";
@@ -225,6 +231,7 @@ in
           environment = sharedEnv // oidcEnv;
 
           secrets = {
+            FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.fdcApiKey;
             SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
             POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
           }
@@ -236,7 +243,7 @@ in
               Requires = [ "podman-tandoor-db.service" ];
             };
             Container = {
-              NoNewPrivileges = true;
+              # NoNewPrivileges = true;
               # HealthCmd = "wget -qO- http://localhost:${toString tandoorPort}/api/health || exit 1";
               # HealthInterval = "30s";
               # HealthTimeout = "10s";
