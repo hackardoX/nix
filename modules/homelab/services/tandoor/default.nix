@@ -92,7 +92,7 @@ in
       };
       services.homelab-docker-socket-proxy = {
         enable = true;
-        port = config.flake.meta.reverse-proxy.ports.homepage-docker-socket-proxy;
+        port = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
       };
       services.rclone.remotes = [ "koofr" ];
     };
