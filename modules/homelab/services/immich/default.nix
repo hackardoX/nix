@@ -209,7 +209,7 @@ in
           environment = sharedEnv // {
             IMMICH_CONFIG_FILE = "/config/immich.json";
             # Set to "false" after initial admin registration to disable /auth/admin-sign-up
-            IMMICH_ALLOW_SETUP = "true";
+            IMMICH_ALLOW_SETUP = "false";
             IMMICH_TRUSTED_PROXIES = "10.89.0.0/16";
           };
 
