@@ -14,7 +14,7 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13";
-  tandoorPort = 80;
+  tandoorPort = 8080;
   tandoorDbName = "tandoor";
   tandoorDbUser = "tandoor";
   tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
@@ -98,7 +98,7 @@ in
     };
 
     services.onepassword-secrets.secrets = {
-      fdcApiKey = {
+      tandoorFDCApiKey = {
         path = "/run/secrets/tandoor/fdc_api_key";
         reference = "op://HomeLab/Tandoor/External API Keys/FDC";
         owner = tandoorUser;
@@ -148,6 +148,7 @@ in
         POSTGRES_HOST = "db";
         POSTGRES_DB = tandoorDbName;
         POSTGRES_USER = tandoorDbUser;
+        TANDOOR_PORT = tandoorPort;
         TZ = osConfig.time.timeZone;
       };
 
@@ -230,7 +231,7 @@ in
           environment = sharedEnv // oidcEnv;
 
           secrets = {
-            FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.fdcApiKey;
+            FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorFDCApiKey;
             SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
             POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
           }
@@ -242,12 +243,19 @@ in
               Requires = [ "podman-tandoor-db.service" ];
             };
             Container = {
-              NoNewPrivileges = true;
+              AddCapability = [
+                "CAP_CHOWN"
+                "CAP_SETUID"
+                "CAP_SETGID"
+                "CAP_DAC_OVERRIDE"
+                "CAP_FOWNER"
+              ];
               HealthCmd = "wget -qO- http://localhost:${toString tandoorPort} || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
               HealthStartPeriod = "30s";
+              NoNewPrivileges = true;
             };
           };
         };
