@@ -42,7 +42,7 @@
             if hasDb then hmArgs.config.services.postgresql-dump.instances.${jobName}.outputPath else null;
         in
         {
-          repository = "rclone:${provider}:${destination}/backup";
+          repository = "rclone:${provider}:backup/${destination}";
           passwordFile = jobCfg.encryptionKey;
           paths = if hasDb then jobCfg.paths ++ [ dumpPath ] else jobCfg.paths;
           initialize = true;

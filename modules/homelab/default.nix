@@ -6,7 +6,7 @@
       homelab-beszel
       homelab-ingress
       homelab-homepage
-      # homelab-immich
+      homelab-immich
       homelab-job-ops
       # homelab-monitoring
       homelab-reactive-resume

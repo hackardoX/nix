@@ -31,7 +31,7 @@ in
     name = "Immich";
     description = "Photo & Video Management";
     icon = "sh-immich.webp";
-    href = "http://localhost:${toString reverseProxyPort}";
+    href = "https://${hosts.immich}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
     widget = config.flake.lib.beszel.mkWidget {
       systemId = "Immich";
@@ -65,10 +65,14 @@ in
     systemd.tmpfiles.rules = [
       "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/photos 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/ml-models 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/ml-dotcache 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/ml-config 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql/data 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql/wal 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir}/redis 0750 ${immichUser} ${immichGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
@@ -81,19 +85,24 @@ in
     ];
 
     home-manager.users.${immichUser} = {
-      services.rclone.remotes = [ "koofr" ];
-      home.username = immichUser;
-      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        homelab-immich
         podman-secrets
+        homelab-docker-socket-proxy
         homelab-beszel-agent
+        homelab-immich
       ];
+      home.username = immichUser;
+      home.stateVersion = "26.05";
+      services.rclone.remotes = [ "koofr" ];
       services.homelab-beszel-agent = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.beszel-agent-immich;
+      };
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.immich-docker-socket-proxy;
       };
     };
 
@@ -183,10 +192,10 @@ in
         services.podman.networks.immich.driver = "bridge";
 
         services.podman.containers.immich-server = {
-          image = "ghcr.io/immich-app/immich-server:v3.0.3";
+          image = "ghcr.io/immich-app/immich-server:v3.1.0";
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
-          capDrop = [ "NET_RAW" ];
+          dropCapabilities = [ "NET_RAW" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-server" ];
           ports = [ "${toString reverseProxyPort}:${toString immichPort}" ];
@@ -200,7 +209,7 @@ in
           environment = sharedEnv // {
             IMMICH_CONFIG_FILE = "/config/immich.json";
             # Set to "false" after initial admin registration to disable /auth/admin-sign-up
-            IMMICH_ALLOW_SETUP = "true";
+            IMMICH_ALLOW_SETUP = "false";
             IMMICH_TRUSTED_PROXIES = "10.89.0.0/16";
           };
 
@@ -211,19 +220,19 @@ in
               LogDriver = "journald";
               SecurityLabelDisable = false;
               NoNewPrivileges = true;
-              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
-              HealthInterval = "30s";
-              HealthTimeout = "10s";
-              HealthRetries = 3;
+              # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
+              # HealthInterval = "30s";
+              # HealthTimeout = "10s";
+              # HealthRetries = 3;
             };
           };
         };
 
         services.podman.containers.immich-machine-learning = {
-          image = "ghcr.io/immich-app/immich-machine-learning:v3.0.3";
+          image = "ghcr.io/immich-app/immich-machine-learning:v3.1.0";
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
-          capDrop = [ "NET_RAW" ];
+          dropCapabilities = [ "NET_RAW" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-machine-learning" ];
 
@@ -242,64 +251,64 @@ in
           extraConfig = {
             Container = {
               NoNewPrivileges = true;
-              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3003/ping || exit 1";
-              HealthInterval = "30s";
-              HealthTimeout = "10s";
-              HealthRetries = 3;
+              # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3003/ping || exit 1";
+              # HealthInterval = "30s";
+              # HealthTimeout = "10s";
+              # HealthRetries = 3;
             };
           };
+        };
 
-          services.podman.containers.immich-redis = {
-            image = "docker.io/valkey/valkey:9@sha256:4963247afc4cd33c7d3b2d2816b9f7f8eeebab148d29056c2ca4d7cbc966f2d9";
-            autoStart = true;
-            userNS = "keep-id:uid=999,gid=999";
-            capDrop = [ "NET_RAW" ];
-            network = [ "immich.network" ];
-            networkAlias = [ "immich-redis" ];
-            volumes = [ "${immichDataDir}/redis:/data" ];
+        services.podman.containers.immich-redis = {
+          image = "docker.io/valkey/valkey:9@sha256:3acc0687f2a2e1091fae6450d7842dd658c941338cf0a873ddd9e14b9e4ea4dd";
+          autoStart = true;
+          userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "NET_RAW" ];
+          network = [ "immich.network" ];
+          networkAlias = [ "immich-redis" ];
+          volumes = [ "${immichDataDir}/redis:/data" ];
 
-            extraConfig.Container = {
+          extraConfig.Container = {
+            LogDriver = "journald";
+            HealthCmd = "redis-cli ping || exit 1";
+            HealthInterval = "5s";
+            HealthTimeout = "5s";
+            HealthRetries = 5;
+            NoNewPrivileges = true;
+          };
+        };
+
+        services.podman.containers.immich-db = {
+          image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
+          autoStart = true;
+          userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "NET_RAW" ];
+          network = [ "immich.network" ];
+          networkAlias = [ "immich-db" ];
+          volumes = [
+            "${immichDataDir}/postgresql/data:/var/lib/postgresql/data"
+            "${immichDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
+          ];
+
+          environment = {
+            POSTGRES_USER = immichDbUser;
+            POSTGRES_DB = immichDbName;
+            POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
+          };
+
+          secrets = {
+            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+          };
+
+          extraConfig = {
+            Container = {
               LogDriver = "journald";
-              HealthCmd = "redis-cli ping || exit 1";
+              ShmSize = "128m";
+              NoNewPrivileges = true;
+              HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
-              NoNewPrivileges = true;
-            };
-          };
-
-          services.podman.containers.immich-db = {
-            image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
-            autoStart = true;
-            userNS = "keep-id:uid=999,gid=999";
-            capDrop = [ "NET_RAW" ];
-            network = [ "immich.network" ];
-            networkAlias = [ "immich-db" ];
-            volumes = [
-              "${immichDataDir}/postgresql/data:/var/lib/postgresql/data"
-              "${immichDataDir}/postgresql/wal:/var/lib/postgresql/waldir"
-            ];
-
-            environment = {
-              POSTGRES_USER = immichDbUser;
-              POSTGRES_DB = immichDbName;
-              POSTGRES_INITDB_ARGS = "--waldir=/var/lib/postgresql/waldir --data-checksums";
-            };
-
-            secrets = {
-              POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
-            };
-
-            extraConfig = {
-              Container = {
-                LogDriver = "journald";
-                ShmSize = "128m";
-                NoNewPrivileges = true;
-                HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";
-                HealthInterval = "5s";
-                HealthTimeout = "5s";
-                HealthRetries = 5;
-              };
             };
           };
         };
