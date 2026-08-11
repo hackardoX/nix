@@ -65,10 +65,14 @@ in
     systemd.tmpfiles.rules = [
       "d ${immichAppDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/photos 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/ml-models 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/ml-dotcache 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/ml-config 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql/data 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql/wal 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichDataDir}/redis 0750 ${immichUser} ${immichGroup} -"
     ];
 
     boot.initrd.impermanence.persist.directories = [
