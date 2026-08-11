@@ -220,10 +220,10 @@ in
               LogDriver = "journald";
               SecurityLabelDisable = false;
               NoNewPrivileges = true;
-              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
-              HealthInterval = "30s";
-              HealthTimeout = "10s";
-              HealthRetries = 3;
+              # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
+              # HealthInterval = "30s";
+              # HealthTimeout = "10s";
+              # HealthRetries = 3;
             };
           };
         };
