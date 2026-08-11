@@ -31,7 +31,7 @@ in
     name = "Immich";
     description = "Photo & Video Management";
     icon = "sh-immich.webp";
-    href = "http://localhost:${toString reverseProxyPort}";
+    href = "https://${hosts.immich}";
     siteMonitor = "http://localhost:${toString reverseProxyPort}";
     widget = config.flake.lib.beszel.mkWidget {
       systemId = "Immich";
@@ -81,19 +81,24 @@ in
     ];
 
     home-manager.users.${immichUser} = {
-      services.rclone.remotes = [ "koofr" ];
-      home.username = immichUser;
-      home.stateVersion = "26.05";
       imports = with config.flake.modules.homeManager; [
         base
         backup
-        homelab-immich
         podman-secrets
+        homelab-docker-socket-proxy
         homelab-beszel-agent
+        homelab-immich
       ];
+      home.username = immichUser;
+      home.stateVersion = "26.05";
+      services.rclone.remotes = [ "koofr" ];
       services.homelab-beszel-agent = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.beszel-agent-immich;
+      };
+      services.homelab-docker-socket-proxy = {
+        enable = true;
+        port = config.flake.meta.reverse-proxy.ports.immich-docker-socket-proxy;
       };
     };
 
