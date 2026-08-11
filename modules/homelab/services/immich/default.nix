@@ -188,7 +188,7 @@ in
         services.podman.networks.immich.driver = "bridge";
 
         services.podman.containers.immich-server = {
-          image = "ghcr.io/immich-app/immich-server:v3.0.3";
+          image = "ghcr.io/immich-app/immich-server:v3.1.0";
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
           dropCapabilities = [ "NET_RAW" ];
@@ -225,7 +225,7 @@ in
         };
 
         services.podman.containers.immich-machine-learning = {
-          image = "ghcr.io/immich-app/immich-machine-learning:v3.0.3";
+          image = "ghcr.io/immich-app/immich-machine-learning:v3.1.0";
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
           dropCapabilities = [ "NET_RAW" ];
@@ -256,7 +256,7 @@ in
         };
 
         services.podman.containers.immich-redis = {
-          image = "docker.io/valkey/valkey:9@sha256:4963247afc4cd33c7d3b2d2816b9f7f8eeebab148d29056c2ca4d7cbc966f2d9";
+          image = "docker.io/valkey/valkey:9@sha256:3acc0687f2a2e1091fae6450d7842dd658c941338cf0a873ddd9e14b9e4ea4dd";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           dropCapabilities = [ "NET_RAW" ];
