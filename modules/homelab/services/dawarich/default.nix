@@ -144,33 +144,34 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        RAILS_ENV = "production";
-        SELF_HOSTED = "true";
+        ALLOW_EMAIL_PASSWORD_LOGIN = false;
+        ALLOW_EMAIL_PASSWORD_REGISTRATION = false;
         APPLICATION_HOSTS = hosts.timeline;
         APPLICATION_PROTOCOL = "http";
-        DOMAIN = hosts.timeline;
-        TIME_ZONE = osConfig.time.timeZone;
-        REDIS_URL = "redis://dawarich-redis:6379";
         DATABASE_HOST = "dawarich-db";
         DATABASE_PORT = "5432";
         DATABASE_USERNAME = dawarichDbUser;
         DATABASE_NAME = dawarichDbName;
-        STORE_GEODATA = "true";
-        RAILS_LOG_TO_STDOUT = "true";
-        PROMETHEUS_EXPORTER_ENABLED = "false";
+        DOMAIN = hosts.timeline;
         OIDC_CLIENT_ID = config.flake.meta.oidc-clients.dawarich.clientId;
         OIDC_ISSUER = "https://${hosts.auth}";
         OIDC_PROVIDER_NAME = "Authelia";
         OIDC_REDIRECT_URI = "https://${hosts.timeline}/users/auth/openid_connect/callback";
-        OIDC_AUTO_REGISTER = "true";
-        ALLOW_EMAIL_PASSWORD_REGISTRATION = "false";
+        OIDC_AUTO_REGISTER = true;
+        PROMETHEUS_EXPORTER_ENABLED = false;
+        RAILS_ENV = "production";
+        RAILS_LOG_TO_STDOUT = true;
+        REDIS_URL = "redis://dawarich-redis:6379";
+        SELF_HOSTED = true;
         SMTP_SERVER = "smtp.resend.com";
         SMTP_PORT = "587";
         SMTP_DOMAIN = domain;
         SMTP_USERNAME = "resend";
         SMTP_FROM = "dawarich@${domain}";
         SMTP_AUTHENTICATION = "plain";
-        SMTP_STARTTLS = "true";
+        SMTP_STARTTLS = true;
+        STORE_GEODATA = true;
+        TIME_ZONE = osConfig.time.timeZone;
       };
 
       sharedSecrets = {
