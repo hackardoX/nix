@@ -18,13 +18,13 @@ in
   };
 
   flake.modules.nixos.homelab-journal =
-    nixosArgs@{
+    {
       pkgs,
       ...
     }:
     let
       grafito = pkgs.fetchurl {
-        url = "https://github.com/ralsina/grafito/releases/download/v0.17.0/grafito-static-linux-amd64";
+        url = "https://github.com/ralsina/grafito/releases/download/v0.17.0/grafito-static-linux-arm64";
         sha256 = "sha256-L6RCQ+s72/lmrjjbUZsKc0a1PAMM0qTuR9eXMoteCaw=";
         executable = true;
       };
