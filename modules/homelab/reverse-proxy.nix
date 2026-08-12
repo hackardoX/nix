@@ -139,7 +139,7 @@ in
                   }
                 }
               }
-              respond @not_allowed "Forbidden" 403
+              respond @not_allowed "Forbidden: Access from your country is not allowed" 403
             }
 
             (rate_limit_common) {
