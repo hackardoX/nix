@@ -121,7 +121,7 @@ in
       };
       dawarichResendApiKey = {
         path = "/run/secrets/dawarich/resend_api_key";
-        reference = "op://Homelab/Dawarich/SMTP/api key";
+        reference = "op://Homelab/Dawarich/Resend/api key";
         owner = dawarichUser;
         group = dawarichGroup;
       };

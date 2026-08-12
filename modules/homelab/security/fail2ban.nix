@@ -98,7 +98,7 @@ in
           onepassword-secrets.secrets = {
             resendApiKey = {
               path = "/run/secrets/resend_api_key";
-              reference = "op://HomeLab/Resend/Fail2ban/api key";
+              reference = "op://HomeLab/Fail2ban/Resend/api key";
               inherit (fail2ban) owner group;
               services = [ "fail2ban" ];
             };
