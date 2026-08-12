@@ -9,14 +9,14 @@ This module deploys [Beszel](https://beszel.dev) — a lightweight server monito
 
 ## Network Layout
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| Beszel Hub | `2000` | Web UI, reverse-proxied by Caddy at `monitoring.homelab4.fun` |
-| Agent (alerting) | `2001` | SSH listener for alerting user's containers |
-| Agent (homepage) | `2002` | SSH listener for homepage user's containers |
-| Agent (job-ops) | `2003` | SSH listener for job-ops user's containers |
-| Agent (reactive-resume) | `2004` | SSH listener for reactive-resume user's containers |
-| Agent (sure-finance) | `2005` | SSH listener for sure-finance user's containers |
+| Service                 | Port   | Purpose                                                       |
+| ----------------------- | ------ | ------------------------------------------------------------- |
+| Beszel Hub              | `2000` | Web UI, reverse-proxied by Caddy at `monitoring.homelab4.fun` |
+| Agent (alerting)        | `2001` | SSH listener for alerting user's containers                   |
+| Agent (homepage)        | `2002` | SSH listener for homepage user's containers                   |
+| Agent (job-ops)         | `2003` | SSH listener for job-ops user's containers                    |
+| Agent (reactive-resume) | `2004` | SSH listener for reactive-resume user's containers            |
+| Agent (sure-finance)    | `2005` | SSH listener for sure-finance user's containers               |
 
 ## SSH Keys
 
@@ -27,6 +27,7 @@ ssh-keygen -t ed25519 -f beszel_id_ed25519 -N ""
 ```
 
 Store the resulting files in 1Password:
+
 - `beszel_id_ed25519` → `op://HomeLab/Beszel SSH Key/private key`
 - `beszel_id_ed25519.pub` → `op://HomeLab/Beszel SSH Key/public key`
 
