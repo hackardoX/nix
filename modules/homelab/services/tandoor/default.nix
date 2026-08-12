@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   ...
 }:
 let
@@ -260,7 +261,7 @@ in
               NoNewPrivileges = true;
             };
             Service = {
-              ExecStartPre = [ tandoorSocialaccountProviders ];
+              ExecStartPre = [ (lib.getExe tandoorSocialaccountProviders) ];
             };
           };
         };
