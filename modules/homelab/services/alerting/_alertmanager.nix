@@ -114,7 +114,7 @@ in
           ntfy = {
             baseurl = ntfy.url;
             notification = {
-              topic = ntfy.topic;
+              inherit (ntfy) topic;
               priority = ''
                 alertname == "ContainerDown" ? "urgent" : "high"
               '';

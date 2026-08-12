@@ -72,6 +72,7 @@ services.backup.jobs.immich = {
 ```
 
 This automatically:
+
 - Creates a `postgresql-dump-<job>.service` (a oneshot dump service, no timer of its own)
 - Adds the dump file to the job's `paths`
 - Orders the restic service `After` the dump service and `Wants` it, so every backup
