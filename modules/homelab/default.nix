@@ -9,6 +9,7 @@
       homelab-homepage
       homelab-immich
       homelab-job-ops
+      homelab-journal
       # homelab-monitoring
       homelab-reactive-resume
       homelab-security
