@@ -49,7 +49,7 @@ in
       };
       autheliaResendApiKey = {
         path = "/run/secrets/authelia/resend_api_key";
-        reference = "op://HomeLab/Resend/Authelia/api key";
+        reference = "op://HomeLab/Authelia/Resend/api key";
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
         services = [ autheliaService ];
