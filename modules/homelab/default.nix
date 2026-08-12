@@ -4,6 +4,7 @@
     imports = with config.flake.modules.nixos; [
       homelab-alerting
       homelab-beszel
+      homelab-dawarich
       homelab-ingress
       homelab-homepage
       homelab-immich

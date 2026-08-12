@@ -53,6 +53,13 @@ in
           ''userinfo_signed_response_alg: "none"''
         ];
       };
+      dawarich = {
+        clientId = "dawarich";
+        clientName = "Dawarich";
+        policy = "two_factor";
+        redirectUris = [ "https://${hosts.timeline}/users/auth/openid_connect/callback" ];
+        secretName = "autheliaDawarichOidcSecret";
+      };
     };
   };
 
