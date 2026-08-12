@@ -7,14 +7,11 @@
     hmArgs@{ pkgs, ... }:
     let
       cfg = hmArgs.config.services.backup;
-      osConfig = hmArgs.osConfig;
+      inherit (hmArgs) osConfig;
       ntfy = osConfig.services.ntfy-notify or { };
 
       tokenPath =
-        if osConfig.services.onepassword-secrets.secretPaths ? alertingNtfyToken then
-          osConfig.services.onepassword-secrets.secretPaths.alertingNtfyToken
-        else
-          "/run/secrets/alerting_ntfy_token";
+        osConfig.services.onepassword-secrets.secretPaths.alertingNtfyToken or "/run/secrets/alerting_ntfy_token";
 
       hostName = osConfig.networking.hostName or "host";
 
