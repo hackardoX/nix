@@ -16,6 +16,7 @@ in
       timeline = "timeline.${domain}";
       finance = "finance.${domain}";
       grafana = "grafana.${domain}";
+      logs = "logs.${domain}";
       ssh = "ssh.${domain}";
     };
     ports = {
@@ -39,6 +40,7 @@ in
       job-ops-docker-socket-proxy = 10001;
       dawarich = 11000;
       dawarich-docker-socket-proxy = 11001;
+      grafito = 7000;
       reactive-resume = 18000;
       reactive-resume-docker-socket-proxy = 18001;
       sure-finance = 19000;
