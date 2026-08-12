@@ -160,23 +160,23 @@ in
     { osConfig, ... }:
     let
       sharedEnv = {
-        POSTGRES_USER = sureFinanceDbUser;
-        POSTGRES_DB = sureFinanceDbName;
-        SELF_HOSTED = "true";
-        # TODO: switch to "invite_only" after creating the first admin
-        ONBOARDING_STATE = "open";
-        RAILS_FORCE_SSL = "false";
-        RAILS_ASSUME_SSL = "true";
+        APP_DOMAIN = hosts.finance;
+        AUTH_LOCAL_LOGIN_ENABLED = "false";
         DB_HOST = "db";
         DB_PORT = "5432";
+        EMAIL_SENDER = "sure-finance@${config.flake.meta.reverse-proxy.domain}";
+        EXCHANGE_RATE_PROVIDER = "twelve_data";
+        ONBOARDING_STATE = "invite_only";
+        POSTGRES_USER = sureFinanceDbUser;
+        POSTGRES_DB = sureFinanceDbName;
+        RAILS_ASSUME_SSL = "true";
+        RAILS_FORCE_SSL = "false";
         REDIS_URL = "redis://redis:6379/1";
-        APP_DOMAIN = hosts.finance;
+        SELF_HOSTED = "true";
         SMTP_ADDRESS = "smtp.resend.com";
         SMTP_PORT = "587";
         SMTP_USERNAME = "resend";
         SMTP_TLS_ENABLED = "true";
-        EMAIL_SENDER = "sure-finance@${config.flake.meta.reverse-proxy.domain}";
-        EXCHANGE_RATE_PROVIDER = "twelve_data";
         SECURITIES_PROVIDER = "twelve_data";
         TZ = osConfig.time.timeZone;
       }

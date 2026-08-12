@@ -224,7 +224,6 @@ in
           environment = {
             ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
             DB_ENGINE = "django.db.backends.postgresql";
-            ENABLE_SIGNUP = "false";
             POSTGRES_HOST = "db";
             POSTGRES_DB = tandoorDbName;
             POSTGRES_USER = tandoorDbUser;
