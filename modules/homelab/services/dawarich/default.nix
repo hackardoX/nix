@@ -25,7 +25,7 @@ in
     description = "Location History Tracker";
     icon = "sh-dawarich.webp";
     href = "https://${hosts.timeline}";
-    siteMonitor = "http://localhost:${toString reverseProxyPort}/api/v1/health";
+    siteMonitor = "https://localhost:${toString reverseProxyPort}/api/v1/health";
     container = "dawarich-app";
     dockerServer = "dawarich";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.dawarich-docker-socket-proxy;
