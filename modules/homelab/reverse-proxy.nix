@@ -13,6 +13,7 @@ in
       monitoring = "monitoring.${domain}";
       rxresume = "rxresume.${domain}";
       recipes = "recipes.${domain}";
+      timeline = "timeline.${domain}";
       finance = "finance.${domain}";
       grafana = "grafana.${domain}";
       ssh = "ssh.${domain}";
@@ -29,12 +30,15 @@ in
       beszel-agent-immich = 2007;
       beszel-agent-homelab = 2008;
       beszel-agent-monitoring = 2009;
+      beszel-agent-dawarich = 2010;
       homepage = 8000;
       homepage-docker-socket-proxy = 8001;
       immich = 9000;
       immich-docker-socket-proxy = 9001;
       job-ops = 10000;
       job-ops-docker-socket-proxy = 10001;
+      dawarich = 11000;
+      dawarich-docker-socket-proxy = 11001;
       reactive-resume = 18000;
       reactive-resume-docker-socket-proxy = 18001;
       sure-finance = 19000;
