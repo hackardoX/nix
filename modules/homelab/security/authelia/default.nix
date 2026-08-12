@@ -53,6 +53,16 @@ in
           ''userinfo_signed_response_alg: "none"''
         ];
       };
+      dawarich = {
+        clientId = "dawarich";
+        clientName = "Dawarich";
+        policy = "two_factor";
+        redirectUris = [ "https://${hosts.timeline}/users/auth/openid_connect/callback" ];
+        secretName = "autheliaDawarichOidcSecret";
+        extraYamlLines = [
+          ''token_endpoint_auth_method: "client_secret_basic"''
+        ];
+      };
     };
   };
 
