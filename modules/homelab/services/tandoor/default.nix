@@ -17,7 +17,6 @@ let
   tandoorPort = 8080;
   tandoorDbName = "tandoor";
   tandoorDbUser = "tandoor";
-  tandoorOidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
 in
 {
   flake.meta.homepage.services.tandoor = {
@@ -139,32 +138,25 @@ in
   };
 
   flake.modules.homeManager.homelab-tandoor =
-    { osConfig, ... }:
+    { osConfig, pkgs, ... }:
     let
-      sharedEnv = {
-        ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
-        DEBUG = "1";
-        DB_ENGINE = "django.db.backends.postgresql";
-        POSTGRES_HOST = "db";
-        POSTGRES_DB = tandoorDbName;
-        POSTGRES_USER = tandoorDbUser;
-        TANDOOR_PORT = tandoorPort;
-        TZ = osConfig.time.timeZone;
+      oidcClientId = config.flake.meta.oidc-clients.tandoor.clientId;
+      oidcProvidersFile = "/run/user/${toString tandoorUid}/tandoor-socialaccount-providers.json";
+
+      tandoorSocialaccountProviders = pkgs.writeShellApplication {
+        name = "tandoor-socialaccount-providers";
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.jq
+        ];
+        text = ''
+          set -euo pipefail
+          install -D -m 600 /dev/null ${oidcProvidersFile}
+          jq -n --arg secret "$(cat ${osConfig.services.onepassword-secrets.secretPaths.tandoorOidcClientSecret})" \
+            '{openid_connect: {SCOPE: ["openid", "profile", "email"], OAUTH_PKCE_ENABLED: true, APPS: [{provider_id: "authelia", name: "Authelia", client_id: "${oidcClientId}", secret: $secret, settings: {server_url: "https://${hosts.auth}/.well-known/openid-configuration", token_auth_method: "client_secret_post"}}]}}' \
+            > ${oidcProvidersFile}
+        '';
       };
-
-      oidcEnv =
-        lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? tandoorOidcClientSecret)
-          {
-            OIDC_ENDPOINT = "https://${hosts.auth}";
-            OIDC_CLIENT_ID = tandoorOidcClientId;
-            OIDC_SCOPES = "openid,profile,email";
-          };
-
-      oidcSecrets =
-        lib.optionalAttrs (osConfig.services.onepassword-secrets.secretPaths ? tandoorOidcClientSecret)
-          {
-            OIDC_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.tandoorOidcClientSecret;
-          };
     in
     {
       config = {
@@ -226,16 +218,27 @@ in
           volumes = [
             "${tandoorAppDir}/staticfiles:/opt/recipes/staticfiles"
             "${tandoorAppDir}/mediafiles:/opt/recipes/mediafiles"
+            "${oidcProvidersFile}:/run/socialaccount_providers.json:ro"
           ];
 
-          environment = sharedEnv // oidcEnv;
+          environment = {
+            ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
+            DB_ENGINE = "django.db.backends.postgresql";
+            ENABLE_SIGNUP = "false";
+            POSTGRES_HOST = "db";
+            POSTGRES_DB = tandoorDbName;
+            POSTGRES_USER = tandoorDbUser;
+            SOCIAL_PROVIDERS = "allauth.socialaccount.providers.openid_connect";
+            SOCIALACCOUNT_PROVIDERS_FILE = "/run/socialaccount_providers.json";
+            TANDOOR_PORT = tandoorPort;
+            TZ = osConfig.time.timeZone;
+          };
 
           secrets = {
             FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorFDCApiKey;
             SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
             POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
-          }
-          // oidcSecrets;
+          };
 
           extraConfig = {
             Unit = {
@@ -256,6 +259,9 @@ in
               HealthRetries = 3;
               HealthStartPeriod = "30s";
               NoNewPrivileges = true;
+            };
+            Service = {
+              ExecStartPre = [ (lib.getExe tandoorSocialaccountProviders) ];
             };
           };
         };
