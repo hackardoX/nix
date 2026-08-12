@@ -28,13 +28,12 @@ This creates the following containers on a `tandoor` bridge network:
 
 ## OIDC Authentication
 
-OIDC is enabled automatically when the `oidc_client_secret` secret is available. The module configures:
+OIDC is enabled automatically when the `oidc_client_secret` secret is available. The module configures django-allauth:
 
-- `OIDC_ENDPOINT` - pointing to `hosts.auth`
-- `OIDC_CLIENT_ID` - from `config.flake.meta.oidc-clients.tandoor.clientId`
-- `OIDC_SCOPES` - `openid,profile,email`
+- `SOCIAL_PROVIDERS` - `allauth.socialaccount.providers.openid_connect`
+- `SOCIALACCOUNT_PROVIDERS_FILE` - points to a JSON provider config generated at container start with `provider_id` `authelia`, `client_id` from `config.flake.meta.oidc-clients.tandoor.clientId`, the client secret, and the Authelia discovery URL (`https://${hosts.auth}/.well-known/openid-configuration`)
 
-Ensure your OIDC provider (e.g. Authelia) has a client registered for Tandoor.
+Ensure your OIDC provider (e.g. Authelia) has a client registered for Tandoor with the redirect URI `https://${hosts.recipes}/accounts/oidc/authelia/login/callback/`.
 
 ## Backup
 
