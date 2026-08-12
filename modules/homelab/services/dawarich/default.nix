@@ -17,7 +17,6 @@ let
   dawarichPort = 3000;
   dawarichDbName = "dawarich";
   dawarichDbUser = "dawarich";
-  dawarichOidcClientId = config.flake.meta.oidc-clients.dawarich.clientId;
 in
 {
   flake.meta.homepage.services.dawarich = {
@@ -159,7 +158,7 @@ in
         STORE_GEODATA = "true";
         RAILS_LOG_TO_STDOUT = "true";
         PROMETHEUS_EXPORTER_ENABLED = "false";
-        OIDC_CLIENT_ID = dawarichOidcClientId;
+        OIDC_CLIENT_ID = config.flake.meta.oidc-clients.dawarich.clientId;
         OIDC_ISSUER = "https://${hosts.auth}";
         OIDC_PROVIDER_NAME = "Authelia";
         OIDC_REDIRECT_URI = "https://${hosts.timeline}/users/auth/openid_connect/callback";
@@ -198,7 +197,7 @@ in
         services.podman.networks.dawarich.driver = "bridge";
 
         services.podman.containers.dawarich-db = {
-          image = "docker.io/postgis/postgis:17-3.5-alpine";
+          image = "docker.io/imresamu/postgis:17-3.5-alpine";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "dawarich.network" ];
