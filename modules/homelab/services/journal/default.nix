@@ -25,7 +25,7 @@ in
     let
       grafito = pkgs.fetchurl {
         url = "https://github.com/ralsina/grafito/releases/download/v0.17.0/grafito-static-linux-arm64";
-        sha256 = "sha256-L6RCQ+s72/lmrjjbUZsKc0a1PAMM0qTuR9eXMoteCaw=";
+        sha256 = "sha256-38GmqDCc6CBSVJ0adQ1qatzqB2vuefYz3mShuVIMjmk=";
         executable = true;
       };
     in
