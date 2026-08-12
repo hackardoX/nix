@@ -259,7 +259,7 @@ in
           ports = [ "${toString reverseProxyPort}:${toString dawarichPort}" ];
 
           entrypoint = "web-entrypoint.sh";
-          exec = "bin/rails server -p 3000 -b ::";
+          exec = "bin/rails server -p ${toString dawarichPort} -b ::";
 
           volumes = [
             "${dawarichAppDir}/public:/var/app/public"
@@ -288,7 +288,7 @@ in
             Container = {
               LogDriver = "journald";
               NoNewPrivileges = true;
-              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3000/api/v1/health || exit 1";
+              HealthCmd = "wget --no-verbose --tries=1 --spider --header='X-Forwarded-Proto: https' http://localhost:3000/api/v1/health || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
