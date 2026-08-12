@@ -25,7 +25,7 @@ in
     description = "Location History Tracker";
     icon = "sh-dawarich.webp";
     href = "https://${hosts.timeline}";
-    siteMonitor = "https://localhost:${toString reverseProxyPort}/api/v1/health";
+    siteMonitor = "http://localhost:${toString reverseProxyPort}/api/v1/health";
     container = "dawarich-app";
     dockerServer = "dawarich";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.dawarich-docker-socket-proxy;
@@ -147,7 +147,7 @@ in
         RAILS_ENV = "production";
         SELF_HOSTED = "true";
         APPLICATION_HOSTS = hosts.timeline;
-        APPLICATION_PROTOCOL = "https";
+        APPLICATION_PROTOCOL = "http";
         DOMAIN = hosts.timeline;
         TIME_ZONE = osConfig.time.timeZone;
         REDIS_URL = "redis://dawarich-redis:6379";
@@ -288,7 +288,7 @@ in
             Container = {
               LogDriver = "journald";
               NoNewPrivileges = true;
-              HealthCmd = "wget --no-verbose --tries=1 --spider --header='X-Forwarded-Proto: https' http://localhost:3000/api/v1/health || exit 1";
+              HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3000/api/v1/health || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
