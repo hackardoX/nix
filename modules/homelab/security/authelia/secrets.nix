@@ -96,6 +96,13 @@ in
         group = config.flake.meta.users.authelia.primaryGroup;
         services = [ autheliaService ];
       };
+      autheliaDawarichOidcSecret = {
+        path = "/run/secrets/authelia/dawarich_oidc_secret";
+        reference = "op://HomeLab/Dawarich/Authentication/OIDC client secret";
+        owner = config.flake.meta.users.authelia.name;
+        group = config.flake.meta.users.authelia.primaryGroup;
+        services = [ autheliaService ];
+      };
     };
   };
 }

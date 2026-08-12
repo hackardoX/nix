@@ -64,6 +64,7 @@
    ```
 
 3. Add the OIDC client entry to `flake.meta.oidc-clients` in `modules/homelab/security/authelia/default.nix`, keyed by the client id:
+
    ```nix
    <app> = {
      clientId = "<app>";
@@ -73,6 +74,7 @@
      secretName = "authelia<App>OidcSecret";
    };
    ```
+
    `clientId` is also the entry key. The `secretName` must match an opnix secret declared in `modules/homelab/security/authelia/secrets.nix` (the hashed client secret). Optional per-client Authelia YAML overrides go in `extraYamlLines`.
 
 4. Add the `oidcClientSecretFile` option to the app's homelab service module and wire it to a new opnix secret for the unhashed value.
