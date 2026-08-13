@@ -1,6 +1,7 @@
 {
   self,
   config,
+  lib,
   ...
 }:
 {
@@ -16,10 +17,11 @@
         token_path="${tokenPath}"
         url="${ntfy.url}/${ntfy.topic}"
         host="${nixosArgs.config.networking.hostName}"
+        journal_url="${config.flake.meta.reverse-proxy.hosts.logs}"
 
         case "$1" in
           success)
-            gen="$("${pkgs.nix}/bin/nix-env" --profile /nix/var/nix/profiles/system --list-generations | "${pkgs.coreutils}/bin/tail" -n 1)"
+            gen="$("${lib.getExe' pkgs.nix "nix-env"}" --profile /nix/var/nix/profiles/system --list-generations | "${lib.getExe' pkgs.coreutils "tail"}" -n 1)"
             set -- $gen
             generation="$1"
             title="NixOS: auto-upgrade succeeded"
@@ -29,7 +31,7 @@
             ;;
           failure)
             title="NixOS: auto-upgrade failed"
-            message="''${host} auto-upgrade failed at $("${pkgs.coreutils}/bin/date" -Is). Check: journalctl -u nixos-upgrade"
+            message="''${host} auto-upgrade failed at $("${lib.getExe' pkgs.coreutils "date"}" -Is). Logs: https://''${journal_url}"
             priority="high"
             tags="warning"
             ;;
@@ -38,15 +40,15 @@
             ;;
         esac
 
-        token="$("${pkgs.coreutils}/bin/cat" "$token_path")"
+        token="$("${lib.getExe' pkgs.coreutils "cat"}" "$token_path")"
 
-        "${pkgs.curl}/bin/curl" -sf -o /dev/null \
+        "${lib.getExe' pkgs.curl "curl"}" -sf -o /dev/null \
           -H "Authorization: Bearer $token" \
           -H "Title: $title" \
           -H "Priority: $priority" \
           -H "Tags: $tags" \
           -d "$message" \
-          "$url" || "${pkgs.util-linux}/bin/logger" -t ntfy-upgrade "ntfy notification failed: $title"
+          "$url" || "${lib.getExe' pkgs.util-linux "logger"}" -t ntfy-upgrade "ntfy notification failed: $title"
       '';
     in
     {
