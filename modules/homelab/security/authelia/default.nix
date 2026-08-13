@@ -70,7 +70,8 @@ in
     nixosArgs@{ pkgs, ... }:
     let
       autheliaDataDir = "/var/lib/data/authelia";
-      hashedSecretsDir = "${autheliaDataDir}/hashed-oidc-secrets";
+      autheliaAppDir = "/var/lib/authelia";
+      hashedSecretsDir = "${autheliaAppDir}/hashed-oidc-secrets";
 
       oidcClients = lib.mapAttrsToList (name: client: {
         inherit name;
@@ -217,7 +218,9 @@ in
         };
       };
 
-      users.users.${config.flake.meta.users.authelia.name}.extraGroups = [ "homelab-users" ];
+      users.users.${config.flake.meta.users.authelia.name}.extraGroups = [
+        "homelab-users"
+      ];
 
       systemd.tmpfiles.rules = [
         "d ${hashedSecretsDir} 0750 ${config.flake.meta.users.authelia.name} ${config.flake.meta.users.authelia.primaryGroup} -"
@@ -254,6 +257,8 @@ in
         );
       };
 
-      systemd.services.authelia-default.serviceConfig.StateDirectory = lib.mkForce "data/authelia";
+      systemd.services.authelia-default = {
+        serviceConfig.StateDirectory = lib.mkForce "data/authelia";
+      };
     };
 }
