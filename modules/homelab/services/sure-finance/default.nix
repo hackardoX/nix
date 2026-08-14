@@ -123,7 +123,7 @@ in
       };
       sureFinanceBrandFetchApiKey = {
         path = "/run/secrets/sure-finance/brand_fetch_client_id";
-        reference = "op://HomeLab/Sure Finance/Brand Fetch/client_id";
+        reference = "op://HomeLab/Sure Finance/Brand Fetch/client id";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
@@ -142,6 +142,24 @@ in
       sureFinanceExternalAssistantToken = {
         path = "/run/secrets/sure-finance/external_assistant_token";
         reference = "op://HomeLab/Sure Finance/AI/external assistant token";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
+      sureFinanceActiveRecordPrimaryKey = {
+        path = "/run/secrets/sure-finance/active_record_primary_key";
+        reference = "op://HomeLab/Sure Finance/Encryption/primary key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
+      sureFinanceActiveRecordDeterministicKey = {
+        path = "/run/secrets/sure-finance/active_record_deterministic_key";
+        reference = "op://HomeLab/Sure Finance/Encryption/deterministic key";
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
+      sureFinanceActiveRecordKeyDerivationSalt = {
+        path = "/run/secrets/sure-finance/active_record_key_derivation_salt";
+        reference = "op://HomeLab/Sure Finance/Encryption/key derivation salt";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
@@ -194,6 +212,12 @@ in
       };
 
       sharedSecrets = {
+        ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY =
+          osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordDeterministicKey;
+        ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT =
+          osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordKeyDerivationSalt;
+        ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY =
+          osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordPrimaryKey;
         BRAND_FETCH_CLIENT_ID =
           osConfig.services.onepassword-secrets.secretPaths.sureFinanceBrandFetchApiKey;
         EXTERNAL_ASSISTANT_TOKEN =
