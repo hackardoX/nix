@@ -16,12 +16,16 @@
       };
     };
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/redis-authelia 0750 ${config.flake.meta.users.authelia.name} ${config.flake.meta.users.authelia.primaryGroup} -"
+    ];
+
     users.users.${config.flake.meta.users.authelia.name}.extraGroups = [
       "redis-authelia"
     ];
 
-    boot.initrd.impermanence.persist.files = [
-      "/var/lib/redis-authelia/dump.rdb"
+    boot.initrd.impermanence.persist.directories = [
+      "/var/lib/redis-authelia"
     ];
 
     systemd.services.redis-authelia = {
