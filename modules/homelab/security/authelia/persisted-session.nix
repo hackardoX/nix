@@ -24,8 +24,8 @@
       "redis-authelia"
     ];
 
-    boot.initrd.impermanence.persist.files = [
-      "/var/lib/redis-authelia/dump.rdb"
+    boot.initrd.impermanence.persist.directories = [
+      "/var/lib/redis-authelia"
     ];
 
     systemd.services.redis-authelia = {
