@@ -10,9 +10,6 @@
         };
       };
 
-      timesyncd.enable = false;
-      chrony.enable = true;
-
       redis.servers.authelia = {
         enable = true;
         port = 0;
