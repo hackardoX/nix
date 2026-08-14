@@ -19,6 +19,10 @@
       };
     };
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/redis-authelia 0750 ${config.flake.meta.users.authelia.name} ${config.flake.meta.users.authelia.primaryGroup} -"
+    ];
+
     users.users.${config.flake.meta.users.authelia.name}.extraGroups = [
       "redis-authelia"
     ];

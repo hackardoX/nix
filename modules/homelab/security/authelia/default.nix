@@ -101,7 +101,7 @@ in
           instances.default = {
             enable = true;
             settings = {
-              theme = "dark";
+              theme = "auto";
               log.level = "info";
               server = {
                 address = "tcp://127.0.0.1:${toString autheliaPort}";
@@ -126,7 +126,7 @@ in
               };
               authentication_backend = {
                 file.path = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaUsersFile;
-                password_reset.disable = false;
+                password_reset.disable = true;
               };
               access_control = {
                 default_policy = "deny";
