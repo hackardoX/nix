@@ -34,8 +34,7 @@ in
   flake.meta.oidc-clients.beszel = {
     clientId = "beszel";
     clientName = "Monitoring";
-    policy = "two_factor";
-    allowedGroups = [ "admin" ];
+    policy = "admin-only";
     redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
     secretName = "autheliaBeszelOidcSecret";
   };
