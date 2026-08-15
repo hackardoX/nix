@@ -139,9 +139,9 @@ in
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceExternalAssistantToken = {
-        path = "/run/secrets/sure-finance/external_assistant_token";
-        reference = "op://HomeLab/Sure Finance/AI/external assistant token";
+      sureFinanceOpenAiToken = {
+        path = "/run/secrets/sure-finance/openai_token";
+        reference = "op://HomeLab/Sure Finance/AI/api key";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
@@ -185,17 +185,17 @@ in
     let
       sharedEnv = {
         APP_DOMAIN = hosts.finance;
-        ASSISTANT_TYPE = "external";
         AUTH_LOCAL_LOGIN_ENABLED = "false";
         DB_HOST = "db";
         DB_PORT = "5432";
         EMAIL_SENDER = "sure-finance@${config.flake.meta.reverse-proxy.domain}";
         EXCHANGE_RATE_PROVIDER = "twelve_data";
-        EXTERNAL_ASSISTANT_URL = "https://opencode.ai/zen/v1/chat/completions";
         OIDC_CLIENT_ID = sureFinanceOidcClientId;
         OIDC_ISSUER = "https://${hosts.auth}";
         OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
         OIDC_BUTTON_LABEL = "Sign in with Authelia";
+        OPENAI_MODEL = "mimo-v2.5-free";
+        OPENAI_URI_BASE = "https://opencode.ai/zen/v1/chat/completions";
         ONBOARDING_STATE = "closed";
         POSTGRES_USER = sureFinanceDbUser;
         POSTGRES_DB = sureFinanceDbName;
@@ -220,9 +220,8 @@ in
           osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordPrimaryKey;
         BRAND_FETCH_CLIENT_ID =
           osConfig.services.onepassword-secrets.secretPaths.sureFinanceBrandFetchApiKey;
-        EXTERNAL_ASSISTANT_TOKEN =
-          osConfig.services.onepassword-secrets.secretPaths.sureFinanceExternalAssistantToken;
         OIDC_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.sureFinanceOidcClientSecret;
+        OPENAI_ACCESS_TOKEN = osConfig.services.onepassword-secrets.secretPaths.sureFinanceOpenAiToken;
         POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
         SECRET_KEY_BASE = osConfig.services.onepassword-secrets.secretPaths.sureFinanceSecretKey;
         SMTP_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinanceResendApiKey;
