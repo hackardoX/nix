@@ -35,6 +35,21 @@ in
     };
   };
 
+  flake.meta.oidc-clients.sure-finance = {
+    clientId = "sure-finance";
+    clientName = "Sure Finance";
+    policy = "two_factor";
+    redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
+    secretName = "autheliaSureFinanceOidcSecret";
+    extraYamlLines = [
+      ''token_endpoint_auth_method: "client_secret_basic"''
+      "require_pkce: true"
+      ''pkce_challenge_method: "S256"''
+      ''access_token_signed_response_alg: "none"''
+      ''userinfo_signed_response_alg: "none"''
+    ];
+  };
+
   flake.modules.nixos.homelab-sure-finance = {
     users.users.${sureFinanceUser} = {
       uid = sureFinanceUid;

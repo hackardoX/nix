@@ -31,6 +31,14 @@ in
     };
   };
 
+  flake.meta.oidc-clients.beszel = {
+    clientId = "beszel";
+    clientName = "Monitoring";
+    policy = "admin-only";
+    redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
+    secretName = "autheliaBeszelOidcSecret";
+  };
+
   flake.modules.nixos.homelab-beszel = nixosArgs: {
     users.users.${beszelUser} = {
       uid = beszelUid;
@@ -93,6 +101,13 @@ in
         reference = "op://Homelab/Backup/Beszel/password";
         owner = beszelUser;
         group = beszelGroup;
+      };
+      autheliaBeszelOidcSecret = {
+        path = "/run/secrets/authelia/beszel_oidc_secret";
+        reference = "op://HomeLab/Beszel/Authentication/OIDC client secret";
+        owner = config.flake.meta.users.authelia.name;
+        group = config.flake.meta.users.authelia.primaryGroup;
+        services = [ "authelia-default.service" ];
       };
     };
 

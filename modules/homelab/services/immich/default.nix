@@ -42,6 +42,17 @@ in
     pingPort = reverseProxyPort;
   };
 
+  flake.meta.oidc-clients.immich = {
+    clientId = "immich";
+    clientName = "Immich";
+    policy = "two_factor";
+    redirectUris = [
+      "https://${hosts.immich}/auth/login-callback"
+      "https://${hosts.immich}/api/oauth/mobile"
+    ];
+    secretName = "autheliaImmichOidcSecret";
+  };
+
   flake.modules.nixos.homelab-immich = {
     users.users.${immichUser} = {
       uid = immichUid;
@@ -124,6 +135,13 @@ in
         reference = "op://Homelab/Backup/Immich/password";
         owner = immichUser;
         group = immichGroup;
+      };
+      autheliaImmichOidcSecret = {
+        path = "/run/secrets/authelia/immich_oidc_secret";
+        reference = "op://HomeLab/Immich/Authentication/OIDC client secret";
+        owner = config.flake.meta.users.authelia.name;
+        group = config.flake.meta.users.authelia.primaryGroup;
+        services = [ "authelia-default.service" ];
       };
     };
 
