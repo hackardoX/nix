@@ -35,6 +35,17 @@ in
     };
   };
 
+  flake.meta.oidc-clients.dawarich = {
+    clientId = "dawarich";
+    clientName = "Dawarich";
+    policy = "two_factor";
+    redirectUris = [ "https://${hosts.timeline}/users/auth/openid_connect/callback" ];
+    secretName = "autheliaDawarichOidcSecret";
+    extraYamlLines = [
+      ''token_endpoint_auth_method: "client_secret_basic"''
+    ];
+  };
+
   flake.modules.nixos.homelab-dawarich = {
     users.users.${dawarichUser} = {
       uid = dawarichUid;
@@ -129,6 +140,13 @@ in
         reference = "op://Homelab/Backup/Dawarich/password";
         owner = dawarichUser;
         group = dawarichGroup;
+      };
+      autheliaDawarichOidcSecret = {
+        path = "/run/secrets/authelia/dawarich_oidc_secret";
+        reference = "op://HomeLab/Dawarich/Authentication/OIDC client secret";
+        owner = config.flake.meta.users.authelia.name;
+        group = config.flake.meta.users.authelia.primaryGroup;
+        services = [ "authelia-default.service" ];
       };
     };
 

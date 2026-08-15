@@ -6,66 +6,6 @@ let
   autheliaPort = config.flake.meta.reverse-proxy.ports.authelia;
 in
 {
-  flake.meta = {
-    oidc-clients = {
-      beszel = {
-        clientId = "beszel";
-        clientName = "Monitoring";
-        policy = "two_factor";
-        redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
-        secretName = "autheliaBeszelOidcSecret";
-      };
-      immich = {
-        clientId = "immich";
-        clientName = "Immich";
-        policy = "two_factor";
-        redirectUris = [
-          "https://${hosts.immich}/auth/login-callback"
-          "https://${hosts.immich}/api/oauth/mobile"
-        ];
-        secretName = "autheliaImmichOidcSecret";
-      };
-      tandoor = {
-        clientId = "tandoor";
-        clientName = "Tandoor Recipes";
-        policy = "two_factor";
-        redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
-        secretName = "autheliaTandoorOidcSecret";
-      };
-      reactive-resume = {
-        clientId = "reactive-resume";
-        clientName = "Reactive Resume";
-        policy = "two_factor";
-        redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
-        secretName = "autheliaReactiveResumeOidcSecret";
-      };
-      sure-finance = {
-        clientId = "sure-finance";
-        clientName = "Sure Finance";
-        policy = "two_factor";
-        redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
-        secretName = "autheliaSureFinanceOidcSecret";
-        extraYamlLines = [
-          ''token_endpoint_auth_method: "client_secret_basic"''
-          "require_pkce: true"
-          ''pkce_challenge_method: "S256"''
-          ''access_token_signed_response_alg: "none"''
-          ''userinfo_signed_response_alg: "none"''
-        ];
-      };
-      dawarich = {
-        clientId = "dawarich";
-        clientName = "Dawarich";
-        policy = "two_factor";
-        redirectUris = [ "https://${hosts.timeline}/users/auth/openid_connect/callback" ];
-        secretName = "autheliaDawarichOidcSecret";
-        extraYamlLines = [
-          ''token_endpoint_auth_method: "client_secret_basic"''
-        ];
-      };
-    };
-  };
-
   flake.modules.nixos.homelab-security =
     nixosArgs@{ pkgs, ... }:
     let

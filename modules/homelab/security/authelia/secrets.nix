@@ -54,55 +54,6 @@ in
         group = config.flake.meta.users.authelia.primaryGroup;
         services = [ autheliaService ];
       };
-      autheliaBeszelOidcSecret = {
-        path = "/run/secrets/authelia/beszel_oidc_secret";
-        reference = "op://HomeLab/Beszel/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
-      autheliaImmichOidcSecret = {
-        path = "/run/secrets/authelia/immich_oidc_secret";
-        reference = "op://HomeLab/Immich/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
-      autheliaTandoorOidcSecret = {
-        path = "/run/secrets/authelia/tandoor_oidc_secret";
-        reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
-      autheliaGrafanaOidcSecret = {
-        path = "/run/secrets/authelia/grafana_oidc_secret";
-        reference = "op://HomeLab/Grafana/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
-      autheliaReactiveResumeOidcSecret = {
-        path = "/run/secrets/authelia/reactive-resume_oidc_secret";
-        reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
-      autheliaSureFinanceOidcSecret = {
-        path = "/run/secrets/authelia/sure-finance_oidc_secret";
-        reference = "op://HomeLab/Sure Finance/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
-      autheliaDawarichOidcSecret = {
-        path = "/run/secrets/authelia/dawarich_oidc_secret";
-        reference = "op://HomeLab/Dawarich/Authentication/OIDC client secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
-      };
     };
   };
 }

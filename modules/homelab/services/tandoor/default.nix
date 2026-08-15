@@ -35,6 +35,14 @@ in
     pingPort = reverseProxyPort;
   };
 
+  flake.meta.oidc-clients.tandoor = {
+    clientId = "tandoor";
+    clientName = "Tandoor Recipes";
+    policy = "two_factor";
+    redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
+    secretName = "autheliaTandoorOidcSecret";
+  };
+
   flake.modules.nixos.homelab-tandoor = {
     users.users.${tandoorUser} = {
       uid = tandoorUid;
@@ -126,6 +134,13 @@ in
         reference = "op://Homelab/Backup/Tandoor/password";
         owner = tandoorUser;
         group = tandoorGroup;
+      };
+      autheliaTandoorOidcSecret = {
+        path = "/run/secrets/authelia/tandoor_oidc_secret";
+        reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
+        owner = config.flake.meta.users.authelia.name;
+        group = config.flake.meta.users.authelia.primaryGroup;
+        services = [ "authelia-default.service" ];
       };
     };
 

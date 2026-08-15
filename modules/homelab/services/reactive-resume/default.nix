@@ -39,6 +39,14 @@ in
     };
   };
 
+  flake.meta.oidc-clients.reactive-resume = {
+    clientId = "reactive-resume";
+    clientName = "Reactive Resume";
+    policy = "two_factor";
+    redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
+    secretName = "autheliaReactiveResumeOidcSecret";
+  };
+
   flake.modules.nixos.homelab-reactive-resume = {
     users.users.${reactiveResumeUser} = {
       uid = reactiveResumeUid;
@@ -104,6 +112,13 @@ in
         reference = "op://Homelab/Backup/Reactive Resume/password";
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
+      };
+      autheliaReactiveResumeOidcSecret = {
+        path = "/run/secrets/authelia/reactive-resume_oidc_secret";
+        reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
+        owner = config.flake.meta.users.authelia.name;
+        group = config.flake.meta.users.authelia.primaryGroup;
+        services = [ "authelia-default.service" ];
       };
     };
 
