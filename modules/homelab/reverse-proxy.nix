@@ -8,7 +8,7 @@ in
     hosts = {
       auth = "auth.${domain}";
       homepage = "homepage.${domain}";
-      immich = "immich.${domain}";
+      immich = "photos.${domain}";
       jobs = "jobs.${domain}";
       monitoring = "monitoring.${domain}";
       rxresume = "rxresume.${domain}";
