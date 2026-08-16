@@ -12,7 +12,7 @@ let
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.sure-finance;
-  sureFinanceImage = "ghcr.io/we-promise/sure:0.7.2";
+  sureFinanceImage = "ghcr.io/we-promise/sure:0.7.3";
   sureFinancePort = 3000;
   sureFinanceDbName = "sure_production";
   sureFinanceDbUser = "sure_user";
