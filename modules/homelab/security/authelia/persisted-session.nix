@@ -17,7 +17,7 @@
     };
 
     systemd.tmpfiles.rules = [
-      "d /var/lib/redis-authelia 0750 ${config.flake.meta.users.authelia.name} ${config.flake.meta.users.authelia.primaryGroup} -"
+      "d /var/lib/redis-authelia 0750 redis-authelia redis-authelia -"
     ];
 
     users.users.${config.flake.meta.users.authelia.name}.extraGroups = [
