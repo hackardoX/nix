@@ -63,6 +63,7 @@ in
         "FR"
         "CH"
         "US"
+        "BE"
       ];
     in
     {
