@@ -15,13 +15,36 @@ let
   immichPort = 2283;
   immichDbUser = "postgres";
   immichDbName = "immich";
-  immichOidcClientId = config.flake.meta.oidc-clients.immich.clientId;
 
   immichConfig = {
     storageTemplate = {
       enabled = true;
       hashVerificationEnabled = true;
       template = "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}";
+    };
+    oauth = {
+      enabled = true;
+      # Set to true once SSO is confirmed working.
+      autoLaunch = false;
+      autoRegister = true;
+      buttonText = "Login with Authelia";
+      clientId = config.flake.meta.oidc-clients.immich.clientId;
+      clientSecret = "";
+      defaultStorageQuota = 0;
+      issuerUrl = "https://${hosts.auth}";
+      mobileOverrideEnabled = false;
+      mobileRedirectUri = "";
+      profileSigningAlgorithm = "none";
+      roleClaim = "immich_role";
+      scope = "openid email profile";
+      signingAlgorithm = "RS256";
+      storageLabelClaim = "preferred_username";
+      storageQuotaClaim = "immich_quota";
+      timeout = 30000;
+      tokenEndpointAuthMethod = "client_secret_post";
+    };
+    passwordLogin = {
+      enabled = true;
     };
   };
 in
@@ -47,10 +70,17 @@ in
     clientName = "Immich";
     policy = "two_factor";
     redirectUris = [
-      "https://${hosts.immich}/auth/login-callback"
-      "https://${hosts.immich}/api/oauth/mobile"
+      "https://${hosts.immich}/auth/login"
+      "https://${hosts.immich}/user-settings"
+      "app.immich:///oauth-callback"
     ];
     secretName = "autheliaImmichOidcSecret";
+    extraYamlLines = [
+      ''token_endpoint_auth_method: "client_secret_post"''
+      "require_pkce: false"
+      ''id_token_signed_response_alg: "RS256"''
+      ''userinfo_signed_response_alg: "RS256"''
+    ];
   };
 
   flake.modules.nixos.homelab-immich = {
@@ -79,6 +109,7 @@ in
       "d ${immichAppDir}/ml-models 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/ml-dotcache 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/ml-config 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/config 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql/data 0750 ${immichUser} ${immichGroup} -"
@@ -165,7 +196,12 @@ in
   };
 
   flake.modules.homeManager.homelab-immich =
-    { osConfig, pkgs, ... }:
+    {
+      osConfig,
+      pkgs,
+      lib,
+      ...
+    }:
     let
       sharedEnv = {
         DB_HOSTNAME = "immich-db";
@@ -173,12 +209,6 @@ in
         DB_DATABASE_NAME = immichDbName;
         DB_USERNAME = immichDbUser;
         DB_VECTOR_EXTENSION = "vectorchord";
-        IMMICH_OAUTH_ENABLED = "true";
-        IMMICH_OAUTH_ISSUER_URL = "https://${hosts.auth}";
-        IMMICH_OAUTH_CLIENT_ID = immichOidcClientId;
-        IMMICH_OAUTH_SCOPE = "openid profile email";
-        IMMICH_OAUTH_AUTO_LAUNCH = "true";
-        IMMICH_OAUTH_AUTO_REGISTRATION = "true";
         REDIS_HOSTNAME = "immich-redis";
         REDIS_PORT = "6379";
         TZ = osConfig.time.timeZone;
@@ -186,11 +216,28 @@ in
 
       sharedSecrets = {
         DB_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
-        IMMICH_OAUTH_CLIENT_SECRET =
-          osConfig.services.onepassword-secrets.secretPaths.immichOidcClientSecret;
       };
 
-      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
+      immichBaseConfigFile = pkgs.writeText "immich-config-base.json" (builtins.toJSON immichConfig);
+
+      immichRuntimeConfigPath = "${immichAppDir}/config/immich.json";
+
+      immichGenerateConfig = lib.getExe (
+        pkgs.writeShellApplication {
+          name = "immich-generate-config";
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.jq
+          ];
+          text = ''
+            install -D -m 600 /dev/null "${immichRuntimeConfigPath}"
+            ${lib.getExe pkgs.jq} \
+              --arg clientSecret "$(<${osConfig.services.onepassword-secrets.secretPaths.immichOidcClientSecret})" \
+              '.oauth.clientSecret = $clientSecret' \
+              "${immichBaseConfigFile}" > "${immichRuntimeConfigPath}"
+          '';
+        }
+      );
     in
     {
       config = {
@@ -222,13 +269,13 @@ in
           volumes = [
             "${immichAppDir}/photos:/data"
             "/etc/localtime:/etc/localtime:ro"
-            "${immichConfigFile}:/config/immich.json:ro"
+            "${immichRuntimeConfigPath}:/config/immich.json:ro"
           ];
 
           environment = sharedEnv // {
             IMMICH_CONFIG_FILE = "/config/immich.json";
-            # Set to "false" after initial admin registration to disable /auth/admin-sign-up
-            IMMICH_ALLOW_SETUP = "false";
+            # TODO: Set to "false" after creating the admin account.
+            IMMICH_ALLOW_SETUP = "true";
             IMMICH_TRUSTED_PROXIES = "10.89.0.0/16";
           };
 
@@ -243,6 +290,9 @@ in
               # HealthInterval = "30s";
               # HealthTimeout = "10s";
               # HealthRetries = 3;
+            };
+            Service = {
+              ExecStartPre = [ "${immichGenerateConfig}" ];
             };
           };
         };
