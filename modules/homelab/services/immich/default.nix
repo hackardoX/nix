@@ -23,6 +23,19 @@ let
       hashVerificationEnabled = true;
       template = "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}";
     };
+    oauth = {
+      enabled = true;
+      issuerUrl = "https://${hosts.auth}";
+      clientId = immichOidcClientId;
+      clientSecret = "PLACEHOLDER";
+      scope = "openid profile email";
+      autoLaunch = true;
+      autoRegister = true;
+      mobileOverrideEnabled = true;
+      mobileRedirectUri = "https://${hosts.immich}/api/oauth/mobile-redirect";
+      signingAlgorithm = "RS256";
+      tokenEndpointAuthMethod = "client_secret_post";
+    };
   };
 in
 {
@@ -47,8 +60,9 @@ in
     clientName = "Immich";
     policy = "two_factor";
     redirectUris = [
-      "https://${hosts.immich}/auth/login-callback"
-      "https://${hosts.immich}/api/oauth/mobile"
+      "https://${hosts.immich}/auth/login"
+      "https://${hosts.immich}/user-settings"
+      "https://${hosts.immich}/api/oauth/mobile-redirect"
     ];
     secretName = "autheliaImmichOidcSecret";
   };
@@ -173,15 +187,10 @@ in
         DB_DATABASE_NAME = immichDbName;
         DB_USERNAME = immichDbUser;
         DB_VECTOR_EXTENSION = "vectorchord";
-        IMMICH_OAUTH_ENABLED = "true";
-        IMMICH_OAUTH_ISSUER_URL = "https://${hosts.auth}";
-        IMMICH_OAUTH_CLIENT_ID = immichOidcClientId;
-        IMMICH_OAUTH_SCOPE = "openid profile email";
-        IMMICH_OAUTH_AUTO_LAUNCH = "true";
-        IMMICH_OAUTH_AUTO_REGISTRATION = "true";
         REDIS_HOSTNAME = "immich-redis";
         REDIS_PORT = "6379";
         TZ = osConfig.time.timeZone;
+        IMMICH_CONFIG_FILE = "/tmp/immich.json";
       };
 
       sharedSecrets = {
@@ -191,6 +200,22 @@ in
       };
 
       immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
+
+      entrypointScript = pkgs.writeTextFile {
+        name = "immich-entrypoint";
+        executable = true;
+        text = ''
+          #!/bin/sh
+          set -e
+          node -e "
+            const fs = require('fs');
+            const config = JSON.parse(fs.readFileSync('/config/immich.json', 'utf8'));
+            config.oauth.clientSecret = process.env.IMMICH_OAUTH_CLIENT_SECRET;
+            fs.writeFileSync('/tmp/immich.json', JSON.stringify(config));
+          "
+          exec "$@"
+        '';
+      };
     in
     {
       config = {
@@ -223,10 +248,10 @@ in
             "${immichAppDir}/photos:/data"
             "/etc/localtime:/etc/localtime:ro"
             "${immichConfigFile}:/config/immich.json:ro"
+            "${entrypointScript}:/entrypoint.sh:ro"
           ];
 
           environment = sharedEnv // {
-            IMMICH_CONFIG_FILE = "/config/immich.json";
             # Set to "false" after initial admin registration to disable /auth/admin-sign-up
             IMMICH_ALLOW_SETUP = "false";
             IMMICH_TRUSTED_PROXIES = "10.89.0.0/16";
@@ -239,6 +264,7 @@ in
               LogDriver = "journald";
               SecurityLabelDisable = false;
               NoNewPrivileges = true;
+              Entrypoint = [ "/entrypoint.sh" ];
               # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
               # HealthInterval = "30s";
               # HealthTimeout = "10s";
