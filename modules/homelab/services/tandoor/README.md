@@ -21,10 +21,11 @@ This creates the following containers on a `tandoor` bridge network:
 
 ## 1Password Secrets Required
 
-- `op://Homelab/Tandoor/Authentication/secret key` - Django SECRET_KEY
-- `op://Homelab/Tandoor/Database/password` - PostgreSQL password
-- `op://Homelab/Tandoor/Authentication/OIDC client secret` - OIDC client secret (if OIDC is enabled)
-- `op://Homelab/Backup/Tandoor/password` - Backup encryption key
+- `op://HomeLab/Tandoor/Authentication/secret key` - Django SECRET_KEY
+- `op://HomeLab/Tandoor/Database/password` - PostgreSQL password
+- `op://HomeLab/Tandoor/Authentication/OIDC client secret` - OIDC client secret (if OIDC is enabled)
+- `op://HomeLab/Tandoor/Resend/api key` - Resend API key for SMTP
+- `op://HomeLab/Backup/Tandoor/password` - Backup encryption key
 
 ## OIDC Authentication
 

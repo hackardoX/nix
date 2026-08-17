@@ -12,6 +12,7 @@ let
   tandoorDataDir = "/var/lib/data/tandoor";
 
   hosts = config.flake.meta.reverse-proxy.hosts;
+  domain = config.flake.meta.reverse-proxy.domain;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
   tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13";
   tandoorPort = 8080;
@@ -113,25 +114,31 @@ in
       };
       tandoorSecretKey = {
         path = "/run/secrets/tandoor/secret_key";
-        reference = "op://Homelab/Tandoor/Authentication/secret key";
+        reference = "op://HomeLab/Tandoor/Authentication/secret key";
         owner = tandoorUser;
         group = tandoorGroup;
       };
       tandoorDbPassword = {
         path = "/run/secrets/tandoor/db_password";
-        reference = "op://Homelab/Tandoor/Database/password";
+        reference = "op://HomeLab/Tandoor/Database/password";
         owner = tandoorUser;
         group = tandoorGroup;
       };
       tandoorOidcClientSecret = {
         path = "/run/secrets/tandoor/oidc_client_secret";
-        reference = "op://Homelab/Tandoor/Authentication/OIDC client secret";
+        reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
+        owner = tandoorUser;
+        group = tandoorGroup;
+      };
+      tandoorResendApiKey = {
+        path = "/run/secrets/tandoor/resend_api_key";
+        reference = "op://HomeLab/Tandoor/Resend/api key";
         owner = tandoorUser;
         group = tandoorGroup;
       };
       backupTandoorEncryptionKey = {
         path = "/run/secrets/tandoor/backup_encryption_key";
-        reference = "op://Homelab/Backup/Tandoor/password";
+        reference = "op://HomeLab/Backup/Tandoor/password";
         owner = tandoorUser;
         group = tandoorGroup;
       };
@@ -240,6 +247,11 @@ in
           environment = {
             ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
             DB_ENGINE = "django.db.backends.postgresql";
+            DEFAULT_FROM_EMAIL = "tandoor@${domain}";
+            EMAIL_HOST = "smtp.resend.com";
+            EMAIL_HOST_USER = "resend";
+            EMAIL_PORT = 587;
+            EMAIL_USE_TLS = 1;
             HIDE_LOGIN_FORM = 1;
             POSTGRES_HOST = "db";
             POSTGRES_DB = tandoorDbName;
@@ -251,6 +263,7 @@ in
           };
 
           secrets = {
+            EMAIL_HOST_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorResendApiKey;
             FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorFDCApiKey;
             SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
             POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
