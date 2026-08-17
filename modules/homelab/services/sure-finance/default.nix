@@ -210,8 +210,8 @@ in
         OIDC_ISSUER = "https://${hosts.auth}";
         OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
         OIDC_BUTTON_LABEL = "Sign in with Authelia";
-        OPENAI_MODEL = "mimo-v2.5-free";
-        OPENAI_URI_BASE = "https://opencode.ai/zen/v1";
+        OPENAI_MODEL = "mimo-v2.5";
+        OPENAI_URI_BASE = "https://opencode.ai/zen/go/v1";
         ONBOARDING_STATE = "closed";
         POSTGRES_USER = sureFinanceDbUser;
         POSTGRES_DB = sureFinanceDbName;

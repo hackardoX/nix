@@ -15,7 +15,6 @@ let
   immichPort = 2283;
   immichDbUser = "postgres";
   immichDbName = "immich";
-  immichOidcClientId = config.flake.meta.oidc-clients.immich.clientId;
 
   immichConfig = {
     storageTemplate = {
@@ -25,16 +24,27 @@ let
     };
     oauth = {
       enabled = true;
-      issuerUrl = "https://${hosts.auth}";
-      clientId = immichOidcClientId;
-      clientSecret = "PLACEHOLDER";
-      scope = "openid profile email";
-      autoLaunch = true;
+      # Set to true once SSO is confirmed working.
+      autoLaunch = false;
       autoRegister = true;
-      mobileOverrideEnabled = true;
-      mobileRedirectUri = "https://${hosts.immich}/api/oauth/mobile-redirect";
+      buttonText = "Login with Authelia";
+      clientId = config.flake.meta.oidc-clients.immich.clientId;
+      clientSecret = "";
+      defaultStorageQuota = 0;
+      issuerUrl = "https://${hosts.auth}";
+      mobileOverrideEnabled = false;
+      mobileRedirectUri = "";
+      profileSigningAlgorithm = "none";
+      roleClaim = "immich_role";
+      scope = "openid email profile";
       signingAlgorithm = "RS256";
+      storageLabelClaim = "preferred_username";
+      storageQuotaClaim = "immich_quota";
+      timeout = 30000;
       tokenEndpointAuthMethod = "client_secret_post";
+    };
+    passwordLogin = {
+      enabled = true;
     };
   };
 in
@@ -62,9 +72,15 @@ in
     redirectUris = [
       "https://${hosts.immich}/auth/login"
       "https://${hosts.immich}/user-settings"
-      "https://${hosts.immich}/api/oauth/mobile-redirect"
+      "app.immich:///oauth-callback"
     ];
     secretName = "autheliaImmichOidcSecret";
+    extraYamlLines = [
+      ''token_endpoint_auth_method: "client_secret_post"''
+      "require_pkce: false"
+      ''id_token_signed_response_alg: "RS256"''
+      ''userinfo_signed_response_alg: "RS256"''
+    ];
   };
 
   flake.modules.nixos.homelab-immich = {
@@ -93,6 +109,7 @@ in
       "d ${immichAppDir}/ml-models 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/ml-dotcache 0750 ${immichUser} ${immichGroup} -"
       "d ${immichAppDir}/ml-config 0750 ${immichUser} ${immichGroup} -"
+      "d ${immichAppDir}/config 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir} 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql 0750 ${immichUser} ${immichGroup} -"
       "d ${immichDataDir}/postgresql/data 0750 ${immichUser} ${immichGroup} -"
@@ -179,7 +196,12 @@ in
   };
 
   flake.modules.homeManager.homelab-immich =
-    { osConfig, pkgs, ... }:
+    {
+      osConfig,
+      pkgs,
+      lib,
+      ...
+    }:
     let
       sharedEnv = {
         DB_HOSTNAME = "immich-db";
@@ -190,32 +212,32 @@ in
         REDIS_HOSTNAME = "immich-redis";
         REDIS_PORT = "6379";
         TZ = osConfig.time.timeZone;
-        IMMICH_CONFIG_FILE = "/tmp/immich.json";
       };
 
       sharedSecrets = {
         DB_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
-        IMMICH_OAUTH_CLIENT_SECRET =
-          osConfig.services.onepassword-secrets.secretPaths.immichOidcClientSecret;
       };
 
-      immichConfigFile = pkgs.writeText "immich-config.json" (builtins.toJSON immichConfig);
+      immichBaseConfigFile = pkgs.writeText "immich-config-base.json" (builtins.toJSON immichConfig);
 
-      entrypointScript = pkgs.writeTextFile {
-        name = "immich-entrypoint";
-        executable = true;
-        text = ''
-          #!/bin/sh
-          set -e
-          node -e "
-            const fs = require('fs');
-            const config = JSON.parse(fs.readFileSync('/config/immich.json', 'utf8'));
-            config.oauth.clientSecret = process.env.IMMICH_OAUTH_CLIENT_SECRET;
-            fs.writeFileSync('/tmp/immich.json', JSON.stringify(config));
-          "
-          exec "$@"
-        '';
-      };
+      immichRuntimeConfigPath = "${immichAppDir}/config/immich.json";
+
+      immichGenerateConfig = lib.getExe (
+        pkgs.writeShellApplication {
+          name = "immich-generate-config";
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.jq
+          ];
+          text = ''
+            install -D -m 600 /dev/null "${immichRuntimeConfigPath}"
+            ${lib.getExe pkgs.jq} \
+              --arg clientSecret "$(<${osConfig.services.onepassword-secrets.secretPaths.immichOidcClientSecret})" \
+              '.oauth.clientSecret = $clientSecret' \
+              "${immichBaseConfigFile}" > "${immichRuntimeConfigPath}"
+          '';
+        }
+      );
     in
     {
       config = {
@@ -247,13 +269,13 @@ in
           volumes = [
             "${immichAppDir}/photos:/data"
             "/etc/localtime:/etc/localtime:ro"
-            "${immichConfigFile}:/config/immich.json:ro"
-            "${entrypointScript}:/entrypoint.sh:ro"
+            "${immichRuntimeConfigPath}:/config/immich.json:ro"
           ];
 
           environment = sharedEnv // {
-            # Set to "false" after initial admin registration to disable /auth/admin-sign-up
-            IMMICH_ALLOW_SETUP = "false";
+            IMMICH_CONFIG_FILE = "/config/immich.json";
+            # TODO: Set to "false" after creating the admin account.
+            IMMICH_ALLOW_SETUP = "true";
             IMMICH_TRUSTED_PROXIES = "10.89.0.0/16";
           };
 
@@ -264,11 +286,13 @@ in
               LogDriver = "journald";
               SecurityLabelDisable = false;
               NoNewPrivileges = true;
-              Entrypoint = [ "/entrypoint.sh" ];
               # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
               # HealthInterval = "30s";
               # HealthTimeout = "10s";
               # HealthRetries = 3;
+            };
+            Service = {
+              ExecStartPre = [ "${immichGenerateConfig}" ];
             };
           };
         };

@@ -7,7 +7,16 @@ let
     lib.unique (
       lib.concatLists (
         lib.mapAttrsToList (
-          _: c: map (uri: lib.head (lib.match "(https?://[^/]+).*" uri)) c.redirectUris
+          _: c:
+          lib.concatLists (
+            map (
+              uri:
+              let
+                match = lib.match "(https?://[^/]+).*" uri;
+              in
+              lib.optional (match != null) (lib.head match)
+            ) c.redirectUris
+          )
         ) clients
       )
     );
