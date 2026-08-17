@@ -152,6 +152,7 @@ in
 
     services.caddy.virtualHosts."${hosts.timeline}" = {
       extraConfig = ''
+        import auth_protected
         import reverse_proxy_common
         reverse_proxy localhost:${toString reverseProxyPort}
       '';
