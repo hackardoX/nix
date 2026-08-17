@@ -8,9 +8,9 @@ AI-powered job application assistant running in Podman.
 services.job-ops = {
   enable = true;
   port = 3001;                              # default: 3001
-  model = "deepseek-v4-flash-free";         # default
+  model = "deepseek-v4-flash";              # default
   llmProvider = "openai_compatible";        # default
-  llmBaseUrl = "https://opencode.ai/zen/v1/chat/completions";
+  llmBaseUrl = "https://opencode.ai/zen/go/v1/chat/completions";
   llmApiKeyFile = /path/to/api/key;
   publicBaseUrl = "https://jobs.example.com";
 

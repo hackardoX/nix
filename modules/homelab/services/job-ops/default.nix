@@ -15,9 +15,9 @@ let
 
   jobOpsImage = "ghcr.io/dakheera47/job-ops:v0.11.0";
   jobOpsPort = 3001;
-  jobOpsModel = "deepseek-v4-flash-free";
+  jobOpsModel = "deepseek-v4-flash";
   jobOpsLlmProvider = "openai_compatible";
-  jobOpsLlmBaseUrl = "https://opencode.ai/zen/v1/chat/completions";
+  jobOpsLlmBaseUrl = "https://opencode.ai/zen/go/v1/chat/completions";
 
   jobOpsPublicBaseUrl = "https://${hosts.jobs}";
   jobOpsBasicAuthUser = "admin";
