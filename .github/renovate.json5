@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:weekly"
+  ],
+  "enabledManagers": ["regex", "github-actions"],
+  "labels": ["dependencies", "merge-queue"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^modules/homelab/.*\\.nix$"],
+      "matchStrings": [
+        "image = \"(?<depName>[^\"]+?)(:(?<currentValue>[^@\"]+))?(?:@(?<currentDigest>sha256:[a-f0-9]+))?\";"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "loose"
+    }
+  ]
+}
