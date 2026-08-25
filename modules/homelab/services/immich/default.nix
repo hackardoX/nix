@@ -178,7 +178,6 @@ in
 
     services.caddy.virtualHosts."${hosts.immich}" = {
       extraConfig = ''
-        import auth_protected
         import reverse_proxy_common
 
         request_body {
