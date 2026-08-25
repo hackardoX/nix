@@ -8,12 +8,21 @@ jobs:
   renovate:
     runs-on: ubuntu-latest
     steps:
+      - name: Get GitHub App token
+        id: get-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Run Renovate
-        uses: renovatebot/renovate@v42
+        uses: actions/checkout@v7.0.1
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v46.2.3
+        with:
+          token: ${{ steps.get-token.outputs.token }}
         env:
-          RENOVATE_APP_ID: ${{ vars.CI_APP_ID }}
-          RENOVATE_APP_PRIVATE_KEY: ${{ secrets.CI_APP_PRIVATE_KEY }}
-          RENOVATE_REPOSITORIES: ${{ github.repository }}
           LOG_LEVEL: ${{ runner.debug == '1' && 'debug' || 'info' }}
