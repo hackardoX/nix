@@ -1,0 +1,19 @@
+name: Renovate
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run Renovate
+        uses: renovatebot/renovate@v42
+        env:
+          RENOVATE_APP_ID: ${{ vars.CI_APP_ID }}
+          RENOVATE_APP_PRIVATE_KEY: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          LOG_LEVEL: ${{ runner.debug == '1' && 'debug' || 'info' }}

@@ -41,7 +41,10 @@ repository:
   enable_vulnerability_alerts: true
 # Labels: define labels for Issues and Pull Requests
 #
-labels: null
+labels:
+  - name: dependencies
+    color: 0366d6
+    description: Pull requests that update a dependency
 # NOTE: leave that up to the https://github.com/numtide/.github repo
 #   - name: bug
 #     color: CC0000
