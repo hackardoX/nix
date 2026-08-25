@@ -245,6 +245,7 @@ in
 
           environment = {
             ALLOWED_HOSTS = ".localhost,127.0.0.1,[::1],${hosts.recipes}";
+            AI_ALLOWED_URLS = "https://opencode.ai/zen/go/v1";
             DB_ENGINE = "django.db.backends.postgresql";
             DEFAULT_FROM_EMAIL = "tandoor@${domain}";
             EMAIL_HOST = "smtp.resend.com";
