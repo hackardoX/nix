@@ -16,5 +16,43 @@
       "datasourceTemplate": "docker",
       "versioningTemplate": "loose"
     }
+  ],
+  "packageRules": [
+    {
+      "description": "Group updates by service",
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/beszel/**"],
+      "groupName": "beszel"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/dawarich/**"],
+      "groupName": "dawarich"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/homepage/**"],
+      "groupName": "homepage"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/immich/**"],
+      "groupName": "immich"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/reactive-resume/**"],
+      "groupName": "reactive-resume"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/sure-finance/**"],
+      "groupName": "sure-finance"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/tandoor/**"],
+      "groupName": "tandoor"
+    }
   ]
 }
