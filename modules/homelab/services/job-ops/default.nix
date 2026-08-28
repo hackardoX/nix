@@ -138,6 +138,7 @@ in
         reference = "op://Homelab/Backup/Job Ops/password";
         owner = jobOpsUser;
         group = jobOpsGroup;
+        mode = "0640";
       };
     };
 

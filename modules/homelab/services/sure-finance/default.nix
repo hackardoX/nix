@@ -129,6 +129,7 @@ in
         reference = "op://Homelab/Backup/Sure Finance/password";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
+        mode = "0640";
       };
       sureFinanceResendApiKey = {
         path = "/run/secrets/sure-finance/resend_api_key";

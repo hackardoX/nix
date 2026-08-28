@@ -140,6 +140,7 @@ in
         reference = "op://Homelab/Backup/Dawarich/password";
         owner = dawarichUser;
         group = dawarichGroup;
+        mode = "0640";
       };
       autheliaDawarichOidcSecret = {
         path = "/run/secrets/authelia/dawarich_oidc_secret";

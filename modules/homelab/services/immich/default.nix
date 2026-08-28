@@ -166,6 +166,7 @@ in
         reference = "op://Homelab/Backup/Immich/password";
         owner = immichUser;
         group = immichGroup;
+        mode = "0640";
       };
       autheliaImmichOidcSecret = {
         path = "/run/secrets/authelia/immich_oidc_secret";

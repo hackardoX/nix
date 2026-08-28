@@ -18,6 +18,7 @@ in
       grafana = "grafana.${domain}";
       logs = "logs.${domain}";
       ssh = "ssh.${domain}";
+      backup = "backup.${domain}";
     };
     ports = {
       authelia = 1024;
@@ -47,6 +48,7 @@ in
       sure-finance-docker-socket-proxy = 19001;
       tandoor = 20000;
       tandoor-docker-socket-proxy = 20001;
+      backup = 2100;
     };
   };
 

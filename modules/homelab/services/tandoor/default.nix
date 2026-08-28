@@ -141,6 +141,7 @@ in
         reference = "op://HomeLab/Backup/Tandoor/password";
         owner = tandoorUser;
         group = tandoorGroup;
+        mode = "0640";
       };
       autheliaTandoorOidcSecret = {
         path = "/run/secrets/authelia/tandoor_oidc_secret";
