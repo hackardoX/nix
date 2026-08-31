@@ -1,11 +1,10 @@
-{ config, ... }:
 let
   user = "deploy";
 in
 {
   flake = {
     meta.users.deploy.name = "deploy";
-    modules.nixos.deploy = nixosArgs: {
+    modules.nixos.deploy = {
       users.users.${user} = {
         isNormalUser = true;
         description = "System deploy user";
@@ -13,8 +12,10 @@ in
         extraGroups = [
           "wheel"
         ];
-        openssh.authorizedKeys.keys =
-          config.flake.meta.users.${nixosArgs.config.system.primaryUser}.authorizedKeys;
+        openssh.authorizedKeys.keys = [
+          # TODO: add your public key here
+          "ssh-ed25519 ... ${user}"
+        ];
       };
 
       nix.settings.trusted-users = [ user ];

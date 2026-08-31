@@ -5,7 +5,7 @@
       enable = true;
       settings = {
         user = {
-          inherit (config.flake.meta.users.aaccardo) email name;
+          inherit (config.flake.meta.git) email name;
         };
         branch.sort = "-committerdate";
         column.ui = "auto";

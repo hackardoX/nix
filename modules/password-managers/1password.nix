@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.darwin.password-manager = {
+  flake.modules.darwin."1password" = {
     homebrew = {
       masApps = {
         "1Password for Safari" = 1569813296;
@@ -13,7 +13,7 @@
     };
   };
 
-  flake.modules.homeManager.password-manager =
+  flake.modules.homeManager."1password" =
     hmArgs@{ pkgs, osConfig, ... }:
     let
       _1passwordOriginalSocketPath = "${hmArgs.config.home.homeDirectory}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
@@ -23,7 +23,7 @@
       assertions = [
         {
           assertion = osConfig.programs._1password-gui.enable or false;
-          message = "1Password GUI must be enabled at the system level. Add flake.modules.darwin.password-manager to your host imports.";
+          message = "1Password GUI must be enabled at the system level. Add flake.modules.darwin.\"1password\" to your host imports.";
         }
       ];
 
