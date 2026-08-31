@@ -6,8 +6,6 @@
         "Proton Pass for Safari" = 6502835663;
       };
     };
-
-    environment.systemPackages = [ pkgs.proton-pass ];
   };
 
   flake.modules.homeManager.proton-pass =
@@ -20,8 +18,8 @@
           "${config.xdg.runtimeDir}/proton-pass-agent";
     in
     {
+      home.packages = [ pkgs.proton-pass ];
       services.proton-pass-agent.enable = true;
-
       ssh.extraConfig = ''
         IdentityAgent ${protonPassAgentSocketPath}
       '';
