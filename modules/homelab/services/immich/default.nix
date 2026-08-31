@@ -166,6 +166,7 @@ in
         reference = "op://Homelab/Backup/Immich/password";
         owner = immichUser;
         group = immichGroup;
+        mode = "0640";
       };
       autheliaImmichOidcSecret = {
         path = "/run/secrets/authelia/immich_oidc_secret";
@@ -245,12 +246,20 @@ in
             "${immichAppDir}/photos/library"
             "${immichAppDir}/photos/upload"
             "${immichAppDir}/photos/profile"
-            "${immichAppDir}/photos/backups"
           ];
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "postgres";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+            container = {
+              type = "podman";
+              name = "immich-db";
+            };
+          };
         };
 
         services.podman.enable = true;

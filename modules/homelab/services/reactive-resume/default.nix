@@ -112,6 +112,7 @@ in
         reference = "op://Homelab/Backup/Reactive Resume/password";
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
+        mode = "0640";
       };
       autheliaReactiveResumeOidcSecret = {
         path = "/run/secrets/authelia/reactive-resume_oidc_secret";

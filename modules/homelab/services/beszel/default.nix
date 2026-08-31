@@ -101,6 +101,7 @@ in
         reference = "op://Homelab/Backup/Beszel/password";
         owner = beszelUser;
         group = beszelGroup;
+        mode = "0640";
       };
       autheliaBeszelOidcSecret = {
         path = "/run/secrets/authelia/beszel_oidc_secret";

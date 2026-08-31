@@ -129,6 +129,7 @@ in
         reference = "op://Homelab/Backup/Sure Finance/password";
         owner = sureFinanceUser;
         group = sureFinanceGroup;
+        mode = "0640";
       };
       sureFinanceResendApiKey = {
         path = "/run/secrets/sure-finance/resend_api_key";
@@ -251,6 +252,15 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "sure_user";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
+            container = {
+              type = "podman";
+              name = "sure-finance-db";
+            };
+          };
         };
 
         services.podman.enable = true;

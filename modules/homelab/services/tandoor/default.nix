@@ -141,6 +141,7 @@ in
         reference = "op://HomeLab/Backup/Tandoor/password";
         owner = tandoorUser;
         group = tandoorGroup;
+        mode = "0640";
       };
       autheliaTandoorOidcSecret = {
         path = "/run/secrets/authelia/tandoor_oidc_secret";
@@ -190,6 +191,15 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "tandoor";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
+            container = {
+              type = "podman";
+              name = "tandoor-db";
+            };
+          };
         };
 
         services.podman.enable = true;

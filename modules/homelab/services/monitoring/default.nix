@@ -132,6 +132,7 @@ in
         reference = "op://Homelab/Backup/Grafana/password";
         owner = monitoringUser;
         group = monitoringGroup;
+        mode = "0640";
       };
     };
   };
