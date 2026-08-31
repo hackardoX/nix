@@ -1,5 +1,34 @@
 { lib, config, ... }:
 {
+  flake.modules.nixos.backup =
+    { config, ... }:
+    let
+      hmUsers = config.home-manager.users or { };
+      allInstances = lib.concatLists (
+        lib.mapAttrsToList (
+          userName: userCfg:
+          let
+            instances = userCfg.services.postgresql-dump.instances or { };
+          in
+          lib.mapAttrsToList (name: instanceCfg: {
+            user = userName;
+            inherit (instanceCfg) backupDir;
+          }) instances
+        ) hmUsers
+      );
+    in
+    {
+      config = lib.mkIf (allInstances != [ ]) {
+        systemd.tmpfiles.rules = lib.flatten (
+          map (instance: [
+            "d /var/lib/backups 0755 root root - -"
+            "d ${dirOf instance.backupDir} 0750 ${instance.user} ${instance.user} - -"
+            "d ${instance.backupDir} 0750 ${instance.user} ${instance.user} - -"
+          ]) allInstances
+        );
+      };
+    };
+
   flake.modules.homeManager.backup =
     hmArgs:
     let

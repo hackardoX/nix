@@ -26,7 +26,7 @@ in
     pingPort = backrestPort;
   };
 
-  flake.modules.nixos.homelab-backup =
+  flake.modules.nixos.backup =
     { pkgs, ... }:
     let
       repos = {

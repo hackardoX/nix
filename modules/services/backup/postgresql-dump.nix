@@ -50,14 +50,6 @@
       };
 
       config = lib.mkIf (cfg.instances != { }) {
-        systemd.user.tmpfiles.rules = lib.flatten (
-          lib.mapAttrsToList (name: instanceCfg: [
-            "d /var/lib/backups 0755 - - - -"
-            "d ${dirOf instanceCfg.backupDir} 0750 - - - -"
-            "d ${instanceCfg.backupDir} 0750 - - - -"
-          ]) cfg.instances
-        );
-
         systemd.user.services = lib.mapAttrs' (
           name: instanceCfg:
           lib.nameValuePair "postgresql-dump-${name}" {
