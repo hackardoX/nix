@@ -153,11 +153,10 @@ in
 
   flake.modules.homeManager.homelab-job-ops = { osConfig, ... }: {
     services.backup.jobs.job-ops = {
-      paths = [
-        "${jobOpsDataDir}/jobs.db"
-        "${jobOpsDataDir}/jobs.db-shm"
-        "${jobOpsDataDir}/jobs.db-wal"
-      ];
+      db = {
+        type = "sqlite";
+        dbPath = "${jobOpsDataDir}/jobs.db";
+      };
       schedule = "daily";
       retention = "standard";
       providers = [ "koofr" ];

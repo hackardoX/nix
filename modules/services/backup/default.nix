@@ -4,18 +4,31 @@
     { config, ... }:
     let
       hmUsers = config.home-manager.users or { };
-      allInstances = lib.concatLists (
+      pgInstances = lib.concatLists (
         lib.mapAttrsToList (
           userName: userCfg:
           let
             instances = userCfg.services.postgresql-dump.instances or { };
           in
-          lib.mapAttrsToList (name: instanceCfg: {
+          lib.mapAttrsToList (_: instanceCfg: {
             user = userName;
             inherit (instanceCfg) backupDir;
           }) instances
         ) hmUsers
       );
+      sqliteInstances = lib.concatLists (
+        lib.mapAttrsToList (
+          userName: userCfg:
+          let
+            instances = userCfg.services.sqlite-dump.instances or { };
+          in
+          lib.mapAttrsToList (_: instanceCfg: {
+            user = userName;
+            inherit (instanceCfg) backupDir;
+          }) instances
+        ) hmUsers
+      );
+      allInstances = pgInstances ++ sqliteInstances;
     in
     {
       config = lib.mkIf (allInstances != [ ]) {
@@ -68,7 +81,13 @@
           destination = if jobCfg.destination != null then jobCfg.destination else jobName;
           hasDb = jobCfg.db != null;
           dumpPath =
-            if hasDb then hmArgs.config.services.postgresql-dump.instances.${jobName}.outputPath else null;
+            if hasDb then
+              if jobCfg.db.type == "postgresql" then
+                hmArgs.config.services.postgresql-dump.instances.${jobName}.outputPath
+              else
+                hmArgs.config.services.sqlite-dump.instances.${jobName}.outputPath
+            else
+              null;
         in
         {
           repository = "rclone:${provider}:backup/${destination}";
@@ -179,20 +198,31 @@
             ;
         }) (lib.filterAttrs (_: jobCfg: jobCfg.db != null && jobCfg.db.type == "postgresql") cfg.jobs);
 
+        services.sqlite-dump.instances = lib.mapAttrs (_: jobCfg: {
+          inherit (jobCfg.db)
+            type
+            dbPath
+            compressionLevel
+            ;
+        }) (lib.filterAttrs (_: jobCfg: jobCfg.db != null && jobCfg.db.type == "sqlite") cfg.jobs);
+
         systemd.user.services = lib.concatMapAttrs (
           name: jobCfg:
+          let
+            dumpServiceName = "${jobCfg.db.type}-dump-${name}";
+          in
           builtins.listToAttrs (
             map (provider: {
               name = "restic-backups-${mkBackupName name provider}";
               value = {
                 Unit = {
-                  After = [ "postgresql-dump-${name}.service" ];
-                  Requires = [ "postgresql-dump-${name}.service" ];
+                  After = [ "${dumpServiceName}.service" ];
+                  Requires = [ "${dumpServiceName}.service" ];
                 };
               };
             }) jobCfg.providers
           )
-        ) (lib.filterAttrs (_: jobCfg: jobCfg.db != null && jobCfg.db.type == "postgresql") cfg.jobs);
+        ) (lib.filterAttrs (_: jobCfg: jobCfg.db != null) cfg.jobs);
       };
     };
 }
