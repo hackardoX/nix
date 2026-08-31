@@ -1,5 +1,6 @@
 { config, lib, ... }:
 let
+  email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
   polyModule = {
     services.onepassword-secrets.secrets.koofrPassword = {
       path = "/run/secrets/koofr/password";
@@ -12,7 +13,6 @@ in
 {
   flake.modules.nixos.rclone = polyModule;
   flake.modules.darwin.rclone = polyModule;
-
   flake.modules.homeManager.rclone =
     hmArgs@{ osConfig, ... }:
     {
@@ -21,7 +21,7 @@ in
           config = {
             type = "koofr";
             endpoint = "https://app.koofr.net";
-            user = config.flake.meta.users.aaccardo.email;
+            user = email;
           };
 
           secrets = {

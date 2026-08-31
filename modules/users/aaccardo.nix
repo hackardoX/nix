@@ -4,7 +4,7 @@
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
     description = "Andrea Accardo";
     name = "aaccardo";
-    uid = 501;
+    uid = 502;
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 aaccardo"
     ];
@@ -33,15 +33,12 @@
     imports = with config.flake.modules.homeManager; [
       base
       dev
-      file-sync
-      media
-      password-manager
+      proton
       shell
       theme
     ];
     services.rclone.remotes = [
-      "koofr"
-      "gdrive"
+      # "proton"
     ];
     home.username = config.flake.meta.users.aaccardo.name;
     home.stateVersion = "24.11";

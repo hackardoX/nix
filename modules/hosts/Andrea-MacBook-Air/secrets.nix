@@ -1,17 +1,7 @@
 { config, ... }:
 {
   configurations.darwin.Andrea-MacBook-Air.module = {
-    home-manager.users.${config.flake.meta.users.aaccardo.name}.programs.onepassword-secrets.secrets = {
-      hetznerCloudPublicKey = {
-        path = ".ssh/hetzner_cloud_debian.8gb.hel1.1.pub";
-        reference = "op://Development/Hetzner Cloud debian-8gb-hel1-1/public key";
-        group = "staff";
-      };
-      hetznerHomeLabPublicKey = {
-        path = ".ssh/hetzner_homelab.pub";
-        reference = "op://Development/Hetzner HomeLab/public key";
-        group = "staff";
-      };
+    home-manager.users.${config.flake.meta.users.hackardo.name}.programs.onepassword-secrets.secrets = {
       andreaMacBookAirPublicKey = {
         path = ".ssh/andrea_mac_book_air.pub";
         reference = "op://Development/Andrea MacBook Air/public key";

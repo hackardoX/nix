@@ -9,7 +9,7 @@
             pkgs.writeShellScriptBin "prepare-commit-msg" ''
               echo "Signing off commit"
               ${lib.getExe hmArgs.config.programs.git.package} interpret-trailers --if-exists doNothing --trailer \
-              "Signed-off-by: ${config.flake.meta.users.aaccardo.name} <${config.flake.meta.users.aaccardo.email}>" \
+              "Signed-off-by: ${config.flake.meta.git.name} <${config.flake.meta.git.email}>" \
               --in-place "$1"
             ''
           );
@@ -26,7 +26,7 @@
       };
 
       home.file.".ssh/allowed_signers".text = ''
-        ${config.flake.meta.users.aaccardo.email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardo
+        ${config.flake.meta.git.email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardo
       '';
     };
 }
