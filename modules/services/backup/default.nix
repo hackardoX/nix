@@ -158,7 +158,7 @@
               value = {
                 Unit = {
                   After = [ "postgresql-dump-${name}.service" ];
-                  Wants = [ "postgresql-dump-${name}.service" ];
+                  Requires = [ "postgresql-dump-${name}.service" ];
                 };
               };
             }) jobCfg.providers
