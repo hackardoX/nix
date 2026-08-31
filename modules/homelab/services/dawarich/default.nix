@@ -211,6 +211,15 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupDawarichEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "dawarich";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.dawarichDbPassword;
+            container = {
+              type = "podman";
+              name = "dawarich-db";
+            };
+          };
         };
 
         services.podman.enable = true;

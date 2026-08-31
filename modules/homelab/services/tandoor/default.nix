@@ -191,6 +191,15 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "tandoor";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
+            container = {
+              type = "podman";
+              name = "tandoor-db";
+            };
+          };
         };
 
         services.podman.enable = true;

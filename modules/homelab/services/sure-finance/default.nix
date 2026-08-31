@@ -252,6 +252,15 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "sure_user";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
+            container = {
+              type = "podman";
+              name = "sure-finance-db";
+            };
+          };
         };
 
         services.podman.enable = true;
