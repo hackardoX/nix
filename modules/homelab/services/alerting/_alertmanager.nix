@@ -71,6 +71,7 @@ in
         reference = "op://Homelab/Backup/Alert Manager/password";
         owner = alertingUser;
         group = alertingGroup;
+        mode = "0640";
       };
     };
   };

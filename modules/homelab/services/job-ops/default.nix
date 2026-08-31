@@ -138,6 +138,7 @@ in
         reference = "op://Homelab/Backup/Job Ops/password";
         owner = jobOpsUser;
         group = jobOpsGroup;
+        mode = "0640";
       };
     };
 
@@ -152,6 +153,10 @@ in
 
   flake.modules.homeManager.homelab-job-ops = { osConfig, ... }: {
     services.backup.jobs.job-ops = {
+      db = {
+        type = "sqlite";
+        dbPath = "${jobOpsDataDir}/jobs.db";
+      };
       schedule = "daily";
       retention = "standard";
       providers = [ "koofr" ];

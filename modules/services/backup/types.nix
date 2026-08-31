@@ -4,7 +4,10 @@
     { name, config, ... }: {
       options = {
         type = lib.mkOption {
-          type = lib.types.str;
+          type = lib.types.enum [
+            "postgresql"
+            "sqlite"
+          ];
           default = "postgresql";
           description = "Database type";
         };
@@ -43,6 +46,12 @@
           description = "Container running the database. Null = database accessible locally.";
         };
 
+        dbPath = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Path to the SQLite database file (required for sqlite type)";
+        };
+
         backupDir = lib.mkOption {
           type = lib.types.str;
           default = "/var/lib/backups/${name}/db";
@@ -51,7 +60,7 @@
 
         filename = lib.mkOption {
           type = lib.types.str;
-          default = "${name}_dump.sql.gz";
+          default = if config.type == "sqlite" then "${name}_dump.db.gz" else "${name}_dump.sql.gz";
           description = "Dump filename (in backupDir)";
         };
 

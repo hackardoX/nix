@@ -16,6 +16,7 @@
       homelab-ssh-watchdog
       homelab-sure-finance
       homelab-tandoor
+      backup
       rclone
     ];
 

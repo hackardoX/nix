@@ -140,6 +140,7 @@ in
         reference = "op://Homelab/Backup/Dawarich/password";
         owner = dawarichUser;
         group = dawarichGroup;
+        mode = "0640";
       };
       autheliaDawarichOidcSecret = {
         path = "/run/secrets/authelia/dawarich_oidc_secret";
@@ -210,6 +211,15 @@ in
           retention = "standard";
           providers = [ "koofr" ];
           encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupDawarichEncryptionKey;
+          db = {
+            type = "postgresql";
+            user = "dawarich";
+            passwordFile = osConfig.services.onepassword-secrets.secretPaths.dawarichDbPassword;
+            container = {
+              type = "podman";
+              name = "dawarich-db";
+            };
+          };
         };
 
         services.podman.enable = true;
