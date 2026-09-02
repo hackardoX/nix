@@ -73,6 +73,7 @@
     imports = with config.flake.modules.homeManager; [
       base
       dev
+      git
       proton-pass
       shell
       theme

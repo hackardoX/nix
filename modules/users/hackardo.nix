@@ -87,6 +87,7 @@
       base
       dev
       file-sync
+      git
       github
       media
       shell
