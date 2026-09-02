@@ -1,4 +1,3 @@
-{ pkgs, ... }:
 {
   flake.modules.darwin.proton-pass = {
     homebrew = {
@@ -9,7 +8,7 @@
   };
 
   flake.modules.homeManager.proton-pass =
-    { config, ... }:
+    { config, pkgs, ... }:
     let
       protonPassAgentSocketPath =
         if pkgs.stdenv.isDarwin then
