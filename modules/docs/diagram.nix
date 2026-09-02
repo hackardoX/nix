@@ -1,5 +1,4 @@
 {
-  inputs,
   self,
   ...
 }:
@@ -8,7 +7,6 @@
     {
       pkgs,
       lib,
-      system,
       ...
     }:
     let

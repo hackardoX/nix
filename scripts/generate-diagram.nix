@@ -354,7 +354,6 @@ let
         let
           nixosDefs = lib.filter (d: d.class == "nixos") file.moduleDefs;
           hmDefs = lib.filter (d: d.class == "homeManager") file.moduleDefs;
-          allDefs = nixosDefs ++ hmDefs;
           # NixOS secrets go to nixos modules, HM secrets go to homeManager modules
           nixosSecretEntries = map (d: {
             module = "nixos-${d.name}";
