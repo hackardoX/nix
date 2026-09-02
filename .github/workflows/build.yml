@@ -4,13 +4,25 @@ on:
   - workflow_dispatch
 jobs:
   builds:
-    name: Build on ${{ matrix.os }}
+    name: Build ${{ matrix.name }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-26.04-arm]
+        include:
+          - name: Andrea-MacBook-Air-CI
+            os: macos-latest
+            check: configurations/darwin/Andrea-MacBook-Air-CI
+            system: aarch64-darwin
+          - name: Proton-MacBook-Pro-CI
+            os: macos-latest
+            check: configurations/darwin/Proton-MacBook-Pro-CI
+            system: aarch64-darwin
+          - name: HomeLab-CI
+            os: ubuntu-26.04-arm
+            check: configurations/nixos/HomeLab-CI
+            system: aarch64-linux
     steps:
       - uses: actions/checkout@v7
       - uses: webfactory/ssh-agent@v0.10.0
@@ -28,9 +40,5 @@ jobs:
         with:
           name: hackardo
           authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
-      - name: MacOS Build
-        if: matrix.os == 'macos-latest'
-        run: nix build .#checks.aarch64-darwin."configurations/darwin/Andrea-MacBook-Air-CI" --print-build-logs
-      - name: HomeLab Build
-        if: matrix.os == 'ubuntu-26.04-arm'
-        run: nix build .#checks.aarch64-linux."configurations/nixos/HomeLab-CI" --print-build-logs
+      - name: Build ${{ matrix.name }}
+        run: nix build .#checks.${{ matrix.system }}."${{ matrix.check }}" --print-build-logs

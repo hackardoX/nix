@@ -2,6 +2,9 @@
 {
   flake.modules.homeManager.dev =
     hmArgs@{ pkgs, ... }:
+    let
+      userGit = config.flake.meta.users.${hmArgs.config.home.username}.git;
+    in
     {
       programs.git = {
         hooks = {
@@ -9,7 +12,7 @@
             pkgs.writeShellScriptBin "prepare-commit-msg" ''
               echo "Signing off commit"
               ${lib.getExe hmArgs.config.programs.git.package} interpret-trailers --if-exists doNothing --trailer \
-              "Signed-off-by: ${config.flake.meta.git.name} <${config.flake.meta.git.email}>" \
+              "Signed-off-by: ${userGit.name} <${userGit.email}>" \
               --in-place "$1"
             ''
           );
@@ -17,7 +20,6 @@
         signing = {
           key = "${hmArgs.config.home.homeDirectory}/.ssh/git_signature.pub";
           format = "ssh";
-          signer = "${pkgs._1password-gui}/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
           signByDefault = true;
         };
         settings = {
@@ -26,7 +28,7 @@
       };
 
       home.file.".ssh/allowed_signers".text = ''
-        ${config.flake.meta.git.email} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardo
+        ${userGit.email} ${userGit.signingKey}
       '';
     };
 }

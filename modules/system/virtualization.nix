@@ -22,8 +22,8 @@
         enable = true;
         useDefaultMachine = false;
         machines.${podmanMachineName} = {
-          diskSize = 30;
-          memory = 8192;
+          # diskSize = 30;
+          # memory = 8192;
           volumes = [
             "${hmArgs.config.home.homeDirectory}:${hmArgs.config.home.homeDirectory}"
           ];

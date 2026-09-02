@@ -1,11 +1,12 @@
 { config, ... }:
 {
-  flake.modules.homeManager.base = hmArgs: {
+  flake.modules.homeManager.git = hmArgs: {
     programs.git = {
       enable = true;
       settings = {
         user = {
-          inherit (config.flake.meta.git) email name;
+          name = config.flake.meta.users.${hmArgs.config.home.username}.git.name;
+          email = config.flake.meta.users.${hmArgs.config.home.username}.git.email;
         };
         branch.sort = "-committerdate";
         column.ui = "auto";

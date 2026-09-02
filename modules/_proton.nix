@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
-{
-  flake.modules.darwin.proton = {
+let
+  polyModule = {
     imports = [
       config.flake.modules.darwin.proton-pass
     ];
@@ -11,8 +11,17 @@
         "proton-meet"
       ];
     };
+  };
+in
+{
+  flake.modules.darwin.proton = polyModule;
+  flake.modules.nixos.proton = polyModule;
+  flake.modules.homeManager.proton = {
+    imports = [
+      config.flake.modules.homeManager.proton-pass
+    ];
 
-    environment.systemPackages = with pkgs; [
+    home.packages = with pkgs; [
       proton-vpn
       protonmail-desktop
       protonmail-bridge

@@ -1,4 +1,8 @@
-{ config, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 {
   flake.meta.users.hackardo = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
@@ -8,6 +12,12 @@
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 hackardo"
     ];
+
+    git = {
+      name = "hackardo";
+      email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardoX@git";
+    };
   };
 
   flake.modules.darwin.hackardo =
@@ -27,6 +37,48 @@
         shell = pkgs.zsh;
       };
       users.groups.onepassword-secrets.members = [ config.flake.meta.users.hackardo.name ];
+
+      system.defaults.dock.persistent-apps = [
+        "/Applications/Safari.app"
+        {
+          spacer = {
+            small = true;
+          };
+        }
+        "/System/Applications/Mail.app"
+        "/System/Applications/Calendar.app"
+        "/System/Applications/Reminders.app"
+        "/System/Applications/Messages.app"
+        {
+          spacer = {
+            small = true;
+          };
+        }
+      ]
+      ++ lib.optionals (config.programs.spicetify.enable or false) [
+        "${config.programs.spicetify.spicedSpotify}/Applications/Spotify.app"
+        {
+          spacer = {
+            small = true;
+          };
+        }
+      ]
+      ++ [
+        "${pkgs.ghostty-bin}/Applications/Ghostty.app"
+        {
+          spacer = {
+            small = true;
+          };
+        }
+      ]
+      ++ [
+        "/System/Applications/System Settings.app"
+        {
+          spacer = {
+            small = true;
+          };
+        }
+      ];
     };
 
   flake.modules.homeManager.hackardo = {
@@ -35,8 +87,11 @@
       base
       dev
       file-sync
+      git
+      github
       media
       shell
+      ssh
       theme
     ];
     services.rclone.remotes = [
@@ -45,5 +100,13 @@
     ];
     home.username = config.flake.meta.users.hackardo.name;
     home.stateVersion = "24.11";
+    home.file = {
+      ".ssh/github_authorisation.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB hackardoX@github.com
+      '';
+      ".ssh/git_signature.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardoX@git
+      '';
+    };
   };
 }

@@ -1,6 +1,6 @@
 {
   flake.modules.homeManager.dev =
-    hmArgs@{ pkgs, ... }:
+    { pkgs, ... }:
     {
       home.packages = with pkgs; [
         delta
@@ -15,7 +15,13 @@
             { pager = "delta --dark --paging=never"; }
           ];
         };
+      };
+    };
 
+  flake.modules.homeManager.github =
+    hmArgs@{ pkgs, ... }:
+    {
+      programs = {
         gh = {
           enable = true;
           settings.git_protocol = "ssh";

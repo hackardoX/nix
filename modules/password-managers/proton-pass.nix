@@ -1,4 +1,3 @@
-{ pkgs, ... }:
 {
   flake.modules.darwin.proton-pass = {
     homebrew = {
@@ -6,12 +5,10 @@
         "Proton Pass for Safari" = 6502835663;
       };
     };
-
-    environment.systemPackages = [ pkgs.proton-pass ];
   };
 
   flake.modules.homeManager.proton-pass =
-    { config, ... }:
+    { config, pkgs, ... }:
     let
       protonPassAgentSocketPath =
         if pkgs.stdenv.isDarwin then
@@ -20,10 +17,11 @@
           "${config.xdg.runtimeDir}/proton-pass-agent";
     in
     {
+      home.packages = [ pkgs.proton-pass ];
       services.proton-pass-agent.enable = true;
-
       ssh.extraConfig = ''
         IdentityAgent ${protonPassAgentSocketPath}
       '';
+      programs.git.signing.signer = "${pkgs.openssh}/bin/ssh-keygen";
     };
 }

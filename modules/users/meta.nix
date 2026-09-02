@@ -46,6 +46,28 @@
               default = [ ];
               description = "SSH public keys allowed to escalate to sudo.";
             };
+
+            git = lib.mkOption {
+              type = lib.types.submodule {
+                options = {
+                  name = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Git user name.";
+                  };
+
+                  email = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Git user email.";
+                  };
+
+                  signingKey = lib.mkOption {
+                    type = lib.types.str;
+                    description = "SSH public key for signing commits.";
+                  };
+                };
+              };
+              description = "Git configuration for the user.";
+            };
           };
         }
       )

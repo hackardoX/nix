@@ -42,7 +42,10 @@
     };
 
   flake.modules.homeManager.hal = {
-    imports = with config.flake.modules.homeManager; [ base ];
+    imports = with config.flake.modules.homeManager; [
+      base
+      git
+    ];
     home.username = config.flake.meta.users.hal.name;
     home.stateVersion = "26.05";
   };

@@ -1,3 +1,3 @@
 {
-  flake.modules.homeManager.base.programs.git.settings.pull.rebase = true;
+  flake.modules.homeManager.git.programs.git.settings.pull.rebase = true;
 }
