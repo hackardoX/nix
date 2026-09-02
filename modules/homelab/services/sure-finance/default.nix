@@ -267,7 +267,7 @@ in
         services.podman.networks.sure-finance.driver = "bridge";
 
         services.podman.containers.sure-finance-db = {
-          image = "docker.io/library/postgres:16.14";
+          image = "docker.io/library/postgres:16.15";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
@@ -308,7 +308,7 @@ in
         };
 
         services.podman.containers.sure-finance-redis = {
-          image = "docker.io/library/redis:8.8.0";
+          image = "docker.io/library/redis:8.10.1";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
