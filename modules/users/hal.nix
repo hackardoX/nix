@@ -11,6 +11,12 @@
     sudoAuthorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG3cs+qEbW36c2nX23roMaotYZGd0Lua5pxY+BbgW5B5 hal-sudo"
     ];
+
+    git = {
+      name = "aaccardo";
+      email = config.flake.lib.fromBase64 "YWFjY2FyZG9AcHJvdG9uLmNoCg==";
+      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@git";
+    };
   };
 
   flake.modules.nixos.hal =
