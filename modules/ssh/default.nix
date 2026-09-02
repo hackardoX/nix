@@ -18,7 +18,7 @@ let
   knownHosts = myReachableHosts |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
 in
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.ssh =
     hmArgs@{ pkgs, ... }:
     {
       options.ssh = {
