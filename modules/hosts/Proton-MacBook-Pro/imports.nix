@@ -6,7 +6,7 @@
       base
       dev
       media
-      proton
+      proton-pass
     ];
 
     home-manager.users.${config.flake.meta.users.aaccardo.name} =

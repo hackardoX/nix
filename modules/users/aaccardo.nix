@@ -66,7 +66,7 @@
     imports = with config.flake.modules.homeManager; [
       base
       dev
-      proton
+      proton-pass
       shell
       theme
     ];

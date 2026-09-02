@@ -18,7 +18,7 @@ let
   knownHosts = myReachableHosts |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
 in
 {
-  flake.modules.homeManager.ssh =
+  flake.modules.homeManager.base =
     hmArgs@{ pkgs, ... }:
     {
       options.ssh = {
@@ -108,77 +108,72 @@ in
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
-          settings =
-            myReachableHosts
-            # TODO: Do I need this block?
-            |> lib.mapAttrsToList (
-              _name: host: {
-                "${host.config.networking.fqdn}" = {
-                  hostname = host.config.networking.fqdn;
-                  identityFile =
-                    let
-                      name = lib.replaceStrings [ "-" ] [ "" ] host.config.networking.hostName;
-                      secretName = lib.toLower (lib.substring 0 1 name) + lib.substring 1 (-1) name + "PublicKey";
-                    in
-                    hmArgs.config.programs.onepassword-secrets.secretPaths.${secretName};
-                  port = builtins.head host.config.services.openssh.ports;
-                  user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
-                };
-              }
-            )
-            |> lib.concat [
-              {
-                "*" = {
-                  addKeysToAgent = "yes";
-                  compression = true;
-                  controlMaster = "auto";
-                  controlPersist = "30m";
-                  forwardAgent = false;
-                  hashKnownHosts = true;
-                  identitiesOnly = true;
-                  identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/id_ed25519";
-                  serverAliveInterval = 60;
-                  setEnv = "TERM=xterm-256color";
-                };
-              }
-            ]
-            |> lib.concat [ hmArgs.config.ssh.extraHosts ]
-            |> lib.mkMerge;
+          settings."*" = {
+            addKeysToAgent = "yes";
+            compression = true;
+            controlMaster = "auto";
+            controlPersist = "30m";
+            forwardAgent = false;
+            hashKnownHosts = true;
+            identitiesOnly = true;
+            identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/id_ed25519";
+            serverAliveInterval = 60;
+            setEnv = "TERM=xterm-256color";
+          };
           extraConfig = ''
             StreamLocalBindUnlink yes
           ''
           + hmArgs.config.ssh.extraConfig;
         };
 
-        home = {
-          # shellAliases = lib.mapAttrs' (system: _: {
-          #   name = "ssh-${system}";
-          #   value = "ssh ${system}";
-          # }) hmArgs.config.hosts;
+        home.activation.generateKnownHosts =
+          inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ]
+            ''
+              PATH=${pkgs.openssh}/bin:$PATH
+              known_hosts_file="$HOME/.ssh/known_hosts"
+              temp_file="$(mktemp)"
 
-          activation.generateKnownHosts = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            PATH=${pkgs.openssh}/bin:$PATH
-            known_hosts_file="$HOME/.ssh/known_hosts"
-            temp_file="$(mktemp)"
+              run mkdir -p "$HOME/.ssh"
 
-            run mkdir -p "$HOME/.ssh"
+              ${lib.concatMapStringsSep "\n" (hostname: ''
+                echo "Scanning ${hostname}..."
+                ssh-keyscan -H "${hostname}" >> "$temp_file" || echo "Failed to scan ${hostname}" >&2
+              '') knownHosts}
 
-            ${lib.concatMapStringsSep "\n" (hostname: ''
-              echo "Scanning ${hostname}..."
-              ssh-keyscan -H "${hostname}" >> "$temp_file" || echo "Failed to scan ${hostname}" >&2
-            '') knownHosts}
+              if [[ -s "$temp_file" ]]; then
+                grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
+                run chmod 644 "$known_hosts_file"
+                echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
+              else
+                echo "No SSH keys were scanned"
+              fi
 
-            if [[ -s "$temp_file" ]]; then
-              grep -v '^[[:space:]]*$' "$temp_file" | sort -u > "$known_hosts_file"
-              run chmod 644 "$known_hosts_file"
-              echo "Updated SSH known_hosts with entries from ${toString (lib.length knownHosts)} hostnames"
-            else
-              echo "No SSH keys were scanned"
-            fi
-
-            run rm "$temp_file"
-          '';
-        };
+              run rm "$temp_file"
+            '';
       };
+    };
+
+  flake.modules.homeManager.ssh =
+    hmArgs@{ ... }:
+    {
+      programs.ssh.settings =
+        myReachableHosts
+        |> lib.mapAttrsToList (
+          _name: host: {
+            "${host.config.networking.fqdn}" = {
+              hostname = host.config.networking.fqdn;
+              identityFile =
+                let
+                  name = lib.replaceStrings [ "-" ] [ "" ] host.config.networking.hostName;
+                  secretName = lib.toLower (lib.substring 0 1 name) + lib.substring 1 (-1) name + "PublicKey";
+                in
+                hmArgs.config.programs.onepassword-secrets.secretPaths.${secretName};
+              port = builtins.head host.config.services.openssh.ports;
+              user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
+            };
+          }
+        )
+        |> lib.concat [ hmArgs.config.ssh.extraHosts ]
+        |> lib.mkMerge;
     };
 }
