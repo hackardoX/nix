@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   flake.meta.users.hackardo = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
@@ -8,6 +13,12 @@
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 hackardo"
     ];
+
+    git = {
+      name = "hackardo";
+      email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardoX@git";
+    };
   };
 
   flake.modules.darwin.hackardo =
@@ -89,5 +100,13 @@
     ];
     home.username = config.flake.meta.users.hackardo.name;
     home.stateVersion = "24.11";
+    home.file = {
+      ".ssh/github_authorisation.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHsOzI1TFwbRy/GgE2/fNJR8B7gfIogp//2kDJ7D1uSB hackardoX@github.com
+      '';
+      ".ssh/git_signature.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyKRwHBMjjaxAMSHCzIz1XL1czMLPseOa7/Pif+Og3H hackardoX@git
+      '';
+    };
   };
 }

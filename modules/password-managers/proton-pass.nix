@@ -22,5 +22,6 @@
       ssh.extraConfig = ''
         IdentityAgent ${protonPassAgentSocketPath}
       '';
+      programs.git.signing.signer = "${pkgs.openssh}/bin/ssh-keygen";
     };
 }

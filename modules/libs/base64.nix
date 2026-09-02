@@ -127,11 +127,7 @@ in
           ];
         in
         if c == null then
-          [
-            builtins.elemAt
-            bytes
-            0
-          ] # 2 padding = 1 byte
+          [ (builtins.elemAt bytes 0) ] # 2 padding = 1 byte
         else if d == null then
           lib.sublist 0 2 bytes # 1 padding = 2 bytes
         else

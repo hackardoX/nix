@@ -8,6 +8,13 @@
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 aaccardo"
     ];
+
+    git = {
+      name = "aaccardo";
+      email = config.flake.lib.fromBase64 "YWFjY2FyZG9AcHJvdG9uLmNoCg==";
+      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@git";
+      # TODO: Add an option to setup the password manager to use for git signing
+    };
   };
 
   flake.modules.darwin.aaccardo =
@@ -72,5 +79,13 @@
     ];
     home.username = config.flake.meta.users.aaccardo.name;
     home.stateVersion = "24.11";
+    home.file = {
+      ".ssh/github_authorisation.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@github.com
+      '';
+      ".ssh/git_signature.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@git
+      '';
+    };
   };
 }
