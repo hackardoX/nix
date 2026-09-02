@@ -3,6 +3,7 @@
     programs.opencode = {
       enable = true;
       settings = {
+        plugin = [ "opencode-claude-code-auth" ];
         autoupdate = false;
         permission = {
           "bash" = {
