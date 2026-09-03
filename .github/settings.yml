@@ -120,7 +120,7 @@ rulesets:
           strict_required_status_checks_policy: true
           required_status_checks:
             - context: "Build Andrea-MacBook-Air-CI on macos-latest"
-            - context: "Build Proton-MacBook-Air-CI on macos-latest"
+            - context: "Build Proton-MacBook-Pro-CI on macos-latest"
             - context: "Build HomeLab-CI on ubuntu-26.04-arm"
             - context: "Flake checks on aarch64-darwin"
             - context: "Dead code analysis"
