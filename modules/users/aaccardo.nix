@@ -78,6 +78,7 @@
       shell
       theme
     ];
+    sops.defaultSopsFile = ../../secrets/users/aaccardo.yaml;
     home.username = config.flake.meta.users.aaccardo.name;
     home.stateVersion = "24.11";
     home.file = {

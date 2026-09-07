@@ -120,16 +120,12 @@ in
       };
     };
 
-    services.onepassword-secrets.secrets = {
-      grafanaOidcClientSecret = {
-        path = "/run/secrets/monitoring/grafana/oidc_client_secret";
-        reference = "op://Homelab/Grafana/Authentication/OIDC Client Secret";
+    sops.secrets = {
+      "monitoring/grafana/oidc_client_secret" = {
         owner = monitoringUser;
         group = monitoringGroup;
       };
-      backupGrafanaEncryptionKey = {
-        path = "/run/secrets/monitoring/grafana/backup_encryption_key";
-        reference = "op://Homelab/Backup/Grafana/password";
+      "monitoring/grafana/backup_encryption_key" = {
         owner = monitoringUser;
         group = monitoringGroup;
         mode = "0640";
@@ -360,7 +356,7 @@ in
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupGrafanaEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."monitoring/grafana/backup_encryption_key".path;
         };
 
         services.podman.enable = true;

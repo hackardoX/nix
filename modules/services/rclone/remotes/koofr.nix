@@ -1,33 +1,27 @@
 { config, lib, ... }:
 let
   email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
-  polyModule = {
-    services.onepassword-secrets.secrets.koofrPassword = {
-      path = "/run/secrets/koofr/password";
-      reference = "op://Homelab/Rclone remotes/Koofr/password";
-      group = "rclone";
-      mode = "0440";
-    };
-  };
 in
 {
-  flake.modules.nixos.rclone = polyModule;
-  flake.modules.darwin.rclone = polyModule;
-  flake.modules.homeManager.rclone =
-    hmArgs@{ osConfig, ... }:
-    {
-      programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {
-        koofr = {
-          config = {
-            type = "koofr";
-            endpoint = "https://app.koofr.net";
-            user = email;
-          };
+  flake.modules.nixos.rclone = { };
+  flake.modules.darwin.rclone = { };
+  flake.modules.homeManager.rclone = hmArgs: {
+    sops.secrets."rclone/koofr/password" = {
+      sopsFile = ../../../../secrets/shared/secrets.yaml;
+    };
 
-          secrets = {
-            password = osConfig.services.onepassword-secrets.secretPaths.koofrPassword;
-          };
+    programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {
+      koofr = {
+        config = {
+          type = "koofr";
+          endpoint = "https://app.koofr.net";
+          user = email;
+        };
+
+        secrets = {
+          password = hmArgs.config.sops.secrets."rclone/koofr/password".path;
         };
       };
     };
+  };
 }

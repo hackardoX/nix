@@ -142,12 +142,9 @@
         systems.follows = "systems";
       };
     };
-    opnix = {
-      url = "github:brizzbuzz/opnix";
-      inputs = {
-        flake-utils.follows = "flake-utils";
-        nixpkgs.follows = "nixpkgs";
-      };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     refjump-nvim = {
       flake = false;

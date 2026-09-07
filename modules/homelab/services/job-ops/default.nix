@@ -102,40 +102,28 @@ in
       };
     };
 
-    services.onepassword-secrets.secrets = {
-      jobOpsBasicAuthPassword = {
-        path = "/run/secrets/job-ops/basic_auth_password";
-        reference = "op://Homelab/Job Ops/Authentication/password";
+    sops.secrets = {
+      "job-ops/basic_auth_password" = {
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
-      jobOpsLlmApiKey = {
-        path = "/run/secrets/job-ops/llm_api_key";
-        reference = "op://Homelab/Job Ops/AI Api Keys/opencode zen";
+      "job-ops/llm_api_key" = {
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
-      jobOpsRxresumeApiKey = {
-        path = "/run/secrets/job-ops/rxresume_api_key";
-        reference = "op://Homelab/Job Ops/RxResume/api key";
+      "job-ops/rxresume_api_key" = {
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
-      jobOpsGmailSecret = {
-        path = "/run/secrets/job-ops/gmail_oauth_secret";
-        reference = "op://Homelab/Job Ops/Gmail/oauth secret";
+      "job-ops/gmail_oauth_secret" = {
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
-      jobOpsAdzunaKey = {
-        path = "/run/secrets/job-ops/adzuna_api_key";
-        reference = "op://Homelab/Job Ops/Adzuna/api key";
+      "job-ops/adzuna_api_key" = {
         owner = jobOpsUser;
         group = jobOpsGroup;
       };
-      backupJobOpsEncryptionKey = {
-        path = "/run/secrets/job-ops/backup_encryption_key";
-        reference = "op://Homelab/Backup/Job Ops/password";
+      "job-ops/backup_encryption_key" = {
         owner = jobOpsUser;
         group = jobOpsGroup;
         mode = "0640";
@@ -160,7 +148,7 @@ in
       schedule = "daily";
       retention = "standard";
       providers = [ "koofr" ];
-      encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupJobOpsEncryptionKey;
+      encryptionKey = osConfig.sops.secrets."job-ops/backup_encryption_key".path;
     };
 
     services.podman.enable = true;
@@ -195,11 +183,11 @@ in
       };
 
       secrets = {
-        OPENAI_API_KEY = osConfig.services.onepassword-secrets.secretPaths.jobOpsLlmApiKey;
-        BASIC_AUTH_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.jobOpsBasicAuthPassword;
-        RXRESUME_API_KEY = osConfig.services.onepassword-secrets.secretPaths.jobOpsRxresumeApiKey;
-        GMAIL_OAUTH_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.jobOpsGmailSecret;
-        ADZUNA_APP_KEY = osConfig.services.onepassword-secrets.secretPaths.jobOpsAdzunaKey;
+        OPENAI_API_KEY = osConfig.sops.secrets."job-ops/llm_api_key".path;
+        BASIC_AUTH_PASSWORD = osConfig.sops.secrets."job-ops/basic_auth_password".path;
+        RXRESUME_API_KEY = osConfig.sops.secrets."job-ops/rxresume_api_key".path;
+        GMAIL_OAUTH_CLIENT_SECRET = osConfig.sops.secrets."job-ops/gmail_oauth_secret".path;
+        ADZUNA_APP_KEY = osConfig.sops.secrets."job-ops/adzuna_api_key".path;
       };
 
       extraConfig = {
