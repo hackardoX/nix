@@ -11,7 +11,7 @@
   };
 
   flake.modules.nixos.hetzner =
-    { pkgs, ... }:
+    nixosArgs@{ pkgs, ... }:
     {
       sops.secrets."users/hetzner/password" = {
         neededForUsers = true;
@@ -22,7 +22,7 @@
         isNormalUser = true;
         group = config.flake.meta.users.hetzner.primaryGroup;
         shell = pkgs.zsh;
-        hashedPasswordFile = config.sops.secrets."users/hetzner/password".path;
+        hashedPasswordFile = nixosArgs.config.sops.secrets."users/hetzner/password".path;
         extraGroups = [ "wheel" ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
       };

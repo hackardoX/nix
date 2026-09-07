@@ -20,7 +20,7 @@
   };
 
   flake.modules.nixos.hal =
-    { pkgs, lib, ... }:
+    nixosArgs@{ pkgs, lib, ... }:
     {
       sops.secrets."users/hal/password" = {
         neededForUsers = true;
@@ -33,7 +33,7 @@
         isNormalUser = true;
         group = config.flake.meta.users.hal.primaryGroup;
         shell = pkgs.zsh;
-        hashedPasswordFile = config.sops.secrets."users/hal/password".path;
+        hashedPasswordFile = nixosArgs.config.sops.secrets."users/hal/password".path;
         extraGroups = [ "wheel" ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hal.authorizedKeys;
       };
