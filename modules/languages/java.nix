@@ -113,7 +113,7 @@
                 "-configuration", _G._jdtls.workspace_dir(root, "config"),
                 "--jvm-arg=-javaagent:${pkgs.lombok}/share/java/lombok.jar",
                 "--jvm-arg=-Xmx4G",
-                "--jvm-arg=-XX:+UseG1GC",       
+                "--jvm-arg=-XX:+UseG1GC",
               },
               root_dir = root,
               init_options = { bundles = bundles },
@@ -132,7 +132,7 @@
             substituteInPlace lua/java.lua \
               --replace-fail "local pkgm = Manager()" "local pkgm = config.pkgm and config.pkgm.enable == false and { install = function() end } or Manager()" \
               --replace-fail "require('java.startup.lsp_setup').setup(config)" "if config.jdtls.enable ~= false then
-              require('java.startup.lsp_setup').setup(config) 
+              require('java.startup.lsp_setup').setup(config)
             end"
           '';
         });
