@@ -40,7 +40,6 @@ in
     clientName = "Dawarich";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.timeline}/users/auth/openid_connect/callback" ];
-    secretName = "autheliaDawarichOidcSecret";
     extraYamlLines = [
       ''token_endpoint_auth_method: "client_secret_basic"''
     ];
@@ -110,44 +109,32 @@ in
       };
     };
 
-    services.onepassword-secrets.secrets = {
-      dawarichSecretKeyBase = {
-        path = "/run/secrets/dawarich/secret_key_base";
-        reference = "op://Homelab/Dawarich/Authentication/secret key";
+    sops.secrets = {
+      "dawarich/secret_key_base" = {
         owner = dawarichUser;
         group = dawarichGroup;
       };
-      dawarichDbPassword = {
-        path = "/run/secrets/dawarich/db_password";
-        reference = "op://Homelab/Dawarich/Database/password";
+      "dawarich/db_password" = {
         owner = dawarichUser;
         group = dawarichGroup;
       };
-      dawarichOidcClientSecret = {
-        path = "/run/secrets/dawarich/oidc_client_secret";
-        reference = "op://Homelab/Dawarich/Authentication/OIDC client secret";
+      "dawarich/oidc_client_secret" = {
         owner = dawarichUser;
         group = dawarichGroup;
       };
-      dawarichResendApiKey = {
-        path = "/run/secrets/dawarich/resend_api_key";
-        reference = "op://Homelab/Dawarich/Resend/api key";
+      "dawarich/resend_api_key" = {
         owner = dawarichUser;
         group = dawarichGroup;
       };
-      backupDawarichEncryptionKey = {
-        path = "/run/secrets/dawarich/backup_encryption_key";
-        reference = "op://Homelab/Backup/Dawarich/password";
+      "dawarich/backup_encryption_key" = {
         owner = dawarichUser;
         group = dawarichGroup;
         mode = "0640";
       };
-      autheliaDawarichOidcSecret = {
-        path = "/run/secrets/authelia/dawarich_oidc_secret";
-        reference = "op://HomeLab/Dawarich/Authentication/OIDC client secret";
+      "authelia_oidc/dawarich" = {
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ "authelia-default.service" ];
+        restartUnits = [ "authelia-default.service" ];
       };
     };
 
@@ -194,10 +181,10 @@ in
       };
 
       sharedSecrets = {
-        SECRET_KEY_BASE = osConfig.services.onepassword-secrets.secretPaths.dawarichSecretKeyBase;
-        DATABASE_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.dawarichDbPassword;
-        OIDC_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.dawarichOidcClientSecret;
-        SMTP_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.dawarichResendApiKey;
+        SECRET_KEY_BASE = osConfig.sops.secrets."dawarich/secret_key_base".path;
+        DATABASE_PASSWORD = osConfig.sops.secrets."dawarich/db_password".path;
+        OIDC_CLIENT_SECRET = osConfig.sops.secrets."dawarich/oidc_client_secret".path;
+        SMTP_PASSWORD = osConfig.sops.secrets."dawarich/resend_api_key".path;
       };
     in
     {
@@ -210,11 +197,11 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupDawarichEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."dawarich/backup_encryption_key".path;
           db = {
             type = "postgresql";
             user = "dawarich";
-            passwordFile = osConfig.services.onepassword-secrets.secretPaths.dawarichDbPassword;
+            passwordFile = osConfig.sops.secrets."dawarich/db_password".path;
             container = {
               type = "podman";
               name = "dawarich-db";
@@ -243,7 +230,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.dawarichDbPassword;
+            POSTGRES_PASSWORD = osConfig.sops.secrets."dawarich/db_password".path;
           };
 
           extraConfig = {

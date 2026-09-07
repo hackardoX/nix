@@ -5,8 +5,7 @@
       authelia = {
         instances.default = {
           settings.session.redis.host = "/run/redis-authelia/redis.sock";
-          secrets.sessionSecretFile =
-            nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaSessionSecret;
+          secrets.sessionSecretFile = nixosArgs.config.sops.secrets."authelia/session_secret".path;
         };
       };
 

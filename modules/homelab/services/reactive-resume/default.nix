@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
+{ config, ... }:
 let
   reactiveResumeUid = 907;
   reactiveResumeGid = 907;
@@ -44,7 +40,6 @@ in
     clientName = "Reactive Resume";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
-    secretName = "autheliaReactiveResumeOidcSecret";
   };
 
   flake.modules.nixos.homelab-reactive-resume = {
@@ -88,38 +83,28 @@ in
       };
     };
 
-    services.onepassword-secrets.secrets = {
-      reactiveResumeAuthSecret = {
-        path = "/run/secrets/reactive-resume/auth_secret";
-        reference = "op://Homelab/Reactive Resume/Authentication/secret";
+    sops.secrets = {
+      "reactive-resume/auth_secret" = {
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
       };
-      reactiveResumeDbPassword = {
-        path = "/run/secrets/reactive-resume/db_password";
-        reference = "op://Homelab/Reactive Resume/Database/password";
+      "reactive-resume/db_password" = {
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
       };
-      reactiveResumeOidcClientSecret = {
-        path = "/run/secrets/reactive-resume/oidc_client_secret";
-        reference = "op://Homelab/Reactive Resume/Authentication/OIDC Client Secret";
+      "reactive-resume/oidc_client_secret" = {
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
       };
-      backupReactiveResumeEncryptionKey = {
-        path = "/run/secrets/reactive-resume/backup_encryption_key";
-        reference = "op://Homelab/Backup/Reactive Resume/password";
+      "reactive-resume/backup_encryption_key" = {
         owner = reactiveResumeUser;
         group = reactiveResumeGroup;
         mode = "0640";
       };
-      autheliaReactiveResumeOidcSecret = {
-        path = "/run/secrets/authelia/reactive-resume_oidc_secret";
-        reference = "op://HomeLab/Reactive Resume/Authentication/OIDC client secret";
+      "authelia_oidc/reactive-resume" = {
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ "authelia-default.service" ];
+        restartUnits = [ "authelia-default.service" ];
       };
     };
 
@@ -162,23 +147,16 @@ in
           exec "$@"
         '';
       };
-      oidcEnv =
-        lib.optionalAttrs
-          (osConfig.services.onepassword-secrets.secretPaths ? reactiveResumeOidcClientSecret)
-          {
-            OAUTH_CLIENT_ID = reactiveResumeOidcClientId;
-            OAUTH_PROVIDER_NAME = "Authelia";
-            OAUTH_DISCOVERY_URL = "https://${hosts.auth}/.well-known/openid-configuration";
-            OAUTH_SCOPES = "openid profile email";
-          };
+      oidcEnv = {
+        OAUTH_CLIENT_ID = reactiveResumeOidcClientId;
+        OAUTH_PROVIDER_NAME = "Authelia";
+        OAUTH_DISCOVERY_URL = "https://${hosts.auth}/.well-known/openid-configuration";
+        OAUTH_SCOPES = "openid profile email";
+      };
 
-      oidcSecrets =
-        lib.optionalAttrs
-          (osConfig.services.onepassword-secrets.secretPaths ? reactiveResumeOidcClientSecret)
-          {
-            OAUTH_CLIENT_SECRET =
-              osConfig.services.onepassword-secrets.secretPaths.reactiveResumeOidcClientSecret;
-          };
+      oidcSecrets = {
+        OAUTH_CLIENT_SECRET = osConfig.sops.secrets."reactive-resume/oidc_client_secret".path;
+      };
     in
     {
       config = {
@@ -186,11 +164,11 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupReactiveResumeEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."reactive-resume/backup_encryption_key".path;
           db = {
             type = "postgresql";
             user = "rxresume";
-            passwordFile = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
+            passwordFile = osConfig.sops.secrets."reactive-resume/db_password".path;
             container = {
               type = "podman";
               name = "reactive-resume-db";
@@ -220,7 +198,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
+            POSTGRES_PASSWORD = osConfig.sops.secrets."reactive-resume/db_password".path;
           };
 
           extraConfig = {
@@ -259,8 +237,8 @@ in
           // oidcEnv;
 
           secrets = {
-            AUTH_SECRET = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeAuthSecret;
-            DATABASE_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.reactiveResumeDbPassword;
+            AUTH_SECRET = osConfig.sops.secrets."reactive-resume/auth_secret".path;
+            DATABASE_PASSWORD = osConfig.sops.secrets."reactive-resume/db_password".path;
           }
           // oidcSecrets;
 

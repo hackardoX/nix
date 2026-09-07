@@ -13,9 +13,9 @@ in
       autheliaAppDir = "/var/lib/authelia";
       hashedSecretsDir = "${autheliaAppDir}/hashed-oidc-secrets";
 
-      oidcClients = lib.mapAttrsToList (name: client: {
+      oidcClients = lib.mapAttrsToList (name: _: {
         inherit name;
-        secretPath = nixosArgs.config.services.onepassword-secrets.secretPaths.${client.secretName};
+        secretPath = nixosArgs.config.sops.secrets."authelia_oidc/${name}".path;
       }) config.flake.meta.oidc-clients;
 
       oidcClientsYaml =
@@ -65,7 +65,7 @@ in
                 enable_passkey_login = true;
               };
               authentication_backend = {
-                file.path = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaUsersFile;
+                file.path = nixosArgs.config.sops.secrets."authelia/users".path;
                 password_reset.disable = true;
               };
               access_control = {
@@ -119,18 +119,14 @@ in
               };
             };
             secrets = {
-              jwtSecretFile = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaJwtSecret;
-              storageEncryptionKeyFile =
-                nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaStorageEncryption;
-              sessionSecretFile = nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaSessionSecret;
-              oidcHmacSecretFile =
-                nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaOidcHmacSecret;
-              oidcIssuerPrivateKeyFile =
-                nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaJwksKey;
+              jwtSecretFile = nixosArgs.config.sops.secrets."authelia/jwt_secret".path;
+              storageEncryptionKeyFile = nixosArgs.config.sops.secrets."authelia/storage_encryption".path;
+              sessionSecretFile = nixosArgs.config.sops.secrets."authelia/session_secret".path;
+              oidcHmacSecretFile = nixosArgs.config.sops.secrets."authelia/oidc_hmac_secret".path;
+              oidcIssuerPrivateKeyFile = nixosArgs.config.sops.secrets."authelia/jwks_key".path;
             };
             environmentVariables = {
-              AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE =
-                nixosArgs.config.services.onepassword-secrets.secretPaths.autheliaResendApiKey;
+              AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = nixosArgs.config.sops.secrets."authelia/resend_api_key".path;
             };
             settingsFiles = [ oidcClientsFile ];
           };
@@ -170,8 +166,6 @@ in
         description = "Hash OIDC client secrets for Authelia";
         before = [ "authelia-default.service" ];
         requiredBy = [ "authelia-default.service" ];
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;

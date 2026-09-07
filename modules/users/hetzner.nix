@@ -11,18 +11,20 @@
   };
 
   flake.modules.nixos.hetzner =
-    { pkgs, ... }:
+    nixosArgs@{ pkgs, ... }:
     {
+      sops.secrets."hashed_password" = {
+        sopsFile = ../../secrets/users/hetzner.yaml;
+        neededForUsers = true;
+      };
+
       users.users.${config.flake.meta.users.hetzner.name} = {
         inherit (config.flake.meta.users.hetzner) description uid;
         isNormalUser = true;
         group = config.flake.meta.users.hetzner.primaryGroup;
         shell = pkgs.zsh;
-        hashedPassword = "$y$j9T$eFjRG1wVzfAXzCCa2nD05.$.p8T4gfUxacJwCapOI9MuPLDBbL4tmHIrj4SYqvKTO5";
-        extraGroups = [
-          "wheel"
-          "onepassword-secrets"
-        ];
+        hashedPasswordFile = nixosArgs.config.sops.secrets."hashed_password".path;
+        extraGroups = [ "wheel" ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
       };
 
@@ -33,6 +35,7 @@
 
   flake.modules.homeManager.hetzner = {
     imports = with config.flake.modules.homeManager; [ base ];
+    sops.defaultSopsFile = ../../secrets/users/hetzner.yaml;
     home.username = config.flake.meta.users.hetzner.name;
     home.stateVersion = "26.05";
   };

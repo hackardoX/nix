@@ -212,15 +212,15 @@ let
     in
     lib.foldl' (acc: block: acc // (extractDesc block)) { } realUserBlocks;
 
-  # Extract NixOS-level secrets: services.onepassword-secrets.secrets = { <name> = { ... }; };
+  # Extract NixOS-level secrets: sops.secrets = { <name> = { ... }; };
   extractNixosSecrets =
     content:
     let
       lines = lib.splitString "\n" content;
       # Find the start of secrets block
-      startPattern = ".*services[.]onepassword-secrets[.]secrets[[:space:]]*=[[:space:]]*\\{.*";
-      # Find secret names within the block (lines like "  beszelEmail = {")
-      secretPattern = "^[[:space:]]+([a-zA-Z0-9_-]+)[[:space:]]*=[[:space:]]*\\{.*";
+      startPattern = ".*sops[.]secrets[[:space:]]*=[[:space:]]*\\{.*";
+      # Find secret names within the block (lines like "  \"beszel/email\" = {")
+      secretPattern = "^[[:space:]]+\"?([a-zA-Z0-9_/.-]+)\"?[[:space:]]*=[[:space:]]*\\{.*";
 
       # Find all start positions (skip comment lines)
       startIndices = lib.imap0 (
@@ -269,15 +269,15 @@ let
     in
     lib.concatMap collectSecrets realStartIndices;
 
-  # Extract home-manager-level secrets: programs.onepassword-secrets.secrets = { <name> = { ... }; };
+  # Extract home-manager-level secrets: sops.secrets = { <name> = { ... }; };
   extractHmSecrets =
     content:
     let
       lines = lib.splitString "\n" content;
       # Find the start of secrets block
-      startPattern = ".*programs[.]onepassword-secrets[.]secrets[[:space:]]*=[[:space:]]*\\{.*";
-      # Find secret names within the block (lines like "  githubToken = {")
-      secretPattern = "^[[:space:]]+([a-zA-Z0-9_-]+)[[:space:]]*=[[:space:]]*\\{.*";
+      startPattern = ".*sops[.]secrets[[:space:]]*=[[:space:]]*\\{.*";
+      # Find secret names within the block (lines like "  \"git/github_token\" = {")
+      secretPattern = "^[[:space:]]+\"?([a-zA-Z0-9_/.-]+)\"?[[:space:]]*=[[:space:]]*\\{.*";
 
       # Find all start positions (skip comment lines)
       startIndices = lib.imap0 (
@@ -571,7 +571,7 @@ let
       secretsSection =
         if showSecrets && allSecretNames != [ ] then
           ''
-            subgraph secrets["Secrets (opnix)"]
+            subgraph secrets["Secrets (sops-nix)"]
               direction TB
             ${lib.concatStringsSep "\n" secretNodes}
             end

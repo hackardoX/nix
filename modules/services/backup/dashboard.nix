@@ -127,12 +127,8 @@ in
         after = [
           "network.target"
           "systemd-tmpfiles-setup.service"
-          "opnix-secrets.service"
         ];
-        requires = [
-          "systemd-tmpfiles-setup.service"
-          "opnix-secrets.service"
-        ];
+        requires = [ "systemd-tmpfiles-setup.service" ];
         wantedBy = [ "multi-user.target" ];
 
         environment = {

@@ -6,8 +6,7 @@
       wifiNetworks = [
         {
           ssid = "Livebox-0670_2GEXT";
-          secretName = "wifiPassword";
-          secretReference = "op://HomeLab/Wireless Router/wireless network password";
+          secretName = "wifi/password";
         }
       ];
     in
@@ -47,22 +46,30 @@
         };
       };
 
+      sops.secrets = builtins.listToAttrs (
+        map (network: {
+          name = network.secretName;
+          value = {
+            sopsFile = ../../../secrets/hosts/HomeLab/secrets.yaml;
+            group = "wheel";
+          };
+        }) wifiNetworks
+      );
+
       systemd.services.setup-iwd-wifi = {
-        description = "Configure iwd WiFi PSK from 1Password secrets";
+        description = "Configure iwd WiFi PSK from sops-nix secrets";
         wantedBy = [ "multi-user.target" ];
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
         };
         # TODO: optimize this to iterate over the list instead of generating a script per network
         script = lib.concatMapStringsSep "\n" (n: ''
-          secret_path="${nixosArgs.config.services.onepassword-secrets.secretPaths.${n.secretName}}"
+          secret_path="${nixosArgs.config.sops.secrets."${n.secretName}".path}"
           psk_file="/var/lib/iwd/${n.ssid}.psk"
 
           if [ ! -f "$secret_path" ]; then
-            echo "WiFi secret not available (no internet during boot?). Skipping iwd PSK setup for ${n.ssid}."
+            echo "WiFi secret not available. Skipping iwd PSK setup for ${n.ssid}."
             exit 0
           fi
 
@@ -83,16 +90,5 @@
           echo "WiFi PSK for ${n.ssid} updated. iwd will use it on next connection attempt."
         '') wifiNetworks;
       };
-
-      services.onepassword-secrets.secrets = builtins.listToAttrs (
-        map (network: {
-          name = network.secretName;
-          value = {
-            path = "/run/secrets/.${network.secretName}";
-            reference = network.secretReference;
-            group = "wheel";
-          };
-        }) wifiNetworks
-      );
     };
 }

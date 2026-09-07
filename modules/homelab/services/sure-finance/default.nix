@@ -40,7 +40,6 @@ in
     clientName = "Sure Finance";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
-    secretName = "autheliaSureFinanceOidcSecret";
     extraYamlLines = [
       ''token_endpoint_auth_method: "client_secret_basic"''
       "require_pkce: true"
@@ -111,80 +110,56 @@ in
       services.rclone.remotes = [ "koofr" ];
     };
 
-    services.onepassword-secrets.secrets = {
-      sureFinanceSecretKey = {
-        path = "/run/secrets/sure-finance/secret_key";
-        reference = "op://HomeLab/Sure Finance/Authentication/secret key";
+    sops.secrets = {
+      "sure-finance/secret_key" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinancePostgresPassword = {
-        path = "/run/secrets/sure-finance/postgres_password";
-        reference = "op://HomeLab/Sure Finance/Database/password";
+      "sure-finance/postgres_password" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      backupSureFinanceEncryptionKey = {
-        path = "/run/secrets/sure-finance/backup_encryption_key";
-        reference = "op://Homelab/Backup/Sure Finance/password";
+      "sure-finance/backup_encryption_key" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
         mode = "0640";
       };
-      sureFinanceResendApiKey = {
-        path = "/run/secrets/sure-finance/resend_api_key";
-        reference = "op://HomeLab/Sure Finance/Resend/api key";
+      "sure-finance/resend_api_key" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceBrandFetchApiKey = {
-        path = "/run/secrets/sure-finance/brand_fetch_client_id";
-        reference = "op://HomeLab/Sure Finance/Brand Fetch/client id";
+      "sure-finance/brand_fetch_client_id" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceTwelveDataApiKey = {
-        path = "/run/secrets/sure-finance/twelve_data_api_key";
-        reference = "op://HomeLab/Sure Finance/Twelve Data/api key";
+      "sure-finance/twelve_data_api_key" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceOidcClientSecret = {
-        path = "/run/secrets/sure-finance/oidc_client_secret";
-        reference = "op://HomeLab/Sure Finance/Authentication/OIDC client secret";
+      "sure-finance/oidc_client_secret" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceOpenAiToken = {
-        path = "/run/secrets/sure-finance/openai_token";
-        reference = "op://HomeLab/Sure Finance/AI/api key";
+      "sure-finance/openai_token" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceActiveRecordPrimaryKey = {
-        path = "/run/secrets/sure-finance/active_record_primary_key";
-        reference = "op://HomeLab/Sure Finance/Encryption/primary key";
+      "sure-finance/active_record_primary_key" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceActiveRecordDeterministicKey = {
-        path = "/run/secrets/sure-finance/active_record_deterministic_key";
-        reference = "op://HomeLab/Sure Finance/Encryption/deterministic key";
+      "sure-finance/active_record_deterministic_key" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      sureFinanceActiveRecordKeyDerivationSalt = {
-        path = "/run/secrets/sure-finance/active_record_key_derivation_salt";
-        reference = "op://HomeLab/Sure Finance/Encryption/key derivation salt";
+      "sure-finance/active_record_key_derivation_salt" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
-      autheliaSureFinanceOidcSecret = {
-        path = "/run/secrets/authelia/sure-finance_oidc_secret";
-        reference = "op://HomeLab/Sure Finance/Authentication/OIDC client secret";
+      "authelia_oidc/sure-finance" = {
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ "authelia-default.service" ];
+        restartUnits = [ "authelia-default.service" ];
       };
     };
 
@@ -230,19 +205,18 @@ in
 
       sharedSecrets = {
         ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY =
-          osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordDeterministicKey;
+          osConfig.sops.secrets."sure-finance/active_record_deterministic_key".path;
         ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT =
-          osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordKeyDerivationSalt;
+          osConfig.sops.secrets."sure-finance/active_record_key_derivation_salt".path;
         ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY =
-          osConfig.services.onepassword-secrets.secretPaths.sureFinanceActiveRecordPrimaryKey;
-        BRAND_FETCH_CLIENT_ID =
-          osConfig.services.onepassword-secrets.secretPaths.sureFinanceBrandFetchApiKey;
-        OIDC_CLIENT_SECRET = osConfig.services.onepassword-secrets.secretPaths.sureFinanceOidcClientSecret;
-        OPENAI_ACCESS_TOKEN = osConfig.services.onepassword-secrets.secretPaths.sureFinanceOpenAiToken;
-        POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
-        SECRET_KEY_BASE = osConfig.services.onepassword-secrets.secretPaths.sureFinanceSecretKey;
-        SMTP_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinanceResendApiKey;
-        TWELVE_DATA_API_KEY = osConfig.services.onepassword-secrets.secretPaths.sureFinanceTwelveDataApiKey;
+          osConfig.sops.secrets."sure-finance/active_record_primary_key".path;
+        BRAND_FETCH_CLIENT_ID = osConfig.sops.secrets."sure-finance/brand_fetch_client_id".path;
+        OIDC_CLIENT_SECRET = osConfig.sops.secrets."sure-finance/oidc_client_secret".path;
+        OPENAI_ACCESS_TOKEN = osConfig.sops.secrets."sure-finance/openai_token".path;
+        POSTGRES_PASSWORD = osConfig.sops.secrets."sure-finance/postgres_password".path;
+        SECRET_KEY_BASE = osConfig.sops.secrets."sure-finance/secret_key".path;
+        SMTP_PASSWORD = osConfig.sops.secrets."sure-finance/resend_api_key".path;
+        TWELVE_DATA_API_KEY = osConfig.sops.secrets."sure-finance/twelve_data_api_key".path;
       };
     in
     {
@@ -251,11 +225,11 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupSureFinanceEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."sure-finance/backup_encryption_key".path;
           db = {
             type = "postgresql";
             user = "sure_user";
-            passwordFile = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
+            passwordFile = osConfig.sops.secrets."sure-finance/postgres_password".path;
             container = {
               type = "podman";
               name = "sure-finance-db";
@@ -284,7 +258,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.sureFinancePostgresPassword;
+            POSTGRES_PASSWORD = osConfig.sops.secrets."sure-finance/postgres_password".path;
           };
 
           extraConfig = {

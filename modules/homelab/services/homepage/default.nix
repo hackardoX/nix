@@ -119,7 +119,6 @@ in
         home.stateVersion = "26.05";
         imports = with config.flake.modules.homeManager; [
           homelab-homepage
-          homelab-podman-extension
           homelab-beszel-agent
           homelab-docker-socket-proxy
         ];
@@ -142,8 +141,6 @@ in
         description = "Generate Homepage services.yaml with runtime secrets";
         before = [ "user@${toString homepageUid}.service" ];
         requiredBy = [ "user@${toString homepageUid}.service" ];
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -152,8 +149,8 @@ in
           set -e
           mkdir -p ${homepageAppDir}/config
 
-          BESZEL_USER="$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelEmail} 2>/dev/null || true)"
-          BESZEL_PASS="$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelPassword} 2>/dev/null || true)"
+          BESZEL_USER="$(cat ${nixosArgs.config.sops.secrets."beszel/email".path} 2>/dev/null || true)"
+          BESZEL_PASS="$(cat ${nixosArgs.config.sops.secrets."beszel/password".path} 2>/dev/null || true)"
 
           ${pkgs.jq}/bin/jq \
             --arg beszel_user "$BESZEL_USER" \
@@ -198,8 +195,6 @@ in
         autoStart = true;
         userNS = "keep-id:uid=0,gid=0";
         network = [ "pasta:${pastaArgs}" ];
-
-        monitoring.enable = true;
 
         volumes = [
           "${homepageAppDir}/config:/app/config"
