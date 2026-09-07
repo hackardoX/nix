@@ -119,7 +119,6 @@ in
         home.stateVersion = "26.05";
         imports = with config.flake.modules.homeManager; [
           homelab-homepage
-          homelab-podman-extension
           homelab-beszel-agent
           homelab-docker-socket-proxy
         ];
@@ -209,8 +208,6 @@ in
         autoStart = true;
         userNS = "keep-id:uid=0,gid=0";
         network = [ "pasta:${pastaArgs}" ];
-
-        monitoring.enable = true;
 
         volumes = [
           "${homepageAppDir}/config:/app/config"

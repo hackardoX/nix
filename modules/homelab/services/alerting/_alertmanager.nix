@@ -55,7 +55,6 @@ in
         base
         homelab-alerting
         backup
-        homelab-podman-extension
         podman-secrets
         homelab-beszel-agent
       ];
@@ -183,10 +182,7 @@ in
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager" ];
           ports = [ "${toString alertmanagerHostPort}:${toString alertmanagerContainerPort}" ];
-          monitoring.enable = true;
-
           environment.TZ = osConfig.time.timeZone;
-
           volumes = [
             "${alertingAppDir}/alertmanager/data:/alertmanager"
             "${alertmanagerConfig}:/etc/alertmanager/alertmanager.yml:ro"
@@ -205,10 +201,7 @@ in
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager-ntfy" ];
           ports = [ "${toString alertmanagerNtfyHostPort}:${toString alertmanagerNtfyContainerPort}" ];
-          monitoring.enable = true;
-
           environment.TZ = osConfig.time.timeZone;
-
           volumes = [
             "${alertmanagerNtfyConfig}:/etc/config.yml:ro"
             "${entrypointScript}:/entrypoint.sh:ro"
