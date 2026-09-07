@@ -17,7 +17,7 @@
         sudo
       ];
 
-      sops.defaultSopsFile = ../../secrets/homelab/services.yaml;
+      sops.defaultSopsFile = ../../../secrets/homelab/services.yaml;
 
       home-manager.users.${config.flake.meta.users.hetzner.name} =
         config.flake.modules.homeManager.hetzner;
