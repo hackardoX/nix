@@ -1,58 +1,48 @@
 { config, ... }:
 let
   autheliaService = "authelia-default.service";
+  autheliaUser = config.flake.meta.users.authelia.name;
+  autheliaGroup = config.flake.meta.users.authelia.primaryGroup;
 in
 {
   flake.modules.nixos.homelab-security = {
-    services.onepassword-secrets.secrets = {
-      autheliaJwtSecret = {
-        path = "/run/secrets/authelia/jwt_secret";
-        reference = "op://HomeLab/Authelia/JWT Secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+    sops.secrets = {
+      "authelia/jwt_secret" = {
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
-      autheliaStorageEncryption = {
-        path = "/run/secrets/authelia/storage_encryption";
-        reference = "op://HomeLab/Authelia/Storage Encryption Key";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+      "authelia/storage_encryption" = {
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
-      autheliaSessionSecret = {
-        path = "/run/secrets/authelia/session_secret";
-        reference = "op://HomeLab/Authelia/Session Secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+      "authelia/session_secret" = {
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
-      autheliaOidcHmacSecret = {
-        path = "/run/secrets/authelia/oidc_hmac_secret";
-        reference = "op://HomeLab/Authelia/OIDC HMAC Secret";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+      "authelia/oidc_hmac_secret" = {
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
-      autheliaUsersFile = {
-        path = "/run/secrets/authelia/users.yml";
-        reference = "op://HomeLab/Authelia Users/notesPlain";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+      "authelia/users_file" = {
+        sopsFile = ../../../../secrets/homelab/authelia-users.yaml;
+        format = "yaml";
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
-      autheliaJwksKey = {
-        path = "/run/secrets/authelia/jwks_key";
-        reference = "op://HomeLab/Authelia JWKS Key/private key";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+      "authelia/jwks_key" = {
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
-      autheliaResendApiKey = {
-        path = "/run/secrets/authelia/resend_api_key";
-        reference = "op://HomeLab/Authelia/Resend/api key";
-        owner = config.flake.meta.users.authelia.name;
-        group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ autheliaService ];
+      "authelia/resend_api_key" = {
+        owner = autheliaUser;
+        group = autheliaGroup;
+        restartUnits = [ autheliaService ];
       };
     };
   };

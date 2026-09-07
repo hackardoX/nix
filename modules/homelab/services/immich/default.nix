@@ -148,32 +148,24 @@ in
       };
     };
 
-    services.onepassword-secrets.secrets = {
-      immichDbPassword = {
-        path = "/run/secrets/immich/db_password";
-        reference = "op://Homelab/Immich/Database/password";
+    sops.secrets = {
+      "immich/db_password" = {
         owner = immichUser;
         group = immichGroup;
       };
-      immichOidcClientSecret = {
-        path = "/run/secrets/immich/oidc_client_secret";
-        reference = "op://Homelab/Immich/Authentication/OIDC client secret";
+      "immich/oidc_client_secret" = {
         owner = immichUser;
         group = immichGroup;
       };
-      backupImmichEncryptionKey = {
-        path = "/run/secrets/immich/backup_encryption_key";
-        reference = "op://Homelab/Backup/Immich/password";
+      "immich/backup_encryption_key" = {
         owner = immichUser;
         group = immichGroup;
         mode = "0640";
       };
-      autheliaImmichOidcSecret = {
-        path = "/run/secrets/authelia/immich_oidc_secret";
-        reference = "op://HomeLab/Immich/Authentication/OIDC client secret";
+      "authelia_oidc/immich" = {
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ "authelia-default.service" ];
+        restartUnits = [ "authelia-default.service" ];
       };
     };
 
@@ -215,7 +207,7 @@ in
       };
 
       sharedSecrets = {
-        DB_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+        DB_PASSWORD = osConfig.sops.secrets."immich/db_password".path;
       };
 
       immichBaseConfigFile = pkgs.writeText "immich-config-base.json" (builtins.toJSON immichConfig);
@@ -232,7 +224,7 @@ in
           text = ''
             install -D -m 600 /dev/null "${immichRuntimeConfigPath}"
             ${lib.getExe pkgs.jq} \
-              --arg clientSecret "$(<${osConfig.services.onepassword-secrets.secretPaths.immichOidcClientSecret})" \
+              --arg clientSecret "$(<${osConfig.sops.secrets."immich/oidc_client_secret".path})" \
               '.oauth.clientSecret = $clientSecret' \
               "${immichBaseConfigFile}" > "${immichRuntimeConfigPath}"
           '';
@@ -250,11 +242,11 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupImmichEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."immich/backup_encryption_key".path;
           db = {
             type = "postgresql";
             user = "postgres";
-            passwordFile = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+            passwordFile = osConfig.sops.secrets."immich/db_password".path;
             container = {
               type = "podman";
               name = "immich-db";
@@ -322,7 +314,7 @@ in
           environment = sharedEnv;
 
           secrets = {
-            DB_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+            DB_PASSWORD = osConfig.sops.secrets."immich/db_password".path;
           };
 
           extraConfig = {
@@ -374,7 +366,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.immichDbPassword;
+            POSTGRES_PASSWORD = osConfig.sops.secrets."immich/db_password".path;
           };
 
           extraConfig = {

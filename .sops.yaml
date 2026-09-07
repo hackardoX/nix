@@ -1,0 +1,75 @@
+keys:
+  - &admin age1jwc3zy5tml8pmuama2se6jxnuyn87juvtvpyjrtg9mqyqjtg9qssre5rac
+  - &HomeLab age1rua8fvjun2eq6cgrece2g5995ajezn3l2d0q5nptc855vffkhyrs6v8u6z
+  - &Hetzner-HomeLab age1ruf4w2vthzavc3gyexs8qu74k4w6aw7syauhvga6949jx6u3ns9qr48jta
+  - &Andrea-MacBook-Air age1nd2nc46ustuylq8zt90a2lv7t9r0epqsamsfq3saffnzfnh9au7q2cvkf9
+  - &Proton-MacBook-Pro age1nycq6ranp0s4w5nqpd0ge80de85sq7n83fnzw740mpt89kpa8cfq3zauzf
+
+creation_rules:
+  # Shared secrets: all hosts + admin
+  - path_regex: secrets/shared/.*\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *HomeLab
+          - *Hetzner-HomeLab
+          - *Andrea-MacBook-Air
+          - *Proton-MacBook-Pro
+
+  # Homelab secrets: both NixOS hosts + admin
+  - path_regex: secrets/homelab/.*\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *HomeLab
+          - *Hetzner-HomeLab
+
+  # Per-host secrets: specific host + admin
+  - path_regex: secrets/hosts/HomeLab/.*\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *HomeLab
+
+  - path_regex: secrets/hosts/Hetzner-HomeLab/.*\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *Hetzner-HomeLab
+
+  - path_regex: secrets/hosts/Andrea-MacBook-Air/.*\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *Andrea-MacBook-Air
+
+  - path_regex: secrets/hosts/Proton-MacBook-Pro/.*\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *Proton-MacBook-Pro
+
+  # User secrets: specific host + admin
+  - path_regex: secrets/users/hal\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *HomeLab
+
+  - path_regex: secrets/users/hetzner\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *Hetzner-HomeLab
+
+  - path_regex: secrets/users/hackardo\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *Andrea-MacBook-Air
+
+  - path_regex: secrets/users/aaccardo\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *Proton-MacBook-Pro

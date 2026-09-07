@@ -36,7 +36,6 @@
         home = "/Users/${config.flake.meta.users.hackardo.name}";
         shell = pkgs.zsh;
       };
-      users.groups.onepassword-secrets.members = [ config.flake.meta.users.hackardo.name ];
 
       system.defaults.dock.persistent-apps = [
         "/Applications/Safari.app"
@@ -94,6 +93,7 @@
       ssh
       theme
     ];
+    sops.defaultSopsFile = ../../secrets/users/hackardo.yaml;
     services.rclone.remotes = [
       "koofr"
       "gdrive"

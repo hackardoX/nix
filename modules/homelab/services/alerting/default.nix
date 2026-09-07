@@ -22,9 +22,7 @@
         };
       };
 
-      config.services.onepassword-secrets.secrets.alertingNtfyToken = {
-        path = "/run/secrets/alerting_ntfy_token";
-        reference = config.services.ntfy-notify.tokenFile;
+      config.sops.secrets."alerting/ntfy_token" = {
         group = "homelab-users";
         mode = "0640";
       };

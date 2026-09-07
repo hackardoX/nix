@@ -9,7 +9,7 @@
     nixosArgs@{ pkgs, ... }:
     let
       ntfy = nixosArgs.config.services.ntfy-notify;
-      tokenPath = nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken;
+      tokenPath = nixosArgs.config.sops.secrets."alerting/ntfy_token".path;
 
       upgradeNotifyScript = pkgs.writeShellScript "ntfy-upgrade-notify" ''
         set -euo pipefail
@@ -70,7 +70,6 @@
 
       systemd.services."ntfy-upgrade-notify@" = {
         description = "Send ntfy notification about a NixOS auto-upgrade result";
-        after = [ "opnix-secrets.service" ];
         serviceConfig = {
           Type = "oneshot";
           ExecStart = "${upgradeNotifyScript} %i";

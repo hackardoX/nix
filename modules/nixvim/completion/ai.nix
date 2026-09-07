@@ -105,19 +105,39 @@
     ];
   };
 
-  flake.modules.homeManager.dev = hmArgs: {
-    home = {
-      sessionVariables = {
-        MISTRAL_CODESTRAL_API_KEY = "$(cat ${hmArgs.config.programs.onepassword-secrets.secretPaths.mistralCodestralApiKey})";
+  flake.modules.nixvim.hackardo = {
+    plugins.minuet.settings.provider_options = {
+      codestral = {
+        api_key = "MISTRAL_CODESTRAL_API_KEY";
       };
     };
+  };
 
-    programs.onepassword-secrets.secrets = {
-      mistralCodestralApiKey = {
-        path = ".secrets/.mistral_codestral_key";
-        reference = "op://Development/Mistral API Key - Codestral/credential";
-        group = "staff";
+  flake.modules.homeManager.hackardo = hmArgs: {
+    home.sessionVariables.MISTRAL_CODESTRAL_API_KEY = "$(cat ${
+      hmArgs.config.sops.secrets."ai/mistral_codestral_api_key".path
+    })";
+
+    sops.secrets."ai/mistral_codestral_api_key" = {
+      path = "${hmArgs.config.home.homeDirectory}/.secrets/.mistral_codestral_key";
+    };
+  };
+
+  flake.modules.nixvim.aaccardo = {
+    plugins.minuet.settings.provider_options = {
+      lumo = {
+        api_key = "LUMO_API_KEY";
       };
+    };
+  };
+
+  flake.modules.homeManager.aaccardo = hmArgs: {
+    home.sessionVariables.LUMO_CODESTRAL_API_KEY = "$(cat ${
+      hmArgs.config.sops.secrets."ai/lumo_api_key".path
+    })";
+
+    sops.secrets."ai/lumo_api_key" = {
+      path = "${hmArgs.config.home.homeDirectory}/.secrets/.lumo_key";
     };
   };
 }

@@ -138,12 +138,23 @@ in
         "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
       ];
 
+      sops.secrets = {
+        "beszel/email" = {
+          owner = homepageUser;
+          group = homepageGroup;
+          mode = "0640";
+        };
+        "beszel/password" = {
+          owner = homepageUser;
+          group = homepageGroup;
+          mode = "0640";
+        };
+      };
+
       systemd.services.homepage-generate-config = {
         description = "Generate Homepage services.yaml with runtime secrets";
         before = [ "user@${toString homepageUid}.service" ];
         requiredBy = [ "user@${toString homepageUid}.service" ];
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -152,8 +163,8 @@ in
           set -e
           mkdir -p ${homepageAppDir}/config
 
-          BESZEL_USER="$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelEmail} 2>/dev/null || true)"
-          BESZEL_PASS="$(cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.beszelPassword} 2>/dev/null || true)"
+          BESZEL_USER="$(cat ${nixosArgs.config.sops.secrets."beszel/email".path} 2>/dev/null || true)"
+          BESZEL_PASS="$(cat ${nixosArgs.config.sops.secrets."beszel/password".path} 2>/dev/null || true)"
 
           ${pkgs.jq}/bin/jq \
             --arg beszel_user "$BESZEL_USER" \
