@@ -137,19 +137,6 @@ in
         "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
       ];
 
-      sops.secrets = {
-        "beszel/email" = {
-          owner = homepageUser;
-          group = homepageGroup;
-          mode = "0640";
-        };
-        "beszel/password" = {
-          owner = homepageUser;
-          group = homepageGroup;
-          mode = "0640";
-        };
-      };
-
       systemd.services.homepage-generate-config = {
         description = "Generate Homepage services.yaml with runtime secrets";
         before = [ "user@${toString homepageUid}.service" ];
