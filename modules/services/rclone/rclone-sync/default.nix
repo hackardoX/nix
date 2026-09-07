@@ -10,8 +10,8 @@
       cfg = hmArgs.config.services.rclone-sync;
       rcloneRemotes = hmArgs.config.programs.rclone.remotes or { };
 
-      isLinux = pkgs.stdenv.isLinux;
-      isDarwin = pkgs.stdenv.isDarwin;
+      isLinux = pkgs.stdenv.hostPlatform.isLinux;
+      isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 
       mkLaunchdInterval =
         schedule:
