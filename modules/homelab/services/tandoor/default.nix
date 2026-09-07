@@ -41,7 +41,6 @@ in
     clientName = "Tandoor Recipes";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
-    secretName = "autheliaTandoorOidcSecret";
   };
 
   flake.modules.nixos.homelab-tandoor = {

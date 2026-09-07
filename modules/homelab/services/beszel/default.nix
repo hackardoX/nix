@@ -36,7 +36,6 @@ in
     clientName = "Monitoring";
     policy = "admin-only";
     redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
-    secretName = "autheliaBeszelOidcSecret";
   };
 
   flake.modules.nixos.homelab-beszel = nixosArgs: {

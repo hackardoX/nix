@@ -74,7 +74,6 @@ in
       "https://${hosts.immich}/user-settings"
       "app.immich:///oauth-callback"
     ];
-    secretName = "autheliaImmichOidcSecret";
     extraYamlLines = [
       ''token_endpoint_auth_method: "client_secret_post"''
       "require_pkce: false"

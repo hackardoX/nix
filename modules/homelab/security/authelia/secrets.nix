@@ -27,8 +27,9 @@ in
         group = autheliaGroup;
         restartUnits = [ autheliaService ];
       };
-      "authelia/users_file" = {
+      "authelia/users" = {
         sopsFile = ../../../../secrets/homelab/authelia-users.yaml;
+        key = "";
         format = "yaml";
         owner = autheliaUser;
         group = autheliaGroup;

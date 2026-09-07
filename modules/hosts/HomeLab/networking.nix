@@ -50,6 +50,7 @@
         map (network: {
           name = network.secretName;
           value = {
+            sopsFile = ../../../secrets/hosts/HomeLab/secrets.yaml;
             group = "wheel";
           };
         }) wifiNetworks

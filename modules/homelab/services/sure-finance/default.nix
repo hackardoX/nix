@@ -40,7 +40,6 @@ in
     clientName = "Sure Finance";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.finance}/auth/openid_connect/callback" ];
-    secretName = "autheliaSureFinanceOidcSecret";
     extraYamlLines = [
       ''token_endpoint_auth_method: "client_secret_basic"''
       "require_pkce: true"

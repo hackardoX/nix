@@ -40,7 +40,6 @@ in
     clientName = "Reactive Resume";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.rxresume}/api/auth/oauth2/callback/custom" ];
-    secretName = "autheliaReactiveResumeOidcSecret";
   };
 
   flake.modules.nixos.homelab-reactive-resume = {

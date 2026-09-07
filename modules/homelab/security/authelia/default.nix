@@ -65,7 +65,7 @@ in
                 enable_passkey_login = true;
               };
               authentication_backend = {
-                file.path = nixosArgs.config.sops.secrets."authelia/users_file".path;
+                file.path = nixosArgs.config.sops.secrets."authelia/users".path;
                 password_reset.disable = true;
               };
               access_control = {
