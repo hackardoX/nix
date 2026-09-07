@@ -43,7 +43,7 @@ in
 
           ntfy_topic = ${ntfy.topic}
           ntfy_url = ${ntfy.url}
-          ntfy_token = ${nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken}
+          ntfy_token = ${nixosArgs.config.sops.secrets."alerting/ntfy_token".path}
 
           actionstart = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for start"
           actionstop = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for stop"
@@ -64,7 +64,7 @@ in
           accounts.fail2ban = {
             host = "smtp.resend.com";
             user = "resend";
-            passwordeval = "cat ${nixosArgs.config.services.onepassword-secrets.secretPaths.resendApiKey}";
+            passwordeval = "cat ${nixosArgs.config.sops.secrets."fail2ban/resend_api_key".path}";
             from = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
           };
         };
@@ -94,15 +94,11 @@ in
               };
             };
           };
+        };
 
-          onepassword-secrets.secrets = {
-            resendApiKey = {
-              path = "/run/secrets/resend_api_key";
-              reference = "op://HomeLab/Fail2ban/Resend/api key";
-              inherit (fail2ban) owner group;
-              services = [ "fail2ban" ];
-            };
-          };
+        sops.secrets."fail2ban/resend_api_key" = {
+          inherit (fail2ban) owner group;
+          restartUnits = [ "fail2ban.service" ];
         };
 
         systemd.services.fail2ban.serviceConfig.StateDirectory = lib.mkForce "data/fail2ban";

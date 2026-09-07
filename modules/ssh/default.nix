@@ -164,10 +164,9 @@ in
               hostname = host.config.networking.fqdn;
               identityFile =
                 let
-                  name = lib.replaceStrings [ "-" ] [ "" ] host.config.networking.hostName;
-                  secretName = lib.toLower (lib.substring 0 1 name) + lib.substring 1 (-1) name + "PublicKey";
+                  hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.config.networking.hostName);
                 in
-                hmArgs.config.programs.onepassword-secrets.secretPaths.${secretName};
+                hmArgs.config.sops.secrets."ssh/${hostName}.pub".path;
               port = builtins.head host.config.services.openssh.ports;
               user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
             };

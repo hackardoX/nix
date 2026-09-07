@@ -55,7 +55,6 @@ in
         base
         homelab-alerting
         backup
-        homelab-podman-extension
         podman-secrets
         homelab-beszel-agent
       ];
@@ -65,14 +64,10 @@ in
       };
     };
 
-    services.onepassword-secrets.secrets = {
-      backupAlertmanagerEncryptionKey = {
-        path = "/run/secrets/alerting/backup_encryption_key";
-        reference = "op://Homelab/Backup/Alert Manager/password";
-        owner = alertingUser;
-        group = alertingGroup;
-        mode = "0640";
-      };
+    sops.secrets."alerting/backup_encryption_key" = {
+      owner = alertingUser;
+      group = alertingGroup;
+      mode = "0640";
     };
   };
 
@@ -174,7 +169,7 @@ in
           schedule = "weekly";
           retention = "extended";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupAlertmanagerEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."alerting/backup_encryption_key".path;
         };
 
         services.podman.enable = true;
@@ -187,10 +182,7 @@ in
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager" ];
           ports = [ "${toString alertmanagerHostPort}:${toString alertmanagerContainerPort}" ];
-          monitoring.enable = true;
-
           environment.TZ = osConfig.time.timeZone;
-
           volumes = [
             "${alertingAppDir}/alertmanager/data:/alertmanager"
             "${alertmanagerConfig}:/etc/alertmanager/alertmanager.yml:ro"
@@ -209,17 +201,14 @@ in
           network = [ "alerting.network" ];
           networkAlias = [ "alertmanager-ntfy" ];
           ports = [ "${toString alertmanagerNtfyHostPort}:${toString alertmanagerNtfyContainerPort}" ];
-          monitoring.enable = true;
-
           environment.TZ = osConfig.time.timeZone;
-
           volumes = [
             "${alertmanagerNtfyConfig}:/etc/config.yml:ro"
             "${entrypointScript}:/entrypoint.sh:ro"
           ];
 
           secrets = {
-            NTFY_TOKEN = osConfig.services.onepassword-secrets.secretPaths.alertingNtfyToken;
+            NTFY_TOKEN = osConfig.sops.secrets."alerting/ntfy_token".path;
           };
 
           extraConfig = {

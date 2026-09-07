@@ -76,22 +76,7 @@ in
             AccountID = 1353550;
             DatabaseDirectory = geoipDbPath;
             EditionIDs = [ "GeoLite2-Country" ];
-            LicenseKey = nixosArgs.config.services.onepassword-secrets.secretPaths.maxmindLicenseKey;
-          };
-        };
-
-        onepassword-secrets.secrets = {
-          maxmindLicenseKey = {
-            path = "/run/secrets/caddy/maxmind_license_key";
-            reference = "op://Homelab/MaxMind License Key/credential";
-            owner = "caddy";
-            group = "caddy";
-          };
-          cloudflareApiToken = {
-            path = "/run/secrets/caddy/cloudflare_api_token";
-            reference = "op://HomeLab/CloudFlare/homelab4.fun/dns api token";
-            owner = "caddy";
-            group = "caddy";
+            LicenseKey = nixosArgs.config.sops.secrets."ingress/maxmind_license_key".path;
           };
         };
 
@@ -105,7 +90,7 @@ in
           };
 
           globalConfig = ''
-            acme_dns cloudflare {file.${nixosArgs.config.services.onepassword-secrets.secretPaths.cloudflareApiToken}}
+            acme_dns cloudflare {file.${nixosArgs.config.sops.secrets."ingress/cloudflare_api_token".path}}
 
             log access-log {
               include http.log.access
@@ -194,9 +179,15 @@ in
         };
       };
 
-      systemd.services.geoipupdate = {
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
+      sops.secrets = {
+        "ingress/maxmind_license_key" = {
+          owner = "caddy";
+          group = "caddy";
+        };
+        "ingress/cloudflare_api_token" = {
+          owner = "caddy";
+          group = "caddy";
+        };
       };
 
       users.users.caddy.extraGroups = [ "homelab-users" ];
@@ -209,11 +200,9 @@ in
         };
         wants = [
           "geoipupdate.service"
-          "opnix-secrets.service"
         ];
         after = [
           "geoipupdate.service"
-          "opnix-secrets.service"
         ];
       };
 

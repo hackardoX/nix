@@ -11,7 +11,7 @@
 
         DB=${autheliaDataDir}/db.sqlite3
         STATE=/var/lib/authelia-ntfy/last_ids
-        TOKEN_FILE=${nixosArgs.config.services.onepassword-secrets.secretPaths.alertingNtfyToken}
+        TOKEN_FILE=${nixosArgs.config.sops.secrets."alerting/ntfy_token".path}
 
         last_user=0
         last_ip=0
@@ -49,8 +49,6 @@
     {
       systemd.services.authelia-ntfy = {
         description = "Send ntfy notifications for new Authelia bans";
-        after = [ "opnix-secrets.service" ];
-        wants = [ "opnix-secrets.service" ];
         path = [
           pkgs.sqlite
           pkgs.curl

@@ -9,10 +9,7 @@
       cfg = hmArgs.config.services.backup;
       inherit (hmArgs) osConfig;
       ntfy = osConfig.services.ntfy-notify or { };
-
-      tokenPath =
-        osConfig.services.onepassword-secrets.secretPaths.alertingNtfyToken or "/run/secrets/alerting_ntfy_token";
-
+      tokenPath = osConfig.sops.secrets."alerting/ntfy_token".path;
       hostName = osConfig.networking.hostName or "host";
 
       notifyScript =

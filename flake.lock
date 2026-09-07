@@ -612,29 +612,6 @@
         "type": "github"
       }
     },
-    "opnix": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1779201624,
-        "narHash": "sha256-UwDxtB3D42/OW1kIp/OHoVPlJnoWrRK5E/KbX4yrbPA=",
-        "owner": "brizzbuzz",
-        "repo": "opnix",
-        "rev": "35344e1cfd060d4af249c8075a4aa58b7650ab95",
-        "type": "github"
-      },
-      "original": {
-        "owner": "brizzbuzz",
-        "repo": "opnix",
-        "type": "github"
-      }
-    },
     "refjump-nvim": {
       "flake": false,
       "locked": {
@@ -680,9 +657,9 @@
         "nixpkgs-stable": "nixpkgs-stable",
         "nixvim": "nixvim",
         "op-shell-plugins": "op-shell-plugins",
-        "opnix": "opnix",
         "refjump-nvim": "refjump-nvim",
         "smart-scrolloff-nvim": "smart-scrolloff-nvim",
+        "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix",
@@ -723,6 +700,26 @@
       "original": {
         "owner": "tonymajestro",
         "repo": "smart-scrolloff.nvim",
+        "type": "github"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788337237,
+        "narHash": "sha256-gkSH8VUtCo6hnysNmb9DbTuDepH2t5pv+QWjP75xKAk=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "fbf759290e0cb0a98dfc813a4eb7d53ad1dacb57",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
         "type": "github"
       }
     },

@@ -36,7 +36,6 @@ in
     clientName = "Monitoring";
     policy = "admin-only";
     redirectUris = [ "https://${hosts.monitoring}/api/oauth2-redirect" ];
-    secretName = "autheliaBeszelOidcSecret";
   };
 
   flake.modules.nixos.homelab-beszel = nixosArgs: {
@@ -70,45 +69,33 @@ in
       '';
     };
 
-    services.onepassword-secrets.secrets = {
-      beszelEmail = {
-        path = "/run/secrets/beszel/email";
-        reference = "op://HomeLab/Beszel/Authentication/email";
+    sops.secrets = {
+      "beszel/email" = {
         owner = beszelUser;
         group = beszelGroup;
       };
-      beszelPassword = {
-        path = "/run/secrets/beszel/password";
-        reference = "op://HomeLab/Beszel/Authentication/password";
+      "beszel/password" = {
         owner = beszelUser;
         group = beszelGroup;
       };
-      beszelSshPrivateKey = {
-        path = "/run/secrets/beszel/ssh_private_key";
-        reference = "op://HomeLab/Beszel SSH Key/private key";
+      "beszel/ssh_private_key" = {
         owner = beszelUser;
         group = beszelGroup;
       };
-      beszelSshPublicKey = {
-        path = "/run/secrets/beszel/ssh_public_key";
-        reference = "op://HomeLab/Beszel SSH Key/public key";
+      "beszel/ssh_public_key" = {
         owner = beszelUser;
         group = beszelGroup;
         mode = "0644";
       };
-      beszelBackupEncryptionKey = {
-        path = "/run/secrets/beszel/backup_encryption_key";
-        reference = "op://Homelab/Backup/Beszel/password";
+      "beszel/backup_encryption_key" = {
         owner = beszelUser;
         group = beszelGroup;
         mode = "0640";
       };
-      autheliaBeszelOidcSecret = {
-        path = "/run/secrets/authelia/beszel_oidc_secret";
-        reference = "op://HomeLab/Beszel/Authentication/OIDC client secret";
+      "authelia_oidc/beszel" = {
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ "authelia-default.service" ];
+        restartUnits = [ "authelia-default.service" ];
       };
     };
 
@@ -129,14 +116,12 @@ in
       # If SMART data doesn't appear, uncomment and list your devices:
       # smartmon.deviceAllow = [ "/dev/sda" "/dev/sdb" "/dev/nvme0" ];
       environment = {
-        KEY_FILE = nixosArgs.config.services.onepassword-secrets.secretPaths.beszelSshPublicKey;
+        KEY_FILE = nixosArgs.config.sops.secrets."beszel/ssh_public_key".path;
         LISTEN = "127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.beszel-agent-homelab}";
       };
     };
 
     systemd.services.beszel-agent = {
-      after = [ "opnix-secrets.service" ];
-      wants = [ "opnix-secrets.service" ];
     };
   };
 
@@ -156,7 +141,7 @@ in
         schedule = "weekly";
         retention = "extended";
         providers = [ "koofr" ];
-        encryptionKey = osConfig.services.onepassword-secrets.secretPaths.beszelBackupEncryptionKey;
+        encryptionKey = osConfig.sops.secrets."beszel/backup_encryption_key".path;
       };
 
       services.podman.enable = true;
@@ -177,14 +162,14 @@ in
         };
 
         secrets = {
-          USER_EMAIL = osConfig.services.onepassword-secrets.secretPaths.beszelEmail;
-          USER_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.beszelPassword;
+          USER_EMAIL = osConfig.sops.secrets."beszel/email".path;
+          USER_PASSWORD = osConfig.sops.secrets."beszel/password".path;
         };
 
         volumes = [
           "${beszelDataDir}:/beszel_data"
-          "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPrivateKey}:/beszel_data/id_ed25519:ro"
-          "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPublicKey}:/beszel_data/id_ed25519.pub:ro"
+          "${osConfig.sops.secrets."beszel/ssh_private_key".path}:/beszel_data/id_ed25519:ro"
+          "${osConfig.sops.secrets."beszel/ssh_public_key".path}:/beszel_data/id_ed25519.pub:ro"
         ];
 
         extraConfig = {
@@ -230,7 +215,7 @@ in
 
           volumes = [
             "%t/podman/podman.sock:/run/podman/podman.sock:ro"
-            "${osConfig.services.onepassword-secrets.secretPaths.beszelSshPublicKey}:/run/beszel/agent-key.pub:ro"
+            "${osConfig.sops.secrets."beszel/ssh_public_key".path}:/run/beszel/agent-key.pub:ro"
           ];
 
           extraConfig.Container = {

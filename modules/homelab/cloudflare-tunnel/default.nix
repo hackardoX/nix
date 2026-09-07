@@ -25,17 +25,10 @@ in
 
       config = {
         services = {
-          onepassword-secrets.secrets.cloudflareTunnelCredentials = {
-            path = "/run/secrets/cloudflared/credentials.json";
-            reference = "op://HomeLab/Cloudflare/homelab4.fun/${tunnelUuid}.json";
-            mode = "0400";
-          };
-
           cloudflared = {
             enable = true;
             tunnels.${tunnelUuid} = {
-              credentialsFile =
-                nixosArgs.config.services.onepassword-secrets.secretPaths.cloudflareTunnelCredentials;
+              credentialsFile = nixosArgs.config.sops.secrets."ingress/cloudflare_tunnel_credentials".path;
               originRequest = {
                 noTLSVerify = true;
                 originServerName = domain;
@@ -61,9 +54,8 @@ in
           };
         };
 
-        systemd.services."cloudflared-tunnel-${tunnelUuid}" = {
-          after = [ "opnix-secrets.service" ];
-          wants = [ "opnix-secrets.service" ];
+        sops.secrets."ingress/cloudflare_tunnel_credentials" = {
+          mode = "0400";
         };
       };
     };

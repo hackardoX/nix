@@ -14,8 +14,8 @@
               default = { };
               example = lib.literalExpression ''
                 {
-                  DB_PASSWORD = config.programs.onepassword-secrets.secretPaths.db_password;
-                  API_KEY     = config.programs.onepassword-secrets.secretPaths.api_key;
+                  DB_PASSWORD = config.sops.secrets.db_password.path;
+                  API_KEY     = config.sops.secrets.api_key.path;
                 }
               '';
               description = ''

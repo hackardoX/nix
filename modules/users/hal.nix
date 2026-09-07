@@ -20,8 +20,13 @@
   };
 
   flake.modules.nixos.hal =
-    { pkgs, lib, ... }:
+    nixosArgs@{ pkgs, lib, ... }:
     {
+      sops.secrets."hashed_password" = {
+        sopsFile = ../../secrets/users/hal.yaml;
+        neededForUsers = true;
+      };
+
       nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];
 
       users.users.${config.flake.meta.users.hal.name} = {
@@ -29,11 +34,8 @@
         isNormalUser = true;
         group = config.flake.meta.users.hal.primaryGroup;
         shell = pkgs.zsh;
-        hashedPassword = "$y$j9T$Sv8i2SE20JnZzX1irLZ4k1$1o3LWQVdeQDfp9z6U1ZnN1uaoYvQsb21HF8xsTTxDp2";
-        extraGroups = [
-          "wheel"
-          "onepassword-secrets"
-        ];
+        hashedPasswordFile = nixosArgs.config.sops.secrets."hashed_password".path;
+        extraGroups = [ "wheel" ];
         openssh.authorizedKeys.keys = config.flake.meta.users.hal.authorizedKeys;
       };
 
@@ -52,6 +54,7 @@
       base
       git
     ];
+    sops.defaultSopsFile = ../../secrets/users/hal.yaml;
     home.username = config.flake.meta.users.hal.name;
     home.stateVersion = "26.05";
   };

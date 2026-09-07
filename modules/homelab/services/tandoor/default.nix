@@ -41,7 +41,6 @@ in
     clientName = "Tandoor Recipes";
     policy = "two_factor";
     redirectUris = [ "https://${hosts.recipes}/accounts/oidc/authelia/login/callback/" ];
-    secretName = "autheliaTandoorOidcSecret";
   };
 
   flake.modules.nixos.homelab-tandoor = {
@@ -105,50 +104,36 @@ in
       services.rclone.remotes = [ "koofr" ];
     };
 
-    services.onepassword-secrets.secrets = {
-      tandoorFDCApiKey = {
-        path = "/run/secrets/tandoor/fdc_api_key";
-        reference = "op://HomeLab/Tandoor/External API Keys/FDC";
+    sops.secrets = {
+      "tandoor/fdc_api_key" = {
         owner = tandoorUser;
         group = tandoorGroup;
       };
-      tandoorSecretKey = {
-        path = "/run/secrets/tandoor/secret_key";
-        reference = "op://HomeLab/Tandoor/Authentication/secret key";
+      "tandoor/secret_key" = {
         owner = tandoorUser;
         group = tandoorGroup;
       };
-      tandoorDbPassword = {
-        path = "/run/secrets/tandoor/db_password";
-        reference = "op://HomeLab/Tandoor/Database/password";
+      "tandoor/db_password" = {
         owner = tandoorUser;
         group = tandoorGroup;
       };
-      tandoorOidcClientSecret = {
-        path = "/run/secrets/tandoor/oidc_client_secret";
-        reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
+      "tandoor/oidc_client_secret" = {
         owner = tandoorUser;
         group = tandoorGroup;
       };
-      tandoorResendApiKey = {
-        path = "/run/secrets/tandoor/resend_api_key";
-        reference = "op://HomeLab/Tandoor/Resend/api key";
+      "tandoor/resend_api_key" = {
         owner = tandoorUser;
         group = tandoorGroup;
       };
-      backupTandoorEncryptionKey = {
-        path = "/run/secrets/tandoor/backup_encryption_key";
-        reference = "op://HomeLab/Backup/Tandoor/password";
+      "tandoor/backup_encryption_key" = {
         owner = tandoorUser;
         group = tandoorGroup;
         mode = "0640";
       };
-      autheliaTandoorOidcSecret = {
-        path = "/run/secrets/authelia/tandoor_oidc_secret";
-        reference = "op://HomeLab/Tandoor/Authentication/OIDC client secret";
+      "authelia_oidc/tandoor" = {
         owner = config.flake.meta.users.authelia.name;
         group = config.flake.meta.users.authelia.primaryGroup;
-        services = [ "authelia-default.service" ];
+        restartUnits = [ "authelia-default.service" ];
       };
     };
 
@@ -175,7 +160,7 @@ in
         text = ''
           set -euo pipefail
           install -D -m 600 /dev/null ${oidcProvidersFile}
-          jq -n --arg secret "$(cat ${osConfig.services.onepassword-secrets.secretPaths.tandoorOidcClientSecret})" \
+          jq -n --arg secret "$(cat ${osConfig.sops.secrets."tandoor/oidc_client_secret".path})" \
             '{openid_connect: {SCOPE: ["openid", "profile", "email"], OAUTH_PKCE_ENABLED: true, APPS: [{provider_id: "authelia", name: "Authelia", client_id: "${oidcClientId}", secret: $secret, settings: {server_url: "https://${hosts.auth}/.well-known/openid-configuration", token_auth_method: "client_secret_post"}}]}}' \
             > ${oidcProvidersFile}
         '';
@@ -190,11 +175,11 @@ in
           schedule = "daily";
           retention = "standard";
           providers = [ "koofr" ];
-          encryptionKey = osConfig.services.onepassword-secrets.secretPaths.backupTandoorEncryptionKey;
+          encryptionKey = osConfig.sops.secrets."tandoor/backup_encryption_key".path;
           db = {
             type = "postgresql";
             user = "tandoor";
-            passwordFile = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
+            passwordFile = osConfig.sops.secrets."tandoor/db_password".path;
             container = {
               type = "podman";
               name = "tandoor-db";
@@ -224,7 +209,7 @@ in
           };
 
           secrets = {
-            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
+            POSTGRES_PASSWORD = osConfig.sops.secrets."tandoor/db_password".path;
           };
 
           extraConfig = {
@@ -273,10 +258,10 @@ in
           };
 
           secrets = {
-            EMAIL_HOST_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorResendApiKey;
-            FDC_API_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorFDCApiKey;
-            SECRET_KEY = osConfig.services.onepassword-secrets.secretPaths.tandoorSecretKey;
-            POSTGRES_PASSWORD = osConfig.services.onepassword-secrets.secretPaths.tandoorDbPassword;
+            EMAIL_HOST_PASSWORD = osConfig.sops.secrets."tandoor/resend_api_key".path;
+            FDC_API_KEY = osConfig.sops.secrets."tandoor/fdc_api_key".path;
+            SECRET_KEY = osConfig.sops.secrets."tandoor/secret_key".path;
+            POSTGRES_PASSWORD = osConfig.sops.secrets."tandoor/db_password".path;
           };
 
           extraConfig = {
