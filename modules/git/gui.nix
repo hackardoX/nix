@@ -10,9 +10,9 @@
       programs = {
         lazygit = {
           enable = true;
-          settings.git.pagers = [
-            { useExternalDiffGitConfig = true; }
-            { pager = "delta --dark --paging=never"; }
+          settings.git.diffRenderers = [
+            { type = "extDiff"; }
+            { command = "delta --dark --paging=never"; }
           ];
         };
       };
