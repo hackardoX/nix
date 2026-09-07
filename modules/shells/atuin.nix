@@ -1,5 +1,5 @@
 { lib, ... }: {
-  flake.modules.homeManager.shell = hmArgs: {
+  flake.modules.homeManager.shell = {
     programs = {
       atuin = {
         enableBashIntegration = true;

@@ -1,6 +1,6 @@
 {
   flake.modules.nixos.homelab-alerting =
-    { config, lib, ... }:
+    { lib, ... }:
     {
       options.services.ntfy-notify = {
         url = lib.mkOption {

@@ -13,7 +13,7 @@ in
       autheliaAppDir = "/var/lib/authelia";
       hashedSecretsDir = "${autheliaAppDir}/hashed-oidc-secrets";
 
-      oidcClients = lib.mapAttrsToList (name: client: {
+      oidcClients = lib.mapAttrsToList (name: _: {
         inherit name;
         secretPath = nixosArgs.config.sops.secrets."authelia_oidc/${name}".path;
       }) config.flake.meta.oidc-clients;

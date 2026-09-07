@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
+{ config, ... }:
 let
   reactiveResumeUid = 907;
   reactiveResumeGid = 907;
