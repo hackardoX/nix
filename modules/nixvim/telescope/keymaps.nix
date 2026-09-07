@@ -19,7 +19,7 @@ let
       }
       {
         key = "g";
-        action = "live_grep";
+        action = "live_grep_args";
       }
       {
         key = "b";

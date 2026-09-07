@@ -9,6 +9,8 @@
             "--hidden"
             "--glob"
             "!**/.git/*"
+            "--glob"
+            "!**/*-lock.*"
           ];
         in
         {
