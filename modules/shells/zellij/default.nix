@@ -417,7 +417,7 @@
                 SwitchFocus
               }
               bind "Alt g" {
-                Run "lazygit" {
+                Run "dexec" "lazygit" {
                   floating true
                   x "10%"
                   y "10%"
@@ -427,7 +427,7 @@
                 }
               }
               bind "Alt G" {
-                Run "gh-dash" {
+                Run "dexec" "gh-dash" {
                   floating true
                   close_on_exit true
                   x "5%"
