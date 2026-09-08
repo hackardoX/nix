@@ -6,13 +6,13 @@
     name = "aaccardo";
     uid = 501;
     authorizedKeys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 aaccardo"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323"
     ];
 
     git = {
       name = "Andrea Accardo";
       email = config.flake.lib.fromBase64 "YW5kcmVhLmFjY2FyZG9AcHJvdG9uLmNo";
-      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMF5Ey29sIgWi0ItTYK+/SBSFnH7uVjp3Km7ZOKZXNyF andrea.accardo@proton.ch";
+      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMF5Ey29sIgWi0ItTYK+/SBSFnH7uVjp3Km7ZOKZXNyF";
     };
   };
 
