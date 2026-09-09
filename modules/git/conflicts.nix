@@ -3,8 +3,7 @@
     programs = {
       git = {
         settings = {
-          merge.tool = "nvimdiff";
-          merge.conflictstyle = "zdiff3";
+          pager.diff = "diffnav";
           rerere.enabled = true;
         };
       };

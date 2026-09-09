@@ -49,7 +49,7 @@ let
           [
             {
               path = fullPath;
-              name = name;
+              inherit name;
             }
           ]
         else
@@ -128,7 +128,7 @@ let
           bareMatches = builtins.filter (m: m != null) (map (l: builtins.match barePattern l) allBlockLines);
         in
         map (m: {
-          class = wi.class;
+          inherit (wi) class;
           name = builtins.elemAt m 0;
         }) bareMatches;
 
@@ -389,7 +389,7 @@ let
           importNames = lib.unique (map (i: i.name) imports);
         in
         map (d: {
-          name = d.name;
+          inherit (d) name;
           deps = importNames;
         }) defs
       ) parsedFiles;
