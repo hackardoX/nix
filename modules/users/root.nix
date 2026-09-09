@@ -8,7 +8,7 @@
   };
 
   flake.modules.nixos.root = nixosArgs: {
-    sops.secrets."hashed_password" = {
+    sops.secrets."root/hashed_password" = {
       sopsFile = ../../secrets/users/root.yaml;
       neededForUsers = true;
     };
@@ -16,7 +16,7 @@
     users.users.${config.flake.meta.users.root.name} = {
       inherit (config.flake.meta.users.root) description uid;
       isNormalUser = false;
-      hashedPasswordFile = nixosArgs.config.sops.secrets."hashed_password".path;
+      hashedPasswordFile = nixosArgs.config.sops.secrets."root/hashed_password".path;
     };
   };
 }
