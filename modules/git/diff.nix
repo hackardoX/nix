@@ -15,17 +15,16 @@
       git.settings = {
         diff.algorithm = "histogram";
         difftool = {
+          prompt = false;
           delta = {
             name = "Delta";
             trustExitCode = true;
-            cmd = "delta $MERGED $LOCAL abcdef1 100644 $REMOTE abcdef2 100644";
-            prompt = false;
+            cmd = "delta $MERGED $LOCAL $REMOTE";
           };
           difft = {
             name = "Difftastic";
             trustExitCode = true;
             cmd = "difft $MERGED $LOCAL abcdef1 100644 $REMOTE abcdef2 100644";
-            prompt = false;
           };
         };
       };
