@@ -10,7 +10,7 @@
     sops.age.keyFile = "/var/lib/sops/age-key.txt";
   };
 
-  flake.modules.homeManager.base = hmArgs: {
+  flake.modules.homeManager.base = {
     imports = [ inputs.sops-nix.homeManagerModules.default ];
     sops.age.keyFile = "/var/lib/sops/age/keys.txt";
   };
