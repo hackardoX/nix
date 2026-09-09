@@ -1,135 +1,85 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'config:recommended',
-    'schedule:weekly',
-  ],
-  "enabledManagers": ["regex", "github-actions"],
-  "labels": ["dependencies", "merge-queue"],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": ["^modules/homelab/.*\\.nix$"],
-      "matchStrings": [
-        "image = \"(?<depName>[^\"]+?)(:(?<currentValue>[^@\"]+))?(?:@(?<currentDigest>sha256:[a-f0-9]+))?\";"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "docker"
-    }
-  ],
-  labels: [
-    'dependencies',
-    'merge-queue',
-  ],
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", "schedule:weekly"],
+  enabledManagers: ["regex", "github-actions"],
+  labels: ["dependencies", "merge-queue"],
   customManagers: [
     {
-      customType: 'regex',
-      managerFilePatterns: [
-        '/^modules/homelab/.*\\.nix$/',
-      ],
+      customType: "regex",
+      fileMatch: ["^modules/homelab/.*\\.nix$"],
       matchStrings: [
         'image = "(?<depName>[^"]+?)(:(?<currentValue>[^@"]+))?(?:@(?<currentDigest>sha256:[a-f0-9]+))?";',
       ],
-      datasourceTemplate: 'docker',
-      versioningTemplate: 'docker',
+      datasourceTemplate: "docker",
+      versioningTemplate: "docker",
+    },
+  ],
+  labels: ["dependencies", "merge-queue"],
+  customManagers: [
+    {
+      customType: "regex",
+      managerFilePatterns: ["/^modules/homelab/.*\\.nix$/"],
+      matchStrings: [
+        'image = "(?<depName>[^"]+?)(:(?<currentValue>[^@"]+))?(?:@(?<currentDigest>sha256:[a-f0-9]+))?";',
+      ],
+      datasourceTemplate: "docker",
+      versioningTemplate: "docker",
     },
   ],
   packageRules: [
     {
-      description: 'Never propose pre-release / non-official docker tags (beta, rc, alpha, unstable, ...)',
-      matchDatasources: [
-        'docker',
-      ],
-      allowedVersions: '!/(?i)(alpha|beta|rc\\d*|preview|unstable|nightly|edge|canary|snapshot)/',
+      description: "Never propose pre-release / non-official docker tags (beta, rc, alpha, unstable, ...)",
+      matchDatasources: ["docker"],
+      allowedVersions: "!/(?i)(alpha|beta|rc\\d*|preview|unstable|nightly|edge|canary|snapshot)/",
     },
     {
-      description: 'imresamu/postgis encodes its real version after the first hyphen (e.g. 17-3.6-bookworm), so strict docker versioning can\'t detect upgrades; fall back to loose versioning for this image',
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchPackageNames: [
-        '/imresamu\\/postgis/',
-      ],
-      versioning: 'loose',
+      description: "imresamu/postgis encodes its real version after the first hyphen (e.g. 17-3.6-bookworm), so strict docker versioning can't detect upgrades; fall back to loose versioning for this image",
+      matchManagers: ["custom.regex"],
+      matchPackageNames: ["/imresamu\\/postgis/"],
+      versioning: "loose",
     },
     {
-      description: 'Label major docker updates so the AI review workflow can target them',
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchDatasources: [
-        'docker',
-      ],
-      matchUpdateTypes: [
-        'major',
-      ],
-      addLabels: [
-        'major',
-      ],
+      description: "Label major docker updates so the AI review workflow can target them",
+      matchManagers: ["custom.regex"],
+      matchDatasources: ["docker"],
+      matchUpdateTypes: ["major"],
+      addLabels: ["major"],
     },
     {
-      description: 'Group updates by service',
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/beszel/**',
-      ],
-      groupName: 'beszel',
+      description: "Group updates by service",
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/beszel/**"],
+      groupName: "beszel",
     },
     {
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/dawarich/**',
-      ],
-      groupName: 'dawarich',
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/dawarich/**"],
+      groupName: "dawarich",
     },
     {
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/homepage/**',
-      ],
-      groupName: 'homepage',
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/homepage/**"],
+      groupName: "homepage",
     },
     {
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/immich/**',
-      ],
-      groupName: 'immich',
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/immich/**"],
+      groupName: "immich",
     },
     {
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/reactive-resume/**',
-      ],
-      groupName: 'reactive-resume',
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/reactive-resume/**"],
+      groupName: "reactive-resume",
     },
     {
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/sure-finance/**',
-      ],
-      groupName: 'sure-finance',
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/sure-finance/**"],
+      groupName: "sure-finance",
     },
     {
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchFileNames: [
-        'modules/homelab/services/tandoor/**',
-      ],
-      groupName: 'tandoor',
+      matchManagers: ["custom.regex"],
+      matchFileNames: ["modules/homelab/services/tandoor/**"],
+      groupName: "tandoor",
     },
   ],
 }
