@@ -4,9 +4,18 @@
     'config:recommended',
     'schedule:weekly',
   ],
-  enabledManagers: [
-    'custom.regex',
-    'github-actions',
+  "enabledManagers": ["regex", "github-actions"],
+  "labels": ["dependencies", "merge-queue"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^modules/homelab/.*\\.nix$"],
+      "matchStrings": [
+        "image = \"(?<depName>[^\"]+?)(:(?<currentValue>[^@\"]+))?(?:@(?<currentDigest>sha256:[a-f0-9]+))?\";"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
   ],
   labels: [
     'dependencies',
@@ -14,15 +23,21 @@
   ],
   customManagers: [
     {
-      customType: 'regex',
-      managerFilePatterns: [
-        '/^modules/homelab/.*\\.nix$/',
-      ],
-      matchStrings: [
-        'image = "(?<depName>[^"]+?)(:(?<currentValue>[^@"]+))?(?:@(?<currentDigest>sha256:[a-f0-9]+))?";',
-      ],
-      datasourceTemplate: 'docker',
-      versioningTemplate: 'loose',
+      "description": "Never propose pre-release / non-official docker tags (beta, rc, alpha, unstable, ...)",
+      "matchDatasources": ["docker"],
+      "allowedVersions": "!/(?i)(alpha|beta|rc\\d*|preview|unstable|nightly|edge|canary|snapshot)/"
+    },
+    {
+      "description": "imresamu/postgis encodes its real version after the first hyphen (e.g. 17-3.6-bookworm), so strict docker versioning can't detect upgrades; fall back to loose versioning for this image",
+      "matchManagers": ["regex"],
+      "matchPackageNames": ["/imresamu\\/postgis/"],
+      "versioning": "loose"
+    },
+    {
+      "description": "Group updates by service",
+      "matchManagers": ["regex"],
+      "matchPaths": ["modules/homelab/services/beszel/**"],
+      "groupName": "beszel"
     },
   ],
   packageRules: [

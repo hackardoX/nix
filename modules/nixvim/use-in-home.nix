@@ -9,9 +9,14 @@
     hmArgs@{ pkgs, ... }:
     let
       system = pkgs.stdenv.hostPlatform.system;
+      username = hmArgs.config.home.username;
+      userNixvimModule = config.flake.modules.nixvim.${username} or { };
       nixvim = inputs.nixvim.lib.nixvim.modules.buildNixvimWith {
         inherit system;
-        modules = [ config.flake.modules.nixvim.dev ];
+        modules = [
+          config.flake.modules.nixvim.dev
+          userNixvimModule
+        ];
         extraSpecialArgs.homeConfig = hmArgs.config;
       };
     in

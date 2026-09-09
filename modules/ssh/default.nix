@@ -108,18 +108,21 @@ in
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
-          settings."*" = {
-            addKeysToAgent = "yes";
-            compression = true;
-            controlMaster = "auto";
-            controlPersist = "30m";
-            forwardAgent = false;
-            hashKnownHosts = true;
-            identitiesOnly = true;
-            identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/id_ed25519";
-            serverAliveInterval = 60;
-            setEnv = "TERM=xterm-256color";
-          };
+          settings = {
+            "*" = {
+              addKeysToAgent = "yes";
+              compression = true;
+              controlMaster = "auto";
+              controlPersist = "30m";
+              forwardAgent = false;
+              hashKnownHosts = true;
+              identitiesOnly = true;
+              identityFile = "${hmArgs.config.home.homeDirectory}/.ssh/id_ed25519";
+              serverAliveInterval = 60;
+              setEnv = "TERM=xterm-256color";
+            };
+          }
+          // hmArgs.config.ssh.extraHosts;
           extraConfig = ''
             StreamLocalBindUnlink yes
           ''
@@ -172,7 +175,6 @@ in
             };
           }
         )
-        |> lib.concat [ hmArgs.config.ssh.extraHosts ]
         |> lib.mkMerge;
     };
 }

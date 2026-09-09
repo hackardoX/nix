@@ -8,19 +8,20 @@
   };
 
   flake.modules.homeManager.proton-pass =
-    { config, pkgs, ... }:
+    hmArgs@{ pkgs, ... }:
     let
-      protonPassAgentSocketPath =
-        if pkgs.stdenv.isDarwin then
-          "$(${pkgs.getconf}/bin/getconf DARWIN_USER_TEMP_DIR)/proton-pass-agent"
-        else
-          "${config.xdg.runtimeDir}/proton-pass-agent";
+      protonPassAgentSocketPath = "${hmArgs.config.home.homeDirectory}/.ssh/proton-pass-ssh-agent.sock";
     in
     {
-      home.packages = [ pkgs.proton-pass ];
+      home = {
+        packages = [ pkgs.proton-pass ];
+        sessionVariables = {
+          SSH_AUTH_SOCK = protonPassAgentSocketPath;
+        };
+      };
       services.proton-pass-agent.enable = true;
       ssh.extraConfig = ''
-        IdentityAgent ${protonPassAgentSocketPath}
+        IdentityAgent "${protonPassAgentSocketPath}"
       '';
       programs.git.signing.signer = "${pkgs.openssh}/bin/ssh-keygen";
     };

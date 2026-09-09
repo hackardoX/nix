@@ -17,21 +17,13 @@
 
         settings = {
           plugin = {
-            prepend_preloaders =
-              let
-                multiFileTypes = [
-                  "csv"
-                  "tsv"
-                  "json"
-                  "parquet"
-                  "xlsx"
-                ];
-              in
-              map (ext: {
-                url = "*.${ext}";
+            prepend_preloaders = [
+              {
+                url = "*.{csv,tsv,json,parquet,xlsx}";
                 run = "duckdb";
                 multi = false;
-              }) multiFileTypes;
+              }
+            ];
 
             prepend_previewers =
               let

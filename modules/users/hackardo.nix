@@ -8,7 +8,7 @@
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
     description = "Andrea Accardo";
     name = "hackardo";
-    uid = 501;
+    uid = 502;
     authorizedKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 hackardo"
     ];

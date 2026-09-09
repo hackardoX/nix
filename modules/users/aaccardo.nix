@@ -1,25 +1,26 @@
 { config, ... }:
 {
   flake.meta.users.aaccardo = {
-    email = config.flake.lib.fromBase64 "YWFjY2FyZG9AcHJvdG9uLmNoCg==";
+    email = config.flake.lib.fromBase64 "YW5kcmVhLmFjY2FyZG9AcHJvdG9uLmNo";
     description = "Andrea Accardo";
     name = "aaccardo";
-    uid = 502;
+    uid = 501;
     authorizedKeys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323 aaccardo"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICyyfmn+7pOkf7UXgWV6BzceLpJk49AT07XgCnnbd323"
     ];
 
     git = {
-      name = "aaccardo";
-      email = config.flake.lib.fromBase64 "YWFjY2FyZG9AcHJvdG9uLmNoCg==";
-      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@git";
-      # TODO: Add an option to setup the password manager to use for git signing
+      name = "Andrea Accardo";
+      email = config.flake.lib.fromBase64 "YW5kcmVhLmFjY2FyZG9AcHJvdG9uLmNo";
+      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMF5Ey29sIgWi0ItTYK+/SBSFnH7uVjp3Km7ZOKZXNyF";
     };
   };
 
   flake.modules.darwin.aaccardo =
     { pkgs, ... }:
     {
+      imports = [ config.flake.modules.darwin.web-browsers ];
+
       nix.settings.allowed-users = [ config.flake.meta.users.aaccardo.name ];
 
       users.users.${config.flake.meta.users.aaccardo.name} = {
@@ -39,16 +40,16 @@
             small = true;
           };
         }
-        "/System/Applications/Proton Mail.app"
-        "/System/Applications/Proton Meet.app"
-        "/System/Applications/Proton Pass.app"
-        "/System/Applications/Proton VPN.app"
+        "/Applications/Proton Mail.app"
+        "/Applications/Proton Meet.app"
+        "/Applications/Proton Pass.app"
+        "/Applications/ProtonVPN.app"
         {
           spacer = {
             small = true;
           };
         }
-        "/System/Applications/Slack.app"
+        "/Applications/Slack.app"
         {
           spacer = {
             small = true;
@@ -77,16 +78,20 @@
       proton-pass
       shell
       theme
+      web-browsers
     ];
     sops.defaultSopsFile = ../../secrets/users/aaccardo.yaml;
     home.username = config.flake.meta.users.aaccardo.name;
     home.stateVersion = "24.11";
     home.file = {
       ".ssh/github_authorisation.pub".text = ''
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@github.com
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOVvZgJL1bWEUaEkhZ6AzvBIr8qQLXSx+5mzUcH9GhMg
+      '';
+      ".ssh/gitlab_authorisation.pub".text = ''
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA4HeZAbgzn1cQNXg7M0a6+VqP4WCnG6X6O63rZRNtBR  
       '';
       ".ssh/git_signature.pub".text = ''
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@git
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMF5Ey29sIgWi0ItTYK+/SBSFnH7uVjp3Km7ZOKZXNyF 
       '';
     };
   };

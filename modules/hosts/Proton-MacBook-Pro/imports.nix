@@ -5,7 +5,6 @@
       aaccardo
       base
       dev
-      media
       proton-pass
     ];
 

@@ -23,7 +23,7 @@
         diagram-with-secrets = pkgs.writeText "module-diagram.md" "```mermaid\n${diagramContent true}\n```\n";
       };
 
-      linuxPackages = lib.optionalAttrs pkgs.stdenv.isLinux {
+      linuxPackages = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         diagram-svg =
           pkgs.runCommand "module-diagram.svg"
             {

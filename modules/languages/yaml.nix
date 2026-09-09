@@ -1,6 +1,4 @@
 { lib, ... }: {
-  perSystem.treefmt.programs.yamlfmt.enable = true;
-
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {

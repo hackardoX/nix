@@ -7,11 +7,16 @@
     uid = 0;
   };
 
-  flake.modules.nixos.root = {
+  flake.modules.nixos.root = nixosArgs: {
+    sops.secrets."root/hashed_password" = {
+      sopsFile = ../../secrets/users/root.yaml;
+      neededForUsers = true;
+    };
+
     users.users.${config.flake.meta.users.root.name} = {
       inherit (config.flake.meta.users.root) description uid;
       isNormalUser = false;
-      hashedPassword = "$6$bmMY3k2VAqr5sg2I$C14qsnZx7xxTs.XxTyL7/hYKsq4cjEfzibmEjqQQMc/2.fmt.N6qqhtGa1ckqpdqdnzurboSeZ/F/F4DuzySM/";
+      hashedPasswordFile = nixosArgs.config.sops.secrets."root/hashed_password".path;
     };
   };
 }

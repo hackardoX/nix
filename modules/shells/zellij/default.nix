@@ -58,11 +58,23 @@
 
             pane {
               bind "n" {
-                NewPane
+                NewPane "stacked"
                 SwitchToMode "Locked"
               }
-              bind "d" {
+              bind "h" {
+                NewPane "Left"
+                SwitchToMode "Locked"
+              }
+              bind "j" {
                 NewPane "Down"
+                SwitchToMode "Locked"
+              }
+              bind "k" {
+                NewPane "Up"
+                SwitchToMode "Locked"
+              }
+              bind "l" {
+                NewPane "Right"
                 SwitchToMode "Locked"
               }
               bind "x" {
@@ -301,7 +313,12 @@
                 SwitchToMode "Locked"
               }
               bind "Alt n" {
-                NewPane
+                NewPane "stacked"
+                SwitchToMode "Locked"
+              }
+              bind "Alt Shift n" {
+                NewTab
+                SwitchToMode "Locked"
               }
               bind "Alt h" "Alt Left" {
                 MoveFocusOrTab "Left"
@@ -378,25 +395,26 @@
             }
 
             shared {
-              bind "Alt h" "Alt Left" {
+              bind "Alt Left" {
                 MoveFocus "Left"
-                SwitchToMode "Locked"
               }
-              bind "Alt l" "Alt Right" {
+              bind "Alt Right" {
                 MoveFocus "Right"
-                SwitchToMode "Locked"
               }
-              bind "Alt j" "Alt Down" {
+              bind "Alt Down" {
                 MoveFocus "Down"
-                SwitchToMode "Locked"
               }
-              bind "Alt k" "Alt Up" {
+              bind "Alt Up" {
                 MoveFocus "Up"
-                SwitchToMode "Locked"
+              }
+              bind "Alt Shift Left" {
+                GoToPreviousTab
+              }
+              bind "Alt Shift Right" {
+                GoToNextTab
               }
               bind "Alt p" {
                 SwitchFocus
-                SwitchToMode "Locked"
               }
               bind "Alt g" {
                 Run "lazygit" {
@@ -449,6 +467,7 @@
           default_mode "locked"
           on_force_close "detach"
           pane_frames false
+          stacked_pane_list false
         '';
       };
     };
