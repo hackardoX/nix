@@ -12,7 +12,8 @@
         deploy
         homelab
         impermanence
-        root
+        # TODO: add root sops secret
+        # root
         ssh
         sudo
       ];
