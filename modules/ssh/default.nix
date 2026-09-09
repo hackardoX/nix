@@ -26,6 +26,12 @@ in
           type = lib.types.str;
           default = "";
         };
+        knownHostsFiles = lib.mkOption {
+          type = lib.types.listOf lib.types.path;
+          description = "Extra global known_hosts files to trust, in addition to /etc/ssh/ssh_known_hosts.";
+          default = [ ];
+          example = [ "/run/secrets/rendered/forge-known-hosts" ];
+        };
         extraHosts = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
@@ -126,6 +132,9 @@ in
           extraConfig = ''
             StreamLocalBindUnlink yes
           ''
+          + lib.optionalString (hmArgs.config.ssh.knownHostsFiles != [ ]) ''
+            GlobalKnownHostsFile /etc/ssh/ssh_known_hosts ${lib.concatStringsSep " " hmArgs.config.ssh.knownHostsFiles}
+          ''
           + hmArgs.config.ssh.extraConfig;
         };
 
@@ -157,7 +166,7 @@ in
     };
 
   flake.modules.homeManager.ssh =
-    hmArgs@{ ... }:
+    hmArgs:
     {
       programs.ssh.settings =
         myReachableHosts
