@@ -8,7 +8,8 @@
   };
 
   flake.modules.nixos.root = nixosArgs: {
-    sops.secrets."root/hashed_password" = {
+    sops.secrets."hashed_password" = {
+      sopsFile = ../../secrets/users/root.yaml;
       neededForUsers = true;
     };
 

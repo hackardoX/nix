@@ -50,6 +50,12 @@ creation_rules:
           - *Proton-MacBook-Pro
 
   # User secrets: specific host + admin
+  - path_regex: secrets/users/root\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *HomeLab
+          - *Hetzner-HomeLab
   - path_regex: secrets/users/hal\.yaml$
     key_groups:
       - age:
