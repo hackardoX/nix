@@ -22,7 +22,9 @@ in
         settings.lsp = {
           typescript = {
             command = [
-              (lib.getExe pkgs.typescript)
+              (lib.getExe' pkgs.typescript "tsgo")
+              "--lsp"
+              "--stdio"
             ];
             extensions = [
               ".ts"
