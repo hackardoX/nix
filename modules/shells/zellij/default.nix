@@ -203,39 +203,6 @@
               }
             }
 
-            scroll {
-              bind "e" {
-                EditScrollback
-                SwitchToMode "Locked"
-              }
-              bind "s" {
-                SwitchToMode "EnterSearch"
-                SearchInput
-              }
-              bind "G" {
-                ScrollToBottom
-                SwitchToMode "Locked"
-              }
-              bind "j" "Down" {
-                ScrollDown
-              }
-              bind "k" "Up" {
-                ScrollUp
-              }
-              bind "Ctrl f" "PageDown" "Right" "l" {
-                PageScrollDown
-              }
-              bind "Ctrl b" "PageUp" "Left" "h" {
-                PageScrollUp
-              }
-              bind "d" {
-                HalfPageScrollDown
-              }
-              bind "u" {
-                HalfPageScrollUp
-              }
-            }
-
             search {
               bind "j" "Down" {
                 ScrollDown
@@ -258,7 +225,7 @@
               bind "n" {
                 Search "down"
               }
-              bind "p" {
+              bind "N" {
                 Search "up"
               }
               bind "c" {
@@ -269,6 +236,10 @@
               }
               bind "o" {
                 SearchToggleOption "WholeWord"
+              }
+              bind "Enter" {
+                SwitchToMode "EnterSearch"
+                SearchInput
               }
             }
 
@@ -370,9 +341,9 @@
               }
             }
 
-            shared_except "scroll" "locked" "entersearch" "renametab" "renamepane" {
-              bind "l" {
-                SwitchToMode "Scroll"
+            shared_except "search" "locked" "entersearch" "renametab" "renamepane" {
+              bind "s" {
+                SwitchToMode "Search"
               }
             }
 
