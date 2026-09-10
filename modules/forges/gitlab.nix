@@ -2,10 +2,6 @@
   flake.modules.homeManager.dev = hmArgs: {
     config = {
       sops.secrets."gitlab/host" = { };
-      sops.secrets."gitlab/host_key" = { };
-      sops.templates."forge-gitlab".content = "${hmArgs.config.sops.placeholder."gitlab/host"} ${
-        hmArgs.config.sops.placeholder."gitlab/host_key"
-      }";
       sops.templates."forge-gitlab-config".content = ''
         Host ${hmArgs.config.sops.placeholder."gitlab/host"}
             HostName ${hmArgs.config.sops.placeholder."gitlab/host"}

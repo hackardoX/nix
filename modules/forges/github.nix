@@ -2,10 +2,6 @@
   flake.modules.homeManager.dev = hmArgs: {
     config = {
       sops.secrets."github/host" = { };
-      sops.secrets."github/host_key" = { };
-      sops.templates."forge-github".content = "${hmArgs.config.sops.placeholder."github/host"} ${
-        hmArgs.config.sops.placeholder."github/host_key"
-      }";
       sops.templates."forge-github-config".content = ''
         Host ${hmArgs.config.sops.placeholder."github/host"}
             HostName ${hmArgs.config.sops.placeholder."github/host"}
