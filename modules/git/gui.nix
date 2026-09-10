@@ -3,17 +3,18 @@
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
-        delta
         diffnav
       ];
 
       programs = {
         lazygit = {
           enable = true;
-          settings.git.diffRenderers = [
-            { type = "extDiff"; }
-            { command = "delta --dark --paging=never"; }
-          ];
+          settings = {
+            git.diffRenderers = [
+              { type = "extDiff"; }
+              { command = "delta --dark --paging=never"; }
+            ];
+          };
         };
       };
     };

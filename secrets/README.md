@@ -14,10 +14,10 @@ Each host has a dedicated age key stored at `/var/lib/sops/age-key.txt`.
 
 ### Key Locations
 
-| Host | Public Key | Private Key Location |
-|------|-----------|---------------------|
-| HomeLab | `age1rua8fvjun2eq6cgrece2g5995ajezn3l2d0q5nptc855vffkhyrs6v8u6z` | `/var/lib/sops/age-key.txt` |
-| Hetzner-HomeLab | `age1e8rcwtgz6d0meurr73n4ssxvt7ej496ezxqdsafc2vcj93spwvgqmrgs80` | `/var/lib/sops/age-key.txt` |
+| Host               | Public Key                                                       | Private Key Location        |
+| ------------------ | ---------------------------------------------------------------- | --------------------------- |
+| HomeLab            | `age1rua8fvjun2eq6cgrece2g5995ajezn3l2d0q5nptc855vffkhyrs6v8u6z` | `/var/lib/sops/age-key.txt` |
+| Hetzner-HomeLab    | `age1e8rcwtgz6d0meurr73n4ssxvt7ej496ezxqdsafc2vcj93spwvgqmrgs80` | `/var/lib/sops/age-key.txt` |
 | Andrea-MacBook-Air | `age1nd2nc46ustuylq8zt90a2lv7t9r0epqsamsfq3saffnzfnh9au7q2cvkf9` | `/var/lib/sops/age-key.txt` |
 | Proton-MacBook-Pro | `age1nycq6ranp0s4w5nqpd0ge80de85sq7n83fnzw740mpt89kpa8cfq3zauzf` | `/var/lib/sops/age-key.txt` |
 
@@ -45,7 +45,7 @@ Add the public key to the appropriate host entry in `.sops.yaml`:
 
 ```yaml
 keys:
-  - &HomeLab age1...  # Replace with actual public key
+  - &HomeLab age1... # Replace with actual public key
 ```
 
 ### 4. Encrypt Secrets

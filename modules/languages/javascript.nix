@@ -17,12 +17,14 @@ in
 
       programs.opencode = {
         extraPackages = with pkgs; [
-          typescript-go
+          typescript
         ];
         settings.lsp = {
           typescript = {
             command = [
-              (lib.getExe pkgs.typescript-go)
+              (lib.getExe' pkgs.typescript "tsgo")
+              "--lsp"
+              "--stdio"
             ];
             extensions = [
               ".ts"
@@ -45,7 +47,7 @@ in
       extraPackages = with pkgs; [
         biome
         eslint_d
-        typescript-go
+        typescript
       ];
       plugins = {
         conform-nvim = {

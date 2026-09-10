@@ -156,25 +156,23 @@ in
       };
     };
 
-  flake.modules.homeManager.ssh =
-    hmArgs@{ ... }:
-    {
-      programs.ssh.settings =
-        myReachableHosts
-        |> lib.mapAttrsToList (
-          _name: host: {
-            "${host.config.networking.fqdn}" = {
-              hostname = host.config.networking.fqdn;
-              identityFile =
-                let
-                  hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.config.networking.hostName);
-                in
-                hmArgs.config.sops.secrets."ssh/${hostName}.pub".path;
-              port = builtins.head host.config.services.openssh.ports;
-              user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
-            };
-          }
-        )
-        |> lib.mkMerge;
-    };
+  flake.modules.homeManager.ssh = hmArgs: {
+    programs.ssh.settings =
+      myReachableHosts
+      |> lib.mapAttrsToList (
+        _name: host: {
+          "${host.config.networking.fqdn}" = {
+            hostname = host.config.networking.fqdn;
+            identityFile =
+              let
+                hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.config.networking.hostName);
+              in
+              hmArgs.config.sops.secrets."ssh/${hostName}.pub".path;
+            port = builtins.head host.config.services.openssh.ports;
+            user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
+          };
+        }
+      )
+      |> lib.mkMerge;
+  };
 }

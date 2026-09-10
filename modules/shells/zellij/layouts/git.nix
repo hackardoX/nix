@@ -7,13 +7,15 @@
         }
         pane split_direction="vertical" {
           pane {
-            command "lazygit"
+            command "dexec"
+            args "lazygit"
             size "60%"
           }
           pane split_direction="horizontal" {
             pane { }
             pane {
-              command "gh-dash"
+              command "dexec"
+              args "gh-dash"
             }
           }
         }

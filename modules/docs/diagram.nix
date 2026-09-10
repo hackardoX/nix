@@ -12,7 +12,7 @@
     let
       diagramContent =
         showSecrets:
-        import ../scripts/generate-diagram.nix {
+        import ../../scripts/generate-diagram.nix {
           inherit lib showSecrets;
           modulesDir = "${self}/modules";
         };

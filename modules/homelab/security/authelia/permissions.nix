@@ -56,10 +56,10 @@
       services.authelia.instances.default.settings.identity_providers.oidc.authorization_policies =
         lib.mapAttrs
           (_: policy: {
-            default_policy = policy.default_policy;
+            inherit (policy) default_policy;
             rules = map (rule: {
-              subject = rule.subject;
-              policy = rule.policy;
+              inherit (rule) subject;
+              inherit (rule) policy;
             }) policy.rules;
           })
           config.flake.meta.authelia-policies;

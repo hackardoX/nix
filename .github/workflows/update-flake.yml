@@ -33,6 +33,9 @@ jobs:
             echo "email=$id+$name@users.noreply.github.com"
           } >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v7
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.ASAHI_FIRMWARE_DEPLOY_KEY }}
       - name: Setup Git
         env:
           name: ${{ steps.user-info.outputs.name || 'github-actions[bot]' }}
