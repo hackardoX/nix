@@ -26,12 +26,6 @@ in
           type = lib.types.str;
           default = "";
         };
-        knownHostsFiles = lib.mkOption {
-          type = lib.types.listOf lib.types.path;
-          description = "Extra global known_hosts files to trust, in addition to /etc/ssh/ssh_known_hosts.";
-          default = [ ];
-          example = [ "/run/secrets/rendered/forge-known-hosts" ];
-        };
         extraHosts = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
@@ -132,9 +126,6 @@ in
           extraConfig = ''
             StreamLocalBindUnlink yes
           ''
-          + lib.optionalString (hmArgs.config.ssh.knownHostsFiles != [ ]) ''
-            GlobalKnownHostsFile /etc/ssh/ssh_known_hosts ${lib.concatStringsSep " " hmArgs.config.ssh.knownHostsFiles}
-          ''
           + hmArgs.config.ssh.extraConfig;
         };
 
@@ -165,25 +156,23 @@ in
       };
     };
 
-  flake.modules.homeManager.ssh =
-    hmArgs:
-    {
-      programs.ssh.settings =
-        myReachableHosts
-        |> lib.mapAttrsToList (
-          _name: host: {
-            "${host.config.networking.fqdn}" = {
-              hostname = host.config.networking.fqdn;
-              identityFile =
-                let
-                  hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.config.networking.hostName);
-                in
-                hmArgs.config.sops.secrets."ssh/${hostName}.pub".path;
-              port = builtins.head host.config.services.openssh.ports;
-              user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
-            };
-          }
-        )
-        |> lib.mkMerge;
-    };
+  flake.modules.homeManager.ssh = hmArgs: {
+    programs.ssh.settings =
+      myReachableHosts
+      |> lib.mapAttrsToList (
+        _name: host: {
+          "${host.config.networking.fqdn}" = {
+            hostname = host.config.networking.fqdn;
+            identityFile =
+              let
+                hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.config.networking.hostName);
+              in
+              hmArgs.config.sops.secrets."ssh/${hostName}.pub".path;
+            port = builtins.head host.config.services.openssh.ports;
+            user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
+          };
+        }
+      )
+      |> lib.mkMerge;
+  };
 }

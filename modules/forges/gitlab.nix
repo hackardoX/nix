@@ -3,7 +3,6 @@
     config = {
       sops.secrets."gitlab/host" = { };
       sops.secrets."gitlab/host_key" = { };
-      ssh.knownHostsFiles = [ hmArgs.config.sops.templates."forge-gitlab".path ];
       sops.templates."forge-gitlab".content = "${hmArgs.config.sops.placeholder."gitlab/host"} ${
         hmArgs.config.sops.placeholder."gitlab/host_key"
       }";
