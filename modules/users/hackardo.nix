@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   ...
 }:
@@ -84,7 +85,7 @@
       ssh
       theme
     ];
-    sops.defaultSopsFile = ../../secrets/users/hackardo.yaml;
+    sops.defaultSopsFile = "${inputs.self}/secrets/users/hackardo.yaml";
     services.rclone.remotes = [
       "koofr"
       "gdrive"

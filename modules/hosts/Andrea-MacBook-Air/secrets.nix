@@ -1,7 +1,7 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   configurations.darwin.Andrea-MacBook-Air.module = {
-    sops.defaultSopsFile = ../../../secrets/hosts/Andrea-MacBook-Air/secrets.yaml;
+    sops.defaultSopsFile = "${inputs.self}/secrets/hosts/Andrea-MacBook-Air/secrets.yaml";
     sops.secrets = {
       "ssh/andrea_mac_book_air.pub" = {
         path = "/Users/${config.flake.meta.users.hackardo.name}/.ssh/andrea_mac_book_air.pub";

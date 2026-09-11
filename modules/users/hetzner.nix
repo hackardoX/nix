@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.meta.users.hetzner = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
@@ -11,11 +11,11 @@
     nixosArgs@{ pkgs, ... }:
     {
       sops.secrets."hetzner/hashed_password" = {
-        sopsFile = ../../secrets/users/hetzner.yaml;
+        sopsFile = "${inputs.self}/secrets/users/hetzner.yaml";
         neededForUsers = true;
       };
       sops.secrets."hetzner/authorized_key" = {
-        sopsFile = ../../secrets/users/hetzner.yaml;
+        sopsFile = "${inputs.self}/secrets/users/hetzner.yaml";
       };
 
       users.users.${config.flake.meta.users.hetzner.name} = {
@@ -34,7 +34,7 @@
 
   flake.modules.homeManager.hetzner = {
     imports = with config.flake.modules.homeManager; [ base ];
-    sops.defaultSopsFile = ../../secrets/users/hetzner.yaml;
+    sops.defaultSopsFile = "${inputs.self}/secrets/users/hetzner.yaml";
     home.username = config.flake.meta.users.hetzner.name;
     home.stateVersion = "26.05";
   };

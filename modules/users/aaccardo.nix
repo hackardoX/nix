@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.meta.users.aaccardo = {
     email = config.flake.lib.fromBase64 "YW5kcmVhLmFjY2FyZG9AcHJvdG9uLmNo";
@@ -71,7 +71,7 @@
       theme
       web-browsers
     ];
-    sops.defaultSopsFile = ../../secrets/users/aaccardo.yaml;
+    sops.defaultSopsFile = "${inputs.self}/secrets/users/aaccardo.yaml";
     home.username = config.flake.meta.users.aaccardo.name;
     home.stateVersion = "24.11";
   };

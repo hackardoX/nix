@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.meta.users.hal = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
@@ -11,14 +11,14 @@
     nixosArgs@{ pkgs, ... }:
     {
       sops.secrets."hal/hashed_password" = {
-        sopsFile = ../../secrets/users/hal.yaml;
+        sopsFile = "${inputs.self}/secrets/users/hal.yaml";
         neededForUsers = true;
       };
       sops.secrets."hal/authorized_key" = {
-        sopsFile = ../../secrets/users/hal.yaml;
+        sopsFile = "${inputs.self}/secrets/users/hal.yaml";
       };
       sops.secrets."hal/sudo_authorized_key" = {
-        sopsFile = ../../secrets/users/hal.yaml;
+        sopsFile = "${inputs.self}/secrets/users/hal.yaml";
       };
 
       nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];
@@ -45,7 +45,7 @@
       base
       git
     ];
-    sops.defaultSopsFile = ../../secrets/users/hal.yaml;
+    sops.defaultSopsFile = "${inputs.self}/secrets/users/hal.yaml";
     home.username = config.flake.meta.users.hal.name;
     home.stateVersion = "26.05";
   };
