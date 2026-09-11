@@ -23,7 +23,7 @@
       programs.ssh.includes = [ hmArgs.config.sops.templates."forge-gitlab-config".path ];
       programs.git.includes = [
         {
-          condition = "hasconfig:remote.*.url:git@gitlab.com:**";
+          condition = "hasconfig:remote.*.url:git@gitlab.com:*/**";
           path = hmArgs.config.sops.templates."git-gitlab-identity".path;
         }
         {
@@ -31,7 +31,7 @@
           path = hmArgs.config.sops.templates."git-gitlab-identity".path;
         }
         {
-          condition = "hasconfig:remote.*.url:ssh://git@gitlab.com:**";
+          condition = "hasconfig:remote.*.url:ssh://git@gitlab.com:*/**";
           path = hmArgs.config.sops.templates."git-gitlab-identity".path;
         }
       ];

@@ -23,7 +23,7 @@
       programs.ssh.includes = [ hmArgs.config.sops.templates."forge-github-config".path ];
       programs.git.includes = [
         {
-          condition = "hasconfig:remote.*.url:git@github.com:**";
+          condition = "hasconfig:remote.*.url:git@github.com:*/**";
           path = hmArgs.config.sops.templates."git-github-identity".path;
         }
         {
@@ -31,7 +31,7 @@
           path = hmArgs.config.sops.templates."git-github-identity".path;
         }
         {
-          condition = "hasconfig:remote.*.url:ssh://git@github.com:**";
+          condition = "hasconfig:remote.*.url:ssh://git@github.com:*/**";
           path = hmArgs.config.sops.templates."git-github-identity".path;
         }
       ];
