@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   ...
 }:
@@ -7,7 +6,6 @@
   flake.modules.homeManager.dev =
     hmArgs@{ pkgs, ... }:
     let
-      userGit = config.flake.meta.users.${hmArgs.config.home.username}.git;
       signatureKeyPath = "${hmArgs.config.home.homeDirectory}/.ssh/git_signature.pub";
     in
     {
@@ -17,7 +15,7 @@
             pkgs.writeShellScriptBin "prepare-commit-msg" ''
               echo "Signing off commit"
               ${lib.getExe hmArgs.config.programs.git.package} interpret-trailers --if-exists doNothing --trailer \
-              "Signed-off-by: ${userGit.name} <${userGit.email}>" \
+              "Signed-off-by: $(git config user.name) <$(git config user.email)>" \
               --in-place "$1"
             ''
           );
@@ -37,7 +35,8 @@
         mode = lib.mkDefault "0644";
       };
       sops.templates."allowed_signers".content = ''
-        ${userGit.email} ${hmArgs.config.sops.placeholder."git/signing_key"}
+        ${hmArgs.config.sops.placeholder."github/email"} ${hmArgs.config.sops.placeholder."git/signing_key"}
+        ${hmArgs.config.sops.placeholder."gitlab/email"} ${hmArgs.config.sops.placeholder."git/signing_key"}
       '';
     };
 }

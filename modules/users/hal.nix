@@ -5,11 +5,6 @@
     description = "HAL 9000";
     name = "hal";
     uid = 9000;
-
-    git = {
-      name = "aaccardo";
-      email = config.flake.lib.fromBase64 "YWFjY2FyZG9AcHJvdG9uLmNoCg==";
-    };
   };
 
   flake.modules.nixos.hal =

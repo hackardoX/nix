@@ -5,11 +5,6 @@
     description = "Andrea Accardo";
     name = "aaccardo";
     uid = 501;
-
-    git = {
-      name = "Andrea Accardo";
-      email = config.flake.lib.fromBase64 "YW5kcmVhLmFjY2FyZG9AcHJvdG9uLmNo";
-    };
   };
 
   flake.modules.darwin.aaccardo =
@@ -66,28 +61,18 @@
       ];
     };
 
-  flake.modules.homeManager.aaccardo =
-    hmArgs:
-    {
-      imports = with config.flake.modules.homeManager; [
-        base
-        dev
-        git
-        proton-pass
-        shell
-        theme
-        web-browsers
-      ];
-      sops.defaultSopsFile = ../../secrets/users/aaccardo.yaml;
-      home.username = config.flake.meta.users.aaccardo.name;
-      home.stateVersion = "24.11";
-      sops.secrets."github/authorization_key" = {
-        path = "${hmArgs.config.home.homeDirectory}/.ssh/github_authorisation.pub";
-        mode = "0644";
-      };
-      sops.secrets."gitlab/authorization_key" = {
-        path = "${hmArgs.config.home.homeDirectory}/.ssh/gitlab_authorisation.pub";
-        mode = "0644";
-      };
-    };
+  flake.modules.homeManager.aaccardo = {
+    imports = with config.flake.modules.homeManager; [
+      base
+      dev
+      git
+      proton-pass
+      shell
+      theme
+      web-browsers
+    ];
+    sops.defaultSopsFile = ../../secrets/users/aaccardo.yaml;
+    home.username = config.flake.meta.users.aaccardo.name;
+    home.stateVersion = "24.11";
+  };
 }

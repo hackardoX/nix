@@ -34,23 +34,6 @@
               default = config.name;
               description = "Primary group of the user, falling back to the user name.";
             };
-
-            git = lib.mkOption {
-              type = lib.types.submodule {
-                options = {
-                  name = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Git user name.";
-                  };
-
-                  email = lib.mkOption {
-                    type = lib.types.str;
-                    description = "Git user email.";
-                  };
-                };
-              };
-              description = "Git configuration for the user.";
-            };
           };
         }
       )

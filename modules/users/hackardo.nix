@@ -9,11 +9,6 @@
     description = "Andrea Accardo";
     name = "hackardo";
     uid = 502;
-
-    git = {
-      name = "hackardo";
-      email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
-    };
   };
 
   flake.modules.darwin.hackardo =
@@ -76,31 +71,25 @@
       ];
     };
 
-  flake.modules.homeManager.hackardo =
-    hmArgs:
-    {
-      imports = with config.flake.modules.homeManager; [
-        config.flake.modules.homeManager."1password"
-        base
-        dev
-        file-sync
-        git
-        github
-        media
-        shell
-        ssh
-        theme
-      ];
-      sops.defaultSopsFile = ../../secrets/users/hackardo.yaml;
-      services.rclone.remotes = [
-        "koofr"
-        "gdrive"
-      ];
-      home.username = config.flake.meta.users.hackardo.name;
-      home.stateVersion = "24.11";
-      sops.secrets."github/authorization_key" = {
-        path = "${hmArgs.config.home.homeDirectory}/.ssh/github_authorisation.pub";
-        mode = "0644";
-      };
-    };
+  flake.modules.homeManager.hackardo = {
+    imports = with config.flake.modules.homeManager; [
+      config.flake.modules.homeManager."1password"
+      base
+      dev
+      file-sync
+      git
+      github
+      media
+      shell
+      ssh
+      theme
+    ];
+    sops.defaultSopsFile = ../../secrets/users/hackardo.yaml;
+    services.rclone.remotes = [
+      "koofr"
+      "gdrive"
+    ];
+    home.username = config.flake.meta.users.hackardo.name;
+    home.stateVersion = "24.11";
+  };
 }
