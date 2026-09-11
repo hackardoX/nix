@@ -1,9 +1,14 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 {
   flake.modules.homeManager.dev =
     hmArgs@{ pkgs, ... }:
     let
       userGit = config.flake.meta.users.${hmArgs.config.home.username}.git;
+      signatureKeyPath = "${hmArgs.config.home.homeDirectory}/.ssh/git_signature.pub";
     in
     {
       programs.git = {
@@ -18,17 +23,21 @@
           );
         };
         signing = {
-          key = "${hmArgs.config.home.homeDirectory}/.ssh/git_signature.pub";
+          key = signatureKeyPath;
           format = "ssh";
           signByDefault = true;
         };
         settings = {
-          gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+          gpg.ssh.allowedSignersFile = hmArgs.config.sops.templates."allowed_signers".path;
         };
       };
 
-      home.file.".ssh/allowed_signers".text = ''
-        ${userGit.email} ${userGit.signingKey}
+      sops.secrets."git/signing_key" = {
+        path = signatureKeyPath;
+        mode = lib.mkDefault "0644";
+      };
+      sops.templates."allowed_signers".content = ''
+        ${userGit.email} ${hmArgs.config.sops.placeholder."git/signing_key"}
       '';
     };
 }

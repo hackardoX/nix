@@ -35,18 +35,6 @@
               description = "Primary group of the user, falling back to the user name.";
             };
 
-            authorizedKeys = lib.mkOption {
-              type = lib.types.listOf lib.types.str;
-              default = [ ];
-              description = "SSH public keys for the user.";
-            };
-
-            sudoAuthorizedKeys = lib.mkOption {
-              type = lib.types.listOf lib.types.str;
-              default = [ ];
-              description = "SSH public keys allowed to escalate to sudo.";
-            };
-
             git = lib.mkOption {
               type = lib.types.submodule {
                 options = {
@@ -58,11 +46,6 @@
                   email = lib.mkOption {
                     type = lib.types.str;
                     description = "Git user email.";
-                  };
-
-                  signingKey = lib.mkOption {
-                    type = lib.types.str;
-                    description = "SSH public key for signing commits.";
                   };
                 };
               };

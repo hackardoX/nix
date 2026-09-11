@@ -5,9 +5,6 @@
     description = "Hetzner HomeLab";
     name = "hetzner";
     uid = 1001;
-    authorizedKeys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu hetzner"
-    ];
   };
 
   flake.modules.nixos.hetzner =
@@ -17,6 +14,9 @@
         sopsFile = ../../secrets/users/hetzner.yaml;
         neededForUsers = true;
       };
+      sops.secrets."hetzner/authorized_key" = {
+        sopsFile = ../../secrets/users/hetzner.yaml;
+      };
 
       users.users.${config.flake.meta.users.hetzner.name} = {
         inherit (config.flake.meta.users.hetzner) description uid;
@@ -25,7 +25,6 @@
         shell = pkgs.zsh;
         hashedPasswordFile = nixosArgs.config.sops.secrets."hetzner/hashed_password".path;
         extraGroups = [ "wheel" ];
-        openssh.authorizedKeys.keys = config.flake.meta.users.hetzner.authorizedKeys;
       };
 
       users.groups.${config.flake.meta.users.hetzner.primaryGroup} = {
