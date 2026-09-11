@@ -1,30 +1,25 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.meta.users.hal = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
     description = "HAL 9000";
     name = "hal";
     uid = 9000;
-    authorizedKeys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOa3X9sTqDrEddYn5qxluMw6h5SzA5eC9UMnIDQNYCiV hal"
-    ];
-    sudoAuthorizedKeys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG3cs+qEbW36c2nX23roMaotYZGd0Lua5pxY+BbgW5B5 hal-sudo"
-    ];
-
-    git = {
-      name = "aaccardo";
-      email = config.flake.lib.fromBase64 "YWFjY2FyZG9AcHJvdG9uLmNoCg==";
-      signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIplaceholder aaccardo@git";
-    };
   };
 
   flake.modules.nixos.hal =
-    nixosArgs@{ pkgs, lib, ... }:
+    nixosArgs@{ pkgs, ... }:
     {
       sops.secrets."hal/hashed_password" = {
-        sopsFile = ../../secrets/users/hal.yaml;
+        sopsFile = "${inputs.self}/secrets/users/hal.yaml";
         neededForUsers = true;
+      };
+      sops.secrets."hal/authorized_key" = {
+        sopsFile = "${inputs.self}/secrets/users/hal.yaml";
+      };
+      sops.secrets."hal/sudo_authorized_key" = {
+        sopsFile = "${inputs.self}/secrets/users/hal.yaml";
+        path = "/etc/ssh/hal/authorized_sudo_keys";
       };
 
       nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];
@@ -36,16 +31,10 @@
         shell = pkgs.zsh;
         hashedPasswordFile = nixosArgs.config.sops.secrets."hal/hashed_password".path;
         extraGroups = [ "wheel" ];
-        openssh.authorizedKeys.keys = config.flake.meta.users.hal.authorizedKeys;
       };
 
       users.groups.${config.flake.meta.users.hal.primaryGroup} = {
         gid = config.flake.meta.users.hal.uid;
-      };
-
-      environment.etc."ssh/authorized_sudo_keys/hal" = {
-        text = lib.concatStringsSep "\n" config.flake.meta.users.hal.sudoAuthorizedKeys + "\n";
-        mode = "0644";
       };
     };
 
@@ -54,7 +43,7 @@
       base
       git
     ];
-    sops.defaultSopsFile = ../../secrets/users/hal.yaml;
+    sops.defaultSopsFile = "${inputs.self}/secrets/users/hal.yaml";
     home.username = config.flake.meta.users.hal.name;
     home.stateVersion = "26.05";
   };
