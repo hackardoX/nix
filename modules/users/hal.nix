@@ -19,6 +19,7 @@
       };
       sops.secrets."hal/sudo_authorized_key" = {
         sopsFile = "${inputs.self}/secrets/users/hal.yaml";
+        path = "/etc/ssh/hal/authorized_sudo_keys";
       };
 
       nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];
@@ -35,9 +36,6 @@
       users.groups.${config.flake.meta.users.hal.primaryGroup} = {
         gid = config.flake.meta.users.hal.uid;
       };
-
-      environment.etc."ssh/authorized_sudo_keys/hal".source =
-        nixosArgs.config.sops.secrets."hal/sudo_authorized_key".path;
     };
 
   flake.modules.homeManager.hal = {
