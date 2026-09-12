@@ -1,4 +1,3 @@
-{ config, ... }:
 {
   configurations.nixos.Hetzner-HomeLab.module = {
     boot = {
@@ -26,7 +25,9 @@
           ssh = {
             enable = true;
             port = 2222;
-            inherit (config.flake.meta.users.hetzner) authorizedKeys;
+            authorizedKeys = [
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfrZIUY652nVzjjhhhukZoU3RCdws951XOb1PKEWJu root@hetzner-initrd"
+            ];
             hostKeys = [
               "/etc/secrets/initrd/ssh_host_ed25519_key"
             ];

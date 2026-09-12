@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   ...
 }:
 {
@@ -8,11 +9,11 @@
 
     sops.secrets = {
       "rclone-sync/docs/password" = {
-        sopsFile = ../../secrets/shared/secrets.yaml;
+        sopsFile = "${inputs.self}/secrets/shared/secrets.yaml";
         path = "${hmArgs.config.home.homeDirectory}/.secrets/rclone-sync/Documents/password";
       };
       "rclone-sync/docs/salt" = {
-        sopsFile = ../../secrets/shared/secrets.yaml;
+        sopsFile = "${inputs.self}/secrets/shared/secrets.yaml";
         path = "${hmArgs.config.home.homeDirectory}/.secrets/rclone-sync/Documents/salt";
       };
     };

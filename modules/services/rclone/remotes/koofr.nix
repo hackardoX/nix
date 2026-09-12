@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
 let
   email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
 in
@@ -7,7 +12,7 @@ in
   flake.modules.darwin.rclone = { };
   flake.modules.homeManager.rclone = hmArgs: {
     sops.secrets."rclone/koofr/password" = {
-      sopsFile = ../../../../secrets/shared/secrets.yaml;
+      sopsFile = "${inputs.self}/secrets/shared/secrets.yaml";
     };
 
     programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {

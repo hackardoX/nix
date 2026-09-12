@@ -25,7 +25,7 @@
       pam = {
         rssh = {
           enable = true;
-          settings.auth_key_file = "/etc/ssh/authorized_sudo_keys/$ruser";
+          settings.auth_key_file = "/etc/ssh/$ruser/authorized_sudo_keys";
         };
         services = {
           sudo = {

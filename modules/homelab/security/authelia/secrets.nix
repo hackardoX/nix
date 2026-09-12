@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 let
   autheliaService = "authelia-default.service";
   autheliaUser = config.flake.meta.users.authelia.name;
@@ -28,7 +28,7 @@ in
         restartUnits = [ autheliaService ];
       };
       "authelia/users" = {
-        sopsFile = ../../../../secrets/homelab/authelia-users.yaml;
+        sopsFile = "${inputs.self}/secrets/homelab/authelia-users.yaml";
         key = "";
         format = "yaml";
         owner = autheliaUser;

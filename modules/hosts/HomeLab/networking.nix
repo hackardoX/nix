@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ inputs, lib, ... }:
 {
   configurations.nixos.HomeLab.module =
     nixosArgs:
@@ -50,7 +50,7 @@
         map (network: {
           name = network.secretName;
           value = {
-            sopsFile = ../../../secrets/hosts/HomeLab/secrets.yaml;
+            sopsFile = "${inputs.self}/secrets/hosts/HomeLab/secrets.yaml";
             group = "wheel";
           };
         }) wifiNetworks

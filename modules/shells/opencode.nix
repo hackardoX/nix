@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   flake.modules.homeManager.dev = {
     programs.opencode = {
@@ -21,49 +22,10 @@
             npm = "@ai-sdk/openai-compatible";
             name = "Proton Lumo";
             options = {
-              baseURL = "https://lumo.proton.me/api/ai/v1";
-              apiKey = "LUMO_API_KEY";
+              baseURL = config.flake.meta.aiProviders.lumo.endpoint;
+              apiKey = config.flake.meta.aiProviders.lumo.apiKeyEnv;
             };
-            models = {
-              lumo-max = {
-                name = "Lumo Max";
-                options = {
-                  reasoningEffort = "high";
-                };
-                variants = {
-                  fast = {
-                    reasoningEffort = "none";
-                  };
-                  "thinking (default)" = {
-                    reasoningEffort = "high";
-                  };
-                  "max thinking" = {
-                    reasoningEffort = "max";
-                  };
-                };
-              };
-              lumo-lite = {
-                name = "Lumo Lite";
-                modalities = {
-                  input = [
-                    "text"
-                    "image"
-                  ];
-                  output = [ "text" ];
-                };
-                options = {
-                  reasoningEffort = "high";
-                };
-                variants = {
-                  fast = {
-                    reasoningEffort = "none";
-                  };
-                  "thinking (default)" = {
-                    reasoningEffort = "high";
-                  };
-                };
-              };
-            };
+            models = config.flake.meta.aiProviders.lumo.models;
           };
         };
       };

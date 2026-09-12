@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.meta.users.root = {
     email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
@@ -9,7 +9,7 @@
 
   flake.modules.nixos.root = nixosArgs: {
     sops.secrets."root/hashed_password" = {
-      sopsFile = ../../secrets/users/root.yaml;
+      sopsFile = "${inputs.self}/secrets/users/root.yaml";
       neededForUsers = true;
     };
 

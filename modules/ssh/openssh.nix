@@ -12,6 +12,7 @@
         ];
       };
       allowSFTP = false;
+      authorizedKeysFiles = [ "/run/secrets/%u/authorized_key" ];
     };
   };
 }
