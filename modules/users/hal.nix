@@ -42,6 +42,7 @@
     imports = with config.flake.modules.homeManager; [
       base
       git
+      github
     ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/hal.yaml";
     home.username = config.flake.meta.users.hal.name;

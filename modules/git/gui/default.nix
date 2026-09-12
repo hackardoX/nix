@@ -1,23 +1,9 @@
 {
-  flake.modules.homeManager.dev =
-    { pkgs, ... }:
-    {
-      home.packages = with pkgs; [
-        diffnav
-      ];
-
-      programs = {
-        lazygit = {
-          enable = true;
-          settings = {
-            git.diffRenderers = [
-              { type = "extDiff"; }
-              { command = "delta --dark --paging=never"; }
-            ];
-          };
-        };
-      };
-    };
+  flake.modules.homeManager.dev = { pkgs, ... }: {
+    home.packages = with pkgs; [
+      diffnav
+    ];
+  };
 
   flake.modules.homeManager.github = hmArgs: {
     programs = {

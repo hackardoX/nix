@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.git = hmArgs: {
+  flake.modules.homeManager.github = hmArgs: {
     config = {
       sops.secrets."github/host" = { };
       sops.secrets."github/name" = { };

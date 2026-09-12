@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   flake.modules.nixvim.dev = {
     plugins = {
@@ -9,6 +10,16 @@
       minuet = {
         enable = true;
         settings = {
+          provider = "openai_compatible";
+          provider_options = {
+            openai_compatible = {
+              api_key = config.flake.meta.aiProviders.lumo.apiKeyEnv;
+              name = "Proton Lumo";
+              end_point = "${config.flake.meta.aiProviders.lumo.endpoint}/chat/completions";
+              model = "lumo-lite";
+              optional.thinking.type = "disabled";
+            };
+          };
           virtualtext = {
             auto_trigger_ft = [
               "c"
@@ -97,46 +108,5 @@
         };
       }
     ];
-  };
-
-  flake.modules.nixvim.hackardo = {
-    plugins.minuet.settings.provider_options = {
-      codestral = {
-        api_key = "MISTRAL_CODESTRAL_API_KEY";
-      };
-    };
-  };
-
-  flake.modules.homeManager.hackardo = hmArgs: {
-    home.sessionVariables.MISTRAL_CODESTRAL_API_KEY = "$(cat ${
-      hmArgs.config.sops.secrets."ai/mistral_codestral_api_key".path
-    })";
-
-    sops.secrets."ai/mistral_codestral_api_key" = {
-      path = "${hmArgs.config.home.homeDirectory}/.secrets/.mistral_codestral_key";
-    };
-  };
-
-  flake.modules.nixvim.aaccardo = {
-    plugins.minuet.settings = {
-      provider = "openai_compatible";
-      provider_options = {
-        openai_compatible = {
-          api_key = "LUMO_API_KEY";
-          name = "Proton Lumo";
-          end_point = "https://lumo.proton.me/api/ai/v1/chat/completions";
-          model = "lumo-lite";
-          optional.thinking.type = "disabled";
-        };
-      };
-    };
-  };
-
-  flake.modules.homeManager.aaccardo = hmArgs: {
-    home.sessionVariables.LUMO_API_KEY = "$(cat ${hmArgs.config.sops.secrets."ai/lumo_api_key".path})";
-
-    sops.secrets."ai/lumo_api_key" = {
-      path = "${hmArgs.config.home.homeDirectory}/.secrets/.lumo_key";
-    };
   };
 }

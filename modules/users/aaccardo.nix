@@ -66,6 +66,8 @@
       base
       dev
       git
+      github
+      gitlab
       proton-pass
       shell
       theme

@@ -1,4 +1,4 @@
-_: {
+{
   flake.modules.homeManager.git = hmArgs: {
     programs.git = {
       enable = true;

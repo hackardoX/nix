@@ -80,6 +80,7 @@
       file-sync
       git
       github
+      gitlab
       media
       shell
       ssh
