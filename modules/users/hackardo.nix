@@ -1,7 +1,6 @@
 {
   config,
   inputs,
-  lib,
   ...
 }:
 {
@@ -46,8 +45,8 @@
           };
         }
       ]
-      ++ lib.optionals (config.programs.spicetify.enable or false) [
-        "${config.programs.spicetify.spicedSpotify}/Applications/Spotify.app"
+      ++ [
+        "/Users/${config.flake.meta.users.hackardo.name}/Applications/Nix Apps/Spotify.app"
         {
           spacer = {
             small = true;
