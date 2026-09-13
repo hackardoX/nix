@@ -6,6 +6,10 @@
       models = {
         lumo-max = {
           name = "Lumo Max";
+          modalities = {
+            input = [ "text" ];
+            output = [ "text" ];
+          };
           options = {
             reasoningEffort = "high";
           };

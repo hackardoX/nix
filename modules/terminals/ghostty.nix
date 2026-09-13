@@ -21,7 +21,6 @@
         };
         package = pkgs.ghostty-bin; # Required for Darwin
         enableBashIntegration = true;
-        enableFishIntegration = true;
         enableZshIntegration = true;
       };
     };

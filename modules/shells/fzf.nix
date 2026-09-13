@@ -8,7 +8,6 @@
     {
       programs.fzf = {
         enable = true;
-
         defaultCommand = "${lib.getExe pkgs.fd} --type=f --hidden --exclude=.git";
         defaultOptions = [
           "--layout=reverse"
@@ -24,11 +23,8 @@
           "--header-first"
           "--border=rounded"
         ];
-
         enableBashIntegration = true;
         enableZshIntegration = true;
-        enableFishIntegration = true;
-
         historyWidget.command = "";
       };
     };
