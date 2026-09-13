@@ -6,9 +6,9 @@
 {
   flake.modules.homeManager.shell = {
     programs.atuin = {
-      enableBashIntegration = true;
-      enableFishIntegration = true;
       enable = true;
+      daemon.enable = true;
+      enableBashIntegration = true;
       enableZshIntegration = true;
     };
   };
@@ -23,7 +23,6 @@
         path = "${hmArgs.config.home.homeDirectory}/.secrets/.lumo_key";
       };
       sops.templates."atuin-config" = {
-        path = "${hmArgs.config.xdg.configHome}/atuin/config.toml";
         content = ''
           dialect = "uk"
           enter_accept = true
@@ -42,7 +41,16 @@
           model = "lumo-max"
           endpoint_protocol = "oss"
           api_token = "${hmArgs.config.sops.placeholder."ai/lumo_api_key"}"
+
+          [daemon]
+          enabled = true
+          systemd_socket = ${if hmArgs.config.systemd.user.enable then "true" else "false"}
+          socket_path = "${hmArgs.config.xdg.dataHome}/atuin/daemon.sock"
         '';
       };
+
+      xdg.configFile."atuin/config.toml".source = lib.mkForce (
+        hmArgs.config.lib.file.mkOutOfStoreSymlink hmArgs.config.sops.templates."atuin-config".path
+      );
     };
 }
