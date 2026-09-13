@@ -223,7 +223,10 @@ in
         lsp.servers = {
           biome.enable = true;
           eslint.enable = true;
-          tsgo.enable = true;
+          tsgo = {
+            enable = true;
+            package = pkgs.typescript; # TODO: remove this later once typescript-go is removed in nixvim
+          };
         };
       };
     };
