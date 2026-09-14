@@ -1,14 +1,20 @@
-{
-  flake.modules.homeManager.dev = {
+{ lib, ... }: {
+  flake.modules.homeManager.dev = hmArgs: {
     programs = {
       lazygit = {
         enable = true;
         settings = {
-          git.diffRenderers = [
-            { type = "extDiff"; }
-            { command = "delta --dark --paging=never"; }
-          ];
-
+          git.diffRenderers =
+            [ ]
+            ++ (lib.lists.optionals hmArgs.config.programs.delta.enable [
+              { command = "delta --dark --paging=never"; }
+            ])
+            ++ (lib.lists.optionals hmArgs.config.programs.difftastic.enable [
+              {
+                type = "extDiff";
+                command = " difft --color=always --context={{diffContext}}";
+              }
+            ]);
           customCommands = [
             {
               key = "<c-a>";
