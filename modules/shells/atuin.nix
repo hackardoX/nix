@@ -6,9 +6,19 @@
   flake.modules.homeManager.shell = {
     programs.atuin = {
       enable = true;
-      daemon.enable = true;
       enableBashIntegration = true;
       enableZshIntegration = true;
+      settings = {
+        dialect = "uk";
+        enter_accept = true;
+        filter_mode = "workspace";
+        inline_height = 12;
+        keymap_mode = "auto";
+        style = "auto";
+        sync_frequency = "15m";
+        update_check = false;
+        workspaces = true;
+      };
     };
   };
 
