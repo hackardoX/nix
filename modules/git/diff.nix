@@ -3,15 +3,6 @@
     programs = {
       delta.enable = true;
       difftastic.enable = true;
-      lazygit.settings.git = {
-        diff = {
-          externalDiffCommand = "difft --color=always";
-        };
-        diffRenderers = [
-          { type = "extDiff"; }
-          { command = "delta --dark --paging=never"; }
-        ];
-      };
       git.settings = {
         diff.algorithm = "histogram";
         difftool = {

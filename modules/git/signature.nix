@@ -32,7 +32,7 @@
 
       sops.secrets."git/signing_key" = {
         path = signatureKeyPath;
-        mode = lib.mkDefault "0644";
+        mode = "0644";
       };
       sops.templates."allowed_signers".content = ''
         ${hmArgs.config.sops.placeholder."github/email"} ${hmArgs.config.sops.placeholder."git/signing_key"}

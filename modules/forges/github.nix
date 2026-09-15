@@ -20,20 +20,17 @@
             name = ${hmArgs.config.sops.placeholder."github/name"}
             email = ${hmArgs.config.sops.placeholder."github/email"}
       '';
+      sops.templates."git-github-conditional-includes".content = ''
+        [includeIf "hasconfig:remote.*.url:git@${hmArgs.config.sops.placeholder."github/host"}:*/**"]
+            path = ${hmArgs.config.sops.templates."git-github-identity".path}
+        [includeIf "hasconfig:remote.*.url:https://${hmArgs.config.sops.placeholder."github/host"}/**"]
+            path = ${hmArgs.config.sops.templates."git-github-identity".path}
+        [includeIf "hasconfig:remote.*.url:ssh://git@${hmArgs.config.sops.placeholder."github/host"}:*/**"]
+            path = ${hmArgs.config.sops.templates."git-github-identity".path}
+      '';
       programs.ssh.includes = [ hmArgs.config.sops.templates."forge-github-config".path ];
       programs.git.includes = [
-        {
-          condition = "hasconfig:remote.*.url:git@github.com:*/**";
-          path = hmArgs.config.sops.templates."git-github-identity".path;
-        }
-        {
-          condition = "hasconfig:remote.*.url:https://github.com/**";
-          path = hmArgs.config.sops.templates."git-github-identity".path;
-        }
-        {
-          condition = "hasconfig:remote.*.url:ssh://git@github.com:*/**";
-          path = hmArgs.config.sops.templates."git-github-identity".path;
-        }
+        { path = hmArgs.config.sops.templates."git-github-conditional-includes".path; }
       ];
     };
   };
