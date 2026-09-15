@@ -44,18 +44,32 @@
       versioning: 'loose',
     },
     {
-      description: 'Label major docker updates so the AI review workflow can target them',
-      matchManagers: [
-        'custom.regex',
-      ],
-      matchDatasources: [
-        'docker',
-      ],
+      description: 'Label update type so workflows can target them (AI review gates on major+dependencies)',
       matchUpdateTypes: [
         'major',
       ],
       addLabels: [
         'major',
+      ],
+    },
+    {
+      matchUpdateTypes: [
+        'minor',
+      ],
+      addLabels: [
+        'minor',
+      ],
+    },
+    {
+      matchUpdateTypes: [
+        'patch',
+        'pin',
+        'pinDigest',
+        'digest',
+        'bump',
+      ],
+      addLabels: [
+        'other',
       ],
     },
     {
