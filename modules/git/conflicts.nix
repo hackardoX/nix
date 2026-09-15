@@ -3,7 +3,6 @@
     programs = {
       git = {
         settings = {
-          pager.diff = "diffnav";
           rerere.enabled = true;
         };
       };
