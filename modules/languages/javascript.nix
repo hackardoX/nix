@@ -227,6 +227,7 @@ in
             enable = true;
             package = pkgs.typescript; # TODO: remove this later once typescript-go is removed in nixvim
           };
+          tailwindcss.enable = true;
         };
       };
     };
