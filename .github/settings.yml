@@ -45,6 +45,15 @@ labels:
   - name: dependencies
     color: 0366d6
     description: Pull requests that update a dependency
+  - name: major
+    color: b60205
+    description: Dependency update with breaking (major) changes
+  - name: minor
+    color: d4c5f9
+    description: Dependency update with backwards-compatible (minor) changes
+  - name: other
+    color: c2e0c6
+    description: Dependency update of type patch, pin, digest, or other
 # NOTE: leave that up to the https://github.com/numtide/.github repo
 #   - name: bug
 #     color: CC0000
