@@ -42,8 +42,8 @@ in
     nixosConfigurations = nixosSystems;
     darwinConfigurations = darwinSystems;
     checks = lib.mkMerge [
-      (mkHostChecks "nixos" nixosSystems)
-      (mkHostChecks "darwin" darwinSystems)
+      (mkHostChecks "nixos" config.flake.nixosConfigurations)
+      (mkHostChecks "darwin" config.flake.darwinConfigurations)
     ];
   };
 }

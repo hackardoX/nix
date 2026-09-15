@@ -1,4 +1,9 @@
-{ inputs, lib, ... }:
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
 {
   configurations.nixos.HomeLab.module =
     nixosArgs:
@@ -12,7 +17,7 @@
     in
     {
       networking = {
-        hostName = "HomeLab";
+        hostName = config.flake.meta.hosts.HomeLab.hostName;
         networkmanager = {
           enable = true;
           wifi.backend = "iwd";

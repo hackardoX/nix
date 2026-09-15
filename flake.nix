@@ -8,17 +8,9 @@
     #     nixpkgs.follows = "nixpkgs";
     #   };
     # };
-    asahi-firmware = {
-      url = "git+ssh://git@github.com/hackardoX/nixos-asahi-firmware.git?shallow=1";
-      flake = false;
-    };
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    custom-homebrew-formulas = {
-      url = "github:hackardox/homebrew-formulas";
-      flake = false;
     };
     darwin = {
       url = "github:nix-darwin/nix-darwin";
@@ -31,10 +23,6 @@
         utils.follows = "flake-utils";
         nixpkgs.follows = "nixpkgs";
       };
-    };
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils = {
       url = "github:numtide/flake-utils";
@@ -56,55 +44,15 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    impermanence = {
-      url = "github:nix-community/impermanence";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    homebrew-cask = {
-      url = "github:homebrew/homebrew-cask";
-      flake = false;
-    };
-    homebrew-core = {
-      url = "github:homebrew/homebrew-core";
-      flake = false;
-    };
     import-tree = {
       url = "github:vic/import-tree";
-    };
-    lanzaboote = {
-      url = "github:nix-community/lanzaboote";
-      inputs = {
-        pre-commit.follows = "git-hooks";
-        nixpkgs.follows = "nixpkgs";
-      };
     };
     make-shell = {
       url = "github:nicknovitski/make-shell";
       inputs.flake-compat.follows = "";
     };
-    nix-apple-container = {
-      url = "github:halfwhey/nix-apple-container";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-homebrew = {
-      url = "github:zhaofengli/nix-homebrew";
-      # inputs.brew-src.url = "github:Homebrew/brew/5.1.12";
-    };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-mineral = {
-      url = "github:cynicsketch/nix-mineral";
-      inputs = {
-        flake-compat.follows = "";
-        flake-parts.follows = "flake-parts";
-        nixpkgs.follows = "nixpkgs";
-        ndg.inputs.nixpkgs.follows = "nixpkgs";
-      };
-    };
-    nix-rosetta-builder = {
-      url = "github:cpick/nix-rosetta-builder";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvim = {
@@ -124,13 +72,6 @@
     # };
     nixpkgs = {
       url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    };
-    nixos-hardware = {
-      url = "github:NixOS/nixos-hardware";
-    };
-    nixos-apple-silicon = {
-      url = "github:nix-community/nixos-apple-silicon";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
@@ -164,10 +105,6 @@
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    vim-autoread = {
-      flake = false;
-      url = "github:djoshea/vim-autoread/24061f84652d768bfb85d222c88580b3af138dab";
     };
   };
 
