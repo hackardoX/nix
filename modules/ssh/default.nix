@@ -6,16 +6,16 @@
 }:
 let
   myReachableHosts =
-    (config.flake.nixosConfigurations or { }) // (config.flake.darwinConfigurations or { })
+    config.flake.meta.hosts
     |> lib.filterAttrs (
       _name: host:
       !(lib.any isNull [
-        host.config.networking.domain
-        host.config.networking.hostName
-        host.config.services.openssh.publicKey
+        host.domain
+        host.publicKey
       ])
     );
-  knownHosts = myReachableHosts |> lib.mapAttrsToList (_name: host: host.config.networking.fqdn);
+  knownHosts =
+    myReachableHosts |> lib.mapAttrsToList (_name: host: "${host.hostName}.${host.domain}");
 in
 {
   flake.modules.homeManager.base =
@@ -160,16 +160,20 @@ in
     programs.ssh.settings =
       myReachableHosts
       |> lib.mapAttrsToList (
-        _name: host: {
-          "${host.config.networking.fqdn}" = {
-            hostname = host.config.networking.fqdn;
+        _name: host:
+        let
+          fqdn = "${host.hostName}.${host.domain}";
+        in
+        {
+          "${fqdn}" = {
+            hostname = fqdn;
             identityFile =
               let
-                hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.config.networking.hostName);
+                hostName = lib.toLower (lib.replaceStrings [ "-" ] [ "_" ] host.hostName);
               in
               hmArgs.config.sops.secrets."ssh/${hostName}.pub".path;
-            port = builtins.head host.config.services.openssh.ports;
-            user = host.config.home-manager.users |> builtins.attrNames |> builtins.head;
+            inherit (host) port;
+            inherit (host) user;
           };
         }
       )

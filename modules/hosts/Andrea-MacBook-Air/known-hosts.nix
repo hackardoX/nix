@@ -7,7 +7,7 @@
       {
         ssh.extraHosts = {
           "homelab" = {
-            hostname = "${config.flake.nixosConfigurations.HomeLab.config.networking.hostName}.local";
+            hostname = "${config.flake.meta.hosts.HomeLab.hostName}.local";
             user = config.flake.meta.users.hal.name;
             identityFile = hmArgs.osConfig.sops.secrets."ssh/homelab.pub".path;
             port = 22;

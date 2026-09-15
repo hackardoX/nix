@@ -1,0 +1,182 @@
+{
+  "nodes": {
+    "asahi-firmware": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784491698,
+        "narHash": "sha256-lcUiTH15yo5/McJZeO2wHrKEU+KYEPl2mE8aoky/8Is=",
+        "ref": "refs/heads/main",
+        "rev": "2fe83cde38517773d65cff3281c46ddb9e63969c",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/hackardoX/nixos-asahi-firmware.git"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/hackardoX/nixos-asahi-firmware.git"
+      }
+    },
+    "disko": {
+      "inputs": {
+        "nixpkgs": []
+      },
+      "locked": {
+        "lastModified": 1781152676,
+        "narHash": "sha256-RxWs5ND31KzTG7wvMM+PMfUjyNpmIEr999lqNARaM5o=",
+        "owner": "nix-community",
+        "repo": "disko",
+        "rev": "ff8702b4de27f72b4c78573dfb89ec74e36abdf1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "disko",
+        "rev": "ff8702b4de27f72b4c78573dfb89ec74e36abdf1",
+        "type": "github"
+      }
+    },
+    "flake-compat": {
+      "locked": {
+        "lastModified": 1761640442,
+        "narHash": "sha256-AtrEP6Jmdvrqiv4x2xa5mrtaIp3OEe8uBYCDZDS+hu8=",
+        "owner": "nix-community",
+        "repo": "flake-compat",
+        "rev": "4a56054d8ffc173222d09dad23adf4ba946c8884",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib"
+      },
+      "locked": {
+        "lastModified": 1788450739,
+        "narHash": "sha256-glZLQlzIn1fXH6PazR2iUmTo7kzzyYSshrWhLS9TqCU=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "31729ca8cbdb4fa927b34e5f4353e6a83f39e993",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "31729ca8cbdb4fa927b34e5f4353e6a83f39e993",
+        "type": "github"
+      }
+    },
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "impermanence",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768598210,
+        "narHash": "sha256-kkgA32s/f4jaa4UG+2f8C225Qvclxnqs76mf8zvTVPg=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "c47b2cc64a629f8e075de52e4742de688f930dc6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "impermanence": {
+      "inputs": {
+        "home-manager": "home-manager",
+        "nixpkgs": []
+      },
+      "locked": {
+        "lastModified": 1769548169,
+        "narHash": "sha256-03+JxvzmfwRu+5JafM0DLbxgHttOQZkUtDWBmeUkN8Y=",
+        "owner": "nix-community",
+        "repo": "impermanence",
+        "rev": "7b1d382faf603b6d264f58627330f9faa5cba149",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "impermanence",
+        "rev": "7b1d382faf603b6d264f58627330f9faa5cba149",
+        "type": "github"
+      }
+    },
+    "nix-mineral": {
+      "inputs": {
+        "flake-compat": [],
+        "flake-parts": "flake-parts",
+        "nixpkgs": []
+      },
+      "locked": {
+        "lastModified": 1788673119,
+        "narHash": "sha256-xlyrxRGi1ZhpRG3owrJvcKwLjfkvMc65dK5cUKA8BnE=",
+        "owner": "cynicsketch",
+        "repo": "nix-mineral",
+        "rev": "00b178db003b6cd6040a2451b976266348bb7c11",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cynicsketch",
+        "repo": "nix-mineral",
+        "rev": "00b178db003b6cd6040a2451b976266348bb7c11",
+        "type": "github"
+      }
+    },
+    "nixos-apple-silicon": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": []
+      },
+      "locked": {
+        "lastModified": 1788381993,
+        "narHash": "sha256-8P1xFFUhCHQT8+MI4x9DW7jIaDgBPEdTCwCiR+m1ohM=",
+        "owner": "nix-community",
+        "repo": "nixos-apple-silicon",
+        "rev": "fb602d1f8c6d83dd652fecc3f468328f8864f0c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixos-apple-silicon",
+        "rev": "fb602d1f8c6d83dd652fecc3f468328f8864f0c1",
+        "type": "github"
+      }
+    },
+    "nixpkgs-lib": {
+      "locked": {
+        "lastModified": 1788057806,
+        "narHash": "sha256-DTQSMxzDWmT0zhguthvegnVkn7CFqGCv4IHCzk5ZUpM=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "596e2e3940e09b2abbeb03f75fa1828c57fcd72c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "asahi-firmware": "asahi-firmware",
+        "disko": "disko",
+        "impermanence": "impermanence",
+        "nix-mineral": "nix-mineral",
+        "nixos-apple-silicon": "nixos-apple-silicon"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

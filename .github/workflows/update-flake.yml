@@ -73,6 +73,24 @@ jobs:
           pr-title: "build(flake): update flake.lock"
           pr-labels: |
             merge-queue
+      - name: Update partition lock files
+        if: steps.update-flake-lock.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          PR_NUMBER: ${{ steps.update-flake-lock.outputs.pull-request-number }}
+        run: |
+          branch=$(gh pr view "$PR_NUMBER" --json headRefName --jq .headRefName)
+          git fetch origin "$branch"
+          git checkout "$branch"
+          nix flake update ./partitions/laptops
+          nix flake update ./partitions/homelab
+          if git diff --exit-code partitions/laptops/flake.lock partitions/homelab/flake.lock; then
+            echo "No partition lock changes"
+          else
+            git add partitions/laptops/flake.lock partitions/homelab/flake.lock
+            git commit -m "build(flake): update partition lock files"
+            git push origin "$branch"
+          fi
       - name: Enable auto-merge
         if: steps.update-flake-lock.outputs.pull-request-number != ''
         env:
