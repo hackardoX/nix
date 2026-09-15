@@ -68,7 +68,10 @@
                 extensions = [ ".nix" ];
                 initialization = {
                   formatting = {
-                    command = [ (lib.getExe pkgs.nixfmt) ];
+                    command = [
+                      (lib.getExe pkgs.nixfmt)
+                      "-"
+                    ];
                   };
                   options = nixosExpr // darwinExpr // hmExpr;
                 };
