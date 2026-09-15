@@ -27,6 +27,12 @@
   flake.modules.nixvim.dev = {
     plugins.conform-nvim = {
       enable = true;
+      lazyLoad.settings = {
+        cmd = [
+          "ConformInfo"
+        ];
+        event = [ "BufWritePre" ];
+      };
       settings = {
         format_on_save = inputs.nixvim.lib.nixvim.mkRaw ''
           function(bufnr)
