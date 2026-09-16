@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.github = hmArgs: {
+  flake.modules.homeManager.github = {
     programs = {
       gh = {
         enable = true;
@@ -41,18 +41,5 @@
         };
       };
     };
-
-    sops.secrets."github/token" = {
-      path = "${hmArgs.config.home.homeDirectory}/.secrets/.github_token";
-    };
-
-    home.sessionVariables =
-      let
-        tokenCmd = "$(cat ${hmArgs.config.sops.secrets."github/token".path})";
-      in
-      {
-        GH_TOKEN = tokenCmd;
-        GITHUB_TOKEN = tokenCmd;
-      };
   };
 }

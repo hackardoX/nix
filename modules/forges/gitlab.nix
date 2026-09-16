@@ -4,6 +4,7 @@
       sops.secrets."gitlab/host" = { };
       sops.secrets."gitlab/name" = { };
       sops.secrets."gitlab/email" = { };
+      sops.secrets."gitlab/token" = { };
       sops.secrets."gitlab/authorization_key" = {
         path = "${hmArgs.config.home.homeDirectory}/.ssh/gitlab_authorisation.pub";
         mode = "0644";
@@ -32,6 +33,11 @@
       programs.git.includes = [
         { path = hmArgs.config.sops.templates."git-gitlab-conditional-includes".path; }
       ];
+
+      home.sessionVariables = {
+        GITLAB_TOKEN = "$(cat ${hmArgs.config.sops.secrets."gitlab/token".path})";
+        GITLAB_HOST = "$(cat ${hmArgs.config.sops.secrets."gitlab/host".path})";
+      };
     };
   };
 }

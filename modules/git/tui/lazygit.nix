@@ -13,16 +13,6 @@
               command = " difft --color=always --context={{diffContext}}";
             }
           ]);
-        # Custom pull request URLs for self-hosted forges.
-        # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-pull-request-urls
-        services = {
-          "${hmArgs.config.sops.placeholder."gitlab/host"}" = "gitlab:${
-            hmArgs.config.sops.placeholder."gitlab/host"
-          }";
-          "${hmArgs.config.sops.placeholder."github/host"}" = "github:${
-            hmArgs.config.sops.placeholder."github/host"
-          }";
-        };
         customCommands = [
           {
             key = "<c-a>";
@@ -183,20 +173,46 @@
         enable = true;
       };
       sops.templates."lazygit-config" = {
-        content = builtins.readFile ((pkgs.formats.yaml { }).generate "lazygit-config.yml" lazygitSettings);
+        file = (pkgs.formats.yaml { }).generate "lazygit-config.yml" lazygitSettings;
         path = "${configDir}/lazygit/config.yml";
       };
 
       # catppuccin sets LG_CONFIG_FILE to its theme file only (dropping ours, since we don't use
       # programs.lazygit.settings: https://github.com/catppuccin/nix/blob/main/modules/home-manager/lazygit.nix),
-      # so force it to load both: theme first, then our sops-rendered config merged on top.
+      # so force it to load both: theme first, then our generated config merged on top.
+      # Forge modules contribute extra fragments via sops.templates."lazygit-services-*".
       home.sessionVariables.LG_CONFIG_FILE = lib.mkForce (
         lib.concatStringsSep "," (
           lib.optionals hmArgs.config.catppuccin.lazygit.enable [
             "${hmArgs.config.catppuccin.sources.lazygit}/${hmArgs.config.catppuccin.lazygit.flavor}/${hmArgs.config.catppuccin.lazygit.accent}.yml"
           ]
           ++ [ "${configDir}/lazygit/config.yml" ]
+          ++ builtins.attrValues (
+            lib.mapAttrs (_: t: t.path) (
+              lib.filterAttrs (n: _: lib.hasPrefix "lazygit-services-" n) hmArgs.config.sops.templates
+            )
+          )
         )
       );
     };
+
+  # Custom pull request URLs for self-hosted forges, merged into lazygit via LG_CONFIG_FILE.
+  # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#custom-pull-request-urls
+  flake.modules.homeManager.github = hmArgs: {
+    sops.templates."lazygit-services-github".content = ''
+      services:
+        "${hmArgs.config.sops.placeholder."github/host"}": "github:${
+          hmArgs.config.sops.placeholder."github/host"
+        }"
+    '';
+  };
+
+  flake.modules.homeManager.gitlab = hmArgs: {
+    sops.templates."lazygit-services-gitlab".content = ''
+      services:
+        "${hmArgs.config.sops.placeholder."gitlab/host"}": "gitlab:${
+          hmArgs.config.sops.placeholder."gitlab/host"
+        }"
+    '';
+  };
 }
