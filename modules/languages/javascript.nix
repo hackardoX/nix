@@ -71,8 +71,6 @@ in
                   "--stdin-filepath"
                   "$FILENAME"
                 ];
-                # Skip this formatter entirely if the project has no
-                # oxfmt config markers.
                 require_cwd = true;
                 cwd.__raw = ''
                   require("conform.util").root_file({
@@ -83,16 +81,11 @@ in
               };
               biome = {
                 command = lib.getExe pkgs.biome;
-                # Skip this formatter entirely if the project has no
-                # biome.json/biome.jsonc (reuses conform's inherited cwd check).
                 require_cwd = true;
               };
               eslint_d = {
                 command = lib.getExe pkgs.eslint_d;
                 require_cwd = true;
-                # conform's built-in eslint_d formatter only checks for
-                # package.json; override with the actual ESLint config
-                # markers so this matches nvim-lspconfig's eslint root_dir.
                 cwd.__raw = ''
                   require("conform.util").root_file({
                     ".eslintrc", ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.yaml", ".eslintrc.yml", ".eslintrc.json",
