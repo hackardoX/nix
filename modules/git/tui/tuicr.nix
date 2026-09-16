@@ -19,11 +19,11 @@
       no_update_check = true
 
       comment_types = [
-        { id = "issue",      definition = "problems to fix",                          color = "red" }
-        { id = "suggestion", definition = "possible improvements",                    color = "yellow" }
-        { id = "question",   definition = "ask for clarification",                    color = "blue" }
-        { id = "nit",        label = "nitpick", definition = "small optional tweaks", color = "#d19a66" }
-        { id = "praise",     definition = "positive feedback",                        color = "green" }
+        { id = "issue",      definition = "problems to fix",                          color = "red" },
+        { id = "suggestion", definition = "possible improvements",                    color = "yellow" },
+        { id = "question",   definition = "ask for clarification",                    color = "blue" },
+        { id = "nit",        label = "nitpick", definition = "small optional tweaks", color = "#d19a66" },
+        { id = "praise",     definition = "positive feedback",                        color = "green" },
       ]
 
       [forge]
@@ -35,7 +35,6 @@
       pr_metadata = true
       comments_header = "## Local tuicr Comments"
       legend = true
-      session_header = false
     '';
   };
 }
