@@ -1,10 +1,4 @@
 {
-  flake.modules.homeManager.dev = { pkgs, ... }: {
-    home.packages = with pkgs; [
-      diffnav
-    ];
-  };
-
   flake.modules.homeManager.github = hmArgs: {
     programs = {
       gh = {

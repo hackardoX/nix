@@ -1,9 +1,14 @@
 {
-  flake.modules.homeManager.dev = {
+  flake.modules.homeManager.dev = { pkgs, ... }: {
+    home.packages = with pkgs; [
+      diffnav
+    ];
+
     programs = {
       delta.enable = true;
       difftastic.enable = true;
       git.settings = {
+        pager.diff = "diffnav";
         diff.algorithm = "histogram";
         difftool = {
           prompt = false;

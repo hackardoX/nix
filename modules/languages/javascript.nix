@@ -46,6 +46,7 @@ in
       extraPackages = with pkgs; [
         biome
         eslint_d
+        oxfmt
         typescript
       ];
       plugins = {
@@ -56,12 +57,30 @@ in
               map (lang: {
                 name = lang;
                 value = [
+                  "oxfmt"
                   "biome"
                   "eslint_d"
                 ];
               }) jsFiletypes
             );
             formatters = {
+              oxfmt = {
+                command = lib.getExe pkgs.oxfmt;
+                stdin = true;
+                args = [
+                  "--stdin-filepath"
+                  "$FILENAME"
+                ];
+                # Skip this formatter entirely if the project has no
+                # oxfmt config markers.
+                require_cwd = true;
+                cwd.__raw = ''
+                  require("conform.util").root_file({
+                    ".oxfmtrc.json", ".oxfmtrc.jsonc", ".oxfmtrc",
+                    "oxfmt.config.ts", "oxfmt.config.mts", "oxfmt.config.js", "oxfmt.config.mjs",
+                  })
+                '';
+              };
               biome = {
                 command = lib.getExe pkgs.biome;
                 # Skip this formatter entirely if the project has no
@@ -223,11 +242,19 @@ in
         lsp.servers = {
           biome.enable = true;
           eslint.enable = true;
+          oxlint.enable = true;
+          stylelint_lsp = {
+            enable = true;
+            cmd = [
+              (lib.getExe pkgs.stylelint-lsp)
+              "--stdio"
+            ];
+          };
+          tailwindcss.enable = true;
           tsgo = {
             enable = true;
             package = pkgs.typescript; # TODO: remove this later once typescript-go is removed in nixvim
           };
-          tailwindcss.enable = true;
         };
       };
     };
