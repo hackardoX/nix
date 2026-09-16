@@ -439,6 +439,7 @@
           on_force_close "detach"
           pane_frames false
           stacked_pane_list false
+          scroll_mode_sync false
         '';
       };
     };
