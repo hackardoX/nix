@@ -73,6 +73,22 @@ in
           auto_jump = true;
           auto_refresh = true;
           follow = false;
+          restore = true;
+          modes = {
+            lsp = {
+              win = {
+                position = "right";
+                size = 40;
+              };
+              pinned = true;
+            };
+            diagnostics = {
+              win = {
+                position = "bottom";
+                size = 10;
+              };
+            };
+          };
         };
       };
       which-key = {

@@ -35,7 +35,15 @@ in
     plugins = {
       persisted = {
         enable = true;
-        enableTelescope = true;
+        # Extension registered in luaConfig.post (deferred with lazy load),
+        # otherwise telescope would load_extension() at startup before the
+        # plugin is on the runtimepath.
+        enableTelescope = false;
+        lazyLoad.settings = {
+          cmd = [ "PersistedLoadLast" ];
+          keys = [ "<Leader>qs" ];
+        };
+        luaConfig.post = "require('telescope').load_extension('persisted')";
         settings = {
           autoload = false;
           use_git_branch = true;

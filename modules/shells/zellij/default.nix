@@ -291,18 +291,6 @@
                 NewTab
                 SwitchToMode "Locked"
               }
-              bind "Alt h" "Alt Left" {
-                MoveFocusOrTab "Left"
-              }
-              bind "Alt l" "Alt Right" {
-                MoveFocusOrTab "Right"
-              }
-              bind "Alt j" "Alt Down" {
-                MoveFocus "Down"
-              }
-              bind "Alt k" "Alt Up" {
-                MoveFocus "Up"
-              }
               bind "Alt =" "Alt +" {
                 Resize "Increase"
               }
@@ -390,10 +378,10 @@
               bind "Alt g" {
                 Run "dexec" "lazygit" {
                   floating true
-                  x "10%"
-                  y "10%"
-                  width "80%"
-                  height "80%"
+                  x "5%"
+                  y "5%"
+                  width "90%"
+                  height "90%"
                   close_on_exit true
                 }
               }
@@ -410,9 +398,13 @@
               bind "Alt v" {
                 Run "nvim"
               }
-              bind "Alt l" {
-                Run "bash" "-c" "zellij action override-layout ~/.config/zellij/layouts/$(ls ~/.config/zellij/layouts/*.kdl | xargs -I{} basename {} .kdl | fzf)" {
+              bind "Alt t" {
+                Run "dexec" "tuicr" {
                   floating true
+                  x "5%"
+                  y "5%"
+                  width "90%"
+                  height "90%"
                   close_on_exit true
                 }
               }

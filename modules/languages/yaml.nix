@@ -5,8 +5,9 @@
       extraPackages = with pkgs; [
         prettierd
       ];
+      lsp.servers.yamlls.enable = true;
+
       plugins = {
-        lsp.servers.yamlls.enable = true;
         conform-nvim.settings = {
           formatters_by_ft = {
             yaml = [ "prettierd" ];

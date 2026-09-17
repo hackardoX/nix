@@ -19,7 +19,7 @@
         formatters.nixfmt.command = lib.getExe pkgs.nixfmt;
       };
 
-      plugins.lsp.servers = {
+      lsp.servers = {
         nixd.enable = true;
         statix.enable = true;
       };
