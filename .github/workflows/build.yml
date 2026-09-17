@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: webfactory/ssh-agent@v0.10.0
+        if: matrix.os == 'ubuntu-26.04-arm'
         with:
           ssh-private-key: ${{ secrets.ASAHI_FIRMWARE_DEPLOY_KEY }}
       # - uses: wimpysworld/nothing-but-nix@main
