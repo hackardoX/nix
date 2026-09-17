@@ -5,8 +5,9 @@
       extraPackages = with pkgs; [
         prettierd
       ];
+      lsp.servers.cssls.enable = true;
+
       plugins = {
-        lsp.servers.cssls.enable = true;
         conform-nvim.settings = {
           formatters_by_ft = {
             css = [ "prettierd" ];

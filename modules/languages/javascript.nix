@@ -71,8 +71,6 @@ in
                   "--stdin-filepath"
                   "$FILENAME"
                 ];
-                # Skip this formatter entirely if the project has no
-                # oxfmt config markers.
                 require_cwd = true;
                 cwd.__raw = ''
                   require("conform.util").root_file({
@@ -83,16 +81,11 @@ in
               };
               biome = {
                 command = lib.getExe pkgs.biome;
-                # Skip this formatter entirely if the project has no
-                # biome.json/biome.jsonc (reuses conform's inherited cwd check).
                 require_cwd = true;
               };
               eslint_d = {
                 command = lib.getExe pkgs.eslint_d;
                 require_cwd = true;
-                # conform's built-in eslint_d formatter only checks for
-                # package.json; override with the actual ESLint config
-                # markers so this matches nvim-lspconfig's eslint root_dir.
                 cwd.__raw = ''
                   require("conform.util").root_file({
                     ".eslintrc", ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.yaml", ".eslintrc.yml", ".eslintrc.json",
@@ -239,22 +232,64 @@ in
             }) jsFiletypes
           );
         };
-        lsp.servers = {
-          biome.enable = true;
-          eslint.enable = true;
-          oxlint.enable = true;
-          stylelint_lsp = {
-            enable = true;
+      };
+
+      lsp.servers = {
+        biome = {
+          enable = true;
+          config.workspace_required = true;
+        };
+        eslint = {
+          enable = true;
+          config = {
+            # Keep formatting with conform/prettier/biome and let ESLint focus on
+            # diagnostics and fix/code-action workflows.
+            settings.format = false;
+            workspace_required = true;
+          };
+        };
+        oxlint = {
+          enable = true;
+          config = {
+            workspace_required = true;
+            settings = {
+              run = "onSave";
+              typeAware = false;
+            };
+            before_init.__raw = ''
+              function(init_params, config)
+                local base_path = vim.api.nvim_get_runtime_file("lsp/oxlint.lua", false)[1]
+                if base_path then
+                  local oxlint_base = assert(loadfile(base_path))()
+                  if oxlint_base.before_init then
+                    oxlint_base.before_init(init_params, config)
+                  end
+                end
+                -- Prevents oxlint from re-checking on every keystroke
+                if init_params.capabilities.workspace then
+                  init_params.capabilities.workspace.diagnostics = nil
+                end
+              end
+            '';
+          };
+        };
+        stylelint_lsp = {
+          enable = true;
+          config = {
             cmd = [
               (lib.getExe pkgs.stylelint-lsp)
               "--stdio"
             ];
+            workspace_required = true;
           };
-          tailwindcss.enable = true;
-          tsgo = {
-            enable = true;
-            package = pkgs.typescript; # TODO: remove this later once typescript-go is removed in nixvim
-          };
+        };
+        tailwindcss = {
+          enable = true;
+          config.workspace_required = true;
+        };
+        tsgo = {
+          enable = true;
+          package = pkgs.typescript; # TODO: remove this later once typescript-go is removed in nixvim
         };
       };
     };

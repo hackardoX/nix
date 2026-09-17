@@ -1,24 +1,28 @@
-Modules:
-  - changed-files:
-      - any-glob-to-any-file: modules/**/*
 Library:
   - changed-files:
-      - any-glob-to-any-file: lib/**/*
-Overlays:
-  - changed-files:
-      - any-glob-to-any-file: overlays/**/*
-Packages:
-  - changed-files:
-      - any-glob-to-any-file: packages/**/*
+      - any-glob-to-any-file: modules/lib/**/*
 Secrets:
   - changed-files:
       - any-glob-to-any-file: secrets/**/*
-Systems:
+Hosts:
   - changed-files:
-      - any-glob-to-any-file: systems/**/*
-repo:
+      - any-glob-to-any-file: modules/hosts/**/*
+Neovim:
   - changed-files:
-      - any-glob-to-any-file: "*"
+      - any-glob-to-any-file: modules/{languages,nixvim}/**/*
+Nix:
+  - changed-files:
+      - any-glob-to-any-file: modules/nix/**/*
+HomeLab:
+  - changed-files:
+      - any-glob-to-any-file: modules/homelab/**/*
+      - any-glob-to-any-file: modules/hosts/HomeLab/**/*
+MacBook-Pro:
+  - changed-files:
+      - any-glob-to-any-file: modules/hosts/Proton-MacBook-Air/**/*
+MacBook-Air:
+  - changed-files:
+      - any-glob-to-any-file: modules/hosts/Andrea-MacBook-Air/**/*
 GitHub-Action:
   - changed-files:
       - any-glob-to-any-file: .github/workflows/*

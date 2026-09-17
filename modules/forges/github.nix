@@ -4,6 +4,7 @@
       sops.secrets."github/host" = { };
       sops.secrets."github/name" = { };
       sops.secrets."github/email" = { };
+      sops.secrets."github/token" = { };
       sops.secrets."github/authorization_key" = {
         path = "${hmArgs.config.home.homeDirectory}/.ssh/github_authorisation.pub";
         mode = "0644";
@@ -32,6 +33,11 @@
       programs.git.includes = [
         { path = hmArgs.config.sops.templates."git-github-conditional-includes".path; }
       ];
+
+      home.sessionVariables = {
+        GH_TOKEN = "$(cat ${hmArgs.config.sops.secrets."github/token".path})";
+        GITHUB_TOKEN = "$(cat ${hmArgs.config.sops.secrets."github/token".path})";
+      };
     };
   };
 }

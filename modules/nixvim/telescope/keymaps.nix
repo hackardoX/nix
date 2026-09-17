@@ -119,10 +119,12 @@ in
           n = {
             "<c-d>" = "delete_buffer";
             "<CR>" = multiopen;
+            "<c-t>".__raw = ''require("trouble.sources.telescope").open'';
           };
           i = {
             "<c-d>" = "delete_buffer";
             "<CR>" = multiopen;
+            "<c-t>".__raw = ''require("trouble.sources.telescope").open'';
           };
         };
       };

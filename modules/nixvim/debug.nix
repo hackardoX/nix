@@ -121,6 +121,16 @@ in
     plugins = {
       dap = {
         enable = true;
+        lazyLoad.settings.cmd = [
+          "DapContinue"
+          "DapToggleBreakpoint"
+          "DapToggleRepl"
+          "DapShowLog"
+          "DapStepOver"
+          "DapStepInto"
+          "DapStepOut"
+          "DapPause"
+        ];
         luaConfig.pre = ''
           -- DEBUG LISTENERS
           require("dap").listeners.before.attach.dapui_config = function()
@@ -137,8 +147,46 @@ in
           end
         '';
       };
-      dap-ui.enable = true;
-      dap-virtual-text.enable = true;
+      dap-ui = {
+        enable = true;
+        lazyLoad.settings = {
+          keys = [
+            {
+              __unkeyed-1 = "<leader>du";
+              __unkeyed-2.__raw = ''
+                function()
+                  require("dap.ext.vscode").load_launchjs(nil, {})
+                  require("dapui").toggle()
+                end
+              '';
+              mode = "n";
+              desc = "Toggle Debugger UI";
+            }
+          ];
+          before.__raw = ''
+            function()
+              require("lz.n").trigger_load("nvim-dap")
+              require("lz.n").trigger_load("nvim-dap-virtual-text")
+            end
+          '';
+        };
+      };
+      dap-virtual-text = {
+        enable = true;
+        lazyLoad.settings = {
+          cmd = [
+            "DapVirtualTextEnable"
+            "DapVirtualTextDisable"
+            "DapVirtualTextToggle"
+            "DapVirtualTextForceRefresh"
+          ];
+          before.__raw = ''
+            function()
+              require("lz.n").trigger_load("nvim-dap")
+            end
+          '';
+        };
+      };
       which-key = {
         settings.spec = [
           {

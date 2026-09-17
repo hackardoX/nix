@@ -59,17 +59,77 @@ let
       desc = "List Repos";
     }
   ];
+  gitsignsPrefix = "<Leader>gs";
+  gitsignsKeymaps = [
+    {
+      mode = "n";
+      key = "${gitsignsPrefix}s";
+      action.__raw = ''
+        function()
+          require("gitsigns").stage_hunk()
+          vim.notify("Hunk staged", vim.log.levels.INFO, { title = "Gitsigns" })
+        end
+      '';
+      options.desc = "Stage Hunk";
+    }
+    {
+      mode = "n";
+      key = "${gitsignsPrefix}u";
+      action.__raw = ''
+        function()
+          require("gitsigns").undo_stage_hunk()
+          vim.notify("Hunk unstaged", vim.log.levels.INFO, { title = "Gitsigns" })
+        end
+      '';
+      options.desc = "Unstage Hunk";
+    }
+    {
+      mode = "n";
+      key = "${gitsignsPrefix}r";
+      action = "<cmd>Gitsigns reset_hunk<CR>";
+      options.desc = "Reset Hunk";
+    }
+    {
+      mode = "n";
+      key = "${gitsignsPrefix}p";
+      action = "<cmd>Gitsigns preview_hunk<CR>";
+      options.desc = "Preview Hunk";
+    }
+    {
+      mode = "n";
+      key = "${gitsignsPrefix}b";
+      action = "<cmd>Gitsigns toggle_current_line_blame<CR>";
+      options.desc = "Toggle Blame";
+    }
+  ];
 in
 {
   flake.modules.nixvim.dev = {
     plugins = {
-      gitblame = {
+      gitsigns = {
+        # gitsigns documentation
+        # See: https://github.com/lewis6991/gitsigns.nvim
         enable = true;
-        settings.enabled = false;
+        lazyLoad.settings.event = [
+          "BufReadPost"
+          "BufNewFile"
+        ];
+        settings = {
+          current_line_blame = true;
+          current_line_blame_opts = {
+            delay = 1000;
+            ignore_blank_lines = true;
+            ignore_whitespace = true;
+            virt_text = true;
+            virt_text_pos = "eol";
+          };
+          signcolumn = true;
+          update_debounce = 200;
+        };
       };
-      gitgutter.enable = true;
       octo = {
         enable = true;
+        lazyLoad.settings.cmd = [ "Octo" ];
         settings = {
           picker = "telescope";
           enable_builtin = true;
@@ -114,9 +174,13 @@ in
             __unkeyed-1 = octoPrefix;
             group = "Octo (${toString (builtins.length octoKeymaps)} keymaps)";
           }
+          {
+            __unkeyed-1 = gitsignsPrefix;
+            group = "Gitsigns (${toString (builtins.length gitsignsKeymaps)} keymaps)";
+          }
         ];
       };
     };
-    keymaps = octoKeymaps;
+    keymaps = octoKeymaps ++ gitsignsKeymaps;
   };
 }

@@ -1,14 +1,16 @@
 { inputs, ... }:
 {
-  flake.modules.nixvim.dev.plugins.lsp = {
-    inlayHints = true;
-    keymaps.extra = [
+  flake.modules.nixvim.dev.lsp = {
+    inlayHints.enable = true;
+    keymaps = [
       {
-        key = "<Leader>ht";
+        key = "<Leader>lh";
         mode = "n";
         action = inputs.nixvim.lib.nixvim.mkRaw ''
           function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+            local message = vim.lsp.inlay_hint.is_enabled() and "Inlay hint is off" or "Inlay hint is on"
+            vim.notify(message, vim.log.levels.INFO, { title = "Tooling Info" })
           end
         '';
         options.desc = "Toggle inlay hints";
