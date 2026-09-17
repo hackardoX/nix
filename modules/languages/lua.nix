@@ -1,4 +1,6 @@
 { lib, ... }: {
+  perSystem.treefmt.programs.stylua.enable = true;
+
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     let
