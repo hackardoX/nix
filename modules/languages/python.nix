@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, config, ... }:
 {
   flake.modules.nixvim.dev =
     { pkgs, ... }:
@@ -6,6 +6,12 @@
       extraPackages = with pkgs; [
         basedpyright
         ruff
+        # debugpy must live inside the interpreter: nvim-dap-python launches
+        # `python -m debugpy.adapter` from whatever python3 is on PATH.
+        (python3.withPackages (ps: [
+          ps.debugpy
+        ]))
+        uv
       ];
       lsp.servers = {
         basedpyright.enable = true;
@@ -13,10 +19,7 @@
       };
 
       plugins = {
-        conform-nvim.settings = {
-          formatters_by_ft.python = [ "ruff_format" ];
-          formatters.ruff_format.command = lib.getExe pkgs.ruff;
-        };
+        conform-nvim.luaConfig.post = config.flake.lib.formatRouting.post "python" [ "python" ];
         dap-python.enable = true;
       };
     };
@@ -24,6 +27,11 @@
   flake.modules.homeManager.dev =
     { pkgs, ... }:
     {
+      home.packages = with pkgs; [
+        python3
+        uv
+      ];
+
       programs.opencode = {
         extraPackages = with pkgs; [
           basedpyright
