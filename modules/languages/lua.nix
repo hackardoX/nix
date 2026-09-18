@@ -28,7 +28,6 @@
       extraFiles = lib.listToAttrs (map mkRuntimeFiletype runtimeFiletypes);
       extraPackages = with pkgs; [
         lua
-        stylua
       ];
 
       lsp.servers.lua_ls = {
@@ -36,11 +35,6 @@
         config.settings.Lua.diagnostics.globals = [ "vim" ];
       };
 
-      plugins = {
-        conform-nvim.settings = {
-          formatters_by_ft.lua = [ "stylua" ];
-          formatters.stylua.command = lib.getExe pkgs.stylua;
-        };
-      };
+      plugins.conform-nvim.settings.formatters_by_ft.lua = [ "stylua" ];
     };
 }
