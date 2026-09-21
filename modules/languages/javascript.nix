@@ -185,10 +185,12 @@ in
       lsp.servers = {
         biome = {
           enable = true;
+          packageFallback = true;
           config.workspace_required = true;
         };
         eslint = {
           enable = true;
+          packageFallback = true;
           config = {
             # Keep formatting with conform/prettier/biome and let ESLint focus on
             # diagnostics and fix/code-action workflows.
@@ -198,6 +200,7 @@ in
         };
         oxlint = {
           enable = true;
+          packageFallback = true;
           config = {
             workspace_required = true;
             settings = {
@@ -223,11 +226,19 @@ in
         };
         tailwindcss = {
           enable = true;
+          packageFallback = true;
           config.workspace_required = true;
         };
         tsgo = {
           enable = true;
-          package = pkgs.typescript; # TODO: remove this later once typescript-go is removed in nixvim
+          packageFallback = true;
+          # TODO: remove this later once typescript-go is removed in nixvim
+          package = pkgs.typescript;
+          config.cmd = [
+            "tsc"
+            "--lsp"
+            "--stdio"
+          ];
         };
       };
     };

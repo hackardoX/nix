@@ -4,18 +4,15 @@
     { pkgs, ... }:
     {
       extraPackages = with pkgs; [
-        rust-analyzer
         rustc
         cargo
-        rustfmt
         clippy
       ];
+      extraPackagesAfter = [ pkgs.rustfmt ];
 
       lsp.servers.rust_analyzer = {
         enable = true;
-        # rust-analyzer ships its own binary name `rust-analyzer`; nixvim's
-        # autoInstall resolves it, pin the store path anyway for purity.
-        config.cmd = [ (lib.getExe pkgs.rust-analyzer) ];
+        packageFallback = true;
         config.settings."rust-analyzer" = {
           check = {
             command = "clippy";

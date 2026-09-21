@@ -10,27 +10,24 @@
           exec $(/usr/bin/xcrun --find sourcekit-lsp) "$@"
         '')
       ];
+      extraPackagesAfter = [ pkgs.swift-format ];
 
       lsp.servers.sourcekit = {
         enable = true;
+        package = null;
         config = {
           filetypes = [
             "swift"
             "objc"
           ];
-          root_dir = {
-            markers = [
-              "Package.swift"
-              "compile_commands.json"
-              ".git"
-            ];
-          };
         };
       };
 
-      # conform's "swift" formatter shells out to `swift format` from the
-      # same toolchain (/usr/bin/swift shim).
-      plugins.conform-nvim.settings.formatters_by_ft.swift = [ "swift" ];
+      # `swift_format` calls the swift-format binary directly; the `swift`
+      # formatter would run `swift format`, which autoInstall resolves to
+      # nixpkgs' swift wrapper (5.10.1) whose dispatch fails without a
+      # companion swift-format on its PATH.
+      plugins.conform-nvim.settings.formatters_by_ft.swift = [ "swift_format" ];
     };
 
   flake.modules.homeManager.dev =

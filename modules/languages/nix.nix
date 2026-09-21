@@ -7,14 +7,23 @@
     };
   };
 
-  flake.modules.nixvim.dev = _: {
-    plugins.conform-nvim.settings.formatters_by_ft.nix = [ "nixfmt" ];
+  flake.modules.nixvim.dev =
+    { pkgs, ... }:
+    {
+      plugins.conform-nvim.settings.formatters_by_ft.nix = [ "nixfmt" ];
+      extraPackagesAfter = [ pkgs.nixfmt ];
 
-    lsp.servers = {
-      nixd.enable = true;
-      statix.enable = true;
+      lsp.servers = {
+        nixd = {
+          enable = true;
+          packageFallback = true;
+        };
+        statix = {
+          enable = true;
+          packageFallback = true;
+        };
+      };
     };
-  };
   flake.modules.homeManager.dev =
     { pkgs, ... }:
     {
