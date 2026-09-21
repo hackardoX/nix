@@ -29,9 +29,11 @@
       extraPackages = with pkgs; [
         lua
       ];
+      extraPackagesAfter = [ pkgs.stylua ];
 
       lsp.servers.lua_ls = {
         enable = true;
+        packageFallback = true;
         config.settings.Lua.diagnostics.globals = [ "vim" ];
       };
 

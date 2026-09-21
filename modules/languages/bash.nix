@@ -1,3 +1,6 @@
 {
-  flake.modules.nixvim.dev.lsp.servers.bashls.enable = true;
+  flake.modules.nixvim.dev.lsp.servers.bashls = {
+    enable = true;
+    packageFallback = true;
+  };
 }

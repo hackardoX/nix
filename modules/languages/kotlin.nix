@@ -3,12 +3,25 @@
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
-      extraPackages = with pkgs; [
-        kotlin-language-server
-        ktlint
-      ];
+      extraPackagesAfter = [ pkgs.ktlint ];
 
-      lsp.servers.kotlin_language_server.enable = true;
+      lsp.servers.kotlin_language_server = {
+        enable = true;
+        packageFallback = true;
+        config.root_markers = [
+          "settings.gradle"
+          "settings.gradle.kts"
+          "build.xml"
+          "pom.xml"
+          "build.gradle"
+          "build.gradle.kts"
+          "BUILD.bazel"
+          "BUILD"
+          "WORKSPACE"
+          "WORKSPACE.bazel"
+          "MODULE.bazel"
+        ];
+      };
 
       plugins.conform-nvim.settings.formatters_by_ft.kotlin = [ "ktlint" ];
     };
@@ -34,6 +47,11 @@
             "settings.gradle"
             "settings.gradle.kts"
             "pom.xml"
+            "BUILD.bazel"
+            "BUILD"
+            "WORKSPACE"
+            "WORKSPACE.bazel"
+            "MODULE.bazel"
           ];
         };
       };
