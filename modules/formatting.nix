@@ -27,7 +27,7 @@
   flake.modules.nixvim.dev = {
     plugins.conform-nvim = {
       enable = true;
-      autoInstall.enable = true;
+      autoInstall.enable = false;
       lazyLoad.settings = {
         cmd = [
           "ConformInfo"

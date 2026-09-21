@@ -1,7 +1,13 @@
-_: {
-  flake.modules.nixvim.dev = _: {
-    lsp.servers.yamlls.enable = true;
+{
+  flake.modules.nixvim.dev =
+    { pkgs, ... }:
+    {
+      lsp.servers.yamlls = {
+        enable = true;
+        packageFallback = true;
+      };
 
-    plugins.conform-nvim.settings.formatters_by_ft.yaml = [ "prettierd" ];
-  };
+      extraPackagesAfter = [ pkgs.prettierd ];
+      plugins.conform-nvim.settings.formatters_by_ft.yaml = [ "prettierd" ];
+    };
 }

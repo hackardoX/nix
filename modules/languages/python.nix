@@ -14,8 +14,14 @@
         uv
       ];
       lsp.servers = {
-        basedpyright.enable = true;
-        ruff.enable = true;
+        basedpyright = {
+          enable = true;
+          packageFallback = true;
+        };
+        ruff = {
+          enable = true;
+          packageFallback = true;
+        };
       };
 
       plugins = {
