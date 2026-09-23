@@ -1,23 +1,9 @@
 { lib, ... }: {
-  flake.modules.nixvim.dev =
-    { pkgs, ... }:
-    {
-      extraPackages = with pkgs; [
-        prettierd
-      ];
-      lsp.servers.html.enable = true;
+  flake.modules.nixvim.dev = _: {
+    lsp.servers.html.enable = true;
 
-      plugins = {
-        conform-nvim.settings = {
-          formatters_by_ft = {
-            html = [ "prettierd" ];
-          };
-          formatters = {
-            prettierd.command = lib.getExe pkgs.prettierd;
-          };
-        };
-      };
-    };
+    plugins.conform-nvim.settings.formatters_by_ft.html = [ "prettierd" ];
+  };
 
   flake.modules.homeManager.dev =
     { pkgs, ... }:

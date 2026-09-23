@@ -1,11 +1,57 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.dev = {
-    programs.java.enable = true;
-  };
+  flake.modules.homeManager.dev =
+    { pkgs, ... }:
+    {
+      programs.java.enable = true;
+      # Micronaut projects work with plain jdtls (annotation processing);
+      # the CLI is only for scaffolding new projects.
+      home.packages = [ pkgs.micronaut ];
+    };
 
   flake.modules.nixvim.dev =
     { pkgs, ... }:
+    let
+      # Spring Tools 4 language contribution, repackaged from the VS Code
+      # marketplace extension (vmware.vscode-spring-boot). Only the
+      # contributes.javaExtensions jars are kept: they register with jdtls as
+      # Eclipse bundles (init_options.bundles), adding Boot-aware
+      # completions/diagnostics to Java files. Micronaut needs nothing extra:
+      # its DI metadata flows through standard annotation processing.
+      sts4-version = "2.5.2026091714";
+      spring-boot-jdtls-bundles = pkgs.stdenv.mkDerivation {
+        pname = "spring-boot-jdtls-bundles";
+        version = sts4-version;
+        src = pkgs.fetchurl {
+          name = "vscode-spring-boot-${sts4-version}.vsix";
+          url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vmware/vsextensions/vscode-spring-boot/${sts4-version}/vspackage";
+          sha256 = "sha256-7n6gaMBnavsF4Vq4HY4wuCaONh8tNOr1Cxp/R9s12gU=";
+        };
+        nativeBuildInputs = [ pkgs.unzip ];
+        phases = [
+          "buildPhase"
+          "installPhase"
+        ];
+        buildPhase = ''
+          runHook preBuild
+          # the marketplace endpoint may serve the vsix gzip-wrapped
+          if gzip -t "$src" 2>/dev/null; then
+            gunzip -c "$src" > vscode-spring-boot.vsix
+          else
+            cp "$src" vscode-spring-boot.vsix
+          fi
+          mkdir extracted
+          (cd extracted && unzip -q ../vscode-spring-boot.vsix 'extension/jars/*')
+          runHook postBuild
+        '';
+        installPhase = ''
+          runHook preInstall
+          install -dm755 $out/share/java/spring-boot-jdtls
+          cp extracted/extension/jars/*.jar $out/share/java/spring-boot-jdtls/
+          runHook postInstall
+        '';
+      };
+    in
     {
       extraPackages = [
         pkgs.jdk
@@ -17,6 +63,15 @@
       ];
       extraConfigLuaPre = ''
         _G._jdtls = _G._jdtls or {}
+
+        -- Spring Tools 4 jdtls bundles (see spring-boot-jdtls-bundles above);
+        -- consumed by the FileType autocmd below via init_options.bundles.
+        function _G._spring_boot_jdtls_bundles()
+          return vim.fn.glob(
+            "${spring-boot-jdtls-bundles}/share/java/spring-boot-jdtls/*.jar",
+            true, true
+          )
+        end
 
         function _G._jdtls.find_root(startpath)
           local current = startpath and vim.fs.dirname(startpath) or nil
@@ -122,40 +177,45 @@
         })
       '';
 
-      plugins.java = {
-        enable = true;
-        lazyLoad.settings.ft = [ "java" ];
-        package = pkgs.vimPlugins.nvim-java.overrideAttrs (old: {
-          postPatch = ''
-            ${old.postPatch or ""}
+      plugins = {
+        conform-nvim.settings.formatters_by_ft.java = [ "google-java-format" ];
 
-            substituteInPlace lua/java.lua \
-              --replace-fail "local pkgm = Manager()" "local pkgm = config.pkgm and config.pkgm.enable == false and { install = function() end } or Manager()" \
-              --replace-fail "require('java.startup.lsp_setup').setup(config)" "if config.jdtls.enable ~= false then
-              require('java.startup.lsp_setup').setup(config)
-            end"
-          '';
-        });
+        java = {
+          enable = true;
+          lazyLoad.settings.ft = [ "java" ];
+          package = pkgs.vimPlugins.nvim-java.overrideAttrs (old: {
+            postPatch = ''
+              ${old.postPatch or ""}
 
-        settings = {
-          # Keep JDK management in Nix
-          jdk.auto_install = false;
-          # Keep nvim-java's feature APIs, but use the Nix-managed JDTLS below.
-          jdtls.enable = false;
-          pkgm.enable = false;
-          # Spring Boot is configured by the root spring-boot plugin module.
-          spring_boot_tools = {
-            enable = false;
+              substituteInPlace lua/java.lua \
+                --replace-fail "local pkgm = Manager()" "local pkgm = config.pkgm and config.pkgm.enable == false and { install = function() end } or Manager()" \
+                --replace-fail "require('java.startup.lsp_setup').setup(config)" "if config.jdtls.enable ~= false then
+                require('java.startup.lsp_setup').setup(config)
+              end"
+            '';
+          });
+
+          settings = {
+            # Keep JDK management in Nix
+            jdk.auto_install = false;
+            # Keep nvim-java's feature APIs, but use the Nix-managed JDTLS below.
+            jdtls.enable = false;
+            pkgm.enable = false;
+            # Spring Boot support comes from the STS4 jdtls bundles above;
+            # nvim-java's own spring_boot_tools integration is not used.
+            spring_boot_tools = {
+              enable = false;
+            };
+            root_markers = [
+              "pom.xml"
+              "mvnw"
+              "settings.gradle"
+              "settings.gradle.kts"
+              "build.gradle"
+              "build.gradle.kts"
+              "gradlew"
+            ];
           };
-          root_markers = [
-            "pom.xml"
-            "mvnw"
-            "settings.gradle"
-            "settings.gradle.kts"
-            "build.gradle"
-            "build.gradle.kts"
-            "gradlew"
-          ];
         };
       };
     };

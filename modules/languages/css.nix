@@ -1,21 +1,28 @@
-{ lib, ... }: {
+{ lib, config, ... }: {
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
-      extraPackages = with pkgs; [
-        prettierd
+      plugins.conform-nvim.luaConfig.post = config.flake.lib.formatRouting.post "web" [
+        "css"
+        "scss"
+        "less"
       ];
-      lsp.servers.cssls.enable = true;
 
-      plugins = {
-        conform-nvim.settings = {
-          formatters_by_ft = {
-            css = [ "prettierd" ];
-            scss = [ "prettierd" ];
-            less = [ "prettierd" ];
-          };
-          formatters = {
-            prettierd.command = lib.getExe pkgs.prettierd;
+      lsp.servers = {
+        cssls.enable = true;
+        cssls.config.settings = {
+          css.lint.unknownAtRules = "ignore";
+          scss.lint.unknownAtRules = "ignore";
+          less.lint.unknownAtRules = "ignore";
+        };
+        stylelint_lsp = {
+          enable = true;
+          config = {
+            cmd = [
+              (lib.getExe pkgs.stylelint-lsp)
+              "--stdio"
+            ];
+            workspace_required = true;
           };
         };
       };
