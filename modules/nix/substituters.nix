@@ -5,6 +5,7 @@ let
       "https://cache.nixos.org"
       "https://nix-community.cachix.org"
       "https://nixpkgs-unfree.cachix.org"
+      "https://cache.numtide.com"
       "https://numtide.cachix.org"
       "https://hackardo.cachix.org"
     ];
@@ -12,6 +13,7 @@ let
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "nixpkgs-unfree.cachix.org-1:hqvoInulhbV4nJ9yJOEr+4wxhDV4xq2d1DK7S6Nj6rs="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
       "hackardo.cachix.org-1:sQXwmhqZP1B1qMogZFGbm3FDagEiwNbG4zgi80Elda0="
     ];
