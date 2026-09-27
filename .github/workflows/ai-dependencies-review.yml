@@ -21,10 +21,20 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Get AI Review App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.AUTOMERGE_APP_ID }}
+          private-key: ${{ secrets.AUTOMERGE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
       - uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEW_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           model: opencode/big-pickle
           use_github_token: true
@@ -42,13 +52,44 @@ jobs:
             - Any documented breaking changes or migration steps
               between the old and new version
 
-            Post a single PR comment with:
-            - Verdict: "Safe to merge" / "Needs review" / "Do not merge"
-              (base "Do not merge" only on it being a pre-release/beta/rc,
-              since Renovate config already filters most of those)
-            - 2-4 bullet summary of what changed
-            - Any required nix config changes based on the maintainer's
-              docs (env vars, migration steps), if applicable
-            - Links to the sources you used
+            Post a single PR comment with EXACTLY this format:
 
-            Do not modify any files. Only post a comment.
+            **Verdict:** Safe to merge / Needs review / Do not merge
+
+            ### What changed
+            - Bullet 1
+            - Bullet 2
+            - Bullet 3
+
+            ### Required nix config changes
+            [Any migration steps, new env vars, or config changes needed]
+
+            ### Sources
+            - Link 1
+            - Link 2
+
+            ---
+
+            AFTER posting the comment, follow this decision tree:
+
+            IF your verdict was "Safe to merge":
+              1. Approve the PR with minimal approval:
+                 gh pr review $PR_NUM --approve
+
+              2. Enable auto-merge using the REVIEW_APP_TOKEN:
+                 export GH_TOKEN="${REVIEW_APP_TOKEN}"
+                 gh pr merge --auto --rebase $PR_NUM
+              
+              3. Done. Do not add additional comments.
+
+            ELSE IF verdict was "Needs review" or "Do not merge":
+              - Do NOT approve the PR
+              - Do NOT enable auto-merge
+              - Do NOT take any further action
+              
+              The PR will require manual review.
+
+            Notes:
+            - $PR_NUM = ${{ github.event.pull_request.number }}
+            - Only run approval/merge commands if verdict is EXACTLY "Safe to merge"
+            - Do not modify any repository files
