@@ -18,7 +18,6 @@
         enabledExtensions = with spicePkgs.extensions; [
           hidePodcasts
           shuffle
-          betterGenres
           spicyLyrics
         ];
         enabledSnippets = [
