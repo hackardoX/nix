@@ -170,9 +170,15 @@ rulesets:
       - actor_id: 5
         actor_type: RepositoryRole
         bypass_mode: exempt
+      # 1556657 = Renovate
       - actor_id: 1556657
         actor_type: Integration
         bypass_mode: exempt
+      # 5098642 = Dependabot
       - actor_id: 5098642
         actor_type: Integration
+        bypass_mode: exempt
+      # 324130360 = protoniac
+      - actor_id: 324130360
+        actor_type: Actor
         bypass_mode: exempt
