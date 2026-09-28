@@ -47,6 +47,10 @@
           ];
         };
       };
+      codebook = {
+        enable = true;
+        packageFallback = true;
+      };
     };
   };
 }
