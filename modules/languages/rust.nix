@@ -3,12 +3,12 @@
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
-      extraPackages = with pkgs; [
-        rustc
-        cargo
-        clippy
+      extraPackagesAfter = [
+        pkgs.rustfmt
+        pkgs.rustc
+        pkgs.cargo
+        pkgs.clippy
       ];
-      extraPackagesAfter = [ pkgs.rustfmt ];
 
       lsp.servers.rust_analyzer = {
         enable = true;
