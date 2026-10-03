@@ -1,6 +1,7 @@
 keys:
   - &admin age1jwc3zy5tml8pmuama2se6jxnuyn87juvtvpyjrtg9mqyqjtg9qssre5rac
   - &HomeLab age1rua8fvjun2eq6cgrece2g5995ajezn3l2d0q5nptc855vffkhyrs6v8u6z
+  - &HomeLab-Shared age1utsysm2e3z3nck7et69psyh9ka3t482jqpl9vxzr7p6aj8rqrcusm7lh2r
   - &Hetzner-HomeLab age1ruf4w2vthzavc3gyexs8qu74k4w6aw7syauhvga6949jx6u3ns9qr48jta
   - &Andrea-MacBook-Air age1nd2nc46ustuylq8zt90a2lv7t9r0epqsamsfq3saffnzfnh9au7q2cvkf9
   - &Proton-MacBook-Pro age1nycq6ranp0s4w5nqpd0ge80de85sq7n83fnzw740mpt89kpa8cfq3zauzf
@@ -12,6 +13,7 @@ creation_rules:
       - age:
           - *admin
           - *HomeLab
+          - *HomeLab-Shared
           - *Hetzner-HomeLab
           - *Andrea-MacBook-Air
           - *Proton-MacBook-Pro
