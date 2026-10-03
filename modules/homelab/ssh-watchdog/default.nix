@@ -40,8 +40,7 @@
       systemd.timers.ssh-watchdog = {
         wantedBy = [ "timers.target" ];
         timerConfig = {
-          OnBootSec = "5min";
-          OnUnitActiveSec = "1h";
+          OnUnitActiveSec = "3h";
           Persistent = true;
           Unit = "ssh-watchdog.service";
         };

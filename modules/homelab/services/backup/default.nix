@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
+{ config, lib, ... }:
 let
   backrestUid = 920;
   backrestGid = 920;
@@ -14,6 +10,44 @@ let
 
   hosts = config.flake.meta.reverse-proxy.hosts;
   backrestPort = config.flake.meta.reverse-proxy.ports.backup;
+
+  repos = {
+    beszel = {
+      uri = "rclone:koofr:backup/beszel";
+      passwordFile = "/run/secrets/beszel/backup_encryption_key";
+    };
+    immich = {
+      uri = "rclone:koofr:backup/immich";
+      passwordFile = "/run/secrets/immich/backup_encryption_key";
+    };
+    job-ops = {
+      uri = "rclone:koofr:backup/job-ops";
+      passwordFile = "/run/secrets/job-ops/backup_encryption_key";
+    };
+    sure-finance = {
+      uri = "rclone:koofr:backup/sure-finance";
+      passwordFile = "/run/secrets/sure-finance/backup_encryption_key";
+    };
+    dawarich = {
+      uri = "rclone:koofr:backup/dawarich";
+      passwordFile = "/run/secrets/dawarich/backup_encryption_key";
+    };
+    reactive-resume = {
+      uri = "rclone:koofr:backup/reactive-resume";
+      passwordFile = "/run/secrets/reactive-resume/backup_encryption_key";
+    };
+    tandoor = {
+      uri = "rclone:koofr:backup/tandoor";
+      passwordFile = "/run/secrets/tandoor/backup_encryption_key";
+    };
+  };
+
+  backrestRepos = lib.mapAttrsToList (name: repo: {
+    id = name;
+    inherit (repo) uri;
+    env = [ "RESTIC_PASSWORD_FILE=${repo.passwordFile}" ];
+    auto_initialize = true;
+  }) repos;
 in
 {
   flake.meta.homepage.services.backup = {
@@ -26,47 +60,9 @@ in
     pingPort = backrestPort;
   };
 
-  flake.modules.nixos.backup =
+  flake.modules.nixos.homelab-backup =
     { pkgs, ... }:
     let
-      repos = {
-        beszel = {
-          uri = "rclone:koofr:backup/beszel";
-          passwordFile = "/run/secrets/beszel/backup_encryption_key";
-        };
-        immich = {
-          uri = "rclone:koofr:backup/immich";
-          passwordFile = "/run/secrets/immich/backup_encryption_key";
-        };
-        job-ops = {
-          uri = "rclone:koofr:backup/job-ops";
-          passwordFile = "/run/secrets/job-ops/backup_encryption_key";
-        };
-        sure-finance = {
-          uri = "rclone:koofr:backup/sure-finance";
-          passwordFile = "/run/secrets/sure-finance/backup_encryption_key";
-        };
-        dawarich = {
-          uri = "rclone:koofr:backup/dawarich";
-          passwordFile = "/run/secrets/dawarich/backup_encryption_key";
-        };
-        reactive-resume = {
-          uri = "rclone:koofr:backup/reactive-resume";
-          passwordFile = "/run/secrets/reactive-resume/backup_encryption_key";
-        };
-        tandoor = {
-          uri = "rclone:koofr:backup/tandoor";
-          passwordFile = "/run/secrets/tandoor/backup_encryption_key";
-        };
-      };
-
-      backrestRepos = lib.mapAttrsToList (name: repo: {
-        id = name;
-        inherit (repo) uri;
-        env = [ "RESTIC_PASSWORD_FILE=${repo.passwordFile}" ];
-        auto_initialize = true;
-      }) repos;
-
       backrestConfig = pkgs.writeText "backrest-config.json" (
         builtins.toJSON {
           modno = 1;
@@ -134,7 +130,7 @@ in
         environment = {
           BACKREST_CONFIG = "${backrestConfigDir}/config.json";
           BACKREST_DATA = backrestDataDir;
-          BACKREST_RESTIC_COMMAND = lib.getExe pkgs.restic;
+          BACKREST_RESTIC_COMMAND = "${pkgs.restic}/bin/restic";
           XDG_CACHE_HOME = backrestCacheDir;
           HOME = backrestDataDir;
         };
@@ -143,8 +139,8 @@ in
           Type = "simple";
           User = backrestUser;
           Group = backrestGroup;
-          ExecStartPre = "${lib.getExe' pkgs.coreutils "test"} -x ${lib.getExe pkgs.backrest}";
-          ExecStart = "${lib.getExe pkgs.backrest} -bind-address 127.0.0.1:${toString backrestPort}";
+          ExecStartPre = "${lib.getExe' pkgs.coreutils "test"} -x ${pkgs.backrest}/bin/backrest";
+          ExecStart = "${pkgs.backrest}/bin/backrest -bind-address 127.0.0.1:${toString backrestPort}";
           Restart = "on-failure";
           RestartSec = "10";
 
