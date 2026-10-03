@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.github = {
+  flake.modules.homeManager.dev = {
     programs = {
       gh = {
         enable = true;
