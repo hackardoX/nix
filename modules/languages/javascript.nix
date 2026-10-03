@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, config, ... }:
 let
   jsFiletypes = [
     "typescript"
@@ -43,60 +43,8 @@ in
   flake.modules.nixvim.dev =
     { pkgs, ... }:
     {
-      extraPackages = with pkgs; [
-        biome
-        eslint_d
-        oxfmt
-        typescript
-      ];
       plugins = {
-        conform-nvim = {
-          enable = true;
-          settings = {
-            formatters_by_ft = builtins.listToAttrs (
-              map (lang: {
-                name = lang;
-                value = [
-                  "oxfmt"
-                  "biome"
-                  "eslint_d"
-                ];
-              }) jsFiletypes
-            );
-            formatters = {
-              oxfmt = {
-                command = lib.getExe pkgs.oxfmt;
-                stdin = true;
-                args = [
-                  "--stdin-filepath"
-                  "$FILENAME"
-                ];
-                require_cwd = true;
-                cwd.__raw = ''
-                  require("conform.util").root_file({
-                    ".oxfmtrc.json", ".oxfmtrc.jsonc", ".oxfmtrc",
-                    "oxfmt.config.ts", "oxfmt.config.mts", "oxfmt.config.js", "oxfmt.config.mjs",
-                  })
-                '';
-              };
-              biome = {
-                command = lib.getExe pkgs.biome;
-                require_cwd = true;
-              };
-              eslint_d = {
-                command = lib.getExe pkgs.eslint_d;
-                require_cwd = true;
-                cwd.__raw = ''
-                  require("conform.util").root_file({
-                    ".eslintrc", ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.yaml", ".eslintrc.yml", ".eslintrc.json",
-                    "eslint.config.js", "eslint.config.mjs", "eslint.config.cjs",
-                    "eslint.config.ts", "eslint.config.mts", "eslint.config.cts",
-                  })
-                '';
-              };
-            };
-          };
-        };
+        conform-nvim.luaConfig.post = config.flake.lib.formatRouting.post "web" jsFiletypes;
         dap = {
           adapters.servers.pwa-node = {
             host = "localhost";
@@ -271,16 +219,6 @@ in
                 end
               end
             '';
-          };
-        };
-        stylelint_lsp = {
-          enable = true;
-          config = {
-            cmd = [
-              (lib.getExe pkgs.stylelint-lsp)
-              "--stdio"
-            ];
-            workspace_required = true;
           };
         };
         tailwindcss = {
