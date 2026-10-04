@@ -33,55 +33,46 @@ can download and install it from the official
 [Nix website](https://nixos.org/download.html) or from the
 [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer).
 
-### Clone this repository to your local machine
+### Clone and setup
 
 ```bash
-# New machine without git
+# Install git if needed:
 nix-shell -p git
 
-# Clone
 git clone https://github.com/hackardoX/nix.git
 cd nix
 
-# First run without nix-darwin:
-nix run github:lnl7/nix-darwin#darwin-rebuild -- switch --flake github:hackardoX/nix
-# or
-nix build github:hackardoX/nix#darwinConfigurations.Andrea-MacBook-Air.system
-sudo ./result/sw/bin/darwin-rebuild switch --flake .#Andrea-MacBook-Air
+# First-time setup on macOS:
+nix run github:lnl7/nix-darwin#darwin-rebuild -- switch --flake .
 
-# Subsequent runs:
-darwin-rebuild switch --flake .
+# macOS (darwin hosts):
+nh darwin switch          # Andrea-MacBook-Air, Proton-MacBook-Pro
 
-# Or with nh (recommended):
-nh darwin switch
+# NixOS (HomeLab), on the machine itself:
+sudo nh os switch         # HomeLab (Apple Silicon)
 ```
 
 ## Remote Deployment
 
-For NixOS nodes (like Hetzner VPS), I use [nixos-anywhere](https://github.com/nix-community/nixos-anywhere) for the initial unattended installation and [deploy-rs](https://github.com/serokell/deploy-rs) for subsequent updates.
-
-### Initial Provisioning
-
-To install NixOS on a fresh machine (ensure the machine is in a Rescue/Live environment with SSH access):
+Initial provisioning for NixOS nodes (e.g., HomeLab on Apple Silicon, Hetzner VPS):
 
 ```bash
-nix run github:nix-community/nixos-anywhere -- --flake .#<nix_host> --build-on remote <user>@<ip_address>
+nix run github:nix-community/nixos-anywhere -- \
+  --flake .#HomeLab --build-on remote <user>@<ip_address>
 ```
 
-### Updates
-
-Once provisioned, deploy changes safely using deploy-rs:
+Subsequent updates via deploy-rs:
 
 ```bash
-nix run github:serokell/deploy-rs .#<nix_host>
+nix run github:serokell/deploy-rs .#<host>   # e.g., .#HomeLab
 ```
 
 ## Features
 
 Here's an overview of what my Nix configuration offers:
 
-- **Flake-parts Architecture**: Modular flake structure using
-  [flake-parts](https://flake.parts/) for better composability and organization.
+- **Partitioned Inputs**: Separate flakes for `homelab` and `laptops` isolate private/host-specific dependencies (e.g., `asahi-firmware`) from the root lockfile.
+- **Flake-parts Architecture**: Modular flake structure using [flake-parts](https://flake.parts/) for better composability and organization.
 
 - **Dendritic Pattern**: Configuration follows the
   [dendritic pattern](https://github.com/mightyiam/dendritic) for a clean,
@@ -103,11 +94,8 @@ Here's an overview of what my Nix configuration offers:
 - **DevShell Support**: The flake provides a development shell for convenient
   development and maintenance of your Nix environment.
 
-- **CI with Cachix**: Continuous integration that pushes built artifacts to
-  [Cachix](https://github.com/cachix/cachix) for efficient builds.
-
-- **Secret Management**: Secure handling of sensitive information with
-  [opnix](https://github.com/brizzbuzz/opnix).
+- **Secret Management**: Secure secret handling with [sops-nix](https://github.com/Mic92/sops-nix).
+- **CI with Cachix**: Continuous integration that pushes built artifacts to [Cachix](https://github.com/cachix/cachix) for efficient builds.
 
 - **Remote Deployment**: Easily deploy Nix configuration with [deploy-rs](https://github.com/serokell/deploy-rs)
 
@@ -136,13 +124,16 @@ Learn more at the
 
 ```
 .
-├── flake.nix              # Main flake entry point
-└── modules/
-    ├── darwin/            # nix-darwin modules
-    ├── homeManager/       # Home Manager modules
-    ├── nixvim/            # Nixvim configuration
-    ├── hosts/             # Host-specific configurations
-    └── ...                # Additional feature modules
+├── flake.nix                        # Main entry point
+├── partitions/                      # Isolated input sets
+│   ├── homelab/flake.nix            # Apple Silicon NixOS deps
+│   └── laptops/flake.nix            # macOS hosts deps
+└── modules/                         # Shared configuration
+    ├── hosts/                       # Host-specific configs
+    │   ├── HomeLab/                 # NixOS (aarch64-linux)
+    │   ├── Andrea-MacBook-Air/      # Darwin (aarch64-darwin)
+    │   └── ...
+    └── ...                          # Feature modules
 ```
 
 All modules are discovered recursively using

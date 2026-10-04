@@ -5,20 +5,27 @@
     sops.secrets = {
       "ssh/andrea_mac_book_air.pub" = {
         path = "/Users/${config.flake.meta.users.hackardo.name}/.ssh/andrea_mac_book_air.pub";
-        group = "admin";
+        owner = config.flake.meta.users.hackardo.name;
+        group = "staff";
+        mode = "0644";
       };
       "ssh/andrea_mac_book_air" = {
         path = "/Users/${config.flake.meta.users.hackardo.name}/.ssh/andrea_mac_book_air";
+        owner = config.flake.meta.users.hackardo.name;
         group = "admin";
         mode = "0600";
       };
       "ssh/homelab.pub" = {
         path = "/Users/${config.flake.meta.users.hackardo.name}/.ssh/homelab.pub";
-        group = "admin";
+        owner = config.flake.meta.users.hackardo.name;
+        group = "staff";
+        mode = "0644";
       };
       "ssh/homelab_initrd.pub" = {
         path = "/Users/${config.flake.meta.users.hackardo.name}/.ssh/homelab_initrd.pub";
-        group = "admin";
+        owner = config.flake.meta.users.hackardo.name;
+        group = "staff";
+        mode = "0644";
       };
     };
   };

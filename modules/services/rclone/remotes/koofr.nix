@@ -6,15 +6,16 @@
 }:
 let
   email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
-in
-{
-  flake.modules.nixos.rclone = { };
-  flake.modules.darwin.rclone = { };
-  flake.modules.homeManager.rclone = hmArgs: {
+  polyModule = {
     sops.secrets."rclone/koofr/password" = {
       sopsFile = "${inputs.self}/secrets/shared/secrets.yaml";
     };
-
+  };
+in
+{
+  flake.modules.nixos.rclone = polyModule;
+  flake.modules.darwin.rclone = polyModule;
+  flake.modules.homeManager.rclone = hmArgs: {
     programs.rclone.remotes = lib.mkIf (builtins.elem "koofr" hmArgs.config.services.rclone.remotes) {
       koofr = {
         config = {
@@ -24,7 +25,7 @@ in
         };
 
         secrets = {
-          password = hmArgs.config.sops.secrets."rclone/koofr/password".path;
+          password = hmArgs.osConfig.sops.secrets."rclone/koofr/password".path;
         };
       };
     };
