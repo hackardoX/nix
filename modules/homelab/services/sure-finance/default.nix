@@ -241,7 +241,7 @@ in
         services.podman.networks.sure-finance.driver = "bridge";
 
         services.podman.containers.sure-finance-db = {
-          image = "docker.io/library/postgres:16.15";
+          image = "docker.io/library/postgres:18.6";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
