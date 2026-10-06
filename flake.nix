@@ -47,6 +47,15 @@
     import-tree = {
       url = "github:vic/import-tree";
     };
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs = {
+        flake-parts.follows = "flake-parts";
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+        treefmt-nix.follows = "treefmt-nix";
+      };
+    };
     make-shell = {
       url = "github:nicknovitski/make-shell";
       inputs.flake-compat.follows = "";

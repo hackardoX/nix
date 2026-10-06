@@ -101,7 +101,7 @@
                   SELECTED_TYPE="{{.Form.Type}}"
                   COMMITS_TO_SUGGEST=4
 
-                  opencode run --format json --model=proton-lumo/lumo-lite --variant=none "
+                  opencode2 run --format json --model=proton-lumo/lumo-lite --variant=none "
                   You are an expert at writing Git commits. Your job is to write commit messages that follow the Conventional Commits format.
 
                   The user has selected: $SELECTED_TYPE
