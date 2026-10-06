@@ -22,7 +22,8 @@ in
         settings.lsp = {
           typescript = {
             command = [
-              (lib.getExe' pkgs.typescript "tsserver")
+              (lib.getExe pkgs.typescript)
+              "--lsp"
               "--stdio"
             ];
             extensions = [
@@ -46,6 +47,19 @@ in
       plugins = {
         conform-nvim.luaConfig.post = config.flake.lib.formatRouting.post "web" jsFiletypes;
         dap = {
+          luaConfig.post = ''
+            -- Walk up from dir looking for <pkg_file>; returns root, path or nil
+            function _dap_find_pkg(dir, pkg_file)
+              while dir ~= "" and dir ~= "/" do
+                local candidate = dir .. "/" .. pkg_file
+                if vim.uv.fs_stat(candidate) then
+                  return dir, candidate
+                end
+                dir = vim.fn.fnamemodify(dir, ":h")
+              end
+              return nil
+            end
+          '';
           adapters.servers.pwa-node = {
             host = "localhost";
             port = "\${port}";
@@ -77,12 +91,6 @@ in
                   request = "attach";
                   name = "Auto Attach";
                   cwd.__raw = "vim.fn.getcwd()";
-                  protocol = "inspector";
-                  sourceMaps = true;
-                  resolveSourceMapLocations = [
-                    "\${workspaceFolder}/**"
-                    "!**/node_modules/**"
-                  ];
                   restart = true;
                 }
 
@@ -113,11 +121,6 @@ in
                   ];
                   console = "integratedTerminal";
                   cwd = "\${workspaceFolder}";
-                  sourceMaps = true;
-                  resolveSourceMapLocations = [
-                    "\${workspaceFolder}/**"
-                    "!**/node_modules/**"
-                  ];
                 }
                 {
                   type = "pwa-node";
@@ -133,11 +136,6 @@ in
                   ];
                   console = "integratedTerminal";
                   cwd = "\${workspaceFolder}";
-                  sourceMaps = true;
-                  resolveSourceMapLocations = [
-                    "\${workspaceFolder}/**"
-                    "!**/node_modules/**"
-                  ];
                 }
                 {
                   type = "pwa-node";
@@ -154,27 +152,34 @@ in
                   ];
                   console = "integratedTerminal";
                   cwd = "\${workspaceFolder}";
-                  sourceMaps = true;
-                  resolveSourceMapLocations = [
-                    "\${workspaceFolder}/**"
-                    "!**/node_modules/**"
-                  ];
                 }
                 {
                   type = "pwa-node";
-                  request = "attach";
-                  name = "Attach to Process";
-                  port = 9229;
-                  restart = true;
+                  request = "launch";
+                  name = "Debug Vitest Current File";
+                  runtimeExecutable = lib.getExe pkgs.nodejs;
+                  program.__raw = ''
+                    function()
+                      local _, path = _dap_find_pkg(vim.fn.expand("%:p:h"), "node_modules/vitest/vitest.mjs")
+                      return path or (vim.fn.getcwd() .. "/node_modules/vitest/vitest.mjs")
+                    end
+                  '';
+                  args = [
+                    "run"
+                    "\${file}"
+                    "--no-file-parallelism"
+                  ];
+                  cwd.__raw = ''
+                    function()
+                      local root = _dap_find_pkg(vim.fn.expand("%:p:h"), "node_modules/vitest/vitest.mjs")
+                      return root or vim.fn.getcwd()
+                    end
+                  '';
+                  console = "integratedTerminal";
                   skipFiles = [
                     "<node_internals>/**"
+                    "**/node_modules/**"
                   ];
-                  sourceMaps = true;
-                  resolveSourceMapLocations = [
-                    "\${workspaceFolder}/**"
-                    "!**/node_modules/**"
-                  ];
-                  cwd = "\${workspaceFolder}";
                 }
               ];
             }) jsFiletypes
