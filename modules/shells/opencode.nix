@@ -9,42 +9,91 @@
         settings = {
           autoupdate = false;
           # Last matching rule wins: broad rules first, exceptions after.
-          permissions =
-            let
-              rule = action: effect: resource: { inherit action resource effect; };
-              shell = rule "shell";
-            in
-            [
-              (shell "ask" "*")
-              (rule "edit" "ask" "*")
+          permissions = [
+            {
+              action = "shell";
+              resource = "*";
+              effect = "ask";
+            }
+            {
+              action = "edit";
+              resource = "*";
+              effect = "ask";
+            }
 
-              (shell "allow" "ls *")
-              (shell "allow" "cat *")
-              (shell "allow" "grep *")
-              (shell "allow" "npm *")
+            {
+              action = "shell";
+              resource = "ls *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "cat *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "grep *";
+              effect = "allow";
+            }
 
-              # Read-only git and staging. Everything else (checkout, merge,
-              # rebase, reset, ...) falls through to ask.
-              (shell "allow" "git status *")
-              (shell "allow" "git diff *")
-              (shell "allow" "git log *")
-              (shell "allow" "git show *")
-              (shell "allow" "git blame *")
-              (shell "allow" "git ls-files *")
-              (shell "allow" "git rev-parse *")
-              (shell "allow" "git branch --show-current")
-              (shell "allow" "git add *")
+            # Read-only git and staging. Everything else (checkout, merge,
+            # rebase, reset, ...) falls through to ask.
+            {
+              action = "shell";
+              resource = "git status *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git diff *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git log *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git show *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git blame *";
+              effect = "allow";
+            }
 
-              # Never pick "Allow always" here: it saves a durable allow rule.
-              (shell "ask" "git commit *")
-              (shell "ask" "git -C * commit *")
+            {
+              action = "shell";
+              resource = "git ls-files *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git rev-parse *";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git branch --show-current";
+              effect = "allow";
+            }
+            {
+              action = "shell";
+              resource = "git add *";
+              effect = "allow";
+            }
 
-              (shell "deny" "rm *")
-              (shell "deny" "git push *")
-              (shell "deny" "git -C * push *")
-              (shell "deny" "git -c * push *")
-              (shell "deny" "gh pr merge *")
-            ];
+            # Not a boundary (find -delete and scripts get around it), only a
+            # prompt where uncommitted work could be lost.
+            {
+              action = "shell";
+              resource = "rm *";
+              effect = "ask";
+            }
+          ];
           # Hard deny, applied after agent rules and saved approvals, and
           # not overridable by project config.
           experimental.policies = [
@@ -68,6 +117,11 @@
               resource = "shell:gh pr merge *";
               effect = "deny";
             }
+            {
+              action = "permission";
+              resource = "shell:npm publish *";
+              effect = "deny";
+            }
           ];
           provider = {
             proton-lumo = {
@@ -82,8 +136,5 @@
           };
         };
       };
-
-      # opencode2 installs as bin/opencode2; keep the familiar command name.
-      home.shellAliases.opencode = "opencode2";
     };
 }
