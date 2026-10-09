@@ -22,6 +22,9 @@
                 focus = true;
               }
             ];
+            # New worktree paths are untrusted by direnv, so its .envrc would
+            # stay blocked until allowed by hand.
+            post_create = [ "direnv allow" ];
           };
     };
 }
