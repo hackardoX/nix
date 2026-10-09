@@ -269,7 +269,8 @@
           read = [
             "$XDG_CONFIG_HOME/opencode"
             "$HOME/.claude"
-          ];
+          ]
+          ++ cfg.readPaths;
           read_file = gitRendered;
           bypass_protection = gitRendered;
           unix_socket = [ "/nix/var/nix/daemon-socket/socket" ];
@@ -662,6 +663,12 @@
           type = lib.types.listOf lib.types.str;
           default = [ ];
           description = "Extra domains the sandboxed OpenCode may reach through the nono proxy.";
+        };
+
+        readPaths = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = "Extra directories the sandboxed OpenCode may read (e.g. reference clones).";
         };
 
         approveCommits = lib.mkOption {
