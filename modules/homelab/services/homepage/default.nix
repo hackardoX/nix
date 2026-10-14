@@ -191,7 +191,7 @@ in
       services.podman.enable = true;
 
       services.podman.containers.homepage = {
-        image = "ghcr.io/gethomepage/homepage:v2.4.0";
+        image = "ghcr.io/gethomepage/homepage:v2.5.0";
         autoStart = true;
         userNS = "keep-id:uid=0,gid=0";
         network = [ "pasta:${pastaArgs}" ];

@@ -191,7 +191,7 @@ in
         services.podman.networks.tandoor.driver = "bridge";
 
         services.podman.containers.tandoor-db = {
-          image = "docker.io/library/postgres:16.14";
+          image = "docker.io/library/postgres:16.15";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "tandoor.network" ];
