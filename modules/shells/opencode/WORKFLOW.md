@@ -47,16 +47,13 @@ Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox.nix
 
 ## GitLab (read-only)
 
-The agent can read MRs, issues and pipelines with `glab`, through a broker that never puts the token in the session.
+The agent can read MRs, issues and pipelines with `glab`, which runs inside the sandbox with a token in its environment. The wrapper injects it into the session through the generated sandbox profile (`set_vars`), not by exporting it; the sandbox denies every other `*_TOKEN`.
 
-- The token is `gitlab.agent_token` in the sops file, a personal token with only the `read_api` scope.
-- Allowed: `glab mr view|list|diff|issues|approvers`, `issue view|list`, `ci status|list|view|get|trace`, `release view|list`, and `glab api <endpoint>` with GET only.
-- Note: `repo view` currently returns 404 through the broker, so use `glab api`.
-- Not allowed: anything that writes, `--web`, `--hostname`, `graphql`, combined short flags such as `-XPOST`, and a `-R` or URL that names another host.
+- The token is `gitlab.agent_token` in the sops file, a personal token with only the `read_api` scope. Writes fail anyway.
+- The GitLab host is added to the sandbox's network allowlist at launch, so the proxy only lets `glab` (and the session) reach that one host. Other hosts stay blocked.
 - `glab` has no git access in the sandbox, so always pass `-R group/project`.
-- The GitLab host is added to the sandbox's network allowlist at launch, so the agent can also reach it without a token. Other hosts stay blocked.
 - Every `glab` call asks first, because unsandboxed OpenCode would run the real `glab` with your own token.
-- Residual risk: the session can point `HTTPS_PROXY` at its own listener. The token stays inside the TLS stream, so it only sees the host name.
+- Residual risk: the session can read `GITLAB_TOKEN` and talk to the host directly, not just through `glab`. The token is read-only, and only that one host is reachable.
 
 ## What the sandbox enforces
 
