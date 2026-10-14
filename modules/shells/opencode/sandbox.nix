@@ -9,13 +9,6 @@
       nono = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.nono;
       opencode = lib.getExe' hmArgs.config.programs.opencode.package "opencode2";
 
-      # Rendered sops templates that git needs to read (identity, includeIf,
-      # allowed signers). Everything else rendered by sops stays denied.
-      gitRendered = lib.pipe (lib.attrByPath [ "sops" "templates" ] { } hmArgs.config) [
-        (lib.filterAttrs (name: _: name == "allowed_signers" || lib.hasPrefix "git-" name))
-        (lib.mapAttrsToList (_: template: template.path))
-      ];
-
       lumoHost = lib.head (
         builtins.match "https?://([^/:]+).*" config.flake.meta.aiProviders.lumo.endpoint
       );
@@ -143,78 +136,6 @@
 
       inherit (cfg) glab;
       glabEnabled = glab.tokenFile != null && glab.hostFile != null;
-      glabReal = lib.getExe pkgs.glab;
-      glabTmp = "${home}/.local/state/opencode-glab/tmp";
-
-      # The pinned `glab` executable. The token never enters the session: this
-      # script reads it inside glab's own sandbox, and only runs read-only
-      # subcommands. The token itself only has the read_api scope, and the
-      # sandbox only lets glab reach the GitLab host.
-      glabGuard = pkgs.writeShellScript "glab-guard" ''
-        set -eu
-
-        deny() {
-          echo "glab: $1 is not allowed in the sandbox (read-only access)." >&2
-          exit 1
-        }
-
-        # Combined and attached short flags (-XPOST, -Rhost/x) hide values from
-        # the checks below, and a repository flag may not name another host.
-        for arg in "$@"; do
-          case "$arg" in
-            --hostname | --hostname=* | -w | --web) deny "$arg" ;;
-            -[A-Za-z][A-Za-z]*) deny "$arg" ;;
-            -R=* | --repo=* | *://*) deny "$arg" ;;
-          esac
-        done
-
-        case "''${1:-}" in
-          api)
-            # One endpoint and a few flags, nothing that sends a body.
-            shift
-            endpoints=0
-            for arg in "$@"; do
-              case "$arg" in
-                --paginate | -i | --include | --silent) ;;
-                -*) deny "api $arg" ;;
-                graphql | @* | *@* | http*) deny "api $arg" ;;
-                *)
-                  case "$arg" in
-                    *[!A-Za-z0-9_%:./?=\&,-]*) deny "api $arg" ;;
-                  esac
-                  endpoints=$((endpoints + 1))
-                  ;;
-              esac
-            done
-            [ "$endpoints" -eq 1 ] || deny "api with $endpoints endpoints"
-            set -- api "$@"
-            ;;
-          mr | issue | ci | repo | release)
-            case "$1 ''${2:-}" in
-              "mr view" | "mr list" | "mr diff" | "mr issues" | "mr approvers") ;;
-              "issue view" | "issue list") ;;
-              "ci status" | "ci list" | "ci view" | "ci get" | "ci trace") ;;
-              "repo view") ;;
-              "release view" | "release list") ;;
-              *) deny "glab $1 ''${2:-}" ;;
-            esac
-            ;;
-          --version | version) ;;
-          *) deny "glab ''${1:-}" ;;
-        esac
-
-        GITLAB_TOKEN=$(${pkgs.coreutils}/bin/cat ${glab.tokenFile})
-        GITLAB_HOST=$(${pkgs.coreutils}/bin/cat ${glab.hostFile})
-        export GITLAB_TOKEN GITLAB_HOST
-        # Settings come from here only, not from the session or from a
-        # repository's .git/glab-cli/config.yml.
-        export HOME=${glabTmp} XDG_CONFIG_HOME=${glabTmp} GLAB_CONFIG_DIR=${glabTmp}
-        export GLAB_CHECK_UPDATE=false GLAB_SEND_TELEMETRY=false GLAB_NO_PROMPT=1
-        export GLAB_PAGER=cat PAGER=cat GLAB_BROWSER=/usr/bin/false GLAB_EDITOR=/usr/bin/false
-        export GLAB_API_PROTOCOL=https GLAB_SKIP_TLS_VERIFY=false
-        export GIT_CEILING_DIRECTORIES=/
-        exec ${glabReal} "$@"
-      '';
 
       commandEnv.allow_vars = [
         "PATH"
@@ -235,20 +156,21 @@
 
         groups.include = [
           "nix_runtime"
-          "git_config"
           "user_caches_macos"
           "node_runtime"
           "rust_runtime"
           "python_runtime"
           "go_runtime"
-          "go_runtime_macos"
           "unlink_protection"
         ];
 
         workdir.access = "readwrite";
 
-        # The agent needs its provider key, but not forge tokens: with those it
-        # could push over HTTPS to hosts the proxy allows.
+        # Forge tokens are denied so the agent cannot push over HTTPS; the
+        # deny patterns beat allow_vars and have no exceptions. The only token
+        # handed to the session is the read_api GitLab token, injected at
+        # launch through set_vars, which bypasses deny_vars (see launchJq), and
+        # the proxy only lets it reach the host in hostFile.
         environment.deny_vars = [
           "*_TOKEN"
           "*SECRET*"
@@ -271,8 +193,6 @@
             "$HOME/.claude"
           ]
           ++ cfg.readPaths;
-          read_file = gitRendered;
-          bypass_protection = gitRendered;
           unix_socket = [ "/nix/var/nix/daemon-socket/socket" ];
           deny = [
             # Holds the password of the unsandboxed background service.
@@ -282,9 +202,9 @@
             "$XDG_CONFIG_HOME/sops"
             "$XDG_CONFIG_HOME/sops-nix"
             "$TMPDIR/secrets.d"
-            # SSH agent sockets.
+            # SSH agent sockets. Keychains are denied by nono's default
+            # deny_keychains_macos group.
             "$TMPDIR/proton-pass-agent"
-            "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password"
           ];
         };
 
@@ -332,7 +252,7 @@
           };
 
           # The real git must not be reachable around the guard.
-          deny_direct_exec_bypass = [ gitReal ] ++ lib.optional glabEnabled glabReal;
+          deny_direct_exec_bypass = [ gitReal ];
 
           credentials.ssh-agent = {
             type = "local-socket";
@@ -377,24 +297,12 @@
                     reason = "Pushing is done by the user.";
                   }
                   {
-                    argv.contains = [ "fetch" ];
-                    reason = "The sandbox has no network access to remotes.";
-                  }
-                  {
-                    argv.contains = [ "pull" ];
-                    reason = "The sandbox has no network access to remotes.";
-                  }
-                  {
                     argv.contains = [ "tag" ];
                     reason = "Tags are signed outside the commit approval.";
                   }
                   {
                     argv.contains = [ "commit-tree" ];
                     reason = "Plumbing would sign outside the commit approval.";
-                  }
-                  {
-                    argv.contains = [ "-c" ];
-                    reason = "Config overrides could redirect signing.";
                   }
                 ];
               };
@@ -428,46 +336,7 @@
         };
       };
 
-      # Read-only GitLab access for the agent, in a command sandbox of its own.
-      # The host is only known at launch (see launchJq).
-      glabProfile = lib.optionalAttrs glabEnabled {
-        command_policies.commands.glab = {
-          executable = glabGuard;
-          from.session.sandbox = {
-            fs_read = [
-              "/nix/store"
-              "$WORKDIR"
-            ];
-            fs_read_file = [
-              glab.tokenFile
-              glab.hostFile
-            ];
-            fs_write = [ glabTmp ];
-            environment = commandEnv // {
-              # glab only reaches the host through the proxy nono gives it.
-              allow_vars = commandEnv.allow_vars ++ [
-                "HTTPS_PROXY"
-                "HTTP_PROXY"
-                "ALL_PROXY"
-                "NO_PROXY"
-                "https_proxy"
-                "http_proxy"
-                "all_proxy"
-                "no_proxy"
-              ];
-              set_vars.TMPDIR = glabTmp;
-            };
-            network.allow_domain = [ ];
-            unsafe_macos_seatbelt_rules = [
-              ''(allow process-exec* (subpath "/nix/store"))''
-            ];
-          };
-        };
-      };
-
-      profile = lib.recursiveUpdate baseProfile glabProfile;
-
-      profileFile = pkgs.writeText "nono-opencode.json" (builtins.toJSON profile);
+      profileFile = pkgs.writeText "nono-opencode.json" (builtins.toJSON baseProfile);
 
       # Seatbelt rules for one folder above the project, read from stdin as
       # newline-separated paths. OpenCode probes each such folder for config and
@@ -519,10 +388,12 @@
                   }
               )
           end
-        | if $glabhost == "" then del(.command_policies.commands.glab)
-          else
+        # glab's read_api token arrives through jq's environment (never its
+        # argv) and lands in set_vars, which deny_vars does not filter; the
+        # wrapper deletes it from its own environment right after (see below).
+        | if $glabhost == "" then . else
             .network.allow_domain += [$glabhost]
-            | .command_policies.commands.glab.from.session.sandbox.network.allow_domain = [$glabhost]
+            | .environment.set_vars += {GITLAB_TOKEN: $ENV.GLAB_TOKEN_VALUE}
           end
       '';
 
@@ -533,6 +404,7 @@
         runtimeInputs = [
           nono
           pkgs.git
+          pkgs.glab
           pkgs.jq
           pkgs.coreutils
         ];
@@ -591,8 +463,11 @@
             common=""
           fi
 
-          # Outside the folders the sandbox may write to, so it cannot alter the
-          # profile generated below.
+          # Outside the folders the sandbox may write to, so it cannot alter
+          # the profile generated below. mktemp -d creates it mode 700, so the
+          # generated profile (which holds the GitLab token in set_vars) is
+          # readable only by this user, is never an argument to nono, and the
+          # EXIT trap removes it when the session ends.
           state="''${XDG_STATE_HOME:-$HOME/.local/state}/opencode-run"
           mkdir -p "$state"
           run_dir=$(mktemp -d "$state/run.XXXXXX")
@@ -610,13 +485,33 @@
             rules=$(printf '%s\n' "''${parents[@]}" | jq -R -s -c -f ${parentRulesJq})
           fi
 
-          # Per-launch rules: protect the git state and scope git writes to the
-          # branch this session started on (see launchJq).
+          # glab runs inside the session with a read_api token; missing files
+          # just skip the setup. The proxy only lets it reach this host (see
+          # launchJq), so exposing the token to the session is contained. The
+          # token is never exported: the sandbox denies *_TOKEN anyway, and it
+          # only reaches jq's environment for the single call below.
           glab_host=""
-          ${lib.optionalString glabEnabled "glab_host=$(cat ${glab.hostFile} 2>/dev/null || true)"}
+          glab_token=""
+          ${lib.optionalString glabEnabled ''
+            if [ -r "${glab.hostFile}" ] && [ -r "${glab.tokenFile}" ]; then
+              glab_host=$(cat "${glab.hostFile}")
+              export GITLAB_HOST="$glab_host"
+              glab_token=$(cat "${glab.tokenFile}")
+              # glab writes its state here; already covered by the profile's
+              # grant on $XDG_STATE_HOME/opencode.
+              glab_state="''${XDG_STATE_HOME:-$HOME/.local/state}/opencode/glab"
+              mkdir -p "$glab_state"
+              export GLAB_CONFIG_DIR="$glab_state"
+              export GLAB_CHECK_UPDATE=false GLAB_SEND_TELEMETRY=false GLAB_NO_PROMPT=1
+              export GLAB_BROWSER=/usr/bin/false
+            fi
+          ''}
 
+          # Per-launch rules: protect the git state and scope git writes to the
+          # branch this session started on (see launchJq). The token is passed
+          # in jq's environment only for this call, so it stays out of argv.
           profile=${profileFile}
-          if jq \
+          if GLAB_TOKEN_VALUE="$glab_token" jq \
             --argjson parents "$rules" \
             --arg glabhost "$glab_host" \
             --arg common "$common" \
@@ -648,14 +543,16 @@
             default = null;
             description = ''
               File holding a GitLab token with only the read_api scope. Set it
-              together with hostFile to let the agent run read-only glab commands.
-              The token never enters the session's own sandbox.
+              together with hostFile to let the agent run glab. The token is
+              injected into the session's environment through the generated
+              sandbox profile on purpose; the proxy only lets it reach the host
+              in hostFile.
             '';
           };
           hostFile = lib.mkOption {
             type = lib.types.nullOr lib.types.str;
             default = null;
-            description = "File holding the GitLab host name. It is the only host glab may reach.";
+            description = "File holding the GitLab host name. It is the only GitLab host the proxy allows.";
           };
         };
 
@@ -684,14 +581,12 @@
       config = {
         home.file.".local/state/opencode-git/tmp/.keep".text = "";
         home.file.".opencode/plan/.keep".text = "";
-        home.file.".local/state/opencode-glab/tmp/.keep".text = "";
 
         home.packages = [
           nono
           wrapper
         ];
         home.shellAliases.opencode-unsandboxed = "opencode2";
-        xdg.configFile."nono/profiles/opencode.json".source = profileFile;
       };
     };
 }

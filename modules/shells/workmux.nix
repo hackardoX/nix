@@ -22,9 +22,17 @@
                 focus = true;
               }
             ];
-            # New worktree paths are untrusted by direnv, so its .envrc would
-            # stay blocked until allowed by hand.
-            post_create = [ "direnv allow" ];
+            # New worktree paths are untrusted by direnv, so its .envrc files
+            # would stay blocked until allowed by hand. Allow every tracked
+            # .envrc, not just a root one: in the Proton monorepo the only
+            # .envrc is nested (project/calendar/.envrc). Loop over
+            # `git ls-files -z` instead of piping to xargs because BSD xargs
+            # lacks -r and would run `direnv allow` on the cwd for an empty
+            # list, exiting 1 and aborting `workmux add`; `|| true` keeps one
+            # failing file from doing the same.
+            post_create = [
+              ''git ls-files -z -- ".envrc" "**/.envrc" | while IFS= read -r -d ""; do direnv allow "$REPLY" || true; done''
+            ];
           };
     };
 }

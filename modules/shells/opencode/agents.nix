@@ -44,7 +44,7 @@
         }
 
         # Asks, because unsandboxed OpenCode would run the real glab with your
-        # own token. The sandbox's glab is read-only (see sandbox.nix).
+        # own token. The sandbox's glab uses a read_api token (see sandbox.nix).
         {
           action = "shell";
           resource = "glab *";
