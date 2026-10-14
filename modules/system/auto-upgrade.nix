@@ -54,7 +54,7 @@
     {
       system.autoUpgrade = {
         enable = self ? rev;
-        flake = config.flake.meta.uri;
+        flake = lib.mkDefault config.flake.meta.uri;
         upgrade = false;
         dates = "03:00";
         rebootWindow = {
@@ -76,6 +76,10 @@
         };
       };
     };
+
+  flake.modules.nixos.homelab = {
+    system.autoUpgrade.flake = "${config.flake.meta.uri}?ref=HomeLab";
+  };
 
   flake.modules.darwin.base = {
     system.defaults = {

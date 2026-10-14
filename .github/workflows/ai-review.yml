@@ -1,0 +1,42 @@
+name: AI Review
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, review_requested]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: pr-agent-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+  issues: write
+
+jobs:
+  pr_agent_job:
+    if: ${{ github.event.sender.type != 'Bot' && (github.event_name == 'pull_request' || github.event.issue.pull_request) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.AUTOMERGE_APP_ID }}
+          private-key: ${{ secrets.AUTOMERGE_APP_PRIVATE_KEY }}
+      - name: Run PR-Agent
+        uses: docker://pragent/pr-agent:0.46.0-github_action
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          OPENAI__KEY: ${{ secrets.LUMO_API_KEY }}
+          OPENAI__API_BASE: https://lumo.proton.me/api/ai/v1
+          config.model: openai/lumo-max
+          config.fallback_models: '["openai/lumo-lite"]'
+          config.model_weak: openai/lumo-lite
+          config.custom_model_max_tokens: "131072"
+          config.max_model_tokens: "131072"
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
+          github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "review_requested"]'

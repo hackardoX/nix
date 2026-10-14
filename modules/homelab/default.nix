@@ -3,6 +3,7 @@
   flake.modules.nixos.homelab = {
     imports = with config.flake.modules.nixos; [
       homelab-alerting
+      homelab-backup
       homelab-beszel
       homelab-dawarich
       homelab-ingress
@@ -15,6 +16,8 @@
       homelab-ssh-watchdog
       homelab-sure-finance
       homelab-tandoor
+
+      # Dependencies on these modules
       backup
       rclone
     ];
