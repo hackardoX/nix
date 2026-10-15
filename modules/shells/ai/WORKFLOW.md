@@ -59,17 +59,54 @@ The agent can read MRs, issues and pipelines with `glab`, which runs inside the 
 
 Claude Code runs in the same nono sandbox (`sandbox.nix`, profile included there).
 
-- `claude` is the sandboxed alias; `claude-unsandboxed` skips the sandbox and needs no config pin. Aliases only exist in interactive shells, so scripts cannot reach the sandboxed entry point.
+- `claude` is the sandboxed alias; `claude-unsandboxed` skips the sandbox. It uses the pinned dir `$XDG_STATE_HOME/claude-code`, which Home Manager exports as `CLAUDE_CONFIG_DIR` in every shell (`programs.claude-code.configDir`). There is no override. Aliases only exist in interactive shells, so scripts cannot reach the sandboxed entry point.
 - Auth comes from the sops secret `ai/claude_api_key`, injected as `CLAUDE_CODE_OAUTH_TOKEN`. Create it with `claude setup-token` and add the key to `secrets/users/aaccardo.yaml` with sops.
-- Config is isolated in `$XDG_STATE_HOME/claude-code` (`CLAUDE_CONFIG_DIR`), so the session cannot plant settings or hooks the unsandboxed claude would run later. The global `CLAUDE_CONFIG_DIR` is forced back to `~/.claude`, so any claude started outside the alias (scripts, IDE) uses `~/.claude` and never the sandbox dir; the sandboxed alias is the only user of the isolated dir.
-- MCP servers come from `programs.mcp`, delivered through HM's claude-code integration as a generated plugin (`hm`) inside the isolated config dir.
-- The write-tool deny list for the Atlassian MCP lives in `settings.json` inside that writable config dir. Known limitation: the session could replace it; hardening (write grants limited to subdirs) is a follow-up.
+- Config is isolated in `$XDG_STATE_HOME/claude-code-sandbox` (`CLAUDE_CONFIG_DIR` inside the sandbox), a writable dir separate from the pinned `$XDG_STATE_HOME/claude-code`. The sandbox has no grant on the pinned dir. A plain `claude` outside the alias (scripts, IDE) uses the pinned dir with its strict settings; nothing outside the sandbox dir bypasses prompts.
+- Sandboxed sessions cannot write `.claude/` or `.mcp.json` anywhere in a project, or any `.claude` path (Seatbelt deny in the shared profile, `unsafe_macos_seatbelt_rules`; the OpenCode profile has it too). Reads still work. So a planted project hook or MCP server cannot run later in `claude-unsandboxed`.
+- The sandbox dir's `settings.json` is the pinned one plus `permissions.defaultMode: bypassPermissions`, so bypass applies only to the sandboxed claude. `CLAUDE.md` and the generated MCP plugin (`hm`) are the same files as the pinned dir, linked from the store.
+- The write-tool deny list for the Atlassian MCP lives in that `settings.json`. Home Manager restores a replaced link at the next switch (`backupFileExtension = "hm.old"`; activation can fail if a `.hm.old` file already exists). Files the session adds (plugins, skills, `.claude.json` mcpServers) are never removed.
+- Residual: inside the sandbox dir the session can replace its own `settings.json` (dropping the deny list for later sandboxed runs) or add its own MCP plugin. Treat the Atlassian and OpenViking denies there as guards against mistakes, not as a boundary. Hardening (write grants limited to subdirs) is a follow-up.
 - Only the binary is sandboxed: the orchestrator, specialist agents and commands stay OpenCode-only.
 - Residual risk: the session holds `CLAUDE_CODE_OAUTH_TOKEN` (and the shared GitLab `read_api` token) in its environment, visible to every child process. It is a long-lived token; rotate it if leaked.
 
+## OpenViking (read + remember)
+
+OpenViking is a context database (`viking://` URIs) served as a remote MCP, `openviking.nix`. Both OpenCode and Claude Code get it, inside and outside the sandbox.
+
+- The key is `ai/openviking_api_key` in the sops file. It never reaches the Nix store or a generated config as a literal.
+- One header everywhere: `Bearer {env:OPENVIKING_API_KEY}` in OpenCode (sandboxed and global config) and `${OPENVIKING_API_KEY}` in Claude Code. The key lives only in the environment.
+- Sandboxed: `OPENVIKING_API_KEY` comes from the profile's `set_vars` (`programs.nono.env`, shared by both profiles).
+- Unsandboxed: `home.sessionVariables` sets it to `$(cat <sops path>)`, evaluated at login. After the first switch, log in again. A shared OpenCode background service started earlier, or outside a login shell, keeps the old environment, so run `opencode service restart`. The key is then in the environment of every unsandboxed process of the login session.
+- Allowed domain: `openviking.protontech.ch`. Nothing else is opened.
+- Prompts: in OpenCode every `openviking_*` call asks, in the sandbox too. `remember` is not denied; the agent instructions say to call it only when you ask. Sandboxed Claude does not prompt for `remember` (`bypassPermissions`).
+- Name-based deny rules: `write`, `edit`, `add_resource`, `add_skill`, `forget`, `set_acl`, `cancel_watch`, plus the prefixes `add`, `set`, `write`, `edit`, `cancel`, `forget`, `delete`, `remove`, `create`, `update`, `upload`, `manage`, `grant`, `revoke`. The prefixes are a safety net for new tools. Read tools and `remember` match none of them.
+- These denies are name-based guards, not a hard guarantee. Inside the sandbox the session holds the full API key (`OPENVIKING_API_KEY`) and shell is allowed, so a prompt-injected agent could call the server directly with `curl` and bypass them. Real enforcement needs a server-side key scoped to read + remember.
+- Unsandboxed Claude (`claude-unsandboxed`, pinned dir `$XDG_STATE_HOME/claude-code`) loads the same OpenViking MCP plugin (`hm`) and the same deny list, from the pinned `settings.json`.
+- Residual risks:
+  - The session can read `OPENVIKING_API_KEY` from its environment.
+  - `remember` can store untrusted content that later sessions read.
+  - Sandboxed Claude Code runs with `bypassPermissions`, so its reads are not prompted; only the deny list applies.
+  - The URL `/mcp` is assumed, not checked against the server.
+  - Not verified yet: whether OpenCode v2 expands `{env:...}` in MCP headers.
+
+## Figma (design files)
+
+Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by OpenCode and Claude Code.
+
+- Auth is OAuth in the browser on first use. No token is stored in the config.
+- Unsandboxed OpenCode asks for every `figma_*` call. The sandbox allows them, as it does shell and edit (`relax` in `sandbox.nix`). Sandboxed Claude runs with `bypassPermissions`; unsandboxed Claude keeps its default prompts.
+- Allowed domains: `mcp.figma.com`, `www.figma.com`, `api.figma.com`. Not verified: Figma's OAuth metadata could not be fetched, so the authorization and token hosts are a guess.
+- Not verified in the sandbox: the OAuth callback port (OpenCode has `open_port_range`, the Claude profile has none) and token storage (the Keychain is denied).
+- Accepted risks:
+  - Sandboxed agents can write to Figma without a prompt. A prompt-injected agent could write data it can read into a Figma file or comment. This is an exfiltration path the user accepted; the instructions say never to do it.
+  - The MCP OAuth token probably sits in a directory the session can read (the OpenCode data dir, the sandboxed Claude config dir). Not verified.
+  - The `figma_*` allow applies to every agent, read-only ones and the orchestrator included.
+  - The shared allow-domain list also applies to the Claude profile. The three hosts are a guess to tighten after the first real login.
+  - A project-level `opencode.json` in the repo root is loaded only by unsandboxed OpenCode.
+
 ## What the sandbox enforces
 
-- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the shell and edit asks become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias uses `--permission-mode bypassPermissions` for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
+- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the shell, edit and figma asks become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
 - Writes only in the project folder, the plan folder and a few state folders.
 - Git writes go through a broker that refuses global options such as `--git-dir` and writes to `.git/hooks` and `.git/config`. It does not restrict ref updates.
 - The orchestrator's `worktree`, `merge`, `coordinator` and `open-pr` skills are denied, because they need workmux or `gh`.

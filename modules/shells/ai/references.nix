@@ -27,7 +27,7 @@
       programs.opencode.settings.references = references;
 
       # The sandbox sees $HOME-expanded clones, read-only (see sandbox.nix).
-      programs.opencode.sandbox.readPaths = lib.mapAttrsToList (
+      programs.nono.readPaths = lib.mapAttrsToList (
         _: ref: builtins.replaceStrings [ "~" ] [ "$HOME" ] ref.path
       ) references;
     };

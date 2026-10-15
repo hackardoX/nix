@@ -3,7 +3,7 @@
   flake.modules.homeManager.dev =
     hmArgs@{ lib, pkgs, ... }:
     let
-      cfg = hmArgs.config.programs.opencode.sandbox;
+      cfg = hmArgs.config.programs.nono;
       home = hmArgs.config.home.homeDirectory;
 
       nono = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.nono;
@@ -27,9 +27,9 @@
       # values Home Manager renders into ~/.config/opencode.json.
       settings = hmArgs.config.programs.opencode.settings;
 
-      # Nono is the boundary for shell and edit: their asks become allow here.
-      # Every other ask stays, including the `subagent` plan gate and the MCP
-      # asks (atlassian_*, slack_*). Deny rules, agent allowlists and
+      # Nono is the boundary for shell, edit and figma_*: their asks become allow
+      # here. Every other ask stays, including the `subagent` plan gate and the
+      # MCP asks (atlassian_*, slack_*). Deny rules, agent allowlists and
       # experimental.policies are untouched.
       relax = map (
         r:
@@ -38,6 +38,7 @@
           && builtins.elem r.action [
             "shell"
             "edit"
+            "figma_*"
           ]
         then
           r // { effect = "allow"; }
@@ -246,6 +247,16 @@
               ++ cfg.allowDomains;
           };
 
+          # A sandboxed agent must not plant project config that a later
+          # unsandboxed claude would run (hooks, apiKeyHelper, statusLine, MCP
+          # servers). Reads stay allowed, so the sandboxed claude still sees the
+          # project settings. Static regex because the workdir is only known at
+          # launch; it matches `.claude` path components anywhere.
+          unsafe_macos_seatbelt_rules = [
+            ''(deny file-write* (regex #"/\.claude(/.*)?$"))''
+            ''(deny file-write* (regex #"/\.mcp\.json$"))''
+          ];
+
           # Git runs outside the session's sandbox, in its own, so the SSH agent
           # never reaches the agent: only a brokered git can sign, via ssh-keygen.
           command_policies = {
@@ -356,7 +367,7 @@
         } extra;
     in
     {
-      options.programs.opencode.sandbox = {
+      options.programs.nono = {
         allowDomains = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -412,7 +423,7 @@
           through the profile's `environment.set_vars`. Set vars bypass
           `deny_vars` (e.g. `*_TOKEN`), so use only for secrets the session may
           hold. Values may be sops placeholders. Kept apart from the shared
-          `sandbox.env` so this token never reaches the OpenCode sessions.
+          `programs.nono.env` so this token never reaches the OpenCode sessions.
         '';
       };
 
@@ -496,24 +507,45 @@
         } --allow-cwd -- ${opencode} --standalone";
         home.shellAliases.opencode-unsandboxed = "opencode2";
 
+        # Sandboxed Claude Code's own config dir. Claude writes its state into
+        # it, so it is a real writable dir whose static files are symlinks into
+        # the store, as in the pinned dir. The sandbox has no grant on the
+        # pinned dir that claude-unsandboxed reads. settings.json is the pinned
+        # one plus bypass mode, so bypass is scoped to the sandbox.
+        xdg.stateFile."claude-code-sandbox/CLAUDE.md".source =
+          hmArgs.config.xdg.stateFile."claude-code/CLAUDE.md".source;
+        xdg.stateFile."claude-code-sandbox/settings.json".source =
+          pkgs.runCommand "claude-code-sandbox-settings.json" { nativeBuildInputs = [ pkgs.jq ]; }
+            ''
+              jq '. * {permissions: {defaultMode: "bypassPermissions"}, skipDangerousModePermissionPrompt: true}' \
+                ${
+                  hmArgs.config.home.file."${hmArgs.config.xdg.stateHome}/claude-code/settings.json".source
+                } > $out
+            '';
+        # Same generated MCP plugin (hm) as the pinned dir, so the deny rules
+        # on its tool names still match.
+        xdg.stateFile."claude-code-sandbox/skills/claude-code-home-manager".source =
+          hmArgs.config.home.file."${hmArgs.config.xdg.stateHome}/claude-code/skills/claude-code-home-manager".source;
+
         sops.templates."nono-claude-code.json".content = builtins.toJSON (mkProfile {
           name = "claude-code";
           description = "Claude Code agent sandbox";
           setVars = {
-            CLAUDE_CONFIG_DIR = "$XDG_STATE_HOME/claude-code";
-            GLAB_CONFIG_DIR = "$XDG_STATE_HOME/claude-code/glab";
+            CLAUDE_CONFIG_DIR = "$XDG_STATE_HOME/claude-code-sandbox";
+            GLAB_CONFIG_DIR = "$XDG_STATE_HOME/claude-code-sandbox/glab";
             DISABLE_AUTOUPDATER = "1";
             CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
           }
           // hmArgs.config.programs.claude-code.sandbox.env;
-          allow = [ "$XDG_STATE_HOME/claude-code" ];
+          allow = [ "$XDG_STATE_HOME/claude-code-sandbox" ];
           domains = [ "api.anthropic.com" ];
         });
 
-        # nono is the boundary, so Claude Code skips its own permission prompts.
+        # nono is the boundary. Bypass mode comes from the sandbox dir's
+        # settings.json (permissions.defaultMode), so it applies only here.
         home.shellAliases.claude = "nono run --silent --profile ${
           hmArgs.config.sops.templates."nono-claude-code.json".path
-        } --allow-cwd -- ${lib.getExe hmArgs.config.programs.claude-code.finalPackage} --permission-mode bypassPermissions";
+        } --allow-cwd -- ${lib.getExe hmArgs.config.programs.claude-code.finalPackage}";
         home.shellAliases.claude-unsandboxed = lib.getExe hmArgs.config.programs.claude-code.finalPackage;
       };
     };
