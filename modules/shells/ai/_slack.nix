@@ -40,9 +40,9 @@
           url = "https://mcp.slack.com/mcp";
         };
 
-        # Reads and send_message stay gated by this ask rule; the writes below
-        # are hard-denied because --auto in linked worktrees turns ask into
-        # allow.
+        # Reads and send_message stay gated by this ask rule, in the sandbox too
+        # (the sandbox relaxes only shell and edit asks). The writes below are
+        # hard-denied.
         permissions = [
           {
             action = "slack_*";
@@ -51,8 +51,8 @@
           }
         ];
 
-        # Hard denies, applied after agent rules and saved approvals, so
-        # --auto cannot bypass them. Same list-merge as opencode.nix.
+        # Hard denies, applied after agent rules and saved approvals, so no
+        # allow rule can bypass them. Same list-merge as opencode.nix.
         experimental.policies = map (pattern: {
           action = "permission";
           resource = "slack_${pattern}:*";

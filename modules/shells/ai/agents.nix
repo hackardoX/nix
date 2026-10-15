@@ -91,9 +91,6 @@
       programs.opencode.settings = {
         default_agent = "orchestrator";
 
-        # Models are intentionally not set: subagents inherit the session's
-        # model, and each user can pin one per role with
-        # programs.opencode.settings.agents.<role>.model.
         agents = {
           build = {
             disabled = true;
@@ -118,7 +115,8 @@
                 effect = "allow";
               }
               # Safeguard: the plan gate is a prompt rule, so every dev call
-              # asks. Inside a linked worktree the wrapper passes --auto.
+              # asks, in the sandbox too (the sandbox relaxes only shell and edit
+              # asks, not this subagent gate).
               {
                 action = "subagent";
                 resource = "dev";
@@ -159,7 +157,8 @@
             ]
             ++ readOnlyShell
             ++ [
-              # Commits still need the user's approval in the terminal (nono).
+              # Commits inside the sandbox are not prompted; only commit when the
+              # user asks.
               {
                 action = "shell";
                 resource = "git add *";
