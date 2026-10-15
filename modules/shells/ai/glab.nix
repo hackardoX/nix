@@ -18,10 +18,10 @@
     {
       # A GitLab token with only the read_api scope, for the agent's glab.
       sops.secrets."gitlab/agent_token" = { };
-      programs.opencode.sandbox.allowDomains = [
+      programs.nono.allowDomains = [
         hmArgs.config.sops.placeholder."gitlab/host"
       ];
-      programs.opencode.sandbox.env = {
+      programs.nono.env = {
         GITLAB_TOKEN = hmArgs.config.sops.placeholder."gitlab/agent_token";
         GITLAB_HOST = hmArgs.config.sops.placeholder."gitlab/host";
       };

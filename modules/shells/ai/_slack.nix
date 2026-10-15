@@ -64,7 +64,7 @@
       # MCP itself; the OAuth hosts are unverified, so slack.com is listed as
       # the likely authorization server. Adjust after the first sign-in attempt
       # once the proxy logs show which host was actually requested.
-      programs.opencode.sandbox.allowDomains = [
+      programs.nono.allowDomains = [
         "mcp.slack.com"
         "slack.com"
       ];

@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   flake.modules.homeManager.dev =
-    hmArgs@{ lib, pkgs, ... }:
+    hmArgs@{ pkgs, ... }:
     let
       claude = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
     in
@@ -12,9 +12,8 @@
           package = claude;
           enableMcpIntegration = true;
           configDir = "${hmArgs.config.xdg.stateHome}/claude-code";
+          settings.skipDangerousModePermissionPrompt = true;
         };
-
-        home.sessionVariables.CLAUDE_CONFIG_DIR = lib.mkForce "${hmArgs.config.home.homeDirectory}/.claude";
 
         xdg.stateFile."claude-code/.keep".text = "";
       };

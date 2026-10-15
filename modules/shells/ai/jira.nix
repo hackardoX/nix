@@ -105,7 +105,7 @@
       # client registration, token exchange and refresh against it, so both
       # hosts are required. api.atlassian.com (the REST gateway) stays
       # blocked unless something proves it is needed.
-      programs.opencode.sandbox.allowDomains = [
+      programs.nono.allowDomains = [
         "mcp.atlassian.com"
         "auth.atlassian.com"
       ];
