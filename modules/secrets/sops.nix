@@ -13,7 +13,7 @@ in
     sops.age.keyFile = sopsKeyPath;
   };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.base =
     hmArgs@{ pkgs, ... }:
     {
       imports = [ inputs.sops-nix.homeManagerModules.default ];
