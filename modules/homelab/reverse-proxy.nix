@@ -109,7 +109,7 @@ in
               "github.com/mholt/caddy-ratelimit@v0.1.0"
               "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
             ];
-            hash = "sha256-wlK7vJuKZDS4G+syrbwsS/CDd9AIm3Nj5y1DgC0NA48=";
+            hash = "sha256-+YJysWWWXvOpL3H4mNTv1uGutqO3lbe5EMerFxNe5do=";
           };
 
           extraConfig = ''
