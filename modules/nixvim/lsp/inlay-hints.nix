@@ -10,7 +10,7 @@
           function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
             local message = vim.lsp.inlay_hint.is_enabled() and "Inlay hint is off" or "Inlay hint is on"
-            vim.notify(message, vim.log.levels.INFO, { title = "Tooling Info" })
+            vim.notify(message, vim.log.levels.INFO, { title = "Inlay Hint Toggle" })
           end
         '';
         options.desc = "Toggle inlay hints";

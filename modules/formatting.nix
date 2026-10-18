@@ -27,6 +27,7 @@
   flake.modules.nixvim.dev = {
     plugins.conform-nvim = {
       enable = true;
+      autoInstall.enable = true;
       lazyLoad.settings = {
         cmd = [
           "ConformInfo"
@@ -34,12 +35,13 @@
         event = [ "BufWritePre" ];
       };
       settings = {
+        default_format_opts.lsp_format = "fallback";
         format_on_save = inputs.nixvim.lib.nixvim.mkRaw ''
           function(bufnr)
             if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
               return
             end
-            return { timeout_ms = 500, lsp_format = "fallback" }
+            return { timeout_ms = 500 }
           end
         '';
       };
@@ -61,7 +63,7 @@
         key = "<space>f";
         action.__raw = ''
           function()
-            require("conform").format({ async = true, lsp_format = "fallback" })
+            require("conform").format({ async = true })
           end
         '';
         options.desc = "Format buffer";

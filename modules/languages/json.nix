@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{ config, ... }: {
   flake.modules.homeManager.dev =
     { pkgs, ... }:
     {
@@ -9,20 +9,10 @@
       ];
     };
 
-  flake.modules.nixvim.dev =
-    { pkgs, ... }:
-    {
-      extraPackages = with pkgs; [
-        prettierd
-      ];
-
-      plugins.conform-nvim.settings = {
-        formatters_by_ft = {
-          json = [ "prettierd" ];
-        };
-        formatters = {
-          prettierd.command = lib.getExe pkgs.prettierd;
-        };
-      };
-    };
+  flake.modules.nixvim.dev = {
+    plugins.conform-nvim.luaConfig.post = config.flake.lib.formatRouting.post "web" [
+      "json"
+      "jsonc"
+    ];
+  };
 }

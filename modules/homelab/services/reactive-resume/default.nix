@@ -180,7 +180,7 @@ in
         services.podman.networks.reactive-resume.driver = "bridge";
 
         services.podman.containers.reactive-resume-db = {
-          image = "docker.io/library/postgres:16.14";
+          image = "docker.io/library/postgres:16.15";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "reactive-resume.network" ];

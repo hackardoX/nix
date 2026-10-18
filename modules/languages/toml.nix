@@ -1,4 +1,4 @@
-{ lib, ... }: {
+_: {
   perSystem.treefmt.programs.taplo = {
     enable = true;
     settings.formatting = {
@@ -9,20 +9,7 @@
     };
   };
 
-  flake.modules.nixvim.dev =
-    { pkgs, ... }:
-    {
-      extraPackages = with pkgs; [
-        taplo
-      ];
-
-      plugins.conform-nvim.settings = {
-        formatters_by_ft = {
-          toml = [ "taplo" ];
-        };
-        formatters = {
-          taplo.command = lib.getExe pkgs.taplo;
-        };
-      };
-    };
+  flake.modules.nixvim.dev = _: {
+    plugins.conform-nvim.settings.formatters_by_ft.toml = [ "taplo" ];
+  };
 }
