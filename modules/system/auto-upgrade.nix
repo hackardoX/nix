@@ -63,10 +63,10 @@
         };
       };
 
-      systemd.services.nixos-upgrade.unitConfig = {
-        OnSuccess = [ "ntfy-upgrade-notify@success.service" ];
-        OnFailure = [ "ntfy-upgrade-notify@failure.service" ];
-      };
+      # systemd.services.nixos-upgrade.unitConfig = {
+      #   OnSuccess = [ "ntfy-upgrade-notify@success.service" ];
+      #   OnFailure = [ "ntfy-upgrade-notify@failure.service" ];
+      # };
 
       systemd.services."ntfy-upgrade-notify@" = {
         description = "Send ntfy notification about a NixOS auto-upgrade result";

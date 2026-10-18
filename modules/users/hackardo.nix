@@ -35,10 +35,8 @@
             small = true;
           };
         }
-        "/System/Applications/Mail.app"
-        "/System/Applications/Calendar.app"
-        "/System/Applications/Reminders.app"
-        "/System/Applications/Messages.app"
+        "/Users/${config.flake.meta.users.hackardo.name}/Applications/Proton\ Mail.app"
+        "/Users/${config.flake.meta.users.hackardo.name}/Applications/Proton\ Calendar.app"
         {
           spacer = {
             small = true;
