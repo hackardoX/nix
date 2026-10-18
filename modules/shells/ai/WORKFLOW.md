@@ -16,11 +16,11 @@ Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox.nix
 2. The orchestrator reads the code (`explore` for anything broad) and classifies the request as simple or complex.
 3. Complex:
    - It asks a few focused questions with the question tool, each with a recommended option.
-   - It asks "Want the plan?" (Yes / More questions).
+   - It asks "Want the plan?" (Yes). Typed text adds questions.
    - It briefs `architect` and presents that plan.
 4. Simple: it skips the questions and writes a short plan itself.
 5. A plan states the goal, the steps and files, how it will be verified, and the risks.
-6. It asks **Implement here / New worktree / Revise / Cancel**. It never calls `dev` before you choose one of the first two.
+6. It asks **Implement here / New worktree / Cancel**. Typed text revises the plan, and the revised plan is presented again. It never calls `dev` before you choose one of the first two.
 
 ## 2a. Implement here
 
