@@ -19,7 +19,11 @@
           SSH_AUTH_SOCK = protonPassAgentSocketPath;
         };
       };
-      services.proton-pass-agent.enable = true;
+      services.proton-pass-agent = {
+        enable = true;
+        # TODO: check if we still need this
+        socket = "$HOME/.ssh/proton-pass-ssh-agent.sock";
+      };
       ssh.extraConfig = ''
         IdentityAgent "${protonPassAgentSocketPath}"
       '';

@@ -88,7 +88,7 @@
             OPENCODE_DISABLE_PROJECT_CONFIG = "1";
             OPENCODE_TEST_HOME = "$WORKDIR";
             # Fail-safe: if OpenCode ignores this, it falls back to the strict global config.
-            OPENCODE_CONFIG_DIR = "${sandboxConfigDir}";
+            OPENCODE_CONFIG_DIR = "$XDG_STATE_HOME/opencode/sandbox-config";
           };
           allow = [
             "$XDG_DATA_HOME/opencode"
@@ -116,6 +116,14 @@
               ]
             ];
           };
+        };
+
+        # A real directory (symlinks to the farm entries) in the state dir that the sandbox may write,
+        # which also keeps the farm in the generation: OpenCode mkdirs OPENCODE_CONFIG_DIR at startup
+        # and a store path fails with EPERM.
+        xdg.stateFile."opencode/sandbox-config" = {
+          source = sandboxConfigDir;
+          recursive = true;
         };
 
         home.file.".opencode/plan/.keep".text = "";
