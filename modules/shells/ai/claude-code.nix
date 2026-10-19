@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   flake.modules.homeManager.dev =
-    hmArgs@{ pkgs, ... }:
+    hmArgs@{ lib, pkgs, ... }:
     let
       claude = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
     in
@@ -16,12 +16,14 @@
         };
 
         xdg.stateFile."claude-code/.keep".text = "";
+        # Default so hosts without aaccardo-bucket instruction modules still evaluate.
+        xdg.stateFile."claude-code/CLAUDE.md".text = lib.mkDefault "";
       };
     };
 
   flake.modules.homeManager.aaccardo = hmArgs: {
     sops.secrets."ai/claude_api_key" = { };
-    programs.claude-code.sandbox.env.CLAUDE_CODE_OAUTH_TOKEN =
+    programs.nono.harnesses.claude-code.env.CLAUDE_CODE_OAUTH_TOKEN =
       hmArgs.config.sops.placeholder."ai/claude_api_key";
   };
 }

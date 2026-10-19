@@ -5,7 +5,7 @@
   # var OPENVIKING_API_KEY. Unsandboxed shells get it from home.sessionVariables
   # (`$(cat ...)` evaluated at login); the sandbox gets it from programs.nono.env.
   flake.modules.homeManager.aaccardo =
-    hmArgs@{ ... }:
+    hmArgs:
     let
       url = "https://openviking.protontech.ch/mcp";
       secretPath = hmArgs.config.sops.secrets."ai/openviking_api_key".path;
@@ -74,7 +74,7 @@
         };
 
         # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-        # relaxes only shell and edit asks). Writes are hard-denied below.
+        # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
         permissions = [
           {
             action = "openviking_*";

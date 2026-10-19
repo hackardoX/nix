@@ -44,7 +44,7 @@
         }
 
         # Asks, because unsandboxed OpenCode would run the real glab with your
-        # own token. The sandbox's glab uses a read_api token (see sandbox.nix).
+        # own token. The sandbox's glab uses a read_api token (see sandbox/).
         {
           action = "shell";
           resource = "glab *";
@@ -115,8 +115,9 @@
                 effect = "allow";
               }
               # Safeguard: the plan gate is a prompt rule, so every dev call
-              # asks, in the sandbox too (the sandbox relaxes only shell and edit
-              # asks, not this subagent gate).
+              # asks, in the sandbox too (the sandbox relaxes only the
+              # programs.nono.relaxedActions asks: shell, edit, figma_*, not this
+              # subagent gate).
               {
                 action = "subagent";
                 resource = "dev";

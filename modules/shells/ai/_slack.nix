@@ -41,7 +41,7 @@
         };
 
         # Reads and send_message stay gated by this ask rule, in the sandbox too
-        # (the sandbox relaxes only shell and edit asks). The writes below are
+        # (the sandbox relaxes only the programs.nono.relaxedActions asks). The writes below are
         # hard-denied.
         permissions = [
           {
