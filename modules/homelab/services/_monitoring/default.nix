@@ -473,7 +473,7 @@ in
         };
 
         services.podman.containers.alloy = {
-          image = "grafana/alloy:v1.18.0";
+          image = "grafana/alloy:v1.21.0";
           autoStart = true;
           userNS = "keep-id:uid=0,gid=0";
           network = [ "monitoring.network" ];
