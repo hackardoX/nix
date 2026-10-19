@@ -213,7 +213,7 @@ in
         services.podman.networks.dawarich.driver = "bridge";
 
         services.podman.containers.dawarich-db = {
-          image = "docker.io/imresamu/postgis:17-3.5-alpine";
+          image = "docker.io/imresamu/postgis:17-recent-postgis3.6.1-geos3.14.1-proj9.7.1-gdal3.12.1-cgal6.1-sfcgal2.2.0-bookworm";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "dawarich.network" ];
@@ -247,7 +247,7 @@ in
         };
 
         services.podman.containers.dawarich-redis = {
-          image = "docker.io/library/redis:8.8.0";
+          image = "docker.io/library/redis:8.10.2";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "dawarich.network" ];
