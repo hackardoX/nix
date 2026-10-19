@@ -3,7 +3,7 @@
 How to implement a feature with the orchestrator, the specialist agents, the nono sandbox and workmux.
 
 Agents: `orchestrator` (default), `architect`, `dev`, `qa`, `security`, plus the built-in `explore`.
-Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox.nix`.
+Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox/` (`sandbox/git-broker.nix`).
 
 ## Before starting
 
@@ -57,7 +57,7 @@ The agent can read MRs, issues and pipelines with `glab`, which runs inside the 
 
 ## Claude Code
 
-Claude Code runs in the same nono sandbox (`sandbox.nix`, profile included there).
+Claude Code runs in the same nono sandbox (`sandbox/claude-code.nix`; the shared profile skeleton is in `sandbox/default.nix`).
 
 - `claude` is the sandboxed alias; `claude-unsandboxed` skips the sandbox. It uses the pinned dir `$XDG_STATE_HOME/claude-code`, which Home Manager exports as `CLAUDE_CONFIG_DIR` in every shell (`programs.claude-code.configDir`). There is no override. Aliases only exist in interactive shells, so scripts cannot reach the sandboxed entry point.
 - Auth comes from the sops secret `ai/claude_api_key`, injected as `CLAUDE_CODE_OAUTH_TOKEN`. Create it with `claude setup-token` and add the key to `secrets/users/aaccardo.yaml` with sops.
@@ -94,7 +94,7 @@ OpenViking is a context database (`viking://` URIs) served as a remote MCP, `ope
 Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by OpenCode and Claude Code.
 
 - Auth is OAuth in the browser on first use. No token is stored in the config.
-- Unsandboxed OpenCode asks for every `figma_*` call. The sandbox allows them, as it does shell and edit (`relax` in `sandbox.nix`). Sandboxed Claude runs with `bypassPermissions`; unsandboxed Claude keeps its default prompts.
+- Unsandboxed OpenCode asks for every `figma_*` call. The sandbox allows them, as it does shell and edit (`programs.nono.relaxedActions`, applied in `sandbox/opencode.nix`). Sandboxed Claude runs with `bypassPermissions`; unsandboxed Claude keeps its default prompts.
 - Allowed domains: `mcp.figma.com`, `www.figma.com`, `api.figma.com`. Not verified: Figma's OAuth metadata could not be fetched, so the authorization and token hosts are a guess.
 - Not verified in the sandbox: the OAuth callback port (OpenCode has `open_port_range`, the Claude profile has none) and token storage (the Keychain is denied).
 - Accepted risks:
@@ -106,7 +106,7 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 
 ## What the sandbox enforces
 
-- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the shell, edit and figma asks become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
+- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma_*; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
 - Writes only in the project folder, the plan folder and a few state folders.
 - Git writes go through a broker that refuses global options such as `--git-dir` and writes to `.git/hooks` and `.git/config`. It does not restrict ref updates.
 - The orchestrator's `worktree`, `merge`, `coordinator` and `open-pr` skills are denied, because they need workmux or `gh`.

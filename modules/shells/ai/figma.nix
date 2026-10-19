@@ -34,6 +34,9 @@
         "www.figma.com"
         "api.figma.com"
       ];
+      # Figma's ask rules become allow in the sandboxed OpenCode config
+      # (sandbox/opencode.nix), like shell and edit.
+      programs.nono.relaxedActions = [ "figma_*" ];
 
       xdg.configFile."opencode/AGENTS.md".text = figmaInstructions;
       xdg.stateFile."claude-code/CLAUDE.md".text = figmaInstructions;

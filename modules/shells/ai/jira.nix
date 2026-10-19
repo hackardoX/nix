@@ -75,7 +75,7 @@
         };
 
         # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-        # relaxes only shell and edit asks). Writes are hard-denied below.
+        # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
         permissions = [
           {
             action = "atlassian_*";
