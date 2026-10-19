@@ -18,6 +18,7 @@ in
     {
       imports = [ inputs.sops-nix.homeManagerModules.default ];
       sops.age.keyFile = "${hmArgs.config.home.homeDirectory}/.config/sops/age/keys.txt";
+      xdg.configFile."sops/age/keys.txt".source = hmArgs.config.lib.file.mkOutOfStoreSymlink sopsKeyPath;
       home.activation.reloadSystemdBeforeSops = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
         inputs.home-manager.lib.hm.dag.entryBetween [ "sops-nix" ] [ "reloadSystemd" ] ''
           # no-op: forces sops-nix to run after linkGeneration and reloadSystemd
@@ -26,12 +27,11 @@ in
     };
 
   flake.modules.homeManager.hackardo =
-    hmArgs@{ pkgs, ... }:
+    { pkgs, ... }:
     {
       home = {
         packages = [ pkgs.sops ];
         shellAliases.sops = "SOPS_AGE_KEY=\"$(op read 'op://Development/Admin Age Key/notesPlain')\" sops";
-        file.".config/sops/age/keys.txt".source = hmArgs.config.lib.file.mkOutOfStoreSymlink sopsKeyPath;
       };
     };
 }
