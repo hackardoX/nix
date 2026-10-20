@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   ...
 }:
@@ -78,12 +79,7 @@
 
       launchd.agents.atuin-ai-server =
         let
-          atuinAiServerSrc = pkgs.fetchFromGitHub {
-            owner = "atuinsh";
-            repo = "atuin-ai-server";
-            rev = "main";
-            hash = "sha256-+Iqqd12yUHOSm29uHUeWs2Z9fnutH9fOoTLb9EdvPMY=";
-          };
+          atuinAiServerSrc = inputs.atuin-ai-server;
           beamEnv = pkgs.buildEnv {
             name = "atuin-ai-server-beam-env";
             paths = [

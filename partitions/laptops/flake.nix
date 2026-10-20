@@ -25,6 +25,11 @@
       url = "github:cpick/nix-rosetta-builder";
       inputs.nixpkgs.follows = "";
     };
+
+    atuin-ai-server = {
+      url = "github:atuinsh/atuin-ai-server";
+      flake = false;
+    };
   };
 
   outputs = _: { };
