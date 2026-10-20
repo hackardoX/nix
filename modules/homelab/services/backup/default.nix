@@ -11,7 +11,25 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   backrestPort = config.flake.meta.reverse-proxy.ports.backup;
 
-  repos = {
+  backrestRepos = lib.mapAttrsToList (name: repo: {
+    id = name;
+    inherit (repo) uri;
+    env = [ "RESTIC_PASSWORD_FILE=${repo.passwordFile}" ];
+    auto_initialize = true;
+  }) config.flake.meta.backup.repos;
+in
+{
+  flake.meta.homepage.services.backup = {
+    category = "Monitoring";
+    name = "Backrest";
+    description = "Restic Backup Browser";
+    icon = "mdi-backup-restore";
+    href = "https://${hosts.backup}";
+    siteMonitor = "http://localhost:${toString backrestPort}";
+    pingPort = backrestPort;
+  };
+
+  flake.meta.backup.repos = {
     beszel = {
       uri = "rclone:koofr:backup/beszel";
       passwordFile = "/run/secrets/beszel/backup_encryption_key";
@@ -42,24 +60,6 @@ let
     };
   };
 
-  backrestRepos = lib.mapAttrsToList (name: repo: {
-    id = name;
-    inherit (repo) uri;
-    env = [ "RESTIC_PASSWORD_FILE=${repo.passwordFile}" ];
-    auto_initialize = true;
-  }) repos;
-in
-{
-  flake.meta.homepage.services.backup = {
-    category = "Monitoring";
-    name = "Backrest";
-    description = "Restic Backup Browser";
-    icon = "mdi-backup-restore";
-    href = "https://${hosts.backup}";
-    siteMonitor = "http://localhost:${toString backrestPort}";
-    pingPort = backrestPort;
-  };
-
   flake.modules.nixos.homelab-backup =
     { pkgs, ... }:
     let
@@ -86,7 +86,6 @@ in
           "beszel"
           "immich"
           "job-ops"
-          "monitoring"
           "sure-finance"
           "dawarich"
           "reactive-resume"

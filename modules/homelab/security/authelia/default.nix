@@ -10,8 +10,7 @@ in
     nixosArgs@{ pkgs, ... }:
     let
       autheliaDataDir = "/var/lib/data/authelia";
-      autheliaAppDir = "/var/lib/authelia";
-      hashedSecretsDir = "${autheliaAppDir}/hashed-oidc-secrets";
+      inherit (config.flake.lib.authelia) hashedSecretsDir;
 
       oidcClients = lib.mapAttrsToList (name: _: {
         inherit name;

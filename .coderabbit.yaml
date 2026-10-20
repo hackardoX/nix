@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    ignore_usernames: ["dependabot[bot]"]
+  path_filters:
+    - "!flake.lock"
+  path_instructions:
+    - path: "modules/homelab/**/*.nix"
+      instructions: |
+        Only apply this policy when the diff changes `image =` tags or digests (typically Renovate PRs; labels `dependencies` plus `major`, `minor` or `other` are a hint, not a requirement). For any other change in these files, do the normal review.
+
+        When it applies:
+        - Find the upstream service's official docker-compose.yml or install docs (use web search or the linked pages).
+        - For a supporting database or cache (postgres, redis, valkey, postgis, ...), use the compose file of the APP it supports (e.g. immich, dawarich, sure-finance, tandoor, reactive-resume), not the database's own docs.
+        - Compare the new tag/digest with the one pinned in that official compose file.
+        - WARNING: a major bump of the app itself that follows upstream and may require a migration. Summarise the migration steps and link the release notes.
+        - OK (no complaint): minor or patch bumps, including postgres minor bumps even if the upstream compose does not pin that exact version.
+        - ERROR: a major bump of a dependency (redis, valkey, postgres, etc.) that differs from the major used in the app's official compose file.
+        - If the upstream compose file cannot be found or fetched, say so explicitly instead of guessing.
+  pre_merge_checks:
+    custom_checks:
+      - name: "Docker upgrade needs migration"
+        mode: "warning"
+        instructions: |
+          Pass immediately if the PR does not change docker image tags.
+          Otherwise, fail this check if a major version bump of a homelab app follows upstream and may require a data or config migration. Name the app and the migration steps, and link the release notes.
+      - name: "Dependency major diverges from upstream"
+        mode: "error"
+        instructions: |
+          Pass immediately if the PR does not change docker image tags.
+          Otherwise, fail this check if a dependency image (redis, valkey, postgres, etc.) is bumped to a major version that differs from the major used in the app's official docker-compose.yml. Name the dependency, the new tag and the upstream tag.
+chat:
+  auto_reply: true
