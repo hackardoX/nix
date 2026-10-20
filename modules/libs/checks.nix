@@ -41,28 +41,33 @@ let
       '') units}
     '';
 
-  # systemd-analyze wants /run/systemd, which the build sandbox does not have
-  # and cannot create. So verify runs in a chroot under a directory we own,
-  # inside a user namespace. The chroot holds systemd's closure, the unit
-  # files, and the ExecStart binaries (verify checks that they exist and are
-  # executable; it does not run them).
-  systemdClosure = host: pkgs: pkgs.closureInfo { rootPaths = [ host.systemd.package ]; };
-
   # `systemd-analyze verify` on the given system units (each module passes the
   # units it owns). `host` is the evaluated NixOS config the units come from.
   # Any output from verify fails the check; nothing is filtered.
+  #
+  # verify needs a writable /run: systemd's manager creates /run/systemd at
+  # startup with a non-recursive mkdir. The build sandbox has no /run and cannot
+  # create one, and user namespaces are not permitted on the CI runner
+  # (unshare fails writing uid_map), so no chroot is possible either. proot is
+  # ptrace-based and needs neither: it binds a directory we own onto /run in
+  # verify's view of the filesystem.
+  #
+  # The ExecStart binaries verify checks for exist in /nix/store because the
+  # unit text references them. `unitFiles` is an input, and its output keeps
+  # those store paths as references, so they are in the check's input closure
+  # and present in the sandbox.
   mkSystemdCheck =
     host: pkgs: name: units:
     let
       unitFiles = unitDir host pkgs units;
-      closure = systemdClosure host pkgs;
+      unitPaths = map (u: "${unitFiles}/${u}") units;
     in
     lib.throwIf (units == [ ]) "${name}: no units given" (
       pkgs.runCommand "${drvName name}"
         {
           nativeBuildInputs = [
             host.systemd.package
-            pkgs.util-linux
+            pkgs.proot
             pkgs.coreutils
             pkgs.gnugrep
             pkgs.gnused
@@ -71,12 +76,6 @@ let
         }
         ''
           set -euo pipefail
-          root=$PWD/root
-          mkdir -p $root/nix/store $root/run $root/tmp/units
-          for p in $(cat ${closure}/store-paths); do
-            cp -an "$p" $root/nix/store/ || { echo "failed to copy closure path $p" >&2; exit 1; }
-          done
-          cp -an ${unitFiles}/. $root/tmp/units/ || { echo "failed to copy unit files" >&2; exit 1; }
           # grep exits 1 when nothing matches; the empty-file check below decides.
           { grep -h '^Exec[A-Za-z]*=' ${unitFiles}/* || true; } \
             | sed -E 's/^Exec[A-Za-z]*=[-@+!:]*//' | awk '{ print $1 }' \
@@ -85,28 +84,23 @@ let
             echo "no /nix/store ExecStart binaries found, but units have ExecStart entries" >&2
             exit 1
           fi
-          while IFS= read -r e; do
-            mkdir -p "$root$(dirname "$e")"
-            cp -an "$e" "$root$e" || { echo "failed to copy exec binary $e" >&2; exit 1; }
-          done < execs.txt
-
-          units=()
-          for u in $root/tmp/units/*; do
-            units+=("/tmp/units/$(basename "$u")")
-          done
 
           # The search path is our units plus systemd's own base units (in the
-          # copied closure). Any message at all is a failure: nothing is filtered.
+          # build inputs). Any message at all is a failure: nothing is filtered.
           log=$PWD/verify.log
+          # The writable /run that proot binds onto /run (see above).
+          mkdir -p $PWD/run
           # Only the verify call may fail without stopping the build: its exit
-          # status is captured and checked below.
+          # status is captured and checked below. PROOT_VERBOSE=-1 keeps proot's
+          # own warnings out of the log, so only verify's output can fail it.
           set +e
-          SYSTEMD_UNIT_PATH=/tmp/units:${host.systemd.package}/example/systemd/system \
-            unshare --user --map-root-user chroot $root \
-            ${host.systemd.package}/bin/systemd-analyze verify --man=no "''${units[@]}" >$log 2>&1
+          SYSTEMD_UNIT_PATH=${unitFiles}:${host.systemd.package}/example/systemd/system \
+            PROOT_VERBOSE=-1 proot -b "$PWD/run:/run" \
+            ${host.systemd.package}/bin/systemd-analyze verify --man=no \
+            ${lib.escapeShellArgs unitPaths} >$log 2>&1
           rc=$?
           set -e
-          echo "systemd-analyze verify: exit $rc, ''${#units[@]} units" >&2
+          echo "systemd-analyze verify: exit $rc, ${toString (lib.length units)} units" >&2
           if [ "$rc" -ne 0 ] || [ -s $log ]; then
             echo "systemd-analyze verify reported failures (exit $rc):" >&2
             sed 's/^/  /' $log >&2
