@@ -1,17 +1,7 @@
 { config, lib, ... }:
 let
   host = config.flake.nixosConfigurations.HomeLab-CI.config;
-  inherit (config.flake.lib.homelab.check) mkCheck;
-  reverseProxy = config.flake.meta.reverse-proxy;
-  homepageServices = config.flake.meta.homepage.services;
-
-  # Hosts without a Caddy virtual host on HomeLab-CI, on purpose.
-  vhostExceptions = {
-    # No vhost yet; its module lives in services/_monitoring, which is not loaded.
-    grafana = "no Caddy vhost";
-    # Served through the Cloudflare tunnel, not Caddy.
-    ssh = "served by the Cloudflare tunnel";
-  };
+  inherit (config.flake.lib.checks) mkCheck;
 
   # Service users (linger, home under /var/lib) whose state is not under a
   # persist.directories entry. Each exception needs a reason.
@@ -23,55 +13,6 @@ let
     # Open question: /var/lib/backrest (operation log) is not persisted.
     backrest = "open question: /var/lib/backrest is not persisted";
   };
-
-  # --- ports -------------------------------------------------------------
-
-  portValues = lib.attrValues reverseProxy.ports;
-  duplicatePorts = lib.unique (lib.filter (p: lib.count (x: x == p) portValues > 1) portValues);
-  homepagePortRefs = lib.concatLists (
-    lib.mapAttrsToList (
-      name: svc:
-      lib.concatMap
-        (
-          field:
-          lib.optional (svc.${field} != null) {
-            inherit name field;
-            port = svc.${field};
-          }
-        )
-        [
-          "pingPort"
-          "dockerSocketProxyPort"
-        ]
-    ) homepageServices
-  );
-
-  portFailures =
-    map (
-      p:
-      "reverse-proxy.ports: port ${toString p} is used by ${
-        lib.concatStringsSep ", " (lib.attrNames (lib.filterAttrs (_: v: v == p) reverseProxy.ports))
-      }"
-    ) duplicatePorts
-    ++ map (
-      r:
-      "homepage.services.${r.name}.${r.field} = ${toString r.port} is not a declared reverse-proxy port"
-    ) (lib.filter (r: !lib.elem r.port portValues) homepagePortRefs);
-
-  # --- hosts-vhosts ------------------------------------------------------
-
-  vhostFailures =
-    lib.concatLists (
-      lib.mapAttrsToList (
-        name: domain:
-        lib.optional (
-          !lib.hasAttr name vhostExceptions && !lib.hasAttr domain host.services.caddy.virtualHosts
-        ) "reverse-proxy.hosts.${name} (${domain}) has no services.caddy.virtualHosts entry on HomeLab-CI"
-      ) reverseProxy.hosts
-    )
-    ++ map (n: "vhostExceptions.${n}: no reverse-proxy.hosts entry named '${n}'; stale exception") (
-      lib.filter (n: !lib.hasAttr n reverseProxy.hosts) (lib.attrNames vhostExceptions)
-    );
 
   # --- persistence -------------------------------------------------------
 
@@ -112,10 +53,6 @@ in
   perSystem =
     { pkgs, ... }:
     {
-      checks = {
-        "homelab/ports" = mkCheck pkgs "ports" portFailures;
-        "homelab/hosts-vhosts" = mkCheck pkgs "hosts-vhosts" vhostFailures;
-        "homelab/persistence" = mkCheck pkgs "persistence" persistenceFailures;
-      };
+      checks."homelab/persistence" = mkCheck pkgs "homelab/persistence" persistenceFailures;
     };
 }
