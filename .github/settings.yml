@@ -133,6 +133,7 @@ rulesets:
             - context: "Build Proton-MacBook-Pro-CI on macos-latest"
             - context: "Build HomeLab-CI on ubuntu-26.04-arm"
             - context: "Flake checks on aarch64-darwin"
+            - context: "Homelab checks"
             - context: "Dead code analysis"
             - context: "Formatting checks"
             - context: "Lint checks"
