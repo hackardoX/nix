@@ -50,6 +50,6 @@ let
 in
 {
   flake.lib.authelia = {
-    inherit mkAllowedOrigins mkOidcClientYaml;
+    inherit hashedSecretsDir mkAllowedOrigins mkOidcClientYaml;
   };
 }
