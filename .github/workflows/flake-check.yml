@@ -1,5 +1,7 @@
 name: Flake check
-on: pull_request
+on:
+  - pull_request
+  - merge_group
 jobs:
   checks:
     name: Flake checks on ${{ matrix.arch }}

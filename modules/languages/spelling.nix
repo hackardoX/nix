@@ -5,6 +5,7 @@
     lsp.servers = {
       harper_ls = {
         enable = true;
+        packageFallback = true;
         config = {
           filetypes = [
             "markdown"
@@ -32,6 +33,7 @@
       };
       typos_lsp = {
         enable = true;
+        packageFallback = true;
         config = {
           init_options = {
             diagnosticSeverity = "Hint";
@@ -44,6 +46,10 @@
             "mail"
           ];
         };
+      };
+      codebook = {
+        enable = true;
+        packageFallback = true;
       };
     };
   };

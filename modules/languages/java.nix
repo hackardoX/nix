@@ -53,7 +53,8 @@
       };
     in
     {
-      extraPackages = [
+      extraPackagesAfter = [
+        pkgs.google-java-format
         pkgs.jdk
         pkgs.jdt-language-server
         pkgs.maven
