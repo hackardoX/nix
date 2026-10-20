@@ -2,13 +2,24 @@ name: Checks
 on:
   - pull_request
   - merge_group
+permissions:
+  contents: read
 jobs:
-  homelab:
-    name: Homelab checks
-    runs-on: ubuntu-latest
+  checks:
+    name: Checks on ${{ matrix.system }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-26.04-arm
+            system: aarch64-linux
+          - os: macos-latest
+            system: aarch64-darwin
     steps:
       - uses: actions/checkout@v7
+      # Evaluating the homelab partition needs its private input, on every system.
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.ASAHI_FIRMWARE_DEPLOY_KEY }}
@@ -21,14 +32,30 @@ jobs:
         with:
           name: hackardo
           authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
-      - name: Build homelab checks
+          skipPush: true
+      - name: Build checks
         run: |
           set -euo pipefail
-          names=$(nix eval --json ".#checks.x86_64-linux" --apply 'c: builtins.filter (n: builtins.substring 0 8 n == "homelab/") (builtins.attrNames c)' | jq -r '.[]')
+          # Excluded on purpose:
+          #   configurations/*  host toplevels, built by the Build workflow
+          #   treefmt           formatting, run by the Formatting workflow
+          #   pre-commit        git hooks (same tools as Formatting and Lint);
+          #                     no workflow builds it, as before this job
+          #   deploy-*          deploy-rs checks (deployChecks) build the full
+          #                     HomeLab host profile; the host builds in the
+          #                     Build workflow already cover it
+          names=$(nix eval --json ".#checks.${{ matrix.system }}" --apply '
+            c: builtins.filter (n:
+              builtins.match "configurations/.*" n == null
+              && builtins.match "deploy-.*" n == null
+              && n != "treefmt"
+              && n != "pre-commit"
+            ) (builtins.attrNames c)
+          ' | jq -r '.[]')
           if [ -z "$names" ]; then
-            echo "No homelab/* checks found for x86_64-linux" >&2
+            echo "No checks found for ${{ matrix.system }}" >&2
             exit 1
           fi
           while IFS= read -r name; do
-            nix build ".#checks.x86_64-linux.\"$name\"" --print-build-logs --no-link
+            nix build ".#checks.${{ matrix.system }}.\"$name\"" --print-build-logs --no-link
           done <<< "$names"

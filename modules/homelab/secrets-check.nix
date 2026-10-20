@@ -2,7 +2,7 @@
 let
   host = config.flake.nixosConfigurations.HomeLab-CI.config;
   hmUsers = host.home-manager.users;
-  inherit (config.flake.lib.homelab.check) mkCheck;
+  inherit (config.flake.lib.checks) mkCheck;
   backrestUser = "backrest";
   backupRepos = config.flake.meta.backup.repos;
 
@@ -171,7 +171,7 @@ in
     {
       checks = {
         "homelab/sops-keys" = sopsKeysCheck pkgs;
-        "homelab/secret-access" = mkCheck pkgs "secret-access" secretFailures;
+        "homelab/secret-access" = mkCheck pkgs "homelab/secret-access" secretFailures;
       };
     };
 }

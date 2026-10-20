@@ -2,7 +2,7 @@
 let
   host = config.flake.nixosConfigurations.HomeLab-CI.config;
   hmUsers = host.home-manager.users;
-  inherit (config.flake.lib.homelab.check) mkCheck;
+  inherit (config.flake.lib.checks) mkCheck mkSystemdCheck;
   backrestUser = "backrest";
   backupRepos = config.flake.meta.backup.repos;
 
@@ -30,6 +30,13 @@ in
   perSystem =
     { pkgs, ... }:
     {
-      checks."homelab/backup" = mkCheck pkgs "backup" backupFailures;
+      checks = {
+        "homelab/backup" = mkCheck pkgs "homelab/backup" backupFailures;
+      }
+      // lib.optionalAttrs (pkgs.stdenv.hostPlatform.system == "aarch64-linux") {
+        "homelab/validate-systemd-backrest" = mkSystemdCheck host pkgs "homelab/validate-systemd-backrest" [
+          "backrest.service"
+        ];
+      };
     };
 }
