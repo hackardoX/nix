@@ -33,6 +33,12 @@ jobs:
           name: hackardo
           authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
           skipPush: true
+      # Informational: whether this runner can run VM tests with KVM (else TCG).
+      - name: KVM probe
+        if: runner.os == 'Linux'
+        run: |
+          ls -l /dev/kvm || echo "no /dev/kvm"
+          nix config show system-features
       - name: Build checks
         run: |
           set -euo pipefail
@@ -44,10 +50,13 @@ jobs:
           #   deploy-*          deploy-rs checks (deployChecks) build the full
           #                     HomeLab host profile; the host builds in the
           #                     Build workflow already cover it
+          #   homelab/vm-*      VM tests: slow and may run emulated, built by
+          #                     the VM tests job
           names=$(nix eval --json ".#checks.${{ matrix.system }}" --apply '
             c: builtins.filter (n:
               builtins.match "configurations/.*" n == null
               && builtins.match "deploy-.*" n == null
+              && builtins.match "homelab/vm-.*" n == null
               && n != "treefmt"
               && n != "pre-commit"
             ) (builtins.attrNames c)
@@ -58,4 +67,43 @@ jobs:
           fi
           while IFS= read -r name; do
             nix build ".#checks.${{ matrix.system }}.\"$name\"" --print-build-logs --no-link
+          done <<< "$names"
+  vm-tests:
+    name: VM tests on aarch64-linux
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 90
+    # Spike: the VM test has not run to completion yet. Not a required check
+    # (see .github/settings.yml). Remove this once it passes reliably.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.ASAHI_FIRMWARE_DEPLOY_KEY }}
+      - uses: DeterminateSystems/nix-installer-action@v22
+        with:
+          extra-conf: |-
+            extra-experimental-features = pipe-operators
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
+      - uses: cachix/cachix-action@v17
+        with:
+          name: hackardo
+          authToken: "${{ secrets.CACHIX_GITHUB_ACTION_TOKEN }}"
+          skipPush: true
+      - name: KVM probe
+        run: |
+          ls -l /dev/kvm || echo "no /dev/kvm"
+          nix config show system-features
+      - name: Build VM tests
+        run: |
+          set -euo pipefail
+          names=$(nix eval --json ".#checks.aarch64-linux" --apply '
+            c: builtins.filter (n: builtins.match "homelab/vm-.*" n != null) (builtins.attrNames c)
+          ' | jq -r '.[]')
+          if [ -z "$names" ]; then
+            echo "No VM tests found for aarch64-linux" >&2
+            exit 1
+          fi
+          while IFS= read -r name; do
+            nix build ".#checks.aarch64-linux.\"$name\"" -L --no-link
           done <<< "$names"
