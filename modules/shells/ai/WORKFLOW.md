@@ -45,15 +45,30 @@ Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox/` (
 - From an unsandboxed pane, run `workmux merge --squash` or open a PR, then push.
 - `git push`, merges and `npm publish` are denied for the agent.
 
-## GitLab (read-only)
+## GitLab (read-only via MCP)
 
-The agent can read MRs, issues and pipelines with `glab`, which runs inside the sandbox with a token in its environment. The wrapper injects it into the session through the generated sandbox profile (`set_vars`), not by exporting it; the sandbox denies every other `*_TOKEN`.
+GitLab's official remote MCP server is in `gitlab.nix`, shared through `programs.mcp` by OpenCode and Claude Code.
 
-- The token is `gitlab.agent_token` in the sops file, a personal token with only the `read_api` scope. Writes fail anyway.
-- The GitLab host is added to the sandbox's network allowlist at launch, so the proxy only lets `glab` (and the session) reach that one host. Other hosts stay blocked.
-- `glab` has no git access in the sandbox, so always pass `-R group/project`.
-- Every `glab` call asks first in unsandboxed OpenCode, because it would run the real `glab` with your own token. In the sandbox the generated config allows `glab` for the agents (read-only token).
-- Residual risk: the session can read `GITLAB_TOKEN` and talk to the host directly, not just through `glab`. The token is read-only, and only that one host is reachable.
+- Auth is OAuth in the browser on first use (`opencode mcp auth gitlab`). No token is stored in the config.
+- Needs GitLab 18.6+, with MCP access enabled by an admin. Dynamic client registration is rate limited to 10 per hour per IP.
+- The toolsets header only works on GitLab 19.5+. Older servers may reject it or ignore it; an unknown toolset name returns 400. Most write-tool names date from 19.3-19.4; older versions are covered by the aliases and prefixes.
+- The host comes from `GITLAB_HOST`, never a literal in the repo or store. Sandboxed: `programs.nono.env`. Unsandboxed: `forges/gitlab.nix` sets it as a session variable, so run `opencode service restart` after the first switch.
+- Only the GitLab host is allowed in the sandbox. The OAuth flow runs against the same host, so nothing else is opened.
+- The toolsets header (`core,merge_requests,work_items,repository,ci`) omits Duo Agent Platform.
+- In OpenCode every `gitlab_*` call asks, in the sandbox too. Sandboxed Claude runs with `bypassPermissions`, so only the deny list applies.
+- Write tools are denied by name and by prefix (`add`, `create`, `update`, `save`, `merge`, ...). Read tools match none of the prefixes.
+- Residual risks:
+  - Writes no longer fail on the server. The OAuth token (scope `mcp`) carries your full role, unlike the former `read_api` token. Read-only rests on the name-based denies alone.
+  - OpenCode: the sandboxed session can read the stored MCP OAuth token (read-write grant on `$XDG_DATA_HOME/opencode`, `sandbox/opencode.nix`). Shell is auto-allowed in the sandbox and the GitLab host is reachable, so a prompt-injected agent could POST a `tools/call` to `https://$GITLAB_HOST/api/v4/mcp` (e.g. `accept_merge_request`, `add_commit`, `save_pipeline`), bypassing the name-based denies and prompts.
+  - Claude: the token is probably in the Keychain (not verified).
+  - The `mcp` scope token works on `/api/v4/mcp` only, not the general REST API.
+  - The denies are guards, not a boundary.
+- Mitigation, not implemented: a separate Reporter/Guest-only GitLab account, or a fine-grained PAT with MCP Execute plus read-only resource permissions, passed in a header from an env var whose name does not end in `_TOKEN`.
+- Cleanup: revoke the old `read_api` personal access token in GitLab and remove `gitlab.agent_token` from the sops file.
+- Sandboxed `glab` (still installed via `tuicr.nix`) no longer has `GLAB_CONFIG_DIR` pointed at an empty dir, so it may read your own glab config if one exists (not verified).
+- NOT VERIFIED:
+  - That OpenCode expands `{env:GITLAB_HOST}` in the `url` field.
+  - That the instance runs a version exposing these tool names. The list is taken from GitLab's master docs.
 
 ## Claude Code
 
@@ -64,10 +79,10 @@ Claude Code runs in the same nono sandbox (`sandbox/claude-code.nix`; the shared
 - Config is isolated in `$XDG_STATE_HOME/claude-code-sandbox` (`CLAUDE_CONFIG_DIR` inside the sandbox), a writable dir separate from the pinned `$XDG_STATE_HOME/claude-code`. The sandbox has no grant on the pinned dir. A plain `claude` outside the alias (scripts, IDE) uses the pinned dir with its strict settings; nothing outside the sandbox dir bypasses prompts.
 - Sandboxed sessions cannot write `.claude/` or `.mcp.json` anywhere in a project, or any `.claude` path (Seatbelt deny in the shared profile, `unsafe_macos_seatbelt_rules`; the OpenCode profile has it too). Reads still work. So a planted project hook or MCP server cannot run later in `claude-unsandboxed`.
 - The sandbox dir's `settings.json` is the pinned one plus `permissions.defaultMode: bypassPermissions`, so bypass applies only to the sandboxed claude. `CLAUDE.md` and the generated MCP plugin (`hm`) are the same files as the pinned dir, linked from the store.
-- The write-tool deny list for the Atlassian MCP lives in that `settings.json`. Home Manager restores a replaced link at the next switch (`backupFileExtension = "hm.old"`; activation can fail if a `.hm.old` file already exists). Files the session adds (plugins, skills, `.claude.json` mcpServers) are never removed.
-- Residual: inside the sandbox dir the session can replace its own `settings.json` (dropping the deny list for later sandboxed runs) or add its own MCP plugin. Treat the Atlassian and OpenViking denies there as guards against mistakes, not as a boundary. Hardening (write grants limited to subdirs) is a follow-up.
+- The write-tool deny list for the Atlassian and GitLab MCPs lives in that `settings.json`. Home Manager restores a replaced link at the next switch (`backupFileExtension = "hm.old"`; activation can fail if a `.hm.old` file already exists). Files the session adds (plugins, skills, `.claude.json` mcpServers) are never removed.
+- Residual: inside the sandbox dir the session can replace its own `settings.json` (dropping the deny list for later sandboxed runs) or add its own MCP plugin. Treat the Atlassian, GitLab and OpenViking denies there as guards against mistakes, not as a boundary. Hardening (write grants limited to subdirs) is a follow-up.
 - Only the binary is sandboxed: the orchestrator, specialist agents and commands stay OpenCode-only.
-- Residual risk: the session holds `CLAUDE_CODE_OAUTH_TOKEN` (and the shared GitLab `read_api` token) in its environment, visible to every child process. It is a long-lived token; rotate it if leaked.
+- Residual risk: the session holds `CLAUDE_CODE_OAUTH_TOKEN` in its environment, visible to every child process. It is a long-lived token; rotate it if leaked.
 
 ## OpenViking (read + remember)
 
@@ -106,7 +121,7 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 
 ## What the sandbox enforces
 
-- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma_*; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
+- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma_*; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian, gitlab and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
 - Writes only in the project folder, the plan folder and a few state folders.
 - Git writes go through a broker that refuses global options such as `--git-dir` and writes to `.git/hooks` and `.git/config`. It does not restrict ref updates.
 - The orchestrator's `worktree`, `merge`, `coordinator` and `open-pr` skills are denied, because they need workmux or `gh`.

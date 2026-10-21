@@ -10,7 +10,6 @@
             command = lib.getExe hmArgs.config.programs.claude-code.finalPackage;
             env = {
               CLAUDE_CONFIG_DIR = "$XDG_STATE_HOME/claude-code-sandbox";
-              GLAB_CONFIG_DIR = "$XDG_STATE_HOME/claude-code-sandbox/glab";
               DISABLE_AUTOUPDATER = "1";
               CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
             };
