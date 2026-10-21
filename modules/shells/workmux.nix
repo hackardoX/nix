@@ -10,6 +10,9 @@
         (pkgs.formats.yaml { }).generate "workmux-config.yaml"
           {
             agent = "opencode";
+            # Inside the project, so the sandbox $WORKDIR grant covers it and the
+            # session cannot reach other projects' worktrees.
+            worktree_dir = ".worktrees";
             merge_strategy = "rebase";
             nerdfont = false;
             panes = [
