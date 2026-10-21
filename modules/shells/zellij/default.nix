@@ -408,6 +408,16 @@
                   close_on_exit true
                 }
               }
+              bind "Alt y" {
+                Run "dexec" "yazi" {
+                  floating true
+                  x "5%"
+                  y "5%"
+                  width "90%"
+                  height "90%"
+                  close_on_exit true
+                }
+              }
             }
           }
 
