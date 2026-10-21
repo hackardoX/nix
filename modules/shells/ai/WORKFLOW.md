@@ -31,12 +31,12 @@ Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox/` (
 
 ## 2b. New worktree (isolated)
 
-1. The orchestrator writes the plan to `~/.opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
-2. It prints `workmux add <branch> -P ~/.opencode/plan/<file>.md`.
-3. You run that command from an unsandboxed pane. workmux cannot run inside the sandbox.
-4. workmux opens a new tab and worktree with a sandboxed opencode.
-5. The plan arrives as the first message. The orchestrator skips planning and runs `dev`, then `qa` (plus `security` when needed). Each `dev` call still asks.
-6. Explicit denies still apply, and git can only move that worktree's branch.
+1. The orchestrator runs `workmux add <branch> --headless --json`. The worktree goes under `<project>/.worktrees/<handle>`.
+2. It writes the plan to `~/.opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
+3. It prints `workmux open <handle>` and the plan path. Headless add rejects `-P`, so the plan is not injected.
+4. You run `workmux open <handle>` from an unsandboxed pane. That opens the tab with a sandboxed opencode.
+5. In that session you say to implement the plan at that path. The session then runs `dev`, then `qa` (plus `security` when needed). Each `dev` call still asks.
+6. Explicit denies still apply. Git writes go through the broker, which does not restrict which refs a worktree's branch can move.
 
 ## 3. Commit and ship
 
@@ -122,13 +122,18 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 ## What the sandbox enforces
 
 - Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma_*; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian, gitlab and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
-- Writes only in the project folder, the plan folder and a few state folders.
+- Writes only in the project folder (including `.worktrees/`), the plan folder and a few state folders.
+- The session has no zellij socket on purpose: it would let the session type into unsandboxed panes. Windowed workmux commands (`open`, windowed `add`, `dashboard`, `sidebar`) therefore fail closed.
 - Git writes go through a broker that refuses global options such as `--git-dir` and writes to `.git/hooks` and `.git/config`. It does not restrict ref updates.
-- The orchestrator's `worktree`, `merge`, `coordinator` and `open-pr` skills are denied, because they need workmux or `gh`.
+- The orchestrator's `worktree`, `merge` and `coordinator` skills open multiplexer windows, and `open-pr` needs `gh`. All four are denied. The orchestrator calls the `workmux` CLI directly.
 
 ## Known gaps
 
-- Not verified: how `workmux add -P` delivers the prompt to `opencode`. Test `workmux add test -p "hello"` once.
+- Not verified: `git worktree` under the broker, whether workmux stores metadata via `git config` (denied by the broker), and `workmux merge`/`remove` behaviour without a multiplexer.
+- Not verified: whether workmux expands or accepts a relative `worktree_dir` (`.worktrees`), and whether the starship prompt runs git in a worktree the session wrote.
+- Not verified: hard links to protected files bypass the path rules.
+- Git broker writes (`git apply`, `checkout -- <file>`, `am`, `cherry-pick`, `worktree add` of a branch) run in the broker's sandbox and can still create `.claude/`, `.mcp.json`, `.workmux.yaml` or `.workmux.yml` in the tree. Review diffs and look for these files before running `workmux open` or `merge` unsandboxed. Accepted: not denied in the broker, because git would fail midway on repos that track these files.
+- workmux finds project config by walking up the tree (`.workmux.yaml` and `.workmux.yml`). The Seatbelt rule is a speed bump, not a boundary.
 - Not verified: the interactive TUI.
 - The plan gate is a prompt rule, not a hard lock.
 - A nested repo planted in a subfolder can escape the git guard, which protects only the project's own `.git`.
