@@ -2,6 +2,10 @@
   flake.modules.homeManager.git = hmArgs: {
     programs.git = {
       enable = true;
+      ignores = [
+        ".worktrees"
+        ".DS_Store"
+      ];
       settings = {
         branch.sort = "-committerdate";
         column.ui = "auto";

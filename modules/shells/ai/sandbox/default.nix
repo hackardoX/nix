@@ -73,11 +73,19 @@
                 ++ cfg.allowDomains;
             };
 
-            # Stops planted project config (hooks, MCP servers) running unsandboxed later.
-            # Static regex: the workdir is only known at launch.
+            # Stops planted project config running unsandboxed later: hooks, MCP servers,
+            # workmux pane commands and hooks. Static regex: the workdir is only known at
+            # launch. APFS is case-insensitive, so each name uses bracket classes.
+            # The session never writes .git itself (git writes go through the broker, which
+            # has its own sandbox). The .git rule also stops a rewritten linked-worktree
+            # .git file that points gitdir: at a session-controlled config (fsmonitor,
+            # hooksPath). .workmux.yaml/.yml would run pane commands and hooks when the user
+            # later runs workmux.
             unsafe_macos_seatbelt_rules = [
-              ''(deny file-write* (regex #"/\.claude(/.*)?$"))''
-              ''(deny file-write* (regex #"/\.mcp\.json$"))''
+              ''(deny file-write* (regex #"/\.[cC][lL][aA][uU][dD][eE](/.*)?$"))''
+              ''(deny file-write* (regex #"/\.[mM][cC][pP]\.[jJ][sS][oO][nN]$"))''
+              ''(deny file-write* (regex #"/\.[wW][oO][rR][kK][mM][uU][xX]\.[yY]([aA])?[mM][lL]$"))''
+              ''(deny file-write* (regex #"/\.[gG][iI][tT](/.*)?$"))''
             ];
           }
           // lib.optionalAttrs (cfg.commandPolicies != { }) {

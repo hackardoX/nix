@@ -164,8 +164,18 @@
                 effect = "allow";
               }
 
-              # These run workmux or gh, which cannot work from inside the
-              # sandbox. The user runs workmux from a terminal outside it.
+              # Ask in unsandboxed OpenCode, since workmux would open windows outside
+              # the sandbox. The sandbox relaxes shell asks to allow, and it has no
+              # multiplexer, so window commands fail closed there.
+              {
+                action = "shell";
+                resource = "workmux *";
+                effect = "ask";
+              }
+
+              # worktree, merge and coordinator open multiplexer windows (the sandbox
+              # has no multiplexer access, by design); open-pr needs gh. The
+              # orchestrator calls the workmux CLI directly instead.
               {
                 action = "skill";
                 resource = "worktree";

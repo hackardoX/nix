@@ -99,6 +99,7 @@
           ];
           read = [
             "$XDG_CONFIG_HOME/opencode"
+            "$XDG_CONFIG_HOME/workmux"
             "$HOME/.claude"
             # OpenCode probes this at startup and crashes when missing.
             "$HOME/.opencode"
