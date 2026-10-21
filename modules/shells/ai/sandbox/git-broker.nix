@@ -20,7 +20,7 @@
         "TERM"
       ];
 
-      # Default-deny: config/init/clone/remote/worktree/submodule stay denied; they can
+      # Default-deny: config/init/clone/remote/submodule stay denied; they can
       # plant hooks or config that run unsandboxed later. Accepted gap: `-C <path>` calls.
       gitAllowedSubcommands = [
         "status"
@@ -57,6 +57,7 @@
         "var"
         "name-rev"
         "apply"
+        "worktree"
       ];
     in
     {
