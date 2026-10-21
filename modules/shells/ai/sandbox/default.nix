@@ -32,15 +32,7 @@
             workdir.access = "readwrite";
 
             environment = {
-              set_vars = {
-                GLAB_CHECK_UPDATE = "false";
-                GLAB_SEND_TELEMETRY = "false";
-                GLAB_NO_PROMPT = "1";
-                GLAB_BROWSER = "/usr/bin/false";
-                GLAB_CONFIG_DIR = "$XDG_STATE_HOME/opencode/glab";
-              }
-              // a.env
-              // cfg.env;
+              set_vars = a.env // cfg.env;
               # Set vars (cfg.env and harness env) bypass deny_vars on purpose.
               deny_vars = [
                 "*_TOKEN"

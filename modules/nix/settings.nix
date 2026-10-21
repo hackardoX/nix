@@ -83,6 +83,7 @@ let
       warn-dirty = false;
 
       # https://github.com/NixOS/nix/issues/12698
+      # Darwin sandbox profile exceeds the 65535 byte limit: https://github.com/NixOS/nix/issues/16613
       sandbox = "relaxed";
 
       extra-system-features = [ "recursive-nix" ];

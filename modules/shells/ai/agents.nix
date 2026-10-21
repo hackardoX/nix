@@ -43,13 +43,6 @@
           effect = "allow";
         }
 
-        # Asks, because unsandboxed OpenCode would run the real glab with your
-        # own token. The sandbox's glab uses a read_api token (see sandbox/).
-        {
-          action = "shell";
-          resource = "glab *";
-          effect = "ask";
-        }
         {
           action = "shell";
           resource = "git status *";
