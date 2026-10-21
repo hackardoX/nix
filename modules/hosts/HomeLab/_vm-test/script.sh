@@ -27,8 +27,9 @@ IMMICH_SECRET='@IMMICH_SECRET@'
 
 # Every NixOS secret keeps its production owner, group and mode.
 # Lines: PATH OWNER:GROUP:MODE (MODE as stat -c %a prints it).
+# -L: the path is a symlink into the sops mount, and the target carries the mode.
 while read -r path want; do
-  got=$(stat -c '%U:%G:%a' "$path") || fail "cannot stat $path"
+  got=$(stat -L -c '%U:%G:%a' "$path") || fail "cannot stat $path"
   [ "$got" = "$want" ] || fail "$path: $got != $want"
 done <<'EOF'
 @SECRETS@
