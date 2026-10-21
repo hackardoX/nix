@@ -57,6 +57,8 @@ in
   perSystem =
     { pkgs, ... }:
     let
+      mock = import ./_vm-test/mock-sops.nix { inherit lib pkgs host; };
+
       # Not writeShellApplication: it would restrict PATH inside the VM.
       script = pkgs.writeTextFile {
         name = "homelab-vm-smoke.sh";
@@ -79,7 +81,68 @@ in
       };
     in
     {
-      checks = lib.optionalAttrs (pkgs.stdenv.hostPlatform.system == "aarch64-linux") {
+      checks = {
+        # Drift check, not a VM test. The plain mock files must hold exactly the
+        # names the host asks for, one file per production sopsFile. Only key
+        # names are printed. Encryption is checked by mockSops itself.
+        "homelab/sops-mock" =
+          let
+            wantFiles = lib.escapeShellArgs (
+              map (n: "${n}.yaml") (lib.sort lib.lessThan (lib.attrNames mock.groups))
+            );
+            checkGroup =
+              name: g:
+              if g.whole then
+                ''
+                  if ! yq -o json ${mock.mockDir}/${name}.yaml | jq -e 'type == "object" and length > 0' > /dev/null; then
+                    echo "${name}: the whole-file secret is empty or not a mapping" >&2
+                    fail=1
+                  fi
+                ''
+              else
+                ''
+                  yq -o json ${mock.mockDir}/${name}.yaml | jq -r 'paths(type != "object") | join("/")' | LC_ALL=C sort > have.txt
+                  printf '%s\n' ${lib.escapeShellArgs g.keys} | LC_ALL=C sort > want.txt
+                  missing=$(LC_ALL=C comm -23 want.txt have.txt)
+                  extra=$(LC_ALL=C comm -13 want.txt have.txt)
+                  if [ -n "$missing" ]; then
+                    echo "${name}: keys the host needs but the mock lacks:" >&2
+                    sed 's/^/  - /' <<< "$missing" >&2
+                    fail=1
+                  fi
+                  if [ -n "$extra" ]; then
+                    echo "${name}: keys the mock has but the host does not use:" >&2
+                    sed 's/^/  - /' <<< "$extra" >&2
+                    fail=1
+                  fi
+                '';
+          in
+          pkgs.runCommand "homelab-sops-mock"
+            {
+              nativeBuildInputs = [
+                pkgs.jq
+                pkgs.yq-go
+              ];
+            }
+            ''
+              set -euo pipefail
+              fail=0
+
+              ls ${mock.mockDir} | LC_ALL=C sort > have-files.txt
+              printf '%s\n' ${wantFiles} | LC_ALL=C sort > want-files.txt
+              if ! cmp -s have-files.txt want-files.txt; then
+                echo "_vm-test/mock: files do not match the production sopsFiles in use:" >&2
+                LC_ALL=C comm -3 want-files.txt have-files.txt | sed 's/^/  /' >&2
+                fail=1
+              fi
+
+              ${lib.concatStringsSep "\n" (lib.mapAttrsToList checkGroup mock.groups)}
+
+              [ "$fail" -eq 0 ] || exit 1
+              touch $out
+            '';
+      }
+      // lib.optionalAttrs (pkgs.stdenv.hostPlatform.system == "aarch64-linux") {
         "homelab/vm-activation" = pkgs.testers.runNixOSTest {
           name = "homelab-vm-activation";
           # Spike only: the Linux builder does not advertise nixos-test, and KVM
@@ -102,6 +165,7 @@ in
                   lib
                   pkgs
                   host
+                  mock
                   testedUsers
                   ;
               })

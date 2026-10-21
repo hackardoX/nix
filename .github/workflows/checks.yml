@@ -19,7 +19,8 @@ jobs:
             system: aarch64-darwin
     steps:
       - uses: actions/checkout@v7
-      # Evaluating the homelab partition needs its private input, on every system.
+        with:
+          persist-credentials: false
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.ASAHI_FIRMWARE_DEPLOY_KEY }}
@@ -77,6 +78,8 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.ASAHI_FIRMWARE_DEPLOY_KEY }}

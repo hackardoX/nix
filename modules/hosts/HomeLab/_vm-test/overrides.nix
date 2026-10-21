@@ -1,10 +1,12 @@
 # Test-only overrides applied on top of the real HomeLab-CI module in the VM
 # check. Nothing here is imported by production. `host` is the evaluated
 # HomeLab-CI config and is only read for names (secrets, users, containers).
+# `mock` is mock-sops.nix (test-only sops files and the throwaway key).
 {
   lib,
   pkgs,
   host,
+  mock,
   testedUsers,
 }:
 let
@@ -28,7 +30,7 @@ let
   lingerUsers = lib.attrNames (lib.filterAttrs (_: u: u.linger != null && u.linger) host.users.users);
 in
 {
-  imports = [ (import ./dummy-sops.nix { inherit lib pkgs host; }) ];
+  imports = [ mock.module ];
 
   virtualisation = {
     memorySize = 4096;
@@ -57,7 +59,7 @@ in
 
   # Off to keep the boot short. None of these is checked by script.sh.
   services = {
-    # The dummy tunnel credentials are not JSON, so cloudflared would restart in
+    # The mock tunnel credentials are not JSON, so cloudflared would restart in
     # a loop. The sops secret itself is declared outside the enable switch
     # (modules/homelab/cloudflare-tunnel/default.nix), so script.sh still sees it.
     cloudflared.enable = mkForce false;
