@@ -26,6 +26,8 @@ jobs:
             system: aarch64-linux
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: webfactory/ssh-agent@v0.10.0
         if: matrix.os == 'ubuntu-26.04-arm'
         with:

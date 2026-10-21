@@ -19,6 +19,8 @@ jobs:
             system: aarch64-darwin
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       # Evaluating the homelab partition needs its private input, on every system.
       - uses: webfactory/ssh-agent@v0.10.0
         with:
