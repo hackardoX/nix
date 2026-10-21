@@ -138,23 +138,6 @@ rulesets:
             - context: "Dead code analysis"
             - context: "Formatting checks"
             - context: "Lint checks"
-      # Merge queue: batch approved PRs and test them together before merging
-      - type: merge_queue
-        parameters:
-          # Squash merge the queued entries
-          merge_method: SQUASH
-          # Only merge a group when every entry's checks are green
-          grouping_strategy: ALLGREEN
-          # Merge as soon as at least one entry is ready
-          min_entries_to_merge: 1
-          # Merge at most 5 entries in one group
-          max_entries_to_merge: 5
-          # Build at most 5 entries in parallel
-          max_entries_to_build: 5
-          # Wait up to 5 minutes for more entries before merging a group
-          min_entries_to_merge_wait_minutes: 5
-          # Fail an entry if its checks do not report within 6 hours
-          check_response_timeout_minutes: 360
   # Require at least one approving review before merging.
   # Admins (i.e. you) are exempt so your own PRs are never blocked.
   - name: protect main - require review

@@ -1,0 +1,26 @@
+name: Update PR branch
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  update-pr-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+      - uses: adRise/update-pr-branch@v0.11
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          base: main
+          required_approval_count: 0
+          require_passed_checks: true
+          allow_ongoing_checks: true
+          require_auto_merge_enabled: true
+          sort: created
+          direction: asc
