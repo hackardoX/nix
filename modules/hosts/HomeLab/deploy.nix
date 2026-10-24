@@ -1,7 +1,8 @@
+{ config, ... }:
 {
   configurations.nixos.HomeLab = {
     deploy = {
-      hostname = "ssh.homelab4.fun";
+      hostname = config.flake.meta.reverse-proxy.hosts.ssh;
       remoteBuild = true;
       user = "root";
     };

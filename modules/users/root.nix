@@ -1,7 +1,7 @@
 { config, inputs, ... }:
 {
   flake.meta.users.root = {
-    email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+    email = config.flake.meta.users.hackardo.email;
     description = "System administrator";
     name = "root";
     uid = 0;
