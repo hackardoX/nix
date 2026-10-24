@@ -1,7 +1,7 @@
 { config, inputs, ... }:
 {
   flake.meta.users.hal = {
-    email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+    email = config.flake.meta.users.hackardo.email;
     description = "HAL 9000";
     name = "hal";
     uid = 9000;
