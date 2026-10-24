@@ -3,17 +3,17 @@ let
   sopsKeyPath = "/var/lib/sops/age-key.txt";
 in
 {
-  flake.modules.nixos.base = {
+  flake.modules.nixos.sops = {
     imports = [ inputs.sops-nix.nixosModules.default ];
     sops.age.keyFile = sopsKeyPath;
   };
 
-  flake.modules.darwin.base = {
+  flake.modules.darwin.sops = {
     imports = [ inputs.sops-nix.darwinModules.default ];
     sops.age.keyFile = sopsKeyPath;
   };
 
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.sops =
     hmArgs@{ pkgs, ... }:
     {
       imports = [ inputs.sops-nix.homeManagerModules.default ];
@@ -26,7 +26,7 @@ in
       );
     };
 
-  flake.modules.homeManager.hackardo =
+  flake.modules.homeManager.sops-cli =
     { pkgs, ... }:
     {
       home = {

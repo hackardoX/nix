@@ -14,6 +14,7 @@
       homelab
       impermanence
       root
+      sops
       ssh
       sudo
     ];

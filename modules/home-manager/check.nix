@@ -14,6 +14,7 @@
               inherit pkgs;
               modules = [
                 config.flake.modules.homeManager.base
+                config.flake.modules.homeManager.sops
                 {
                   home.stateVersion = "24.11";
                   home.username = "check-user";

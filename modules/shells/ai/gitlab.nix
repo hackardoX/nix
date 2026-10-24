@@ -4,7 +4,7 @@
   # configs carry an env reference and the env var comes from the session
   # (unsandboxed, forges/gitlab.nix) or the sandbox profile (programs.nono.env).
   # OAuth runs in the browser on first use, so no token lives in this config.
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.mcp-gitlab =
     hmArgs:
     let
       # Toolsets without duo_agent_platform (agent sessions, not wanted here).

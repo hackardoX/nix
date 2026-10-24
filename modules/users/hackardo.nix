@@ -72,14 +72,18 @@
   flake.modules.homeManager.hackardo = {
     imports = with config.flake.modules.homeManager; [
       config.flake.modules.homeManager."1password"
+      ai-models-lumo
       base
       dev
       file-sync
       git
       github
       gitlab
+      mcp-github
       media
       shell
+      sops
+      sops-cli
       ssh
       theme
     ];

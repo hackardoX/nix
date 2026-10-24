@@ -6,6 +6,7 @@
       base
       dev
       proton-pass
+      sops
     ];
 
     home-manager.users.${config.flake.meta.users.aaccardo.name} =

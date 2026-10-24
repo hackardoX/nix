@@ -2,7 +2,7 @@
 {
   # Local clones the agents may consult as references. They are never cloned
   # or fetched; the sandbox only gets read access to the paths listed here.
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.work =
     let
       references = {
         nix = {

@@ -63,15 +63,24 @@
 
   flake.modules.homeManager.aaccardo = {
     imports = with config.flake.modules.homeManager; [
+      ai-models-anthropic
       base
+      claude-code
       dev
       git
       github
       gitlab
+      keep-awake
+      mcp-atlassian
+      mcp-figma
+      mcp-gitlab
+      mcp-openviking
       proton-pass
       shell
+      sops
       theme
       web-browsers
+      work
     ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/aaccardo.yaml";
     home.username = config.flake.meta.users.aaccardo.name;
