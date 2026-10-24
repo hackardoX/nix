@@ -16,7 +16,7 @@
         };
 
         xdg.stateFile."claude-code/.keep".text = "";
-        # Default so hosts without aaccardo-bucket instruction modules still evaluate.
+        # Default so users without any MCP instruction modules still evaluate.
         xdg.stateFile."claude-code/CLAUDE.md".text = lib.mkDefault "";
         # Default so hosts without MCP servers still evaluate; Home Manager's own entry overrides it.
         home.file."${hmArgs.config.xdg.stateHome}/claude-code/skills/claude-code-home-manager".source =
@@ -24,7 +24,7 @@
       };
     };
 
-  flake.modules.homeManager.aaccardo = hmArgs: {
+  flake.modules.homeManager.claude-code = hmArgs: {
     sops.secrets."ai/claude_api_key" = { };
     programs.nono.harnesses.claude-code.env.CLAUDE_CODE_OAUTH_TOKEN =
       hmArgs.config.sops.placeholder."ai/claude_api_key";

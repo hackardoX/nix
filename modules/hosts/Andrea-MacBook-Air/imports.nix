@@ -7,6 +7,7 @@
       base
       dev
       media
+      sops
     ];
 
     home-manager.users.${config.flake.meta.users.hackardo.name} =

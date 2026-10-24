@@ -4,7 +4,7 @@
   # the Nix store. OpenCode and Claude Code, sandboxed or not, all read the env
   # var OPENVIKING_API_KEY. Unsandboxed shells get it from home.sessionVariables
   # (`$(cat ...)` evaluated at login); the sandbox gets it from programs.nono.env.
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.mcp-openviking =
     hmArgs:
     let
       url = "https://openviking.protontech.ch/mcp";

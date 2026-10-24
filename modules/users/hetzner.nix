@@ -33,7 +33,10 @@
     };
 
   flake.modules.homeManager.hetzner = {
-    imports = with config.flake.modules.homeManager; [ base ];
+    imports = with config.flake.modules.homeManager; [
+      base
+      sops
+    ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/hetzner.yaml";
     home.username = config.flake.meta.users.hetzner.name;
     home.stateVersion = "26.05";

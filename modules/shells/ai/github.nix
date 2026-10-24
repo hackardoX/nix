@@ -5,7 +5,7 @@
   # all read the env var GITHUB_MCP_TOKEN. Unsandboxed shells get it from
   # home.sessionVariables (`$(cat ...)` evaluated at login); the sandbox gets it
   # from programs.nono.env.
-  flake.modules.homeManager.hackardo =
+  flake.modules.homeManager.mcp-github =
     hmArgs:
     let
       url = "https://api.githubcopilot.com/mcp/readonly";

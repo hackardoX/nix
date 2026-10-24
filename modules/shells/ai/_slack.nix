@@ -1,7 +1,7 @@
 {
   # Slack's official remote MCP server. OAuth runs in the browser on first
   # use, so no token lives in this config.
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.mcp-slack =
     let
       # Best-effort denylist: the tool names come from memory and are not
       # verified against the server, so every pattern tolerates an optional

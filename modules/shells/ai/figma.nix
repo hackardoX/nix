@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.mcp-figma =
     hmArgs:
     let
       figmaInstructions = ''

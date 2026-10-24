@@ -1,7 +1,7 @@
 {
   # Atlassian's official remote MCP server (Jira Cloud and Confluence). OAuth
   # runs in the browser on first use, so no token lives in this config.
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.mcp-atlassian =
     hmArgs:
     let
       atlassianInstructions = ''
