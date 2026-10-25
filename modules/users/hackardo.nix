@@ -72,7 +72,7 @@
       config.flake.modules.homeManager."1password"
       ai-models-lumo
       base
-      dev
+      dev-personal
       file-sync
       git
       github

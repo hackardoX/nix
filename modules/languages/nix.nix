@@ -24,7 +24,7 @@
         };
       };
     };
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-nix =
     { pkgs, ... }:
     {
       programs.opencode = {

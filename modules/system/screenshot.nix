@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.screenshot = {
     system.defaults.screencapture.disable-shadow = true;
   };
 }

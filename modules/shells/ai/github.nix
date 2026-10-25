@@ -6,7 +6,7 @@
   # home.sessionVariables (`$(cat ...)` evaluated at login); the sandbox gets it
   # from programs.nono.env.
   flake.modules.homeManager.mcp-github =
-    hmArgs:
+    hmArgs@{ lib, options, ... }:
     let
       url = "https://api.githubcopilot.com/mcp/readonly";
 
@@ -92,72 +92,83 @@
       '';
     in
     {
-      # The sandbox reaches only the GitHub MCP host. The token is a sops
-      # secret, and the sandbox session can read it (same trade-off as openviking).
-      programs.nono = {
-        allowDomains = [ "api.githubcopilot.com" ];
-        env.GITHUB_MCP_TOKEN = hmArgs.config.sops.placeholder."github/token";
-      };
+      config = lib.mkMerge [
+        {
+          # Declared here too, so this module does not depend on forges/github.nix (same empty attrs, merged).
+          sops.secrets."github/token" = { };
 
-      programs.opencode.settings = {
-        # The env var is set both unsandboxed (session variable) and sandboxed
-        # (programs.nono.env), so the token is not written to any config file.
-        mcp.servers.github = {
-          type = "remote";
-          inherit url;
-          oauth = false;
-          headers = {
-            Authorization = "Bearer {env:GITHUB_MCP_TOKEN}";
-            X-MCP-Readonly = "true";
+          programs.opencode.settings = {
+            # The env var is set both unsandboxed (session variable) and sandboxed
+            # (programs.nono.env), so the token is not written to any config file.
+            mcp.servers.github = {
+              type = "remote";
+              inherit url;
+              oauth = false;
+              headers = {
+                Authorization = "Bearer {env:GITHUB_MCP_TOKEN}";
+                X-MCP-Readonly = "true";
+              };
+            };
+
+            # Reads stay gated by this ask rule, in the sandbox too (the sandbox
+            # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
+            permissions = [
+              {
+                action = "github_*";
+                resource = "*";
+                effect = "ask";
+              }
+            ];
+
+            # Hard denies, applied after agent rules and saved approvals, so no
+            # allow rule can bypass them. Same list-merge as opencode.nix.
+            experimental.policies =
+              map (tool: {
+                action = "permission";
+                resource = "github_${tool}:*";
+                effect = "deny";
+              }) deniedTools
+              ++ map (prefix: {
+                action = "permission";
+                resource = "github_${prefix}*:*";
+                effect = "deny";
+              }) deniedPrefixes;
           };
-        };
 
-        # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-        # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
-        permissions = [
-          {
-            action = "github_*";
-            resource = "*";
-            effect = "ask";
-          }
-        ];
+          # The shell reads the sops file at login. The sandbox gets the same var
+          # from programs.nono.env. A long-lived OpenCode service started before
+          # this (or outside a login shell) needs `opencode service restart`.
+          home.sessionVariables.GITHUB_MCP_TOKEN = "$(cat ${hmArgs.config.sops.secrets."github/token".path})";
 
-        # Hard denies, applied after agent rules and saved approvals, so no
-        # allow rule can bypass them. Same list-merge as opencode.nix.
-        experimental.policies =
-          map (tool: {
-            action = "permission";
-            resource = "github_${tool}:*";
-            effect = "deny";
-          }) deniedTools
-          ++ map (prefix: {
-            action = "permission";
-            resource = "github_${prefix}*:*";
-            effect = "deny";
-          }) deniedPrefixes;
-      };
-
-      # The shell reads the sops file at login. The sandbox gets the same var
-      # from programs.nono.env. A long-lived OpenCode service started before
-      # this (or outside a login shell) needs `opencode service restart`.
-      home.sessionVariables.GITHUB_MCP_TOKEN = "$(cat ${hmArgs.config.sops.secrets."github/token".path})";
-
-      programs.claude-code = {
-        # Claude expands ${VAR} itself, so the token never reaches the store.
-        mcpServers.github = {
-          type = "http";
-          inherit url;
-          headers = {
-            Authorization = "Bearer \${GITHUB_MCP_TOKEN}";
-            X-MCP-Readonly = "true";
+          programs.claude-code = {
+            # Claude expands ${VAR} itself, so the token never reaches the store.
+            mcpServers.github = {
+              type = "http";
+              inherit url;
+              headers = {
+                Authorization = "Bearer \${GITHUB_MCP_TOKEN}";
+                X-MCP-Readonly = "true";
+              };
+            };
+            settings.permissions.deny =
+              map (tool: "mcp__plugin_hm_github__${tool}") deniedTools
+              ++ map (prefix: "mcp__plugin_hm_github__${prefix}*") deniedPrefixes;
           };
-        };
-        settings.permissions.deny =
-          map (tool: "mcp__plugin_hm_github__${tool}") deniedTools
-          ++ map (prefix: "mcp__plugin_hm_github__${prefix}*") deniedPrefixes;
-      };
 
-      xdg.configFile."opencode/AGENTS.md".text = githubInstructions;
-      xdg.stateFile."claude-code/CLAUDE.md".text = githubInstructions;
+          xdg.configFile."opencode/AGENTS.md".text = githubInstructions;
+          xdg.stateFile = lib.mkIf hmArgs.config.programs.claude-code.enable {
+            "claude-code/CLAUDE.md".text = githubInstructions;
+          };
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          # The sandbox reaches only the GitHub MCP host. The token is a sops
+          # secret, and the sandbox session can read it (same trade-off as openviking).
+          programs.nono = {
+            allowDomains = [ "api.githubcopilot.com" ];
+            env.GITHUB_MCP_TOKEN = hmArgs.config.sops.placeholder."github/token";
+          };
+        })
+      ];
     };
 }

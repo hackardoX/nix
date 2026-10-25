@@ -30,7 +30,7 @@
       plugins.conform-nvim.settings.formatters_by_ft.swift = [ "swift_format" ];
     };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-swift =
     { pkgs, ... }:
     lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       programs.opencode = {

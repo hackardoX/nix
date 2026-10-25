@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.nono =
     hmArgs@{ lib, pkgs, ... }:
     let
       cfg = hmArgs.config.programs.nono;

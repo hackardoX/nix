@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.shell =
+  flake.modules.homeManager.eza =
     { pkgs, ... }:
     {
       programs.eza = {

@@ -5,10 +5,12 @@
       config.flake.modules.darwin."1password"
       hackardo
       base
-      dev
+      macos
       media
       messaging
+      nix-workstation
       rclone
+      raycast
       sops
       sudo
     ];

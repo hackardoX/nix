@@ -1,28 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.base =
-    hmArgs@{
-      pkgs,
-      ...
-    }:
-    {
-      programs.nh = {
-        enable = true;
-        package = pkgs.nh;
-        clean = {
-          enable = true;
-          extraArgs = "--keep-since 1w --keep 2";
-        };
-        flake =
-          # TODO: make this configurable
-          if pkgs.stdenv.hostPlatform.isDarwin then
-            "${hmArgs.config.home.homeDirectory}/Github/nix"
-          else
-            "${hmArgs.config.home.homeDirectory}/nixos-config";
-      };
-    };
-
-  flake.modules.homeManager.shell =
+  flake.modules.homeManager.aliases =
     hmArgs@{
       pkgs,
       ...

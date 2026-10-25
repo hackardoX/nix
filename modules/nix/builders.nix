@@ -3,7 +3,7 @@ let
   isFirstInitialization = true;
 in
 {
-  flake.modules.darwin.base = darwinArgs: {
+  flake.modules.darwin.nix = darwinArgs: {
     options.linux-builder.enable = lib.mkEnableOption "linux-builder" // {
       default = true;
     };

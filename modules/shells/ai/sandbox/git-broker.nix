@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.nono =
     hmArgs@{ lib, ... }:
     let
       gitSigning = hmArgs.config.programs.git.signing;
@@ -60,6 +60,13 @@
       ];
     in
     {
+      assertions = [
+        {
+          assertion = hmArgs.config.sops.templates ? "allowed_signers";
+          message = "nono git broker requires the git-extras feature (sops template allowed_signers)";
+        }
+      ];
+
       programs.nono.commandPolicies = {
         approval_backends.terminal = {
           type = "terminal";

@@ -70,8 +70,6 @@
 
         # Required for systemd initrd services to function
         boot.initrd = {
-          systemd.enable = true;
-
           # Ensure btrfs tools are available in initrd
           supportedFilesystems = [ "btrfs" ];
 

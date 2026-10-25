@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.dock = {
     system.defaults = {
       dock = {
         # auto show and hide dock

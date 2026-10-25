@@ -5,7 +5,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.nixvim =
     hmArgs@{ pkgs, ... }:
     let
       system = pkgs.stdenv.hostPlatform.system;

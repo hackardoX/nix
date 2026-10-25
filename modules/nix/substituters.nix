@@ -20,6 +20,6 @@ let
   };
 in
 {
-  flake.modules.nixos.base.nix.settings = nixSettings;
-  flake.modules.darwin.base.nix.settings = nixSettings;
+  flake.modules.nixos.nix.nix.settings = nixSettings;
+  flake.modules.darwin.nix.nix.settings = nixSettings;
 }

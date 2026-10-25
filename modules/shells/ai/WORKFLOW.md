@@ -81,7 +81,7 @@ Claude Code runs in the same nono sandbox (`sandbox/claude-code.nix`; the shared
 - The sandbox dir's `settings.json` is the pinned one plus `permissions.defaultMode: bypassPermissions`, so bypass applies only to the sandboxed claude. `CLAUDE.md` and the generated MCP plugin (`hm`) are the same files as the pinned dir, linked from the store.
 - The write-tool deny list for the Atlassian and GitLab MCPs lives in that `settings.json`. Home Manager restores a replaced link at the next switch (`backupFileExtension = "hm.old"`; activation can fail if a `.hm.old` file already exists). Files the session adds (plugins, skills, `.claude.json` mcpServers) are never removed.
 - Residual: inside the sandbox dir the session can replace its own `settings.json` (dropping the deny list for later sandboxed runs) or add its own MCP plugin. Treat the Atlassian, GitLab and OpenViking denies there as guards against mistakes, not as a boundary. Hardening (write grants limited to subdirs) is a follow-up.
-- Only the binary is sandboxed: the orchestrator, specialist agents and commands stay OpenCode-only.
+- Only the binary is sandboxed: the orchestrator and specialist agents stay OpenCode-only.
 - Residual risk: the session holds `CLAUDE_CODE_OAUTH_TOKEN` in its environment, visible to every child process. It is a long-lived token; rotate it if leaked.
 
 ## OpenViking (read + remember)

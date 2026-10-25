@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.shell = {
+  flake.modules.homeManager.carapace = {
     # home = {
     # file = {
     #   "Library/Application Support/carapace/specs/ls.yaml".text = mkIf ezaCfg.enable ''

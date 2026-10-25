@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.nixos.base = {
+  flake.modules.nixos.nix = {
     imports = [
       inputs.nix-index-database.nixosModules.nix-index
     ];
@@ -10,7 +10,7 @@
     };
   };
 
-  flake.modules.darwin.base = {
+  flake.modules.darwin.nix = {
     imports = [
       inputs.nix-index-database.darwinModules.nix-index
     ];

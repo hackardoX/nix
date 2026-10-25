@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.dev = { pkgs, ... }: {
+  flake.modules.homeManager.git-extras = { pkgs, ... }: {
     home.packages = with pkgs; [
       diffnav
     ];

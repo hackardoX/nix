@@ -26,7 +26,7 @@
       plugins.conform-nvim.settings.formatters_by_ft.kotlin = [ "ktlint" ];
     };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-kotlin =
     { pkgs, ... }:
     {
       programs.opencode = {
