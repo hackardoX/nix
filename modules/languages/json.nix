@@ -1,5 +1,5 @@
 { config, ... }: {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-json =
     { pkgs, ... }:
     {
       home.packages = with pkgs; [

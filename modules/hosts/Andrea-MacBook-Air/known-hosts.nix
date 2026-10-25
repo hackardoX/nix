@@ -1,4 +1,7 @@
 { config, ... }:
+let
+  sshHost = config.flake.meta.reverse-proxy.hosts.ssh;
+in
 {
   configurations.darwin.Andrea-MacBook-Air.module = {
     # TODO: Move this to nixos module, refactoring ssh to allow extraHosts also for nixos/darwin module
@@ -21,8 +24,8 @@
             requestTTY = true;
             remoteCommand = "systemd-tty-ask-password-agent";
           };
-          "ssh.homelab4.fun" = {
-            hostname = "ssh.homelab4.fun";
+          ${sshHost} = {
+            hostname = sshHost;
             user = config.flake.meta.users.hal.name;
             identityFile = hmArgs.osConfig.sops.secrets."ssh/homelab.pub".path;
             proxyCommand = "${pkgs.cloudflared}/bin/cloudflared access ssh --hostname %h";

@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.menu-bar = {
     system.defaults.NSGlobalDomain.AppleShowAllExtensions = true;
 
     system.defaults.finder = {

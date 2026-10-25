@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.keyboard = {
     system.defaults.NSGlobalDomain.NSAutomaticCapitalizationEnabled = false;
     system.defaults.NSGlobalDomain.NSAutomaticDashSubstitutionEnabled = false;
     system.defaults.NSGlobalDomain.NSAutomaticQuoteSubstitutionEnabled = false;

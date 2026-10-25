@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.sudo = {
     security = {
       pam.services = {
         sudo_local = {

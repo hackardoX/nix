@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.keyboard = {
     system.defaults.CustomUserPreferences."com.apple.HIToolbox" =
       let
         keyboard = {

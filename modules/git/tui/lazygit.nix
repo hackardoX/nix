@@ -1,5 +1,5 @@
 { lib, ... }: {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lazygit =
     hmArgs@{ pkgs, ... }:
     let
       lazygitSettings = {

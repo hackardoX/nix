@@ -4,6 +4,7 @@ let
   };
 in
 {
-  flake.modules.nixos.base = polyModule;
-  flake.modules.homeManager.base = polyModule;
+  flake.modules.nixos.zsh = polyModule;
+  flake.modules.darwin.zsh = polyModule;
+  flake.modules.homeManager.zsh = polyModule;
 }

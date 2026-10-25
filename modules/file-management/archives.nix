@@ -1,6 +1,19 @@
 { lib, ... }:
+let
+  polyModule =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = with pkgs; [
+        zip
+        unzip
+      ];
+    };
+in
 {
-  flake.modules.homeManager.shell =
+  flake.modules.nixos.archives = polyModule;
+  flake.modules.darwin.archives = polyModule;
+
+  flake.modules.homeManager.archives =
     { pkgs, ... }:
     let
       mimeTypes = [

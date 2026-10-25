@@ -1,9 +1,10 @@
+{ config, ... }:
 {
   configurations.darwin.Proton-MacBook-Pro.module = {
     networking = {
       computerName = "Proton MacBook Pro";
-      hostName = "Proton-MacBook-Pro";
-      localHostName = "Proton-MacBook-Pro";
+      hostName = config.flake.meta.hosts.Proton-MacBook-Pro.hostName;
+      localHostName = config.flake.meta.hosts.Proton-MacBook-Pro.hostName;
 
       knownNetworkServices = [
         "Wi-Fi"

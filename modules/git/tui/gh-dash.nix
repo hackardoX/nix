@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.dev = {
+  flake.modules.homeManager.gh-dash = {
     programs = {
       gh = {
         enable = true;

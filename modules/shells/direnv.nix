@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.dev = { pkgs, ... }: {
+  flake.modules.homeManager.direnv = { pkgs, ... }: {
     home.packages = [
       (pkgs.writeShellScriptBin "dexec" ''
         exec ${pkgs.direnv}/bin/direnv exec . "$@"

@@ -1,5 +1,5 @@
 { lib, ... }: {
-  flake.modules.homeManager.dev = {
+  flake.modules.homeManager.nono = {
     options.programs.nono = {
       allowDomains = lib.mkOption {
         type = lib.types.listOf lib.types.str;
@@ -36,6 +36,16 @@
         description = ''
           Top-level `command_policies` of every sandboxed profile (nono's
           brokered commands). Emitted only when non-empty.
+        '';
+      };
+
+      relaxedActions = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          Permission actions whose `ask` rules become `allow` in the sandboxed
+          OpenCode config (nono is the boundary for them). Modules add their own
+          actions, e.g. `figma_*`.
         '';
       };
 

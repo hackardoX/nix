@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.dev = hmArgs: {
+  flake.modules.homeManager.starship = hmArgs: {
     programs.starship = {
       enable = true;
       enableZshIntegration = true;

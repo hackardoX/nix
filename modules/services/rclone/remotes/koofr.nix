@@ -5,7 +5,7 @@
   ...
 }:
 let
-  email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+  email = config.flake.meta.users.hackardo.email;
   polyModule = {
     sops.secrets."rclone/koofr/password" = {
       sopsFile = "${inputs.self}/secrets/shared/secrets.yaml";

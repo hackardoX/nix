@@ -10,8 +10,6 @@
   flake.modules.darwin.aaccardo =
     { pkgs, ... }:
     {
-      imports = [ config.flake.modules.darwin.web-browsers ];
-
       nix.settings.allowed-users = [ config.flake.meta.users.aaccardo.name ];
 
       users.users.${config.flake.meta.users.aaccardo.name} = {
@@ -63,15 +61,24 @@
 
   flake.modules.homeManager.aaccardo = {
     imports = with config.flake.modules.homeManager; [
+      ai-models-anthropic
       base
-      dev
+      dev-work
       git
       github
       gitlab
+      keep-awake
+      mcp-atlassian
+      mcp-figma
+      mcp-gitlab
+      mcp-openviking
       proton-pass
       shell
+      sops
+      ssh
       theme
       web-browsers
+      work
     ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/aaccardo.yaml";
     home.username = config.flake.meta.users.aaccardo.name;

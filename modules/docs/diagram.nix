@@ -1,5 +1,6 @@
 {
   self,
+  config,
   ...
 }:
 {
@@ -12,8 +13,8 @@
     let
       diagramContent =
         showSecrets:
-        import ../../scripts/generate-diagram.nix {
-          inherit lib showSecrets;
+        config.flake.lib.diagram {
+          inherit showSecrets;
           modulesDir = "${self}/modules";
         };
 

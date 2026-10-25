@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.shell = {
+  flake.modules.homeManager.aliases = {
     home = {
       shellAliases = {
         # Navigation shortcuts

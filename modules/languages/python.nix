@@ -30,7 +30,7 @@
       };
     };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-python =
     { pkgs, ... }:
     {
       home.packages = with pkgs; [

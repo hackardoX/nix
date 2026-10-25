@@ -6,6 +6,6 @@ let
   };
 in
 {
-  flake.modules.nixos.base = nixConfig;
-  flake.modules.darwin.base = nixConfig;
+  flake.modules.nixos.nix = nixConfig;
+  flake.modules.darwin.nix = nixConfig;
 }

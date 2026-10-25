@@ -1,7 +1,7 @@
 { config, inputs, ... }:
 {
   flake.meta.users.hetzner = {
-    email = config.flake.lib.fromBase64 "aGFja2FyZG9AZ21haWwuY29t";
+    email = config.flake.meta.users.hackardo.email;
     description = "Hetzner HomeLab";
     name = "hetzner";
     uid = 1001;
@@ -33,7 +33,11 @@
     };
 
   flake.modules.homeManager.hetzner = {
-    imports = with config.flake.modules.homeManager; [ base ];
+    imports = with config.flake.modules.homeManager; [
+      base
+      sops
+      ssh
+    ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/hetzner.yaml";
     home.username = config.flake.meta.users.hetzner.name;
     home.stateVersion = "26.05";

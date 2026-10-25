@@ -2,7 +2,8 @@
 {
   # Local clones the agents may consult as references. They are never cloned
   # or fetched; the sandbox only gets read access to the paths listed here.
-  flake.modules.homeManager.aaccardo =
+  flake.modules.homeManager.work =
+    { options, ... }:
     let
       references = {
         nix = {
@@ -24,11 +25,17 @@
       };
     in
     {
-      programs.opencode.settings.references = references;
-
-      # The sandbox sees $HOME-expanded clones, read-only (see sandbox/).
-      programs.nono.readPaths = lib.mapAttrsToList (
-        _: ref: builtins.replaceStrings [ "~" ] [ "$HOME" ] ref.path
-      ) references;
+      config = lib.mkMerge [
+        {
+          programs.opencode.settings.references = references;
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          # The sandbox sees $HOME-expanded clones, read-only (see sandbox/).
+          programs.nono.readPaths = lib.mapAttrsToList (
+            _: ref: builtins.replaceStrings [ "~" ] [ "$HOME" ] ref.path
+          ) references;
+        })
+      ];
     };
 }

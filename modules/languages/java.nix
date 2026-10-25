@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-java =
     { pkgs, ... }:
     {
       programs.java.enable = true;

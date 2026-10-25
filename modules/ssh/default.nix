@@ -18,7 +18,7 @@ let
     myReachableHosts |> lib.mapAttrsToList (_name: host: "${host.hostName}.${host.domain}");
 in
 {
-  flake.modules.homeManager.base =
+  flake.modules.homeManager.ssh =
     hmArgs@{ pkgs, ... }:
     {
       options.ssh = {
@@ -156,7 +156,7 @@ in
       };
     };
 
-  flake.modules.homeManager.ssh = hmArgs: {
+  flake.modules.homeManager.ssh-mesh = hmArgs: {
     programs.ssh.settings =
       myReachableHosts
       |> lib.mapAttrsToList (

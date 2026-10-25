@@ -20,7 +20,7 @@
     default = { };
   };
 
-  config.flake.modules.darwin.dev =
+  config.flake.modules.darwin.fonts =
     { pkgs, ... }:
     {
       fonts.packages = [ pkgs.nerd-fonts.${config.fonts.default.name} ];

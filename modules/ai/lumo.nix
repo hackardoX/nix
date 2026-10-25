@@ -49,7 +49,7 @@
       };
     };
 
-    flake.modules.homeManager.dev = hmArgs: {
+    flake.modules.homeManager.ai-lumo = hmArgs: {
       home.sessionVariables.LUMO_API_KEY = "$(cat ${hmArgs.config.sops.secrets."ai/lumo_api_key".path})";
       sops.secrets."ai/lumo_api_key" = {
         path = "${hmArgs.config.home.homeDirectory}/.secrets/.lumo_key";

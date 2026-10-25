@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.workmux =
     { pkgs, ... }:
     {
       home.packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux ];

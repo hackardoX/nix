@@ -1,6 +1,6 @@
 {
-  flake.modules.homeManager.aaccardo =
-    hmArgs:
+  flake.modules.homeManager.mcp-figma =
+    hmArgs@{ lib, options, ... }:
     let
       figmaInstructions = ''
         # Figma MCP
@@ -12,33 +12,43 @@
       '';
     in
     {
-      programs.mcp.servers.figma.url = "https://mcp.figma.com/mcp";
+      config = lib.mkMerge [
+        {
+          programs.mcp.servers.figma.url = "https://mcp.figma.com/mcp";
 
-      programs.opencode.settings = {
-        mcp.servers.figma = {
-          type = "remote";
-          url = hmArgs.config.programs.mcp.servers.figma.url;
-        };
+          programs.opencode.settings = {
+            mcp.servers.figma = {
+              type = "remote";
+              url = hmArgs.config.programs.mcp.servers.figma.url;
+            };
 
-        permissions = [
-          {
-            action = "figma_*";
-            resource = "*";
-            effect = "ask";
-          }
-        ];
-      };
+            permissions = [
+              {
+                action = "figma_*";
+                resource = "*";
+                effect = "ask";
+              }
+            ];
+          };
 
-      programs.nono.allowDomains = [
-        "mcp.figma.com"
-        "www.figma.com"
-        "api.figma.com"
+          xdg.configFile."opencode/AGENTS.md".text = figmaInstructions;
+          xdg.stateFile = lib.mkIf hmArgs.config.programs.claude-code.enable {
+            "claude-code/CLAUDE.md".text = figmaInstructions;
+          };
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          programs.nono = {
+            allowDomains = [
+              "mcp.figma.com"
+              "www.figma.com"
+              "api.figma.com"
+            ];
+            # Figma's ask rules become allow in the sandboxed OpenCode config
+            # (sandbox/opencode.nix), like shell and edit.
+            relaxedActions = [ "figma_*" ];
+          };
+        })
       ];
-      # Figma's ask rules become allow in the sandboxed OpenCode config
-      # (sandbox/opencode.nix), like shell and edit.
-      programs.nono.relaxedActions = [ "figma_*" ];
-
-      xdg.configFile."opencode/AGENTS.md".text = figmaInstructions;
-      xdg.stateFile."claude-code/CLAUDE.md".text = figmaInstructions;
     };
 }

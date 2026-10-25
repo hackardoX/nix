@@ -4,8 +4,12 @@
     imports = with config.flake.modules.darwin; [
       aaccardo
       base
-      dev
+      macos
+      nix-workstation
       proton-pass
+      sops
+      sudo
+      web-browsers
     ];
 
     home-manager.users.${config.flake.meta.users.aaccardo.name} =

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.shell = {
+  flake.modules.homeManager.git-extras = {
     # #
     # Git alias
     # #

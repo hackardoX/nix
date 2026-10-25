@@ -1,6 +1,6 @@
 { config, ... }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.nono =
     hmArgs@{ lib, pkgs, ... }:
     let
       cfg = hmArgs.config.programs.nono;
@@ -63,17 +63,9 @@
       );
     in
     {
-      options.programs.nono.relaxedActions = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = ''
-          Permission actions whose `ask` rules become `allow` in the sandboxed
-          OpenCode config (nono is the boundary for them). Modules add their own
-          actions, e.g. `figma_*`.
-        '';
-      };
-
-      config = {
+      # Sandboxed OpenCode exists only when the opencode feature is present (module-level mkIf, so the
+      # harness key is not created otherwise).
+      config = lib.mkIf hmArgs.config.programs.opencode.enable {
         programs.nono.relaxedActions = [
           "shell"
           "edit"

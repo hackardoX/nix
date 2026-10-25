@@ -5,7 +5,7 @@
   ...
 }:
 {
-  flake.modules.nixos.base =
+  flake.modules.nixos.auto-upgrade =
     nixosArgs@{ pkgs, ... }:
     let
       ntfy = nixosArgs.config.services.ntfy-notify;
@@ -81,7 +81,7 @@
     system.autoUpgrade.flake = "${config.flake.meta.uri}?ref=HomeLab";
   };
 
-  flake.modules.darwin.base = {
+  flake.modules.darwin.auto-upgrade = {
     system.defaults = {
       CustomUserPreferences = {
         "com.apple.SoftwareUpdate" = {

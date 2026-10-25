@@ -5,8 +5,14 @@
       config.flake.modules.darwin."1password"
       hackardo
       base
-      dev
+      macos
       media
+      messaging
+      nix-workstation
+      rclone
+      raycast
+      sops
+      sudo
     ];
 
     home-manager.users.${config.flake.meta.users.hackardo.name} =

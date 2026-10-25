@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.aaccardo = {
+  flake.modules.homeManager.keep-awake = {
     # Keep the machine from idle-sleeping:
     #   -i  prevent idle sleep
     #   -s  prevent system sleep, but only while on AC power, so battery

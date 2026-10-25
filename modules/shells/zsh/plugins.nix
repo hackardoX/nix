@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.shell =
+  flake.modules.homeManager.zsh-config =
     { config, pkgs, ... }:
     {
       programs.zsh = {

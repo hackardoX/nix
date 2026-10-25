@@ -4,8 +4,8 @@
   # configs carry an env reference and the env var comes from the session
   # (unsandboxed, forges/gitlab.nix) or the sandbox profile (programs.nono.env).
   # OAuth runs in the browser on first use, so no token lives in this config.
-  flake.modules.homeManager.aaccardo =
-    hmArgs:
+  flake.modules.homeManager.mcp-gitlab =
+    hmArgs@{ lib, options, ... }:
     let
       # Toolsets without duo_agent_platform (agent sessions, not wanted here).
       toolsets = "core,merge_requests,work_items,repository,ci";
@@ -76,59 +76,70 @@
       '';
     in
     {
-      # The sandbox reaches only the GitLab host (also used for OAuth).
-      programs.nono = {
-        allowDomains = [
-          hmArgs.config.sops.placeholder."gitlab/host"
-        ];
-        env.GITLAB_HOST = hmArgs.config.sops.placeholder."gitlab/host";
-      };
+      config = lib.mkMerge [
+        {
+          # Declared here too, so this module does not depend on forges/gitlab.nix (same empty attrs, merged).
+          sops.secrets."gitlab/host" = { };
 
-      programs.mcp.servers.gitlab = {
-        url = "https://\${GITLAB_HOST}/api/v4/mcp";
-        headers.X-Gitlab-Enabled-Mcp-Server-Toolsets = toolsets;
-      };
+          programs.mcp.servers.gitlab = {
+            url = "https://\${GITLAB_HOST}/api/v4/mcp";
+            headers.X-Gitlab-Enabled-Mcp-Server-Toolsets = toolsets;
+          };
 
-      programs.opencode.settings = {
-        mcp.servers.gitlab = {
-          type = "remote";
-          url = "https://{env:GITLAB_HOST}/api/v4/mcp";
-          headers.X-Gitlab-Enabled-Mcp-Server-Toolsets = toolsets;
-        };
+          programs.opencode.settings = {
+            mcp.servers.gitlab = {
+              type = "remote";
+              url = "https://{env:GITLAB_HOST}/api/v4/mcp";
+              headers.X-Gitlab-Enabled-Mcp-Server-Toolsets = toolsets;
+            };
 
-        # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-        # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
-        permissions = [
-          {
-            action = "gitlab_*";
-            resource = "*";
-            effect = "ask";
-          }
-        ];
+            # Reads stay gated by this ask rule, in the sandbox too (the sandbox
+            # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
+            permissions = [
+              {
+                action = "gitlab_*";
+                resource = "*";
+                effect = "ask";
+              }
+            ];
 
-        # Hard denies, applied after agent rules and saved approvals, so no
-        # allow rule can bypass them. Same list-merge as opencode.nix.
-        experimental.policies =
-          map (tool: {
-            action = "permission";
-            resource = "gitlab_${tool}:*";
-            effect = "deny";
-          }) deniedTools
-          ++ map (prefix: {
-            action = "permission";
-            resource = "gitlab_${prefix}*:*";
-            effect = "deny";
-          }) deniedPrefixes;
-      };
+            # Hard denies, applied after agent rules and saved approvals, so no
+            # allow rule can bypass them. Same list-merge as opencode.nix.
+            experimental.policies =
+              map (tool: {
+                action = "permission";
+                resource = "gitlab_${tool}:*";
+                effect = "deny";
+              }) deniedTools
+              ++ map (prefix: {
+                action = "permission";
+                resource = "gitlab_${prefix}*:*";
+                effect = "deny";
+              }) deniedPrefixes;
+          };
 
-      programs.claude-code = {
-        settings.permissions.deny =
-          map (tool: "mcp__plugin_hm_gitlab__${tool}") deniedTools
-          ++ map (prefix: "mcp__plugin_hm_gitlab__${prefix}*") deniedPrefixes;
-      };
+          programs.claude-code = {
+            settings.permissions.deny =
+              map (tool: "mcp__plugin_hm_gitlab__${tool}") deniedTools
+              ++ map (prefix: "mcp__plugin_hm_gitlab__${prefix}*") deniedPrefixes;
+          };
 
-      # Global instructions so every agent knows how to use the server.
-      xdg.configFile."opencode/AGENTS.md".text = gitlabInstructions;
-      xdg.stateFile."claude-code/CLAUDE.md".text = gitlabInstructions;
+          # Global instructions so every agent knows how to use the server.
+          xdg.configFile."opencode/AGENTS.md".text = gitlabInstructions;
+          xdg.stateFile = lib.mkIf hmArgs.config.programs.claude-code.enable {
+            "claude-code/CLAUDE.md".text = gitlabInstructions;
+          };
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          # The sandbox reaches only the GitLab host (also used for OAuth).
+          programs.nono = {
+            allowDomains = [
+              hmArgs.config.sops.placeholder."gitlab/host"
+            ];
+            env.GITLAB_HOST = hmArgs.config.sops.placeholder."gitlab/host";
+          };
+        })
+      ];
     };
 }

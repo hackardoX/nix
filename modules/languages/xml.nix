@@ -11,7 +11,7 @@
       plugins.conform-nvim.settings.formatters_by_ft.xml = [ "xmlformatter" ];
     };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-xml =
     { pkgs, ... }:
     {
       programs.opencode = {

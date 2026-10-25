@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.tuicr =
     { pkgs, config, ... }:
     let
       inherit (config.catppuccin) flavor;

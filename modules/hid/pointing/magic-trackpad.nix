@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.trackpad = {
     system.defaults = {
       NSGlobalDomain = {
         "com.apple.mouse.tapBehavior" = 1;

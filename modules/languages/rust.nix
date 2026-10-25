@@ -29,7 +29,7 @@
       plugins.conform-nvim.settings.formatters_by_ft.rust = [ "rustfmt" ];
     };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-rust =
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
