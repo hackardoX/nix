@@ -7,6 +7,6 @@ let
 in
 {
   # https://mastodon.online/@nomeata/109915786344697931
-  flake.modules.nixos.base.documentation = documentationSettings;
-  flake.modules.darwin.base.documentation = documentationSettings;
+  flake.modules.nixos.nix.documentation = documentationSettings;
+  flake.modules.darwin.nix.documentation = documentationSettings;
 }

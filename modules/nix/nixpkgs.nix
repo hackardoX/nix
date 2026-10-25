@@ -13,6 +13,6 @@ let
   };
 in
 {
-  flake.modules.nixos.base = polyModule;
-  flake.modules.darwin.base = polyModule;
+  flake.modules.nixos.nix = polyModule;
+  flake.modules.darwin.nix = polyModule;
 }

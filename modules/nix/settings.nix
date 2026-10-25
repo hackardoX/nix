@@ -120,11 +120,10 @@ let
   };
 in
 {
-  flake.modules.nixos.base = nixConfigBase;
-  flake.modules.darwin.base = nixConfigBase;
+  flake.modules.nixos.nix = nixConfigBase;
+  flake.modules.darwin.nix = nixConfigBase;
 
-  flake.modules.nixos.dev = nixConfigLaptop;
-  flake.modules.darwin.dev = lib.mkMerge [
+  flake.modules.darwin.nix-workstation = lib.mkMerge [
     nixConfigLaptop
     nixConfigLaptopDarwin
   ];

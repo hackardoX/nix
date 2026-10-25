@@ -1,6 +1,6 @@
 {
   perSystem.pre-commit.settings.hooks.commitizen.enable = true;
-  flake.modules.homeManager.shell =
+  flake.modules.homeManager.git-extras =
     { config, pkgs, ... }:
     {
       programs.git.settings = {

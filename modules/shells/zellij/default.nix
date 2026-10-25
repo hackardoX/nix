@@ -1,449 +1,467 @@
+{ lib, ... }:
 {
-  flake.modules.homeManager.shell = {
-    programs = {
-      zellij = {
-        enable = true;
-        enableZshIntegration = true;
-        extraConfig = ''
-          ui {
-            pane_frames {
-              hide_session_name false
-            }
-          }
-          show_startup_tips false
+  flake.modules.homeManager.zellij =
+    { config, ... }:
+    let
+      hasPackage = name: lib.any (p: lib.getName p == name) config.home.packages;
 
-          keybinds clear-defaults=true {
-            normal {
-              unbind "Ctrl p" "Ctrl o" "Ctrl q" "Ctrl h"
-            }
+      indent =
+        pad: s:
+        lib.concatMapStringsSep "\n" (line: lib.optionalString (line != "") pad + line) (
+          lib.splitString "\n" s
+        );
 
-            locked {
-              bind "Ctrl g" {
-                SwitchToMode "Normal"
-              }
-            }
+      # popup running a tool, through dexec when direnv is enabled
+      floating = cmd: ''
+        Run ${lib.optionalString config.programs.direnv.enable ''"dexec" ''}"${cmd}" {
+          floating true
+          close_on_exit true
+          x "5%"
+          y "5%"
+          width "90%"
+          height "90%"
+        }'';
 
-            resize {
-              bind "h" "Left" {
-                Resize "Increase Left"
-              }
-              bind "j" "Down" {
-                Resize "Increase Down"
-              }
-              bind "k" "Up" {
-                Resize "Increase Up"
-              }
-              bind "l" "Right" {
-                Resize "Increase Right"
-              }
-              bind "H" {
-                Resize "Decrease Left"
-              }
-              bind "J" {
-                Resize "Decrease Down"
-              }
-              bind "K" {
-                Resize "Decrease Up"
-              }
-              bind "L" {
-                Resize "Decrease Right"
-              }
-              bind "=" "+" {
-                Resize "Increase"
-              }
-              bind "-" {
-                Resize "Decrease"
-              }
-            }
+      toolBindings = [
+        {
+          key = "Alt g";
+          run = floating "lazygit";
+          when = config.programs.lazygit.enable;
+        }
+        {
+          key = "Alt G";
+          run = floating "gh-dash";
+          when = config.programs.gh-dash.enable;
+        }
+        {
+          key = "Alt v";
+          run = ''Run "nvim"'';
+          when = hasPackage "nixvim";
+        }
+        {
+          key = "Alt t";
+          run = floating "tuicr";
+          when = hasPackage "tuicr";
+        }
+        {
+          key = "Alt y";
+          run = floating "yazi";
+          when = config.programs.yazi.enable;
+        }
+      ];
 
-            pane {
-              bind "n" {
-                NewPane "stacked"
-                SwitchToMode "Locked"
-              }
-              bind "h" {
-                NewPane "Left"
-                SwitchToMode "Locked"
-              }
-              bind "j" {
-                NewPane "Down"
-                SwitchToMode "Locked"
-              }
-              bind "k" {
-                NewPane "Up"
-                SwitchToMode "Locked"
-              }
-              bind "l" {
-                NewPane "Right"
-                SwitchToMode "Locked"
-              }
-              bind "x" {
-                CloseFocus
-                SwitchToMode "Locked"
-              }
-              bind "z" {
-                ToggleFocusFullscreen
-                SwitchToMode "Locked"
-              }
-              bind "f" {
-                TogglePaneFrames
-                SwitchToMode "Locked"
-              }
-              bind "w" {
-                ToggleFloatingPanes
-                SwitchToMode "Locked"
-              }
-              bind "e" {
-                TogglePaneEmbedOrFloating
-                SwitchToMode "Locked"
-              }
-              bind "r" {
-                SwitchToMode "RenamePane"
-                PaneNameInput 0
+      # KDL for the enabled tool bindings, indented to sit inside `shared`
+      toolBinds =
+        toolBindings
+        |> lib.filter (b: b.when)
+        |> map (b: ''
+          bind "${b.key}" {
+          ${indent "  " b.run}
+          }'')
+        |> lib.concatMapStrings (b: "\n" + indent "    " b);
+    in
+    {
+      programs = {
+        zellij = {
+          enable = true;
+          enableZshIntegration = true;
+          extraConfig = ''
+            ui {
+              pane_frames {
+                hide_session_name false
               }
             }
+            show_startup_tips false
 
-            tab {
-              bind "r" {
-                SwitchToMode "RenameTab"
-                TabNameInput 0
+            keybinds clear-defaults=true {
+              normal {
+                unbind "Ctrl p" "Ctrl o" "Ctrl q" "Ctrl h"
               }
-              bind "h" "Left" "Up" "k" {
-                GoToPreviousTab
-                SwitchToMode "Locked"
-              }
-              bind "l" "Right" "Down" "j" {
-                GoToNextTab
-                SwitchToMode "Locked"
-              }
-              bind "n" {
-                NewTab
-                SwitchToMode "Locked"
-              }
-              bind "x" {
-                CloseTab
-                SwitchToMode "Locked"
-              }
-              bind "s" {
-                ToggleActiveSyncTab
-                SwitchToMode "Locked"
-              }
-              bind "b" {
-                BreakPane
-                SwitchToMode "Locked"
-              }
-              bind "]" {
-                BreakPaneRight
-                SwitchToMode "Locked"
-              }
-              bind "[" {
-                BreakPaneLeft
-                SwitchToMode "Locked"
-              }
-              bind "1" {
-                GoToTab 1
-                SwitchToMode "Locked"
-              }
-              bind "2" {
-                GoToTab 2
-                SwitchToMode "Locked"
-              }
-              bind "3" {
-                GoToTab 3
-                SwitchToMode "Locked"
-              }
-              bind "4" {
-                GoToTab 4
-                SwitchToMode "Locked"
-              }
-              bind "5" {
-                GoToTab 5
-                SwitchToMode "Locked"
-              }
-              bind "6" {
-                GoToTab 6
-                SwitchToMode "Locked"
-              }
-              bind "7" {
-                GoToTab 7
-                SwitchToMode "Locked"
-              }
-              bind "8" {
-                GoToTab 8
-                SwitchToMode "Locked"
-              }
-              bind "9" {
-                GoToTab 9
-                SwitchToMode "Locked"
-              }
-              bind "a" {
-                ToggleTab
-                SwitchToMode "Locked"
-              }
-            }
 
-            move {
-              bind "h" "Left" {
-                MovePane "Left"
-              }
-              bind "j" "Down" {
-                MovePane "Down"
-              }
-              bind "k" "Up" {
-                MovePane "Up"
-              }
-              bind "l" "Right" {
-                MovePane "Right"
-              }
-              bind "n" "Tab" {
-                MovePane
-              }
-              bind "p" {
-                MovePaneBackwards
-              }
-            }
-
-            search {
-              bind "j" "Down" {
-                ScrollDown
-              }
-              bind "k" "Up" {
-                ScrollUp
-              }
-              bind "Ctrl f" "PageDown" "Right" "l" {
-                PageScrollDown
-              }
-              bind "Ctrl b" "PageUp" "Left" "h" {
-                PageScrollUp
-              }
-              bind "d" {
-                HalfPageScrollDown
-              }
-              bind "u" {
-                HalfPageScrollUp
-              }
-              bind "n" {
-                Search "down"
-              }
-              bind "N" {
-                Search "up"
-              }
-              bind "c" {
-                SearchToggleOption "CaseSensitivity"
-              }
-              bind "w" {
-                SearchToggleOption "Wrap"
-              }
-              bind "o" {
-                SearchToggleOption "WholeWord"
-              }
-              bind "Enter" {
-                SwitchToMode "EnterSearch"
-                SearchInput
-              }
-            }
-
-            entersearch {
-              bind "Esc" {
-                SwitchToMode "Scroll"
-              }
-              bind "Enter" {
-                SwitchToMode "Search"
-              }
-            }
-
-            renametab {
-              bind "Esc" {
-                UndoRenameTab
-                SwitchToMode "Tab"
-              }
-            }
-
-            renamepane {
-              bind "Esc" {
-                UndoRenamePane
-                SwitchToMode "Pane"
-              }
-            }
-
-            session {
-              bind "d" {
-                Detach
-              }
-              bind "w" {
-                LaunchOrFocusPlugin "zellij:session-manager" {
-                  floating true
-                  move_to_focused_tab true
-                };
-                SwitchToMode "Locked"
-              }
-            }
-
-            shared_except "locked" {
-              bind "Ctrl g" {
-                SwitchToMode "Locked"
-              }
-              bind "Alt n" {
-                NewPane "stacked"
-                SwitchToMode "Locked"
-              }
-              bind "Alt Shift n" {
-                NewTab
-                SwitchToMode "Locked"
-              }
-              bind "Alt =" "Alt +" {
-                Resize "Increase"
-              }
-              bind "Alt -" {
-                Resize "Decrease"
-              }
-              bind "Alt [" {
-                PreviousSwapLayout
-              }
-              bind "Alt ]" {
-                NextSwapLayout
-              }
-            }
-
-            shared_except "normal" "locked" "entersearch" "renametab" "renamepane" {
-              bind "Enter" "Esc" {
-                SwitchToMode "Locked"
-              }
-            }
-
-            shared_except "pane" "locked" "entersearch" "renametab" "renamepane" {
-              bind "p" {
-                SwitchToMode "Pane"
-              }
-            }
-
-            shared_except "resize" "locked" "entersearch" "renametab" "renamepane" {
-              bind "r" {
-                SwitchToMode "Resize"
-              }
-            }
-
-            shared_except "search" "locked" {
-              bind "/" {
-                SwitchToMode "Search"
-              }
-            }
-
-            shared_except "search" "locked" "entersearch" "renametab" "renamepane" {
-              bind "s" {
-                SwitchToMode "Search"
-              }
-            }
-
-            shared_except "session" "locked" "entersearch" "renametab" "renamepane" {
-              bind "x" {
-                SwitchToMode "Session"
-              }
-            }
-
-            shared_except "tab" "locked" "entersearch" "renametab" "renamepane" {
-              bind "t" {
-                SwitchToMode "Tab"
-              }
-            }
-
-            shared_except "locked" "entersearch" "renametab" "renamepane" {
-              bind "m" {
-                SwitchToMode "Move"
-              }
-            }
-
-            shared {
-              bind "Alt Left" {
-                MoveFocus "Left"
-              }
-              bind "Alt Right" {
-                MoveFocus "Right"
-              }
-              bind "Alt Down" {
-                MoveFocus "Down"
-              }
-              bind "Alt Up" {
-                MoveFocus "Up"
-              }
-              bind "Alt Shift Left" {
-                GoToPreviousTab
-              }
-              bind "Alt Shift Right" {
-                GoToNextTab
-              }
-              bind "Alt p" {
-                SwitchFocus
-              }
-              bind "Alt g" {
-                Run "dexec" "lazygit" {
-                  floating true
-                  x "5%"
-                  y "5%"
-                  width "90%"
-                  height "90%"
-                  close_on_exit true
+              locked {
+                bind "Ctrl g" {
+                  SwitchToMode "Normal"
                 }
               }
-              bind "Alt G" {
-                Run "dexec" "gh-dash" {
-                  floating true
-                  close_on_exit true
-                  x "5%"
-                  y "5%"
-                  width "90%"
-                  height "90%"
-                }
-              }
-              bind "Alt v" {
-                Run "nvim"
-              }
-              bind "Alt t" {
-                Run "dexec" "tuicr" {
-                  floating true
-                  x "5%"
-                  y "5%"
-                  width "90%"
-                  height "90%"
-                  close_on_exit true
-                }
-              }
-              bind "Alt y" {
-                Run "dexec" "yazi" {
-                  floating true
-                  x "5%"
-                  y "5%"
-                  width "90%"
-                  height "90%"
-                  close_on_exit true
-                }
-              }
-            }
-          }
 
-          plugins {
-            tab-bar {
-              path "tab-bar"
-            }
-            status-bar {
-              path "status-bar"
-            }
-            strider {
-              path "strider"
-            }
-            compact-bar {
-              path "compact-bar"
-            }
-          }
+              resize {
+                bind "h" "Left" {
+                  Resize "Increase Left"
+                }
+                bind "j" "Down" {
+                  Resize "Increase Down"
+                }
+                bind "k" "Up" {
+                  Resize "Increase Up"
+                }
+                bind "l" "Right" {
+                  Resize "Increase Right"
+                }
+                bind "H" {
+                  Resize "Decrease Left"
+                }
+                bind "J" {
+                  Resize "Decrease Down"
+                }
+                bind "K" {
+                  Resize "Decrease Up"
+                }
+                bind "L" {
+                  Resize "Decrease Right"
+                }
+                bind "=" "+" {
+                  Resize "Increase"
+                }
+                bind "-" {
+                  Resize "Decrease"
+                }
+              }
 
-          default_layout "welcome"
-          default_mode "locked"
-          on_force_close "detach"
-          pane_frames false
-          stacked_pane_list false
-          scroll_mode_sync false
-        '';
+              pane {
+                bind "n" {
+                  NewPane "stacked"
+                  SwitchToMode "Locked"
+                }
+                bind "h" {
+                  NewPane "Left"
+                  SwitchToMode "Locked"
+                }
+                bind "j" {
+                  NewPane "Down"
+                  SwitchToMode "Locked"
+                }
+                bind "k" {
+                  NewPane "Up"
+                  SwitchToMode "Locked"
+                }
+                bind "l" {
+                  NewPane "Right"
+                  SwitchToMode "Locked"
+                }
+                bind "x" {
+                  CloseFocus
+                  SwitchToMode "Locked"
+                }
+                bind "z" {
+                  ToggleFocusFullscreen
+                  SwitchToMode "Locked"
+                }
+                bind "f" {
+                  TogglePaneFrames
+                  SwitchToMode "Locked"
+                }
+                bind "w" {
+                  ToggleFloatingPanes
+                  SwitchToMode "Locked"
+                }
+                bind "e" {
+                  TogglePaneEmbedOrFloating
+                  SwitchToMode "Locked"
+                }
+                bind "r" {
+                  SwitchToMode "RenamePane"
+                  PaneNameInput 0
+                }
+              }
+
+              tab {
+                bind "r" {
+                  SwitchToMode "RenameTab"
+                  TabNameInput 0
+                }
+                bind "h" "Left" "Up" "k" {
+                  GoToPreviousTab
+                  SwitchToMode "Locked"
+                }
+                bind "l" "Right" "Down" "j" {
+                  GoToNextTab
+                  SwitchToMode "Locked"
+                }
+                bind "n" {
+                  NewTab
+                  SwitchToMode "Locked"
+                }
+                bind "x" {
+                  CloseTab
+                  SwitchToMode "Locked"
+                }
+                bind "s" {
+                  ToggleActiveSyncTab
+                  SwitchToMode "Locked"
+                }
+                bind "b" {
+                  BreakPane
+                  SwitchToMode "Locked"
+                }
+                bind "]" {
+                  BreakPaneRight
+                  SwitchToMode "Locked"
+                }
+                bind "[" {
+                  BreakPaneLeft
+                  SwitchToMode "Locked"
+                }
+                bind "1" {
+                  GoToTab 1
+                  SwitchToMode "Locked"
+                }
+                bind "2" {
+                  GoToTab 2
+                  SwitchToMode "Locked"
+                }
+                bind "3" {
+                  GoToTab 3
+                  SwitchToMode "Locked"
+                }
+                bind "4" {
+                  GoToTab 4
+                  SwitchToMode "Locked"
+                }
+                bind "5" {
+                  GoToTab 5
+                  SwitchToMode "Locked"
+                }
+                bind "6" {
+                  GoToTab 6
+                  SwitchToMode "Locked"
+                }
+                bind "7" {
+                  GoToTab 7
+                  SwitchToMode "Locked"
+                }
+                bind "8" {
+                  GoToTab 8
+                  SwitchToMode "Locked"
+                }
+                bind "9" {
+                  GoToTab 9
+                  SwitchToMode "Locked"
+                }
+                bind "a" {
+                  ToggleTab
+                  SwitchToMode "Locked"
+                }
+              }
+
+              move {
+                bind "h" "Left" {
+                  MovePane "Left"
+                }
+                bind "j" "Down" {
+                  MovePane "Down"
+                }
+                bind "k" "Up" {
+                  MovePane "Up"
+                }
+                bind "l" "Right" {
+                  MovePane "Right"
+                }
+                bind "n" "Tab" {
+                  MovePane
+                }
+                bind "p" {
+                  MovePaneBackwards
+                }
+              }
+
+              search {
+                bind "j" "Down" {
+                  ScrollDown
+                }
+                bind "k" "Up" {
+                  ScrollUp
+                }
+                bind "Ctrl f" "PageDown" "Right" "l" {
+                  PageScrollDown
+                }
+                bind "Ctrl b" "PageUp" "Left" "h" {
+                  PageScrollUp
+                }
+                bind "d" {
+                  HalfPageScrollDown
+                }
+                bind "u" {
+                  HalfPageScrollUp
+                }
+                bind "n" {
+                  Search "down"
+                }
+                bind "N" {
+                  Search "up"
+                }
+                bind "c" {
+                  SearchToggleOption "CaseSensitivity"
+                }
+                bind "w" {
+                  SearchToggleOption "Wrap"
+                }
+                bind "o" {
+                  SearchToggleOption "WholeWord"
+                }
+                bind "Enter" {
+                  SwitchToMode "EnterSearch"
+                  SearchInput
+                }
+              }
+
+              entersearch {
+                bind "Esc" {
+                  SwitchToMode "Scroll"
+                }
+                bind "Enter" {
+                  SwitchToMode "Search"
+                }
+              }
+
+              renametab {
+                bind "Esc" {
+                  UndoRenameTab
+                  SwitchToMode "Tab"
+                }
+              }
+
+              renamepane {
+                bind "Esc" {
+                  UndoRenamePane
+                  SwitchToMode "Pane"
+                }
+              }
+
+              session {
+                bind "d" {
+                  Detach
+                }
+                bind "w" {
+                  LaunchOrFocusPlugin "zellij:session-manager" {
+                    floating true
+                    move_to_focused_tab true
+                  };
+                  SwitchToMode "Locked"
+                }
+              }
+
+              shared_except "locked" {
+                bind "Ctrl g" {
+                  SwitchToMode "Locked"
+                }
+                bind "Alt n" {
+                  NewPane "stacked"
+                  SwitchToMode "Locked"
+                }
+                bind "Alt Shift n" {
+                  NewTab
+                  SwitchToMode "Locked"
+                }
+                bind "Alt =" "Alt +" {
+                  Resize "Increase"
+                }
+                bind "Alt -" {
+                  Resize "Decrease"
+                }
+                bind "Alt [" {
+                  PreviousSwapLayout
+                }
+                bind "Alt ]" {
+                  NextSwapLayout
+                }
+              }
+
+              shared_except "normal" "locked" "entersearch" "renametab" "renamepane" {
+                bind "Enter" "Esc" {
+                  SwitchToMode "Locked"
+                }
+              }
+
+              shared_except "pane" "locked" "entersearch" "renametab" "renamepane" {
+                bind "p" {
+                  SwitchToMode "Pane"
+                }
+              }
+
+              shared_except "resize" "locked" "entersearch" "renametab" "renamepane" {
+                bind "r" {
+                  SwitchToMode "Resize"
+                }
+              }
+
+              shared_except "search" "locked" {
+                bind "/" {
+                  SwitchToMode "Search"
+                }
+              }
+
+              shared_except "search" "locked" "entersearch" "renametab" "renamepane" {
+                bind "s" {
+                  SwitchToMode "Search"
+                }
+              }
+
+              shared_except "session" "locked" "entersearch" "renametab" "renamepane" {
+                bind "x" {
+                  SwitchToMode "Session"
+                }
+              }
+
+              shared_except "tab" "locked" "entersearch" "renametab" "renamepane" {
+                bind "t" {
+                  SwitchToMode "Tab"
+                }
+              }
+
+              shared_except "locked" "entersearch" "renametab" "renamepane" {
+                bind "m" {
+                  SwitchToMode "Move"
+                }
+              }
+
+              shared {
+                bind "Alt Left" {
+                  MoveFocus "Left"
+                }
+                bind "Alt Right" {
+                  MoveFocus "Right"
+                }
+                bind "Alt Down" {
+                  MoveFocus "Down"
+                }
+                bind "Alt Up" {
+                  MoveFocus "Up"
+                }
+                bind "Alt Shift Left" {
+                  GoToPreviousTab
+                }
+                bind "Alt Shift Right" {
+                  GoToNextTab
+                }
+                bind "Alt p" {
+                  SwitchFocus
+                }${toolBinds}
+              }
+            }
+
+            plugins {
+              tab-bar {
+                path "tab-bar"
+              }
+              status-bar {
+                path "status-bar"
+              }
+              strider {
+                path "strider"
+              }
+              compact-bar {
+                path "compact-bar"
+              }
+            }
+
+            default_layout "welcome"
+            default_mode "locked"
+            on_force_close "detach"
+            pane_frames false
+            stacked_pane_list false
+            scroll_mode_sync false
+          '';
+        };
       };
     };
-  };
 }

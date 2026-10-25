@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.git-extras =
     hmArgs@{ pkgs, ... }:
     let
       signatureKeyPath = "${hmArgs.config.home.homeDirectory}/.ssh/git_signature.pub";

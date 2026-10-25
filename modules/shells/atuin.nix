@@ -4,7 +4,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.shell =
+  flake.modules.homeManager.atuin =
     hmArgs@{ pkgs, ... }:
     {
       programs.atuin = {

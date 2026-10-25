@@ -8,7 +8,7 @@ let
   ];
 in
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-javascript =
     { pkgs, ... }:
     {
       home.packages = with pkgs; [

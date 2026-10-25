@@ -5,7 +5,7 @@
   # var OPENVIKING_API_KEY. Unsandboxed shells get it from home.sessionVariables
   # (`$(cat ...)` evaluated at login); the sandbox gets it from programs.nono.env.
   flake.modules.homeManager.mcp-openviking =
-    hmArgs:
+    hmArgs@{ lib, options, ... }:
     let
       url = "https://openviking.protontech.ch/mcp";
       secretPath = hmArgs.config.sops.secrets."ai/openviking_api_key".path;
@@ -56,66 +56,74 @@
       '';
     in
     {
-      sops.secrets."ai/openviking_api_key" = { };
+      config = lib.mkMerge [
+        {
+          sops.secrets."ai/openviking_api_key" = { };
 
-      programs.nono = {
-        allowDomains = [ "openviking.protontech.ch" ];
-        env.OPENVIKING_API_KEY = hmArgs.config.sops.placeholder."ai/openviking_api_key";
-      };
+          programs.opencode.settings = {
+            # The env var is set both unsandboxed (session variable) and sandboxed
+            # (programs.nono.env), so the key is not written to any config file.
+            mcp.servers.openviking = {
+              type = "remote";
+              inherit url;
+              oauth = false;
+              headers.Authorization = "Bearer {env:OPENVIKING_API_KEY}";
+            };
 
-      programs.opencode.settings = {
-        # The env var is set both unsandboxed (session variable) and sandboxed
-        # (programs.nono.env), so the key is not written to any config file.
-        mcp.servers.openviking = {
-          type = "remote";
-          inherit url;
-          oauth = false;
-          headers.Authorization = "Bearer {env:OPENVIKING_API_KEY}";
-        };
+            # Reads stay gated by this ask rule, in the sandbox too (the sandbox
+            # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
+            permissions = [
+              {
+                action = "openviking_*";
+                resource = "*";
+                effect = "ask";
+              }
+            ];
 
-        # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-        # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
-        permissions = [
-          {
-            action = "openviking_*";
-            resource = "*";
-            effect = "ask";
-          }
-        ];
+            # Hard denies, applied after agent rules and saved approvals, so no
+            # allow rule can bypass them. Same list-merge as opencode.nix.
+            experimental.policies =
+              map (tool: {
+                action = "permission";
+                resource = "openviking_${tool}:*";
+                effect = "deny";
+              }) deniedTools
+              ++ map (prefix: {
+                action = "permission";
+                resource = "openviking_${prefix}*:*";
+                effect = "deny";
+              }) deniedPrefixes;
+          };
 
-        # Hard denies, applied after agent rules and saved approvals, so no
-        # allow rule can bypass them. Same list-merge as opencode.nix.
-        experimental.policies =
-          map (tool: {
-            action = "permission";
-            resource = "openviking_${tool}:*";
-            effect = "deny";
-          }) deniedTools
-          ++ map (prefix: {
-            action = "permission";
-            resource = "openviking_${prefix}*:*";
-            effect = "deny";
-          }) deniedPrefixes;
-      };
+          # The shell reads the sops file at login. The sandbox gets the same var
+          # from programs.nono.env. A long-lived OpenCode service started before
+          # this (or outside a login shell) needs `opencode service restart`.
+          home.sessionVariables.OPENVIKING_API_KEY = "$(cat ${secretPath})";
 
-      # The shell reads the sops file at login. The sandbox gets the same var
-      # from programs.nono.env. A long-lived OpenCode service started before
-      # this (or outside a login shell) needs `opencode service restart`.
-      home.sessionVariables.OPENVIKING_API_KEY = "$(cat ${secretPath})";
+          programs.claude-code = {
+            # Claude expands ${VAR} itself, so the key never reaches the store.
+            mcpServers.openviking = {
+              type = "http";
+              inherit url;
+              headers.Authorization = "Bearer \${OPENVIKING_API_KEY}";
+            };
+            settings.permissions.deny =
+              map (tool: "mcp__plugin_hm_openviking__${tool}") deniedTools
+              ++ map (prefix: "mcp__plugin_hm_openviking__${prefix}*") deniedPrefixes;
+          };
 
-      programs.claude-code = {
-        # Claude expands ${VAR} itself, so the key never reaches the store.
-        mcpServers.openviking = {
-          type = "http";
-          inherit url;
-          headers.Authorization = "Bearer \${OPENVIKING_API_KEY}";
-        };
-        settings.permissions.deny =
-          map (tool: "mcp__plugin_hm_openviking__${tool}") deniedTools
-          ++ map (prefix: "mcp__plugin_hm_openviking__${prefix}*") deniedPrefixes;
-      };
-
-      xdg.configFile."opencode/AGENTS.md".text = openvikingInstructions;
-      xdg.stateFile."claude-code/CLAUDE.md".text = openvikingInstructions;
+          xdg.configFile."opencode/AGENTS.md".text = openvikingInstructions;
+          xdg.stateFile = lib.mkIf hmArgs.config.programs.claude-code.enable {
+            "claude-code/CLAUDE.md".text = openvikingInstructions;
+          };
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          programs.nono = {
+            allowDomains = [ "openviking.protontech.ch" ];
+            env.OPENVIKING_API_KEY = hmArgs.config.sops.placeholder."ai/openviking_api_key";
+          };
+        })
+      ];
     };
 }

@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.clock = {
     system.defaults.NSGlobalDomain.AppleICUForce24HourTime = true;
     system.defaults.menuExtraClock = {
       Show24Hour = true;

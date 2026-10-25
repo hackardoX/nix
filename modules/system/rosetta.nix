@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.base = {
+  flake.modules.darwin.rosetta = {
     system.activationScripts.postActivation.text = /* Bash */ ''
       if [ ! -f /usr/libexec/rosetta/runtime ]; then
         echo "Installing Rosetta..."

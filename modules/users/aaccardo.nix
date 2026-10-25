@@ -63,8 +63,7 @@
     imports = with config.flake.modules.homeManager; [
       ai-models-anthropic
       base
-      claude-code
-      dev
+      dev-work
       git
       github
       gitlab

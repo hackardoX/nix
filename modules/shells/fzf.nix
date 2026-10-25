@@ -3,7 +3,7 @@
   ...
 }:
 {
-  flake.modules.homeManager.shell =
+  flake.modules.homeManager.fzf =
     { pkgs, ... }:
     {
       programs.fzf = {

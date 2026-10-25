@@ -30,7 +30,7 @@
     };
   };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-css =
     { pkgs, ... }:
     {
       programs.opencode = {

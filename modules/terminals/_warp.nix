@@ -1,10 +1,10 @@
 { lib, ... }:
 {
-  flake.modules.darwin.dev.homebrew.casks = [
+  flake.modules.darwin.warp.homebrew.casks = [
     "warp"
   ];
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.warp =
     { pkgs, ... }:
     lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
       targets.darwin.defaults = {

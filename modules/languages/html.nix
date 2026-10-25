@@ -11,7 +11,7 @@
       plugins.conform-nvim.settings.formatters_by_ft.html = [ "prettierd" ];
     };
 
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.lang-html =
     { pkgs, ... }:
     {
       programs.opencode = {

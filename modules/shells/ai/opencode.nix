@@ -1,6 +1,6 @@
 { inputs, config, ... }:
 {
-  flake.modules.homeManager.dev =
+  flake.modules.homeManager.opencode =
     { pkgs, ... }:
     {
       programs.opencode = {

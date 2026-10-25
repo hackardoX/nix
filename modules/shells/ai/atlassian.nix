@@ -2,7 +2,7 @@
   # Atlassian's official remote MCP server (Jira Cloud and Confluence). OAuth
   # runs in the browser on first use, so no token lives in this config.
   flake.modules.homeManager.mcp-atlassian =
-    hmArgs:
+    hmArgs@{ lib, options, ... }:
     let
       atlassianInstructions = ''
         # Atlassian MCP
@@ -56,69 +56,77 @@
       ];
     in
     {
-      programs.mcp = {
-        enable = true;
-        servers.atlassian = {
-          # tools=all exposes every tool as a flat list instead of hiding the
-          # catalog behind discover/execute meta-tools, which name-based denies
-          # could not reach. OpenCode's Code Mode groups tools by server, so
-          # the flat list does not bloat the context.
-          url = "https://mcp.atlassian.com/v2/mcp?tools=all";
-        };
-      };
+      config = lib.mkMerge [
+        {
+          programs.mcp = {
+            enable = true;
+            servers.atlassian = {
+              # tools=all exposes every tool as a flat list instead of hiding the
+              # catalog behind discover/execute meta-tools, which name-based denies
+              # could not reach. OpenCode's Code Mode groups tools by server, so
+              # the flat list does not bloat the context.
+              url = "https://mcp.atlassian.com/v2/mcp?tools=all";
+            };
+          };
 
-      programs.opencode.settings = {
-        mcp.servers.atlassian = {
-          type = "remote";
-          url = hmArgs.config.programs.mcp.servers.atlassian.url;
-        };
+          programs.opencode.settings = {
+            mcp.servers.atlassian = {
+              type = "remote";
+              url = hmArgs.config.programs.mcp.servers.atlassian.url;
+            };
 
-        # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-        # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
-        permissions = [
-          {
-            action = "atlassian_*";
-            resource = "*";
-            effect = "ask";
-          }
-        ];
+            # Reads stay gated by this ask rule, in the sandbox too (the sandbox
+            # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
+            permissions = [
+              {
+                action = "atlassian_*";
+                resource = "*";
+                effect = "ask";
+              }
+            ];
 
-        # Hard denies, applied after agent rules and saved approvals, so no
-        # allow rule can bypass them. Same list-merge as opencode.nix.
-        experimental.policies =
-          map (tool: {
-            action = "permission";
-            resource = "atlassian_${tool}:*";
-            effect = "deny";
-          }) deniedTools
-          ++ map (prefix: {
-            action = "permission";
-            resource = "atlassian_${prefix}*:*";
-            effect = "deny";
-          }) deniedPrefixes;
-      };
+            # Hard denies, applied after agent rules and saved approvals, so no
+            # allow rule can bypass them. Same list-merge as opencode.nix.
+            experimental.policies =
+              map (tool: {
+                action = "permission";
+                resource = "atlassian_${tool}:*";
+                effect = "deny";
+              }) deniedTools
+              ++ map (prefix: {
+                action = "permission";
+                resource = "atlassian_${prefix}*:*";
+                effect = "deny";
+              }) deniedPrefixes;
+          };
 
-      # The sandbox only reaches proxy-allowed domains. The MCP's
-      # authorization server is auth.atlassian.com (per the
-      # protected-resource metadata), and OpenCode's sandboxed server does
-      # client registration, token exchange and refresh against it, so both
-      # hosts are required. api.atlassian.com (the REST gateway) stays
-      # blocked unless something proves it is needed.
-      programs.nono.allowDomains = [
-        "mcp.atlassian.com"
-        "auth.atlassian.com"
+          # Global instructions so every agent knows how to use the server.
+          xdg.configFile."opencode/AGENTS.md".text = atlassianInstructions;
+
+          programs.claude-code = {
+            enableMcpIntegration = true;
+            settings.permissions.deny =
+              map (tool: "mcp__plugin_hm_atlassian__${tool}") deniedTools
+              ++ map (prefix: "mcp__plugin_hm_atlassian__${prefix}*") deniedPrefixes;
+          };
+
+          xdg.stateFile = lib.mkIf hmArgs.config.programs.claude-code.enable {
+            "claude-code/CLAUDE.md".text = atlassianInstructions;
+          };
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          # The sandbox only reaches proxy-allowed domains. The MCP's
+          # authorization server is auth.atlassian.com (per the
+          # protected-resource metadata), and OpenCode's sandboxed server does
+          # client registration, token exchange and refresh against it, so both
+          # hosts are required. api.atlassian.com (the REST gateway) stays
+          # blocked unless something proves it is needed.
+          programs.nono.allowDomains = [
+            "mcp.atlassian.com"
+            "auth.atlassian.com"
+          ];
+        })
       ];
-
-      # Global instructions so every agent knows how to use the server.
-      xdg.configFile."opencode/AGENTS.md".text = atlassianInstructions;
-
-      programs.claude-code = {
-        enableMcpIntegration = true;
-        settings.permissions.deny =
-          map (tool: "mcp__plugin_hm_atlassian__${tool}") deniedTools
-          ++ map (prefix: "mcp__plugin_hm_atlassian__${prefix}*") deniedPrefixes;
-      };
-
-      xdg.stateFile."claude-code/CLAUDE.md".text = atlassianInstructions;
     };
 }
