@@ -14,8 +14,6 @@
   flake.modules.darwin.hackardo =
     { pkgs, ... }:
     {
-      imports = [ config.flake.modules.darwin.rclone ];
-
       nix.settings.allowed-users = [ config.flake.meta.users.hackardo.name ];
 
       users.users.${config.flake.meta.users.hackardo.name} = {
@@ -85,6 +83,7 @@
       sops
       sops-cli
       ssh
+      ssh-mesh
       theme
     ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/hackardo.yaml";

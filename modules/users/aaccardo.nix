@@ -10,8 +10,6 @@
   flake.modules.darwin.aaccardo =
     { pkgs, ... }:
     {
-      imports = [ config.flake.modules.darwin.web-browsers ];
-
       nix.settings.allowed-users = [ config.flake.meta.users.aaccardo.name ];
 
       users.users.${config.flake.meta.users.aaccardo.name} = {
@@ -78,6 +76,7 @@
       proton-pass
       shell
       sops
+      ssh
       theme
       web-browsers
       work

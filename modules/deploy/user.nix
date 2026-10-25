@@ -20,6 +20,8 @@
       };
 
       nix.settings.trusted-users = [ config.flake.meta.users.deploy.name ];
+
+      services.openssh.settings.AllowUsers = [ config.flake.meta.users.deploy.name ];
     };
   };
 }

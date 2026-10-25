@@ -7,7 +7,10 @@
       base
       dev
       media
+      messaging
+      rclone
       sops
+      sudo
     ];
 
     home-manager.users.${config.flake.meta.users.hackardo.name} =

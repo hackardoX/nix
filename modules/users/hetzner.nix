@@ -36,6 +36,7 @@
     imports = with config.flake.modules.homeManager; [
       base
       sops
+      ssh
     ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/hetzner.yaml";
     home.username = config.flake.meta.users.hetzner.name;

@@ -44,6 +44,7 @@
       git
       github
       sops
+      ssh
     ];
     sops.defaultSopsFile = "${inputs.self}/secrets/users/hal.yaml";
     home.username = config.flake.meta.users.hal.name;
