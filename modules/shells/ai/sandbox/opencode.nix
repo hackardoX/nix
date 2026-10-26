@@ -1,4 +1,3 @@
-{ config, ... }:
 {
   flake.modules.homeManager.nono =
     hmArgs@{ lib, pkgs, ... }:
@@ -7,10 +6,6 @@
       home = hmArgs.config.home.homeDirectory;
 
       opencode = lib.getExe' hmArgs.config.programs.opencode.package "opencode2";
-
-      lumoHost = lib.head (
-        builtins.match "https?://([^/:]+).*" config.flake.meta.aiProviders.lumo.endpoint
-      );
 
       settings = hmArgs.config.programs.opencode.settings;
 
@@ -76,8 +71,6 @@
           description = "OpenCode agent sandbox";
           command = "${opencode} --standalone";
           env = {
-            # Trade-off: project AGENTS.md, opencode.json and plugins are not loaded.
-            OPENCODE_DISABLE_PROJECT_CONFIG = "1";
             OPENCODE_TEST_HOME = "$WORKDIR";
             # Fail-safe: if OpenCode ignores this, it falls back to the strict global config.
             OPENCODE_CONFIG_DIR = "$XDG_STATE_HOME/opencode/sandbox-config";
@@ -87,7 +80,7 @@
             "$XDG_CACHE_HOME/opencode"
             "$XDG_STATE_HOME/opencode"
             "$HOME/.opencode/plan"
-            "$HOME/.local/share/opentui"
+            "$XDG_DATA_HOME/opentui"
           ];
           read = [
             "$XDG_CONFIG_HOME/opencode"
@@ -95,11 +88,6 @@
             "$HOME/.claude"
             # OpenCode probes this at startup and crashes when missing.
             "$HOME/.opencode"
-          ];
-          domains = [
-            "models.dev"
-            "opencode.ai"
-            lumoHost
           ];
           extra.network = {
             open_port_range = [

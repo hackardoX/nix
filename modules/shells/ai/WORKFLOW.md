@@ -12,6 +12,8 @@ Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox/` (
 
 ## 1. Plan (no edits)
 
+The orchestrator does not edit project files by instruction, but its shell is not read-only (see 2a). Only the prompt rule stops it, not a permission.
+
 1. Describe the feature.
 2. The orchestrator reads the code (`explore` for anything broad) and classifies the request as simple or complex.
 3. Complex:
@@ -24,19 +26,19 @@ Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox/` (
 
 ## 2a. Implement here
 
-- Only `dev` edits project files. Each `dev` call asks for your approval, here and in a worktree (the sandbox config does not relax the `subagent dev` gate).
+- Only `dev` edits project files, by instruction. This is a prompt rule for the orchestrator, not a permission: its shell is not read-only, so a shell command could still write files. Each `dev` call asks for your approval, here and in a worktree (the sandbox config does not relax the `subagent dev` gate).
+- Shell for the orchestrator: outside the sandbox every command asks, except the global allow list (`ls`, `cat`, `grep`, `git status`, `git diff`, `git log`, `git show`, `git blame`, `git ls-files`, `git rev-parse`, `git branch --show-current`, `git add`) and `git commit`, which the agent rules allow. Inside the sandbox, shell asks are relaxed to allow and nono is the boundary. The hard denies (`git push`, `gh pr merge`, `npm publish`) still apply in both modes.
 - `qa` then runs the checks.
 - `security` runs in parallel with `qa` when the change touches auth, secrets, untrusted input parsing, network exposure, process or file execution, crypto, dependencies, or CI and infra.
 - At most two `dev` and `qa` rounds, then the orchestrator reports the state to you.
 
 ## 2b. New worktree (isolated)
 
-1. The orchestrator runs `workmux add <branch> --headless --json`. The worktree goes under `<project>/.worktrees/<handle>`.
-2. It writes the plan to `~/.opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
-3. It prints `workmux open <handle>` and the plan path. Headless add rejects `-P`, so the plan is not injected.
-4. You run `workmux open <handle>` from an unsandboxed pane. That opens the tab with a sandboxed opencode.
-5. In that session you say to implement the plan at that path. The session then runs `dev`, then `qa` (plus `security` when needed). Each `dev` call still asks.
-6. Explicit denies still apply. Git writes go through the broker, which does not restrict which refs a worktree's branch can move.
+1. The orchestrator writes the plan to `~/.opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
+2. It runs `workmux add <branch> -b -P ~/.opencode/plan/<file>.md`. nono asks you to approve the call. The new tab holds a sandboxed opencode, and the worktree goes under `~/.local/state/workmux/worktrees/<project>`.
+3. If the call fails, or the session is not sandboxed, run the same command yourself in an unsandboxed pane. `--headless` is not used: workmux rejects prompt options with it.
+4. The new session implements the plan. If the plan is not injected, tell it to implement the plan at that path. It runs `dev`, then `qa` (plus `security` when needed). Each `dev` call still asks.
+5. Explicit denies still apply. Git writes go through the broker, which does not restrict which refs a worktree's branch can move.
 
 ## 3. Commit and ship
 
@@ -53,7 +55,7 @@ GitLab's official remote MCP server is in `gitlab.nix`, shared through `programs
 - Needs GitLab 18.6+, with MCP access enabled by an admin. Dynamic client registration is rate limited to 10 per hour per IP.
 - The toolsets header only works on GitLab 19.5+. Older servers may reject it or ignore it; an unknown toolset name returns 400. Most write-tool names date from 19.3-19.4; older versions are covered by the aliases and prefixes.
 - The host comes from `GITLAB_HOST`, never a literal in the repo or store. Sandboxed: `programs.nono.env`. Unsandboxed: `forges/gitlab.nix` sets it as a session variable, so run `opencode service restart` after the first switch.
-- Only the GitLab host is allowed in the sandbox. The OAuth flow runs against the same host, so nothing else is opened.
+- The OAuth flow runs against the GitLab host. The sandbox does not restrict domains: all are allowed (see What the sandbox enforces).
 - The toolsets header (`core,merge_requests,work_items,repository,ci`) omits Duo Agent Platform.
 - In OpenCode every `gitlab_*` call asks, in the sandbox too. Sandboxed Claude runs with `bypassPermissions`, so only the deny list applies.
 - Write tools are denied by name and by prefix (`add`, `create`, `update`, `save`, `merge`, ...). Read tools match none of the prefixes.
@@ -92,7 +94,6 @@ OpenViking is a context database (`viking://` URIs) served as a remote MCP, `ope
 - One header everywhere: `Bearer {env:OPENVIKING_API_KEY}` in OpenCode (sandboxed and global config) and `${OPENVIKING_API_KEY}` in Claude Code. The key lives only in the environment.
 - Sandboxed: `OPENVIKING_API_KEY` comes from the profile's `set_vars` (`programs.nono.env`, shared by both profiles).
 - Unsandboxed: `home.sessionVariables` sets it to `$(cat <sops path>)`, evaluated at login. After the first switch, log in again. A shared OpenCode background service started earlier, or outside a login shell, keeps the old environment, so run `opencode service restart`. The key is then in the environment of every unsandboxed process of the login session.
-- Allowed domain: `openviking.protontech.ch`. Nothing else is opened.
 - Prompts: in OpenCode every `openviking_*` call asks, in the sandbox too. `remember` is not denied; the agent instructions say to call it only when you ask. Sandboxed Claude does not prompt for `remember` (`bypassPermissions`).
 - Name-based deny rules: `write`, `edit`, `add_resource`, `add_skill`, `forget`, `set_acl`, `cancel_watch`, plus the prefixes `add`, `set`, `write`, `edit`, `cancel`, `forget`, `delete`, `remove`, `create`, `update`, `upload`, `manage`, `grant`, `revoke`. The prefixes are a safety net for new tools. Read tools and `remember` match none of them.
 - These denies are name-based guards, not a hard guarantee. Inside the sandbox the session holds the full API key (`OPENVIKING_API_KEY`) and shell is allowed, so a prompt-injected agent could call the server directly with `curl` and bypass them. Real enforcement needs a server-side key scoped to read + remember.
@@ -110,27 +111,30 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 
 - Auth is OAuth in the browser on first use. No token is stored in the config.
 - Unsandboxed OpenCode asks for every `figma_*` call. The sandbox allows them, as it does shell and edit (`programs.nono.relaxedActions`, applied in `sandbox/opencode.nix`). Sandboxed Claude runs with `bypassPermissions`; unsandboxed Claude keeps its default prompts.
-- Allowed domains: `mcp.figma.com`, `www.figma.com`, `api.figma.com`. Not verified: Figma's OAuth metadata could not be fetched, so the authorization and token hosts are a guess.
+- Hosts: `mcp.figma.com`, `www.figma.com`, `api.figma.com`. Not verified: Figma's OAuth metadata could not be fetched, so the authorization and token hosts are a guess.
 - Not verified in the sandbox: the OAuth callback port (OpenCode has `open_port_range`, the Claude profile has none) and token storage (the Keychain is denied).
 - Accepted risks:
   - Sandboxed agents can write to Figma without a prompt. A prompt-injected agent could write data it can read into a Figma file or comment. This is an exfiltration path the user accepted; the instructions say never to do it.
   - The MCP OAuth token probably sits in a directory the session can read (the OpenCode data dir, the sandboxed Claude config dir). Not verified.
   - The `figma_*` allow applies to every agent, read-only ones and the orchestrator included.
-  - The shared allow-domain list also applies to the Claude profile. The three hosts are a guess to tighten after the first real login.
-  - A project-level `opencode.json` in the repo root is loaded only by unsandboxed OpenCode.
+  - Accepted risk: sandboxed OpenCode loads the repo's project `opencode.json`, because `OPENCODE_DISABLE_PROJECT_CONFIG` is not set. `sandbox/default.nix` does not deny writes to `opencode.json` or `.opencode`, so the session can write them, and that config can override the permission asks. Unsandboxed OpenCode loads it too.
 
 ## What the sandbox enforces
 
 - Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma_*; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian, gitlab and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
-- Writes only in the project folder (including `.worktrees/`), the plan folder and a few state folders.
-- The session has no zellij socket on purpose: it would let the session type into unsandboxed panes. Windowed workmux commands (`open`, windowed `add`, `dashboard`, `sidebar`) therefore fail closed.
-- Git writes go through a broker that refuses global options such as `--git-dir` and writes to `.git/hooks` and `.git/config`. It does not restrict ref updates.
+- The orchestrator's shell is not read-only. Its only permission limits are the global shell asks and the rules in `agents.nix`. Outside the sandbox that means prompts; inside, nono is the boundary, and the shell asks are relaxed to allow.
+- Writes only in the project folder, the plan folder and a few state folders. Worktrees live under `~/.local/state/workmux/`, which the session cannot write directly.
+- The session itself has no zellij socket. The brokered `workmux` command does have it (`workmux.nix`), so an approved `workmux add` can open a tab. The zellij server runs outside the sandbox, so that tab, the agent in it, hooks and pane commands from `.workmux.yaml` are started unsandboxed. A prompt-injected session can run commands outside the sandbox through an approved workmux call, so read the command before you approve it.
+- `open`, `dashboard` and `sidebar` are not part of this flow and are not verified in the sandbox.
+- Git writes go through a broker. The session's git edge denies the `config` subcommand and the argv token `-c`, and denies writes to `.git/config`, `.git/hooks` and linked-worktree config and hooks. Accepted gap: `--git-dir`, `-C` and `--config-env` are not denied, so they can point git at another repo or config. The workmux edge allows `config` and `.git/config` writes, and denies hooks. Neither edge restricts ref updates.
+- Network: all domains are allowed through the nono proxy on purpose (`allow_domain = [ "*" ]`). A domain list is not a secret boundary. A prompt-injected session can send any secret it holds in the sandbox anywhere, e.g. `OPENVIKING_API_KEY` (set through `set_vars`, which bypasses `deny_vars`).
 - The orchestrator's `worktree`, `merge` and `coordinator` skills open multiplexer windows, and `open-pr` needs `gh`. All four are denied. The orchestrator calls the `workmux` CLI directly.
 
 ## Known gaps
 
-- Not verified: `git worktree` under the broker, whether workmux stores metadata via `git config` (denied by the broker), and `workmux merge`/`remove` behaviour without a multiplexer.
-- Not verified: whether workmux expands or accepts a relative `worktree_dir` (`.worktrees`), and whether the starship prompt runs git in a worktree the session wrote.
+- Not verified: `git worktree` under the broker, whether workmux stores metadata via `git config` (denied on the session's git edge; the workmux edge allows it), and `workmux merge`/`remove` behaviour without a multiplexer.
+- Not verified at runtime: the zellij socket regex, `ZELLIJ*` env passing, and `-b -P` prompt delivery. To test, run `workmux list`, then `workmux add t -b` from the sandboxed session. If it fails, check `log stream --predicate 'sender == "Sandbox"'`.
+- Not verified: whether the starship prompt runs git in a worktree the session wrote.
 - Not verified: hard links to protected files bypass the path rules.
 - Git broker writes (`git apply`, `checkout -- <file>`, `am`, `cherry-pick`, `worktree add` of a branch) run in the broker's sandbox and can still create `.claude/`, `.mcp.json`, `.workmux.yaml` or `.workmux.yml` in the tree. Review diffs and look for these files before running `workmux open` or `merge` unsandboxed. Accepted: not denied in the broker, because git would fail midway on repos that track these files.
 - workmux finds project config by walking up the tree (`.workmux.yaml` and `.workmux.yml`). The Seatbelt rule is a speed bump, not a boundary.

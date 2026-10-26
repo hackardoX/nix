@@ -92,10 +92,11 @@
       '';
     in
     {
-      config = lib.mkMerge [
-        {
-          # Declared here too, so this module does not depend on forges/github.nix (same empty attrs, merged).
-          sops.secrets."github/token" = { };
+      # The token is a sops secret, and the sandbox session can read it (same
+      # trade-off as openviking).
+      programs.nono = {
+        env.GITHUB_MCP_TOKEN = hmArgs.config.sops.placeholder."github/token";
+      };
 
           programs.opencode.settings = {
             # The env var is set both unsandboxed (session variable) and sandboxed

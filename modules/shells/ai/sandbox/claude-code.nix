@@ -18,7 +18,6 @@
             CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
           };
           allow = [ "$XDG_STATE_HOME/claude-code-sandbox" ];
-          domains = [ "api.anthropic.com" ];
         };
 
         home.shellAliases.claude-unsandboxed = lib.getExe claudeCode.finalPackage;

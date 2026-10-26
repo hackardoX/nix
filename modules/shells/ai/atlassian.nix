@@ -2,7 +2,7 @@
   # Atlassian's official remote MCP server (Jira Cloud and Confluence). OAuth
   # runs in the browser on first use, so no token lives in this config.
   flake.modules.homeManager.mcp-atlassian =
-    hmArgs@{ lib, options, ... }:
+    hmArgs@{ lib, ... }:
     let
       atlassianInstructions = ''
         # Atlassian MCP
@@ -114,19 +114,6 @@
             "claude-code/CLAUDE.md".text = atlassianInstructions;
           };
         }
-        # optional integration: registers sandbox needs only when the nono feature is present
-        (lib.optionalAttrs (options.programs ? nono) {
-          # The sandbox only reaches proxy-allowed domains. The MCP's
-          # authorization server is auth.atlassian.com (per the
-          # protected-resource metadata), and OpenCode's sandboxed server does
-          # client registration, token exchange and refresh against it, so both
-          # hosts are required. api.atlassian.com (the REST gateway) stays
-          # blocked unless something proves it is needed.
-          programs.nono.allowDomains = [
-            "mcp.atlassian.com"
-            "auth.atlassian.com"
-          ];
-        })
       ];
     };
 }
