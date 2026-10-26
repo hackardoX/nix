@@ -45,11 +45,11 @@ in
           ntfy_url = ${ntfy.url}
           ntfy_token = ${nixosArgs.config.sops.secrets."alerting/ntfy_token".path}
 
-          actionstart = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for start"
-          actionstop = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for stop"
+          actionstart = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" "<ntfy_url>/<ntfy_topic>" || ${lib.getExe' pkgs.util-linux "logger"} -t fail2ban "ntfy notification failed for start"
+          actionstop = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" "<ntfy_url>/<ntfy_topic>" || ${lib.getExe' pkgs.util-linux "logger"} -t fail2ban "ntfy notification failed for stop"
           actioncheck =
-          actionban = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: high" -H "Tags: warning,skull" -d "Banned <ip> in <name> after <failures> failed attempts" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for ban <ip>"
-          actionunban = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: default" -H "Tags: white_check_mark" -d "Unbanned <ip> in <name>" "<ntfy_url>/<ntfy_topic>" || logger -t fail2ban "ntfy notification failed for unban <ip>"
+          actionban = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: high" -H "Tags: warning,skull" -d "Banned <ip> in <name> after <failures> failed attempts" "<ntfy_url>/<ntfy_topic>" || ${lib.getExe' pkgs.util-linux "logger"} -t fail2ban "ntfy notification failed for ban <ip>"
+          actionunban = TOKEN=$(cat <ntfy_token>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: default" -H "Tags: white_check_mark" -d "Unbanned <ip> in <name>" "<ntfy_url>/<ntfy_topic>" || ${lib.getExe' pkgs.util-linux "logger"} -t fail2ban "ntfy notification failed for unban <ip>"
         '';
 
         programs.msmtp = {
