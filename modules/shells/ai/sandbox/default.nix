@@ -64,13 +64,7 @@
 
             network = {
               network_profile = "developer";
-              allow_domain =
-                a.domains
-                ++ [
-                  "proxy.golang.org"
-                  "sum.golang.org"
-                ]
-                ++ cfg.allowDomains;
+              allow_domain = [ "*" ];
             };
 
             # Stops planted project config running unsandboxed later: hooks, MCP servers,
@@ -98,7 +92,7 @@
         home.packages = [ nono ];
 
         # Rendered at activation so secret hosts stay out of the store.
-        # Unconditional: gating on allowDomains recurses via sops.placeholder.
+        # Unconditional: gating on harness values (env holds sops placeholders) recurses via sops.placeholder.
         sops.templates = lib.mapAttrs' (
           name: a: lib.nameValuePair "nono-${name}.json" { content = builtins.toJSON (mkProfile name a); }
         ) cfg.harnesses;

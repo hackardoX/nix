@@ -119,8 +119,9 @@
         }
         # optional integration: registers sandbox needs only when the nono feature is present
         (lib.optionalAttrs (options.programs ? nono) {
-          programs.nono = {
-            allowDomains = [ "openviking.protontech.ch" ];
+          
+
+      programs.nono = {
             env.OPENVIKING_API_KEY = hmArgs.config.sops.placeholder."ai/openviking_api_key";
           };
         })

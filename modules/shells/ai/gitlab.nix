@@ -76,10 +76,10 @@
       '';
     in
     {
-      config = lib.mkMerge [
-        {
-          # Declared here too, so this module does not depend on forges/gitlab.nix (same empty attrs, merged).
-          sops.secrets."gitlab/host" = { };
+      # The sandbox gets the GitLab host (also used for OAuth) through GITLAB_HOST.
+      programs.nono = {
+        env.GITLAB_HOST = hmArgs.config.sops.placeholder."gitlab/host";
+      };
 
           programs.mcp.servers.gitlab = {
             url = "https://\${GITLAB_HOST}/api/v4/mcp";

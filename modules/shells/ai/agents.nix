@@ -149,8 +149,11 @@
                 effect = "allow";
               }
             ]
-            ++ readOnlyShell
             ++ [
+              # No shell deny here: the global shell asks apply (the sandbox relaxes
+              # them to allow, and nono is the boundary). The rules below are the
+              # exceptions.
+
               # Commits inside the sandbox are not prompted; only commit when the
               # user asks.
               {
@@ -165,8 +168,8 @@
               }
 
               # Ask in unsandboxed OpenCode, since workmux would open windows outside
-              # the sandbox. The sandbox relaxes shell asks to allow, and it has no
-              # multiplexer, so window commands fail closed there.
+              # the sandbox. The sandbox relaxes shell asks to allow. Its workmux
+              # command is brokered and can reach zellij (modules/shells/workmux.nix).
               {
                 action = "shell";
                 resource = "workmux *";

@@ -1,17 +1,6 @@
 { lib, ... }: {
   flake.modules.homeManager.nono = {
     options.programs.nono = {
-      allowDomains = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = ''
-          Extra domains the sandboxed harnesses may reach through the nono
-          proxy. Entries may be sops placeholders
-          (e.g. `config.sops.placeholder."gitlab/host"`) because the profile
-          is rendered at activation by sops-nix, so secret hosts work too.
-        '';
-      };
-
       readPaths = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -99,12 +88,6 @@
                   type = lib.types.listOf lib.types.str;
                   default = [ ];
                   description = "Single files the agent may read and write (`allow_file`).";
-                };
-
-                domains = lib.mkOption {
-                  type = lib.types.listOf lib.types.str;
-                  default = [ ];
-                  description = "Domains this agent may reach, in addition to programs.nono.allowDomains.";
                 };
 
                 extra = lib.mkOption {
