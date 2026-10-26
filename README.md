@@ -64,8 +64,10 @@ nix run github:nix-community/nixos-anywhere -- \
 Subsequent updates via deploy-rs:
 
 ```bash
-nix run github:serokell/deploy-rs .#<host>   # e.g., .#HomeLab
+deploy homelab   # alias for HomeLab; extra deploy-rs flags are passed through, e.g. deploy homelab --dry-activate
 ```
+
+The SSH agent must hold the deploy key (`ssh-add ~/.ssh/deploy`), since sudo on the target authenticates through agent forwarding.
 
 ## Features
 

@@ -27,11 +27,20 @@ in
     };
 
   flake.modules.homeManager.sops-cli =
-    { pkgs, ... }:
+    hmArgs@{ pkgs, ... }:
+    let
+      protonPassEnabled = hmArgs.config.services.proton-pass-agent.enable or false;
+      onePasswordEnabled = hmArgs.config.programs._1password-shell-plugins.enable or false;
+    in
     {
       home = {
         packages = [ pkgs.sops ];
-        shellAliases.sops = "SOPS_AGE_KEY=\"$(op read 'op://Development/Admin Age Key/notesPlain')\" sops";
+        shellAliases.sops = lib.mkIf (protonPassEnabled || onePasswordEnabled) (
+          if protonPassEnabled then
+            "SOPS_AGE_KEY=\"$(pass-cli item view 'pass://Development/Admin Age Key/note')\" sops"
+          else
+            "SOPS_AGE_KEY=\"$(op read 'op://Development/Admin Age Key/notesPlain')\" sops"
+        );
       };
     };
 }

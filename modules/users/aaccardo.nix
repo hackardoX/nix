@@ -75,6 +75,7 @@
       proton-pass
       shell
       sops
+      sops-cli
       ssh
       theme
       web-browsers
