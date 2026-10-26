@@ -92,11 +92,10 @@
       '';
     in
     {
-      # The token is a sops secret, and the sandbox session can read it (same
-      # trade-off as openviking).
-      programs.nono = {
-        env.GITHUB_MCP_TOKEN = hmArgs.config.sops.placeholder."github/token";
-      };
+      config = lib.mkMerge [
+        {
+          # Declared here too, so this module does not depend on forges/github.nix (same empty attrs, merged).
+          sops.secrets."github/token" = { };
 
           programs.opencode.settings = {
             # The env var is set both unsandboxed (session variable) and sandboxed
@@ -163,10 +162,9 @@
         }
         # optional integration: registers sandbox needs only when the nono feature is present
         (lib.optionalAttrs (options.programs ? nono) {
-          # The sandbox reaches only the GitHub MCP host. The token is a sops
-          # secret, and the sandbox session can read it (same trade-off as openviking).
+          # The token is a sops secret, and the sandbox session can read it (same
+          # trade-off as openviking).
           programs.nono = {
-            allowDomains = [ "api.githubcopilot.com" ];
             env.GITHUB_MCP_TOKEN = hmArgs.config.sops.placeholder."github/token";
           };
         })

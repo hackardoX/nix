@@ -31,11 +31,19 @@
             ];
           };
 
-      # Figma's ask rules become allow in the sandboxed OpenCode config
-      # (sandbox/opencode.nix), like shell and edit.
-      programs.nono.relaxedActions = [ "figma_*" ];
-
-      xdg.configFile."opencode/AGENTS.md".text = figmaInstructions;
-      xdg.stateFile."claude-code/CLAUDE.md".text = figmaInstructions;
+          xdg.configFile."opencode/AGENTS.md".text = figmaInstructions;
+          xdg.stateFile = lib.mkIf hmArgs.config.programs.claude-code.enable {
+            "claude-code/CLAUDE.md".text = figmaInstructions;
+          };
+        }
+        # optional integration: registers sandbox needs only when the nono feature is present
+        (lib.optionalAttrs (options.programs ? nono) {
+          programs.nono = {
+            # Figma's ask rules become allow in the sandboxed OpenCode config
+            # (sandbox/opencode.nix), like shell and edit.
+            relaxedActions = [ "figma_*" ];
+          };
+        })
+      ];
     };
 }

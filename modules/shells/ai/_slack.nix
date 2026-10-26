@@ -2,7 +2,7 @@
   # Slack's official remote MCP server. OAuth runs in the browser on first
   # use, so no token lives in this config.
   flake.modules.homeManager.mcp-slack =
-    { lib, options, ... }:
+    { lib, ... }:
     let
       # Best-effort denylist: the tool names come from memory and are not
       # verified against the server, so every pattern tolerates an optional
@@ -74,17 +74,6 @@
             - Only read what the task needs.
           '';
         }
-        # optional integration: registers sandbox needs only when the nono feature is present
-        (lib.optionalAttrs (options.programs ? nono) {
-          # The sandbox only reaches proxy-allowed domains. mcp.slack.com serves the
-          # MCP itself; the OAuth hosts are unverified, so slack.com is listed as
-          # the likely authorization server. Adjust after the first sign-in attempt
-          # once the proxy logs show which host was actually requested.
-          programs.nono.allowDomains = [
-            "mcp.slack.com"
-            "slack.com"
-          ];
-        })
       ];
     };
 }
