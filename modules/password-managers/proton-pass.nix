@@ -14,7 +14,10 @@
     in
     {
       home = {
-        packages = [ pkgs.proton-pass ];
+        packages = [
+          pkgs.proton-pass
+          pkgs.proton-pass-cli
+        ];
         sessionVariables = {
           SSH_AUTH_SOCK = protonPassAgentSocketPath;
         };

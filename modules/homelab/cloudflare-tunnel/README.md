@@ -57,7 +57,7 @@ from the current one.
 ### 7. Deploy
 
 ```bash
-nix run github:serokell/deploy-rs .#HomeLab
+deploy homelab
 ```
 
 ## Managing Ingress Rules
@@ -86,7 +86,7 @@ services.cloudflared.tunnels.<uuid> = {
 To add a new service, add an ingress rule and deploy:
 
 ```bash
-nix run github:serokell/deploy-rs .#HomeLab
+deploy homelab
 ```
 
 ## Verifying

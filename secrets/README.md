@@ -74,6 +74,7 @@ secrets/
 │   └── Proton-MacBook-Pro/
 │       └── secrets.yaml       # Proton Mac secrets
 └── users/
+    ├── deploy.yaml            # Deploy user SSH login + sudo public keys
     ├── hal.yaml               # Hal user password hash
     └── hetzner.yaml           # Hetzner user password hash
 ```

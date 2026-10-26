@@ -70,6 +70,13 @@ creation_rules:
           - *admin
           - *Hetzner-HomeLab
 
+  - path_regex: secrets/users/deploy\.yaml$
+    key_groups:
+      - age:
+          - *admin
+          - *HomeLab
+          - *Hetzner-HomeLab
+
   - path_regex: secrets/users/hackardo\.yaml$
     key_groups:
       - age:
