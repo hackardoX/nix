@@ -34,11 +34,13 @@ The orchestrator does not edit project files by instruction, but its shell is no
 
 ## 2b. New worktree (isolated)
 
-1. The orchestrator writes the plan to `~/.opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
-2. It runs `workmux add <branch> -b -P ~/.opencode/plan/<file>.md`. nono asks you to approve the call. The new tab holds a sandboxed opencode, and the worktree goes under `~/.local/state/workmux/worktrees/<project>`.
+1. The orchestrator writes the plan to `~/.local/state/opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
+2. It runs `workmux add <branch> -b -P ~/.local/state/opencode/plan/<file>.md`. nono asks you to approve the call. The new tab holds a sandboxed opencode, and the worktree goes under `~/.local/state/workmux/worktrees/<project>`.
 3. If the call fails, or the session is not sandboxed, run the same command yourself in an unsandboxed pane. `--headless` is not used: workmux rejects prompt options with it.
 4. The new session implements the plan. If the plan is not injected, tell it to implement the plan at that path. It runs `dev`, then `qa` (plus `security` when needed). Each `dev` call still asks.
 5. Explicit denies still apply. Git writes go through the broker, which does not restrict which refs a worktree's branch can move.
+
+Panes run the sandboxed agent through the named workmux agent `opencode-sandboxed` (nono wrapper), because shell aliases are not available in panes.
 
 ## 3. Commit and ship
 
@@ -57,7 +59,7 @@ GitLab's official remote MCP server is in `gitlab.nix`, shared through `programs
 - The host comes from `GITLAB_HOST`, never a literal in the repo or store. Sandboxed: `programs.nono.env`. Unsandboxed: `forges/gitlab.nix` sets it as a session variable, so run `opencode service restart` after the first switch.
 - The OAuth flow runs against the GitLab host. The sandbox does not restrict domains: all are allowed (see What the sandbox enforces).
 - The toolsets header (`core,merge_requests,work_items,repository,ci`) omits Duo Agent Platform.
-- In OpenCode every `gitlab_*` call asks, in the sandbox too. Sandboxed Claude runs with `bypassPermissions`, so only the deny list applies.
+- In OpenCode every `gitlab_*` call asks outside the sandbox. Inside it the asks are relaxed to allow (`programs.nono.relaxedActions`), so nono is the boundary. Sandboxed Claude runs with `bypassPermissions`, so only the deny list applies.
 - Write tools are denied by name and by prefix (`add`, `create`, `update`, `save`, `merge`, ...). Read tools match none of the prefixes.
 - Residual risks:
   - Writes no longer fail on the server. The OAuth token (scope `mcp`) carries your full role, unlike the former `read_api` token. Read-only rests on the name-based denies alone.
@@ -88,22 +90,28 @@ Claude Code runs in the same nono sandbox (`sandbox/claude-code.nix`; the shared
 
 ## OpenViking (read + remember)
 
-OpenViking is a context database (`viking://` URIs) served as a remote MCP, `openviking.nix`. Both OpenCode and Claude Code get it, inside and outside the sandbox.
+OpenViking is a context database (`viking://` URIs), `openviking.nix`. Both OpenCode and Claude Code get it, inside and outside the sandbox.
 
+- OpenCode uses the pinned npm plugin `@openviking/opencode-plugin@2026.10.26-2` (`plugins` in the OpenCode settings, the v2 key). The plugin registers a local stdio MCP named `openviking`, so tool names stay `openviking_*`. The pin is on purpose: bump it by hand after reading the changes.
+- Claude Code still uses the remote MCP over Streamable HTTP, with `${OPENVIKING_API_KEY}` expanded by Claude itself.
 - The key is `ai/openviking_api_key` in the sops file. It never reaches the Nix store or a generated config as a literal.
-- One header everywhere: `Bearer {env:OPENVIKING_API_KEY}` in OpenCode (sandboxed and global config) and `${OPENVIKING_API_KEY}` in Claude Code. The key lives only in the environment.
-- Sandboxed: `OPENVIKING_API_KEY` comes from the profile's `set_vars` (`programs.nono.env`, shared by both profiles).
-- Unsandboxed: `home.sessionVariables` sets it to `$(cat <sops path>)`, evaluated at login. After the first switch, log in again. A shared OpenCode background service started earlier, or outside a login shell, keeps the old environment, so run `opencode service restart`. The key is then in the environment of every unsandboxed process of the login session.
-- Prompts: in OpenCode every `openviking_*` call asks, in the sandbox too. `remember` is not denied; the agent instructions say to call it only when you ask. Sandboxed Claude does not prompt for `remember` (`bypassPermissions`).
-- Name-based deny rules: `write`, `edit`, `add_resource`, `add_skill`, `forget`, `set_acl`, `cancel_watch`, plus the prefixes `add`, `set`, `write`, `edit`, `cancel`, `forget`, `delete`, `remove`, `create`, `update`, `upload`, `manage`, `grant`, `revoke`. The prefixes are a safety net for new tools. Read tools and `remember` match none of them.
+- Environment: `OPENVIKING_API_KEY` (secret) and `OPENVIKING_URL` (the base URL, not secret; the plugin and the Claude MCP append `/mcp`). The sandbox gets both from `programs.nono.env`, shared by both profiles. Unsandboxed, `home.sessionVariables` sets the key to `$(cat <sops path>)`, evaluated at login, and the URL as a plain value. After the first switch, log in again. A shared OpenCode background service started earlier, or outside a login shell, keeps the old environment, so run `opencode service restart`. The key is then in the environment of every unsandboxed process of the login session.
+- Prompts: in OpenCode every `openviking_*` call asks outside the sandbox. Inside it the asks are relaxed to allow (`programs.nono.relaxedActions`). `remember` is not denied; the agent instructions say to call it only when you ask. Sandboxed Claude does not prompt for `remember` (`bypassPermissions`).
+- Name-based deny rules: `write`, `edit`, `add_resource`, `add_skill`, `forget`, `set_acl`, `cancel_watch`, plus the prefixes `add`, `set`, `write`, `edit`, `cancel`, `forget`, `delete`, `remove`, `create`, `update`, `upload`, `manage`, `grant`, `revoke`. The list covers every write tool in the plugin's tool list. `download` is a read and stays allowed (ask-gated). The prefixes are a safety net for new tools. Read tools and `remember` match none of them.
+- Capture and recall are on (the plugin's defaults). The plugin sends sessions to the server, tool output included, through the session API, and it injects recalled memories into prompts as hidden context. These do not go through MCP tools, so the name-based denies do not cover them.
 - These denies are name-based guards, not a hard guarantee. Inside the sandbox the session holds the full API key (`OPENVIKING_API_KEY`) and shell is allowed, so a prompt-injected agent could call the server directly with `curl` and bypass them. Real enforcement needs a server-side key scoped to read + remember.
 - Unsandboxed Claude (`claude-unsandboxed`, pinned dir `$XDG_STATE_HOME/claude-code`) loads the same OpenViking MCP plugin (`hm`) and the same deny list, from the pinned `settings.json`.
 - Residual risks:
   - The session can read `OPENVIKING_API_KEY` from its environment.
   - `remember` can store untrusted content that later sessions read.
+  - Transcripts, tool output included, are sent to the OpenViking server by the plugin's capture.
+  - Recalled memories are injected into prompts as hidden context.
+  - The npm plugin runs with access to the key. It is pinned, and a bump is manual.
+  - The plugin writes logs and state to `~/.config/opencode/openviking`, which is read-only in the sandbox. Not verified whether this breaks it. If it does, point `OPENVIKING_CLI_CONFIG_FILE` at a generated JSON with `{"plugin":{"opencode":{"dataDir":"<state dir>/opencode/openviking"}}}`.
   - Sandboxed Claude Code runs with `bypassPermissions`, so its reads are not prompted; only the deny list applies.
   - The URL `/mcp` is assumed, not checked against the server.
-  - Not verified yet: whether OpenCode v2 expands `{env:...}` in MCP headers.
+- Not verified yet:
+  - That the plugin loads on OpenCode v2 at runtime: after a service restart, the sandbox installs it from npm, and `node` is on the sandbox PATH.
 
 ## Figma (design files)
 
@@ -121,9 +129,10 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 
 ## What the sandbox enforces
 
-- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma_*; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the atlassian, gitlab and slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
+- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma__, atlassian__, gitlab__, openviking__; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
 - The orchestrator's shell is not read-only. Its only permission limits are the global shell asks and the rules in `agents.nix`. Outside the sandbox that means prompts; inside, nono is the boundary, and the shell asks are relaxed to allow.
 - Writes only in the project folder, the plan folder and a few state folders. Worktrees live under `~/.local/state/workmux/`, which the session cannot write directly.
+- The launcher exports `WM_WORKTREES` (the project's `$XDG_STATE_HOME/workmux/worktrees/<project>`), granted read-write in the harness, so the session can write every worktree of the current project. Git run from inside a sibling worktree gets that worktree through `@git:toplevel`. The path-based denies (`.git`, `.claude`, `.mcp.json`, `.workmux.yaml`) still apply there. The helper falls back to `/var/empty` outside a git repo.
 - The session itself has no zellij socket. The brokered `workmux` command does have it (`workmux.nix`), so an approved `workmux add` can open a tab. The zellij server runs outside the sandbox, so that tab, the agent in it, hooks and pane commands from `.workmux.yaml` are started unsandboxed. A prompt-injected session can run commands outside the sandbox through an approved workmux call, so read the command before you approve it.
 - `open`, `dashboard` and `sidebar` are not part of this flow and are not verified in the sandbox.
 - Git writes go through a broker. The session's git edge denies the `config` subcommand and the argv token `-c`, and denies writes to `.git/config`, `.git/hooks` and linked-worktree config and hooks. Accepted gap: `--git-dir`, `-C` and `--config-env` are not denied, so they can point git at another repo or config. The workmux edge allows `config` and `.git/config` writes, and denies hooks. Neither edge restricts ref updates.

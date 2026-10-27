@@ -2,7 +2,7 @@
   # Atlassian's official remote MCP server (Jira Cloud and Confluence). OAuth
   # runs in the browser on first use, so no token lives in this config.
   flake.modules.homeManager.mcp-atlassian =
-    hmArgs@{ lib, ... }:
+    hmArgs@{ lib, options, ... }:
     let
       atlassianInstructions = ''
         # Atlassian MCP
@@ -75,8 +75,6 @@
               url = hmArgs.config.programs.mcp.servers.atlassian.url;
             };
 
-            # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-            # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
             permissions = [
               {
                 action = "atlassian_*";
@@ -114,6 +112,11 @@
             "claude-code/CLAUDE.md".text = atlassianInstructions;
           };
         }
+        (lib.optionalAttrs (options.programs ? nono) {
+          programs.nono = {
+            relaxedActions = [ "atlassian_*" ];
+          };
+        })
       ];
     };
 }

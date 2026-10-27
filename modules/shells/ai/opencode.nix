@@ -8,6 +8,7 @@
         package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode2;
         settings = {
           autoupdate = false;
+          plugins = [ "@mohak34/opencode-notifier@latest" ];
           # Last matching rule wins: broad rules first, exceptions after.
           permissions = [
             {
@@ -136,5 +137,41 @@
           };
         };
       };
+
+      # Read-only in the sandbox, so Nix owns it.
+      xdg.configFile."opencode/opencode-notifier.json".text =
+        let
+          # OSC 9 via terminal stdout: no subprocess, so it works in the nono sandbox
+          # (osascript and afplay may be blocked). Ghostty and macOS play the sound.
+          loud = {
+            sound = false;
+            notification = true;
+            command = false;
+            bell = false;
+          };
+          quiet = {
+            sound = false;
+            notification = false;
+            command = false;
+            bell = false;
+          };
+        in
+        builtins.toJSON {
+          notificationSystem = "ghostty";
+          sound = false;
+          notification = true;
+          suppressWhenFocused = true;
+          events = {
+            permission = loud;
+            complete = loud;
+            error = loud;
+            question = loud;
+            subagent_complete = quiet;
+            user_cancelled = quiet;
+            session_started = false;
+            user_message = false;
+            client_connected = false;
+          };
+        };
     };
 }

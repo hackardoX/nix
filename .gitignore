@@ -36,6 +36,7 @@ node_modules
 .sass-cache
 
 .idea*
+.openviking/
 
 # Nixos-anywhere files
 nixos-anywhere-extra-files/etc/opnix-token

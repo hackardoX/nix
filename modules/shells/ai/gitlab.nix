@@ -93,8 +93,6 @@
               headers.X-Gitlab-Enabled-Mcp-Server-Toolsets = toolsets;
             };
 
-            # Reads stay gated by this ask rule, in the sandbox too (the sandbox
-            # relaxes only the programs.nono.relaxedActions asks). Writes are hard-denied below.
             permissions = [
               {
                 action = "gitlab_*";
@@ -130,11 +128,10 @@
             "claude-code/CLAUDE.md".text = gitlabInstructions;
           };
         }
-        # optional integration: registers sandbox needs only when the nono feature is present
         (lib.optionalAttrs (options.programs ? nono) {
-          # The sandbox gets the GitLab host (also used for OAuth) through GITLAB_HOST.
           programs.nono = {
             env.GITLAB_HOST = hmArgs.config.sops.placeholder."gitlab/host";
+            relaxedActions = [ "gitlab_*" ];
           };
         })
       ];

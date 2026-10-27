@@ -10,6 +10,7 @@
         branch.sort = "-committerdate";
         column.ui = "auto";
         commit.verbose = true;
+        core.fsmonitor = true;
         init.defaultBranch = "main";
         safe = {
           directory = [
