@@ -156,6 +156,7 @@
               fs_write = [
                 "$WORKDIR"
                 "@git:common-dir"
+                "@git:toplevel"
                 gitTmp
                 # OpenCode snapshot repo, written via `git --git-dir`.
                 "$XDG_DATA_HOME/opencode/snapshot"

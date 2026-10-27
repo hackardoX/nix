@@ -79,12 +79,13 @@
             "$XDG_DATA_HOME/opencode"
             "$XDG_CACHE_HOME/opencode"
             "$XDG_STATE_HOME/opencode"
-            "$HOME/.opencode/plan"
             "$XDG_DATA_HOME/opentui"
+            "$WM_WORKTREES"
           ];
           read = [
             "$XDG_CONFIG_HOME/opencode"
             "$XDG_CONFIG_HOME/workmux"
+            "$XDG_DATA_HOME/direnv"
             "$HOME/.claude"
             # OpenCode probes this at startup and crashes when missing.
             "$HOME/.opencode"
@@ -107,7 +108,7 @@
           recursive = true;
         };
 
-        home.file.".opencode/plan/.keep".text = "";
+        xdg.stateFile."opencode/plan/.keep".text = "";
         home.shellAliases.opencode-unsandboxed = "opencode2";
       };
     };

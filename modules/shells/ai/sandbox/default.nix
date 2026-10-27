@@ -9,6 +9,13 @@
 
       profilePath = name: hmArgs.config.sops.templates."nono-${name}.json".path;
 
+      worktreesDir = pkgs.writeShellScriptBin "workmux-worktrees-dir" ''
+        root=$(${lib.getExe pkgs.git} rev-parse --path-format=absolute --git-common-dir) || { echo /var/empty; exit; }
+        dir=${hmArgs.config.xdg.stateHome}/workmux/worktrees/$(basename "$(dirname "$root")")
+        mkdir -p "$dir"
+        echo "$dir"
+      '';
+
       mkProfile =
         name: a:
         lib.recursiveUpdate (
@@ -75,11 +82,15 @@
             # .git file that points gitdir: at a session-controlled config (fsmonitor,
             # hooksPath). .workmux.yaml/.yml would run pane commands and hooks when the user
             # later runs workmux.
+            # OpenCode's sandbox config dir (OPENCODE_CONFIG_DIR, built by sandbox/opencode.nix) is a
+            # real dir in the writable state dir: without this the session could replace its links
+            # (e.g. set session.permissions autoaccept). Home Manager writes it from outside.
             unsafe_macos_seatbelt_rules = [
               ''(deny file-write* (regex #"/\.[cC][lL][aA][uU][dD][eE](/.*)?$"))''
               ''(deny file-write* (regex #"/\.[mM][cC][pP]\.[jJ][sS][oO][nN]$"))''
               ''(deny file-write* (regex #"/\.[wW][oO][rR][kK][mM][uU][xX]\.[yY]([aA])?[mM][lL]$"))''
               ''(deny file-write* (regex #"/\.[gG][iI][tT](/.*)?$"))''
+              ''(deny file-write* (regex #"/[oO][pP][eE][nN][cC][oO][dD][eE]/[sS][aA][nN][dD][bB][oO][xX]-[cC][oO][nN][fF][iI][gG](/.*)?$"))''
             ];
           }
           // lib.optionalAttrs (cfg.commandPolicies != { }) {
@@ -89,7 +100,10 @@
     in
     {
       config = {
-        home.packages = [ nono ];
+        home.packages = [
+          nono
+          worktreesDir
+        ];
 
         # Rendered at activation so secret hosts stay out of the store.
         # Unconditional: gating on harness values (env holds sops placeholders) recurses via sops.placeholder.
@@ -100,7 +114,7 @@
         # Interactive shells only, so scripts fail closed.
         home.shellAliases = lib.mapAttrs' (
           name: a:
-          lib.nameValuePair a.alias "nono run --silent --profile ${profilePath name} --allow-cwd -- ${a.command}"
+          lib.nameValuePair a.alias "WM_WORKTREES=$(${lib.getExe worktreesDir}) nono run --silent --profile ${profilePath name} --allow-cwd -- ${a.command}"
         ) cfg.harnesses;
       };
     };
