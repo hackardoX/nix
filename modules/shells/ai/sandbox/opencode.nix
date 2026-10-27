@@ -71,8 +71,8 @@
           description = "OpenCode agent sandbox";
           command = "${opencode} --standalone";
           env = {
+            OPENCODE_DISABLE_PROJECT_CONFIG = "1";
             OPENCODE_TEST_HOME = "$WORKDIR";
-            # Fail-safe: if OpenCode ignores this, it falls back to the strict global config.
             OPENCODE_CONFIG_DIR = "$XDG_STATE_HOME/opencode/sandbox-config";
           };
           allow = [
