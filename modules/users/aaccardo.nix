@@ -69,9 +69,11 @@
       gitlab
       keep-awake
       mcp-atlassian
+      mcp-chrome-devtools
       mcp-figma
       mcp-gitlab
       mcp-openviking
+      mcp-quark
       proton-pass
       shell
       sops
