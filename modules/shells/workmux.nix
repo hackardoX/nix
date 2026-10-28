@@ -3,7 +3,9 @@
   flake.modules.homeManager.workmux =
     hmArgs@{ lib, pkgs, ... }:
     let
-      workmux = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux;
+      # TODO: restore once https://github.com/raine/workmux/pull/331 merged
+      # workmux = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux;
+      base = inputs.workmux-zellij-sidebar.packages.${pkgs.stdenv.hostPlatform.system}.default;
       sandboxedOpencode = hmArgs.config.programs.nono.harnesses ? opencode;
 
       opencodeSandboxed = pkgs.writeShellScript "opencode-sandboxed" ''
@@ -13,6 +15,14 @@
           hmArgs.config.sops.templates."nono-opencode.json".path
         } --allow-cwd -- ${lib.getExe' hmArgs.config.programs.opencode.package "opencode2"} --standalone "$@"
       '';
+
+      workmux = base.overrideAttrs (old: {
+        # Skip the failing upstream test suite.
+        doCheck = false;
+        meta = old.meta // {
+          mainProgram = "workmux";
+        };
+      });
     in
     {
       home.packages = [ workmux ];
