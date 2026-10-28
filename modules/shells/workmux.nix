@@ -111,5 +111,11 @@
               ];
             };
           };
+
+      xdg.configFile."opencode/plugins/workmux-status" = {
+        enable = hmArgs.config.programs.opencode.enable;
+        source = "${inputs.workmux-zellij-sidebar}/resources/opencode/v2/workmux-status";
+        recursive = true;
+      };
     };
 }

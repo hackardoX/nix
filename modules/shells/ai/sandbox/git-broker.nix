@@ -8,6 +8,9 @@
       # Must stay outside the session's grants, or the agent could rewrite what is signed.
       gitTmp = "${hmArgs.config.xdg.stateHome}/opencode-git/tmp";
 
+      # Where workmux creates new worktrees (the workmux edge may write under it).
+      worktreesDir = "${hmArgs.config.xdg.stateHome}/workmux/worktrees";
+
       gitReal = lib.getExe hmArgs.config.programs.git.package;
 
       commandEnv.allow_vars = [
@@ -182,8 +185,9 @@
           };
 
           # Workmux runs git for add/merge. Unlike the session, it may write .git/config and
-          # worktrees/<n>/{commondir,gitdir}, so those are not denied here. Hooks and the
-          # protected project files stay denied.
+          # worktrees/<n>/{commondir,gitdir}, so those are not denied here. Hooks stay denied,
+          # and protected project files stay denied except when checked out into a new
+          # workmux worktree.
           from.workmux = {
             sandbox = gitSandboxBase // {
               fs_write = [
@@ -197,6 +201,11 @@
                 ''(allow process-exec* (subpath "/nix/store"))''
                 ''(deny file-write* (regex #"/\.[gG][iI][tT]/([hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/[hH][oO][oO][kK][sS](/.*)?)$"))''
                 ''(deny file-write* (regex #"/(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
+                # Tracked project files must be checked out into a new worktree. Allowed at any depth
+                # under <worktreesDir>/<project>/<handle>/ (tracked nested .claude dirs included);
+                # from.session keeps the deny. The .git/hooks deny does not overlap this path. Last
+                # rule, so it wins over the deny above.
+                ''(allow file-write* (regex #"^${lib.escapeRegex worktreesDir}/[^/]+/[^/]+/(.*/)?(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
               ];
             };
 
