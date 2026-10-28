@@ -67,11 +67,11 @@
       git
       github
       gitlab
+      gitlab-cli
       keep-awake
       mcp-atlassian
       mcp-chrome-devtools
       mcp-figma
-      mcp-gitlab
       mcp-openviking
       mcp-quark
       opencode-jobs

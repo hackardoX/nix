@@ -113,7 +113,7 @@
               # Safeguard: the plan gate is a prompt rule, so every dev call
               # asks, in the sandbox too (the sandbox relaxes only the
               # programs.nono.relaxedActions asks: shell, edit, figma_*, atlassian_*,
-              # gitlab_*, openviking_*, not this subagent gate).
+              # openviking_*, not this subagent gate).
               {
                 action = "subagent";
                 resource = "dev";
