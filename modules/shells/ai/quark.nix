@@ -1,9 +1,4 @@
 {
-  # Proton's internal quark-mcp, a local (stdio) MCP server that seeds Proton
-  # TEST environments. The launcher is not installed by Nix: the user installs
-  # it with Proton's `setup-mcp.sh` (README of
-  # gitlab.protontech.ch/devex/mcp/quark-mcp) and re-runs it to update. It needs
-  # the corporate network. Nix only declares the entry that points at it.
   flake.modules.homeManager.mcp-quark =
     hmArgs@{ lib, ... }:
     let
