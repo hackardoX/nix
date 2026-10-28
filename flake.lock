@@ -299,7 +299,8 @@
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "systems": "systems",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "workmux-zellij-sidebar": "workmux-zellij-sidebar"
       }
     },
     "smart-scrolloff-nvim": {
@@ -393,6 +394,27 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "workmux-zellij-sidebar": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792703620,
+        "narHash": "sha256-kzcc6eBZA1b4lRYHX1CUYd6jj/Q6cBDbSjVaf62NIqE=",
+        "owner": "koepalex",
+        "repo": "workmux",
+        "rev": "b7ffa0851cbfe9c40661fe22a38401329762b8c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "koepalex",
+        "ref": "koepalex/zellij-sidebar",
+        "repo": "workmux",
         "type": "github"
       }
     }
