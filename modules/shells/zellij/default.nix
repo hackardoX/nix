@@ -48,6 +48,19 @@
           run = floating "yazi";
           when = config.programs.yazi.enable;
         }
+        {
+          key = "Alt s";
+          run = ''
+            Run "workmux" "sidebar" {
+                        floating true
+                        close_on_exit true
+                        x "40%"
+                        y "45%"
+                        width "20%"
+                        height "10%"
+                      }'';
+          when = hasPackage "workmux";
+        }
       ];
 
       # KDL for the enabled tool bindings, indented to sit inside `shared`
