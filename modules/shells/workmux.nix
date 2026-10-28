@@ -28,6 +28,10 @@
       home.packages = [ workmux ];
       home.shellAliases.wm = "workmux";
 
+      programs.git.ignores = [
+        ".workmux.yaml"
+      ];
+
       # Run by the sandboxed session through the command broker.
       programs.nono.commandPolicies.commands.workmux = {
         executable = lib.getExe workmux;
