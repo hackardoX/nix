@@ -74,6 +74,7 @@
       mcp-gitlab
       mcp-openviking
       mcp-quark
+      opencode-jobs
       proton-pass
       shell
       sops
