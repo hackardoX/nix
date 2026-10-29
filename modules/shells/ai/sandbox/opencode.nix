@@ -9,7 +9,7 @@
 
       settings = hmArgs.config.programs.opencode.settings;
 
-      # Only listed relaxedActions turn ask into allow; the subagent gate and MCP asks stay.
+      # Only listed relaxedActions turn ask into allow; the MCP asks stay.
       relax = map (
         r:
         if r.effect == "ask" && builtins.elem r.action cfg.relaxedActions then
