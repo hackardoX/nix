@@ -105,6 +105,14 @@
         default = { };
         description = "Sandboxed harnesses. Each one gets a profile `nono-<name>.json` and a shell alias.";
       };
+
+      launchers = lib.mkOption {
+        type = lib.types.attrsOf lib.types.package;
+        readOnly = true;
+        description = ''
+          Per-harness executable that runs the harness in its nono sandbox. 
+        '';
+      };
     };
   };
 }

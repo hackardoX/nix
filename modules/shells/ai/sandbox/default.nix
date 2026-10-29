@@ -100,6 +100,14 @@
     in
     {
       config = {
+        programs.nono.launchers = lib.mapAttrs (
+          name: a:
+          pkgs.writeShellScript "nono-${name}" ''
+            export WM_WORKTREES=$(${lib.getExe worktreesDir})
+            exec ${nono}/bin/nono run --silent --profile ${profilePath name} --allow-cwd -- ${a.command} "$@"
+          ''
+        ) cfg.harnesses;
+
         home.packages = [
           nono
           worktreesDir
@@ -113,8 +121,7 @@
 
         # Interactive shells only, so scripts fail closed.
         home.shellAliases = lib.mapAttrs' (
-          name: a:
-          lib.nameValuePair a.alias "WM_WORKTREES=$(${lib.getExe worktreesDir}) nono run --silent --profile ${profilePath name} --allow-cwd -- ${a.command}"
+          name: a: lib.nameValuePair a.alias "${cfg.launchers.${name}}"
         ) cfg.harnesses;
       };
     };
