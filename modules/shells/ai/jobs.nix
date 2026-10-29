@@ -141,7 +141,7 @@
               };
               agent = lib.mkOption {
                 type = lib.types.strMatching "[a-zA-Z0-9][a-zA-Z0-9._-]*";
-                default = "orchestrator";
+                default = "main";
                 description = "OpenCode agent that runs the prompt.";
               };
               timeout = lib.mkOption {
