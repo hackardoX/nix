@@ -26,6 +26,11 @@
               resource = "explore";
               effect = "allow";
             }
+            {
+              action = "subagent";
+              resource = "lumo";
+              effect = "allow";
+            }
 
             # No shell deny here: the global shell asks apply (the sandbox relaxes
             # them to allow, and nono is the boundary). The rules below are the
