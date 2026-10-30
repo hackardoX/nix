@@ -1,50 +1,37 @@
 # Feature workflow
 
-How to implement a feature with the orchestrator, the specialist agents, the nono sandbox and workmux.
+How to implement a feature with the `main` agent, the nono sandbox and workmux.
 
-Agents: `orchestrator` (default), `architect`, `dev`, `qa`, `security`, plus the built-in `explore`.
-Definitions: `agents.nix` and `agents/*.md`. Sandbox and git guard: `sandbox/` (`sandbox/git-broker.nix`).
+Agents: `main` (default, the only primary agent) and the built-in `explore` subagent for broad searches.
+In the anthropic profile, Jira and Confluence go through the `lumo` subagent (`models.nix`): it reads both and writes Jira (create/edit, comments, transitions, links) only when asked; `main` is denied `atlassian_*`.
+Definitions: `agents.nix` and `agents/main.md`. Sandbox and git guard: `sandbox/` (`sandbox/git-broker.nix`).
 
 ## Before starting
 
 - Create the feature branch yourself. The sandbox allows `git switch -c` and `git checkout -b`, and the git broker does not restrict which branch it updates.
 - Run `opencode` in the project. This is the sandboxed wrapper. `opencode-unsandboxed` skips the sandbox.
 
-## 1. Plan (no edits)
+## 1. Work
 
-The orchestrator does not edit project files by instruction, but its shell is not read-only (see 2a). Only the prompt rule stops it, not a permission.
+- Describe the change. `main` reads the code (`explore` for anything broad) and classifies it as simple or complex.
+- Complex work (ambiguous requirements, several modules, API, schema or data-model changes, migrations): `main` asks a few focused questions with the question tool, each with a recommended option, and writes a short plan before it edits. Planning is a habit, not a gate: `main` can edit from the first message.
+- It implements the change, runs the narrowest check after each edit, then the checks CI would run. It does not weaken tests.
+- For changes that touch auth, secrets, untrusted input, network exposure, process or file execution, crypto, dependencies, or CI and infra, it reviews the diff for those classes of issue before it reports.
+- It reports what changed, the commands and their results, and what it could not verify.
+- Shell for `main`: outside the sandbox every command asks, except the global allow list (`ls`, `cat`, `grep`, `git status`, `git diff`, `git log`, `git show`, `git blame`, `git ls-files`, `git rev-parse`, `git branch --show-current`, `git add`) and `git commit`, which the agent rules allow. Inside the sandbox, shell asks are relaxed to allow and nono is the boundary. The hard denies (`git push`, `gh pr merge`, `npm publish`) still apply in both modes.
 
-1. Describe the feature.
-2. The orchestrator reads the code (`explore` for anything broad) and classifies the request as simple or complex.
-3. Complex:
-   - It asks a few focused questions with the question tool, each with a recommended option.
-   - It asks "Want the plan?" (Yes). Typed text adds questions.
-   - It briefs `architect` and presents that plan.
-4. Simple: it skips the questions and writes a short plan itself.
-5. A plan states the goal, the steps and files, how it will be verified, and the risks.
-6. It asks **Implement here / New worktree / Cancel**. Typed text revises the plan, and the revised plan is presented again. It never calls `dev` before you choose one of the first two.
+## 2. Worktree (only when you ask)
 
-## 2a. Implement here
-
-- Only `dev` edits project files, by instruction. This is a prompt rule for the orchestrator, not a permission: its shell is not read-only, so a shell command could still write files. Each `dev` call asks for your approval, here and in a worktree (the sandbox config does not relax the `subagent dev` gate).
-- Shell for the orchestrator: outside the sandbox every command asks, except the global allow list (`ls`, `cat`, `grep`, `git status`, `git diff`, `git log`, `git show`, `git blame`, `git ls-files`, `git rev-parse`, `git branch --show-current`, `git add`) and `git commit`, which the agent rules allow. Inside the sandbox, shell asks are relaxed to allow and nono is the boundary. The hard denies (`git push`, `gh pr merge`, `npm publish`) still apply in both modes.
-- `qa` then runs the checks.
-- `security` runs in parallel with `qa` when the change touches auth, secrets, untrusted input parsing, network exposure, process or file execution, crypto, dependencies, or CI and infra.
-- At most two `dev` and `qa` rounds, then the orchestrator reports the state to you.
-
-## 2b. New worktree (isolated)
-
-1. The orchestrator writes the plan to `~/.local/state/opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`. This is the only file it may write.
-2. It runs `workmux add <branch> -b -P ~/.local/state/opencode/plan/<file>.md`. nono asks you to approve the call. The new tab holds a sandboxed opencode, and the worktree goes under `~/.local/state/workmux/worktrees/<project>`.
-3. If the call fails, or the session is not sandboxed, run the same command yourself in an unsandboxed pane. `--headless` is not used: workmux rejects prompt options with it.
-4. The new session implements the plan. If the plan is not injected, tell it to implement the plan at that path. It runs `dev`, then `qa` (plus `security` when needed). Each `dev` call still asks.
-5. Explicit denies still apply. Git writes go through the broker, which does not restrict which refs a worktree's branch can move.
+- Ask `main` for a worktree. It runs `workmux add <branch> -b`. Unsandboxed OpenCode asks for that shell call (`agents.nix`); the sandbox relaxes the ask. If the call fails, run the same command yourself in an unsandboxed pane. `--headless` is not used: workmux rejects prompt options with it.
+- To hand over a plan, write it to `~/.local/state/opencode/plan/<file>.md`, where `<file>` is the branch name with `/` replaced by `-`, and add `-P <that path>` to the command. The new session then implements the plan.
+- The worktree goes under `~/.local/state/workmux/worktrees/<project>`.
+- Explicit denies still apply. Git writes go through the broker, which does not restrict which refs a worktree's branch can move.
 
 Panes run the sandboxed agent through the named workmux agent `opencode-sandboxed` (nono wrapper), because shell aliases are not available in panes.
 
 ## 3. Commit and ship
 
-- Ask the orchestrator to commit. It runs `git add` and `git commit`. Commits inside the sandbox are not prompted; they are signed as you, so only ask for a commit when you want one.
+- Ask `main` to commit. It runs `git add` and `git commit`. Commits inside the sandbox are not prompted; they are signed as you, so only ask for a commit when you want one.
 - Review the diff yourself.
 - From an unsandboxed pane, run `workmux merge --squash` or open a PR, then push.
 - `git push`, merges and `npm publish` are denied for the agent.
@@ -85,7 +72,7 @@ Claude Code runs in the same nono sandbox (`sandbox/claude-code.nix`; the shared
 - The sandbox dir's `settings.json` is the pinned one plus `permissions.defaultMode: bypassPermissions`, so bypass applies only to the sandboxed claude. `CLAUDE.md` and the generated MCP plugin (`hm`) are the same files as the pinned dir, linked from the store.
 - The write-tool deny list for the Atlassian MCP lives in that `settings.json`. Home Manager restores a replaced link at the next switch (`backupFileExtension = "hm.old"`; activation can fail if a `.hm.old` file already exists). Files the session adds (plugins, skills, `.claude.json` mcpServers) are never removed.
 - Residual: inside the sandbox dir the session can replace its own `settings.json` (dropping the deny list for later sandboxed runs) or add its own MCP plugin. Treat the Atlassian and OpenViking denies there as guards against mistakes, not as a boundary. Hardening (write grants limited to subdirs) is a follow-up.
-- Only the binary is sandboxed: the orchestrator and specialist agents stay OpenCode-only.
+- Only the binary is sandboxed: `main` and its `explore` subagent stay OpenCode-only.
 - Residual risk: the session holds `CLAUDE_CODE_OAUTH_TOKEN` in its environment, visible to every child process. It is a long-lived token; rotate it if leaked.
 
 ## OpenViking (read + remember)
@@ -124,20 +111,20 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 - Accepted risks:
   - Sandboxed agents can write to Figma without a prompt. A prompt-injected agent could write data it can read into a Figma file or comment. This is an exfiltration path the user accepted; the instructions say never to do it.
   - The MCP OAuth token probably sits in a directory the session can read (the OpenCode data dir, the sandboxed Claude config dir). Not verified.
-  - The `figma_*` allow applies to every agent, read-only ones and the orchestrator included.
+  - The `figma_*` allow applies to every agent, `explore` and `main` included.
   - Accepted risk: sandboxed OpenCode loads the repo's project `opencode.json`, because `OPENCODE_DISABLE_PROJECT_CONFIG` is not set. `sandbox/default.nix` does not deny writes to `opencode.json` or `.opencode`, so the session can write them, and that config can override the permission asks. Unsandboxed OpenCode loads it too.
 
 ## What the sandbox enforces
 
-- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma__, atlassian__, openviking__; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the `subagent dev` gate and the slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses the `dev` gate.
-- The orchestrator's shell is not read-only. Its only permission limits are the global shell asks and the rules in `agents.nix`. Outside the sandbox that means prompts; inside, nono is the boundary, and the shell asks are relaxed to allow.
+- Unsandboxed OpenCode uses the strict global rules. Sandboxed OpenCode loads a generated config through `OPENCODE_CONFIG_DIR`: the same config, where the asks of `programs.nono.relaxedActions` (shell, edit, figma__, atlassian__, openviking__; see `sandbox/opencode.nix`) become allow, so nono is the boundary. The other asks stay: the slack MCP asks. Deny rules and the `experimental.policies` hard denies are unchanged in both modes. The Claude Code alias runs with `bypassPermissions` from its sandbox config dir for the same reason. Do not set `session.permissions: autoaccept` in `cli.json`: it bypasses every remaining ask.
+- `main`'s shell is not read-only. Its only permission limits are the global shell asks and the rules in `agents.nix`. Outside the sandbox that means prompts; inside, nono is the boundary, and the shell asks are relaxed to allow.
 - Writes only in the project folder, the plan folder and a few state folders. Worktrees live under `~/.local/state/workmux/`, which the session cannot write directly.
 - The launcher exports `WM_WORKTREES` (the project's `$XDG_STATE_HOME/workmux/worktrees/<project>`), granted read-write in the harness, so the session can write every worktree of the current project. Git run from inside a sibling worktree gets that worktree through `@git:toplevel`. The path-based denies (`.git`, `.claude`, `.mcp.json`, `.workmux.yaml`) still apply there. The helper falls back to `/var/empty` outside a git repo.
 - The session itself has no zellij socket. The brokered `workmux` command does have it (`workmux.nix`), so an approved `workmux add` can open a tab. The zellij server runs outside the sandbox, so that tab, the agent in it, hooks and pane commands from `.workmux.yaml` are started unsandboxed. A prompt-injected session can run commands outside the sandbox through an approved workmux call, so read the command before you approve it.
 - `open`, `dashboard` and `sidebar` are not part of this flow and are not verified in the sandbox.
 - Git writes go through a broker. The session's git edge denies the `config` subcommand and the argv token `-c`, and denies writes to `.git/config`, `.git/hooks` and linked-worktree config and hooks. Accepted gap: `--git-dir`, `-C` and `--config-env` are not denied, so they can point git at another repo or config. The workmux edge allows `config` and `.git/config` writes, and denies hooks. Neither edge restricts ref updates.
 - Network: all domains are allowed through the nono proxy on purpose (`allow_domain = [ "*" ]`). A domain list is not a secret boundary. A prompt-injected session can send any secret it holds in the sandbox anywhere, e.g. `OPENVIKING_API_KEY` (set through `set_vars`, which bypasses `deny_vars`).
-- The orchestrator's `worktree`, `merge` and `coordinator` skills open multiplexer windows, and `open-pr` needs `gh`. All four are denied. The orchestrator calls the `workmux` CLI directly.
+- `main`'s `worktree`, `merge` and `coordinator` skills open multiplexer windows, and `open-pr` needs `gh`. All four are denied. `main` calls the `workmux` CLI directly.
 
 ## Known gaps
 
@@ -148,6 +135,4 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 - Git broker writes (`git apply`, `checkout -- <file>`, `am`, `cherry-pick`, `worktree add` of a branch) run in the broker's sandbox and can still create `.claude/`, `.mcp.json`, `.workmux.yaml` or `.workmux.yml` in the tree. Review diffs and look for these files before running `workmux open` or `merge` unsandboxed. Accepted: not denied in the broker, because git would fail midway on repos that track these files.
 - workmux finds project config by walking up the tree (`.workmux.yaml` and `.workmux.yml`). The Seatbelt rule is a speed bump, not a boundary.
 - Not verified: the interactive TUI.
-- The plan gate is a prompt rule, not a hard lock.
 - A nested repo planted in a subfolder can escape the git guard, which protects only the project's own `.git`.
-- Open decision: commits go through the orchestrator. The alternative is to commit through `dev`.

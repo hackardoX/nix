@@ -135,6 +135,9 @@
               models = config.flake.meta.aiProviders.lumo.models;
             };
           };
+          tabs = {
+            mode = "off";
+          };
         };
       };
 
