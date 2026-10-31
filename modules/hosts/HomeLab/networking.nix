@@ -44,10 +44,10 @@
 
       services.avahi = {
         enable = true;
-        publish = {
+        settings.publish = {
           enable = true;
           addresses = true;
-          workstation = true;
+          publish-workstation = true;
         };
       };
 
