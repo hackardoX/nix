@@ -19,7 +19,7 @@
       };
       sops.secrets."hal/sudo_authorized_key" = {
         sopsFile = "${inputs.self}/secrets/users/hal.yaml";
-        path = "/etc/ssh/hal/authorized_sudo_keys";
+        path = "/etc/ssh/authorized_sudo_keys/hal";
       };
 
       nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];

@@ -11,7 +11,7 @@
     };
     sops.secrets."deploy/sudo_authorized_key" = {
       sopsFile = "${inputs.self}/secrets/users/deploy.yaml";
-      path = "/etc/ssh/deploy/authorized_sudo_keys";
+      path = "/etc/ssh/authorized_sudo_keys/deploy";
     };
 
     users.users.${config.flake.meta.users.deploy.name} = {
