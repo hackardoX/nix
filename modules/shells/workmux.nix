@@ -70,6 +70,8 @@
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/zellij-[0-9]+(/.*)?$"))''
               # workmux's zellij pane handshake FIFO in $TMPDIR (mkfifo, open, unlink).
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/workmux_pipe_[0-9]+_[0-9]+$"))''
+              # mktemp in hooks (e.g. pre_remove). Default template only (tmp.XXXXXX), not the whole
+              ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/tmp\.[A-Za-z0-9]+(/.*)?$"))''
               # direnv allow store, used by the post_create hook.
               ''(allow file-read* file-write* (regex #"^${lib.escapeRegex hmArgs.config.xdg.dataHome}/direnv(/allow(/[0-9a-f]{64})?)?$"))''
               ''(deny file-write* (regex #"/\.[gG][iI][tT]/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?))$"))''

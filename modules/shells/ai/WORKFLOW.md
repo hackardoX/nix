@@ -130,6 +130,8 @@ Figma's official remote MCP is in `figma.nix`, shared through `programs.mcp` by 
 
 - Not verified: `git worktree` under the broker, whether workmux stores metadata via `git config` (denied on the session's git edge; the workmux edge allows it), and `workmux merge`/`remove` behaviour without a multiplexer.
 - Not verified at runtime: the zellij socket regex, `ZELLIJ*` env passing, and `-b -P` prompt delivery. To test, run `workmux list`, then `workmux add t -b` from the sandboxed session. If it fails, check `log stream --predicate 'sender == "Sandbox"'`.
+- By design, inside the sandbox: `git push`, `git worktree` and OpenCode's `worktree_create`/`worktree_remove` tools are blocked (use `workmux add|remove`). `git branch -D` deletes the branch but warns that it cannot write `.git/config` (the stale `branch.<name>` section stays; harmless).
+- The workmux edge may write only `tmp.XXXXXX` temp files in `$TMPDIR` (hooks calling `mktemp`). Do not override `TMPDIR` for `workmux`: zellij looks for its socket dir there and fails with EPERM. `workmux remove` deleting a worktree that tracks `.claude/` may still fail on that edge's `.claude` deny; not verified.
 - Not verified: whether the starship prompt runs git in a worktree the session wrote.
 - Not verified: hard links to protected files bypass the path rules.
 - Git broker writes (`git apply`, `checkout -- <file>`, `am`, `cherry-pick`, `worktree add` of a branch) run in the broker's sandbox and can still create `.claude/`, `.mcp.json`, `.workmux.yaml` or `.workmux.yml` in the tree. Review diffs and look for these files before running `workmux open` or `merge` unsandboxed. Accepted: not denied in the broker, because git would fail midway on repos that track these files.
