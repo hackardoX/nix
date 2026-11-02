@@ -30,6 +30,7 @@
       opencode
       podman
       starship
+      superpowers
       tuicr
       workmux
     ];

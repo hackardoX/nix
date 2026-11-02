@@ -34,6 +34,11 @@
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
     };
+
+    superpowers = {
+      url = "github:obra/superpowers";
+      flake = false;
+    };
   };
 
   outputs = _: { };
