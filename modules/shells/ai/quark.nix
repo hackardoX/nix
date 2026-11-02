@@ -63,8 +63,8 @@
 
             # Hard denies, applied after agent rules and saved approvals, so no
             # allow rule can bypass them. Same list-merge as opencode.nix.
-            experimental.policies = map (tool: {
-              action = "permission";
+            policies = map (tool: {
+              action = "tool.use";
               resource = "quark_${tool}:*";
               effect = "deny";
             }) deniedVariants;

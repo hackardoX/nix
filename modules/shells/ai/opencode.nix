@@ -10,6 +10,9 @@
           autoupdate = false;
           plugins = [ "@mohak34/opencode-notifier@latest" ];
           # Last matching rule wins: broad rules first, exceptions after.
+          experimental = {
+            schedules = true;
+          };
           permissions = [
             {
               action = "shell";
@@ -97,29 +100,29 @@
           ];
           # Hard deny, applied after agent rules and saved approvals, and
           # not overridable by project config.
-          experimental.policies = [
+          policies = [
             {
-              action = "permission";
+              action = "tool.use";
               resource = "shell:git push *";
               effect = "deny";
             }
             {
-              action = "permission";
+              action = "tool.use";
               resource = "shell:git -C * push *";
               effect = "deny";
             }
             {
-              action = "permission";
+              action = "tool.use";
               resource = "shell:git -c * push *";
               effect = "deny";
             }
             {
-              action = "permission";
+              action = "tool.use";
               resource = "shell:gh pr merge *";
               effect = "deny";
             }
             {
-              action = "permission";
+              action = "tool.use";
               resource = "shell:npm publish *";
               effect = "deny";
             }
@@ -135,9 +138,9 @@
               models = config.flake.meta.aiProviders.lumo.models;
             };
           };
-          tabs = {
-            mode = "off";
-          };
+        };
+        cli = {
+          tabs.mode = "off";
         };
       };
 

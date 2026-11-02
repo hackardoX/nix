@@ -121,14 +121,14 @@
 
             # Hard denies, applied after agent rules and saved approvals, so no
             # allow rule can bypass them. Same list-merge as opencode.nix.
-            experimental.policies =
+            policies =
               map (tool: {
-                action = "permission";
+                action = "tool.use";
                 resource = "github_${tool}:*";
                 effect = "deny";
               }) deniedTools
               ++ map (prefix: {
-                action = "permission";
+                action = "tool.use";
                 resource = "github_${prefix}*:*";
                 effect = "deny";
               }) deniedPrefixes;

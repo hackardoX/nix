@@ -82,6 +82,8 @@
             "$XDG_DATA_HOME/opentui"
             "$WM_WORKTREES"
           ];
+          # The sandbox config dir links to this file, so TUI settings changes persist.
+          allowFile = [ "$XDG_CONFIG_HOME/opencode/cli.json" ];
           read = [
             "$XDG_CONFIG_HOME/opencode"
             "$XDG_CONFIG_HOME/workmux"
