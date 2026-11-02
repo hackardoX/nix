@@ -193,7 +193,8 @@
             invocation_policy = {
               default = "allow";
               deny = gitSessionDenies;
-              approve = [ { argv.contains = [ "push" ]; } ];
+              # TODO: restore once nono  fixed
+              # approve = [ { argv.contains = [ "push" ]; } ];
             };
           };
 
