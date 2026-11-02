@@ -12,6 +12,10 @@
 
       sshReal = lib.getExe' pkgs.openssh "ssh";
 
+      sshIdentityFiles = lib.mapAttrsToList (_: s: s.path) (
+        lib.filterAttrs (n: _: lib.hasSuffix "/authorization_key" n) hmArgs.config.sops.secrets
+      );
+
       commandEnv.allow_vars = [
         "PATH"
         "HOME"
@@ -239,7 +243,7 @@
                 "/etc/ssh"
                 "$HOME/.ssh"
               ];
-              fs_read_file = hmArgs.config.programs.ssh.includes;
+              fs_read_file = hmArgs.config.programs.ssh.includes ++ sshIdentityFiles;
               unsafe_macos_seatbelt_rules = [
                 ''(allow process-exec* (subpath "/nix/store"))''
               ];
