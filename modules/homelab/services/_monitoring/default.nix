@@ -448,7 +448,7 @@ in
         };
 
         services.podman.containers.loki = {
-          image = "grafana/loki:3.7.8";
+          image = "grafana/loki:3.7.9";
           autoStart = true;
           userNS = "keep-id:uid=10001,gid=10001";
           network = [ "monitoring.network" ];
