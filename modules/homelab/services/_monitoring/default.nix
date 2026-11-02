@@ -363,7 +363,7 @@ in
         services.podman.networks.monitoring.driver = "bridge";
 
         services.podman.containers.prometheus = {
-          image = "prom/prometheus:v3.13.1";
+          image = "prom/prometheus:v3.15.1";
           autoStart = true;
           userNS = "keep-id:uid=65534,gid=65534";
           network = [ "monitoring.network" ];
