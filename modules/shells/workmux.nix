@@ -11,6 +11,10 @@
       workmux = base.overrideAttrs (old: {
         # Skip the failing upstream test suite.
         doCheck = false;
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace src/multiplexer/handshake.rs \
+            --replace-fail "HANDSHAKE_TIMEOUT_SECS: u64 = 5;" "HANDSHAKE_TIMEOUT_SECS: u64 = 120;"
+        '';
         meta = old.meta // {
           mainProgram = "workmux";
         };
@@ -42,6 +46,8 @@
               "$WORKDIR"
               "@git:common-dir"
               "@git:worktree"
+              # `@git:worktree` is empty in the main checkout; see the git edge (git-broker.nix).
+              "@git:toplevel"
               "$XDG_STATE_HOME/workmux"
               "$XDG_CACHE_HOME/workmux"
             ];
@@ -63,7 +69,6 @@
             # through its own edge (sandbox/git-broker.nix), not this process.
             # The zellij server runs outside the sandbox, so workmux calls can start
             # panes and their commands unsandboxed.
-            # Rules before the denies; the denies stay last.
             unsafe_macos_seatbelt_rules = [
               ''(allow process-exec* (subpath "/nix/store"))''
               ''(allow network-outbound (remote unix-socket (path-regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/zellij-[0-9]+/.*")))''
@@ -72,10 +77,8 @@
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/workmux_pipe_[0-9]+_[0-9]+$"))''
               # mktemp in hooks (e.g. pre_remove). Default template only (tmp.XXXXXX), not the whole
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/tmp\.[A-Za-z0-9]+(/.*)?$"))''
-              # direnv allow store, used by the post_create hook.
-              ''(allow file-read* file-write* (regex #"^${lib.escapeRegex hmArgs.config.xdg.dataHome}/direnv(/allow(/[0-9a-f]{64})?)?$"))''
-              ''(deny file-write* (regex #"/\.[gG][iI][tT]/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?))$"))''
-              ''(deny file-write* (regex #"/(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
+              # direnv data dir (allow/ and deny/ stores), used by the post_create hook. The whole
+              ''(allow file-read* file-write* (regex #"^${lib.escapeRegex hmArgs.config.xdg.dataHome}/direnv(/.*)?$"))''
             ];
           };
           invocation_policy = {
@@ -99,9 +102,9 @@
                 focus = true;
               }
             ];
-            post_create = [
-              ''git ls-files -z -- ':(glob)**/.envrc' | while IFS= read -r -d "" f; do direnv allow "$f" && direnv exec "$(dirname "$f")" true; done''
-            ];
+            # post_create = [
+            #   ''git ls-files -z -- ':(glob)**/.envrc' | while IFS= read -r -d "" f; do direnv allow "$f" && direnv exec "$(dirname "$f")" true; done''
+            # ];
             agents = lib.optionalAttrs sandboxedOpencode {
               opencode-sandboxed = {
                 type = "opencode";
