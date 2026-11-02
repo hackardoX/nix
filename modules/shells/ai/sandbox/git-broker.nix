@@ -1,6 +1,6 @@
 {
   flake.modules.homeManager.nono =
-    hmArgs@{ lib, ... }:
+    hmArgs@{ lib, pkgs, ... }:
     let
       gitSigning = hmArgs.config.programs.git.signing;
       signerName = builtins.unsafeDiscardStringContext (baseNameOf gitSigning.signer);
@@ -8,10 +8,9 @@
       # Must stay outside the session's grants, or the agent could rewrite what is signed.
       gitTmp = "${hmArgs.config.xdg.stateHome}/opencode-git/tmp";
 
-      # Where workmux creates new worktrees (the workmux edge may write under it).
-      worktreesDir = "${hmArgs.config.xdg.stateHome}/workmux/worktrees";
-
       gitReal = lib.getExe hmArgs.config.programs.git.package;
+
+      sshReal = lib.getExe' pkgs.openssh "ssh";
 
       commandEnv.allow_vars = [
         "PATH"
@@ -30,6 +29,8 @@
           "/nix/store"
           "$XDG_CONFIG_HOME/git"
         ];
+        # core.fsmonitor: git talks to (and may start) the per-worktree fsmonitor daemon.
+        unix_socket_bind = [ "@git:fsmonitor-socket" ];
         environment = commandEnv // {
           # Git execs the signer by absolute path, bypassing the nono shim. This env
           # config overrides files, and the agent cannot set it.
@@ -53,16 +54,21 @@
       # going through `commit`. The reason strings below are user-facing.
       gitBaseDenies = [
         {
-          argv.contains = [ "push" ];
-          reason = "Pushing is done by the user.";
-        }
-        {
           argv.contains = [ "tag" ];
           reason = "Tags are signed outside the commit approval.";
         }
         {
           argv.contains = [ "commit-tree" ];
           reason = "Plumbing would sign outside the commit approval.";
+        }
+      ];
+
+      # The workmux edge never pushes and has no ssh access, so push stays denied there. The
+      # session edge asks the user for each push instead (see `approve` below).
+      gitWorkmuxDenies = gitBaseDenies ++ [
+        {
+          argv.contains = [ "push" ];
+          reason = "Pushing is done by the user.";
         }
       ];
 
@@ -152,7 +158,10 @@
 
         commands.git = {
           executable = gitReal;
-          can_use = [ signerName ];
+          can_use = [
+            signerName
+            "ssh"
+          ];
 
           from.session = {
             sandbox = gitSandboxBase // {
@@ -178,40 +187,64 @@
               ];
             };
 
+            # Push asks the user in the terminal every time. `contains` also matches
+            # `git stash push`, which prompts too. Not matched: a remote-side
+            # `--receive-pack=<cmd>` (one token), so read the prompt before approving.
             invocation_policy = {
               default = "allow";
               deny = gitSessionDenies;
+              approve = [ { argv.contains = [ "push" ]; } ];
             };
           };
 
-          # Workmux runs git for add/merge. Unlike the session, it may write .git/config and
-          # worktrees/<n>/{commondir,gitdir}, so those are not denied here. Hooks stay denied,
-          # and protected project files stay denied except when checked out into a new
-          # workmux worktree.
+          # Workmux runs git for add/merge. Unlike the session, it may write .git/config, hooks,
+          # protected project files and worktrees/<n>/{commondir,gitdir}: no path denies here, so
+          # workmux add works on repos that track .claude/, .mcp.json or .workmux.yaml. Accepted:
+          # a planted hook or config could run unsandboxed later; only the argv denies apply.
           from.workmux = {
             sandbox = gitSandboxBase // {
               fs_write = [
                 "$WORKDIR"
                 "@git:common-dir"
                 "@git:worktree"
+                "@git:toplevel"
                 "$XDG_STATE_HOME/workmux"
                 gitTmp
               ];
               unsafe_macos_seatbelt_rules = [
                 ''(allow process-exec* (subpath "/nix/store"))''
-                ''(deny file-write* (regex #"/\.[gG][iI][tT]/([hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/[hH][oO][oO][kK][sS](/.*)?)$"))''
-                ''(deny file-write* (regex #"/(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
-                # Tracked project files must be checked out into a new worktree. Allowed at any depth
-                # under <worktreesDir>/<project>/<handle>/ (tracked nested .claude dirs included);
-                # from.session keeps the deny. The .git/hooks deny does not overlap this path. Last
-                # rule, so it wins over the deny above.
-                ''(allow file-write* (regex #"^${lib.escapeRegex worktreesDir}/[^/]+/[^/]+/(.*/)?(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
               ];
             };
 
             invocation_policy = {
               default = "allow";
-              deny = gitBaseDenies;
+              deny = gitWorkmuxDenies;
+            };
+          };
+        };
+
+        # Git runs ssh for push and fetch over SSH remotes. Only git may call it (the session is
+        # denied), so the agent socket and network are not reachable with arbitrary ssh args.
+        # macOS cannot grant raw TCP/22 per port or per domain (allow_domain is an HTTP proxy
+        # allowlist), hence allow_all. SSH config includes (sops templates) are listed
+        # individually; $HOME/.ssh covers known_hosts, config and the .pub identity files.
+        commands.ssh = {
+          executable = sshReal;
+          from = {
+            session = "deny";
+            git = {
+              fs_read = [
+                "/nix/store"
+                "/etc/ssh"
+                "$HOME/.ssh"
+              ];
+              fs_read_file = hmArgs.config.programs.ssh.includes;
+              unsafe_macos_seatbelt_rules = [
+                ''(allow process-exec* (subpath "/nix/store"))''
+              ];
+              network.allow_all = true;
+              use_credentials = [ "ssh-agent" ];
+              environment = commandEnv;
             };
           };
         };

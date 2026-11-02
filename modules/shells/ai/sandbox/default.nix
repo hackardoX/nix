@@ -16,6 +16,23 @@
         echo "$dir"
       '';
 
+      # The session may start in a subdirectory (e.g. project/calendar/web). Brokered git run by
+      # workmux works in the checkout root (`workmux merge` runs `git switch main` there), and
+      # nono limits it to what the session can write, so the root must be granted too.
+      toplevelDir = pkgs.writeShellScriptBin "workmux-toplevel-dir" ''
+        ${lib.getExe pkgs.git} rev-parse --show-toplevel 2>/dev/null || echo /var/empty
+      '';
+
+      # Prints the profile as pretty JSON with sops placeholders instead of secret values, so it can
+      # be shared with someone who does not use nix. The placeholders are hashes, not secrets.
+      profileExporter =
+        name:
+        pkgs.writeShellScriptBin "nono-profile-${name}" ''
+          exec ${lib.getExe pkgs.jq} . ${
+            pkgs.writeText "nono-${name}.json" hmArgs.config.sops.templates."nono-${name}.json".content
+          }
+        '';
+
       mkProfile =
         name: a:
         lib.recursiveUpdate (
@@ -60,8 +77,6 @@
                 "$XDG_CONFIG_HOME/sops-nix"
                 "$TMPDIR/secrets.d"
                 "$TMPDIR/proton-pass-agent"
-                # Session must not write git state: planted hooks would run unsandboxed later.
-                "$WORKDIR/.git"
               ];
             }
             // lib.optionalAttrs (a.allowFile != [ ]) {
@@ -78,7 +93,9 @@
             # workmux pane commands and hooks. Static regex: the workdir is only known at
             # launch. APFS is case-insensitive, so each name uses bracket classes.
             # The session never writes .git itself (git writes go through the broker, which
-            # has its own sandbox). The .git rule also stops a rewritten linked-worktree
+            # has its own sandbox). .git stays readable: nono refuses to run a brokered command
+            # (e.g. `git worktree prune`, cwd .git) in a directory the session cannot access.
+            # The .git rule also stops a rewritten linked-worktree
             # .git file that points gitdir: at a session-controlled config (fsmonitor,
             # hooksPath). .workmux.yaml/.yml would run pane commands and hooks when the user
             # later runs workmux.
@@ -104,6 +121,7 @@
           name: a:
           pkgs.writeShellScript "nono-${name}" ''
             export WM_WORKTREES=$(${lib.getExe worktreesDir})
+            export WM_TOPLEVEL=$(${lib.getExe toplevelDir})
             exec ${nono}/bin/nono run --silent --profile ${profilePath name} --allow-cwd -- ${a.command} "$@"
           ''
         ) cfg.harnesses;
@@ -111,7 +129,9 @@
         home.packages = [
           nono
           worktreesDir
-        ];
+          toplevelDir
+        ]
+        ++ lib.mapAttrsToList (name: _: profileExporter name) cfg.harnesses;
 
         # Rendered at activation so secret hosts stay out of the store.
         # Unconditional: gating on harness values (env holds sops placeholders) recurses via sops.placeholder.
