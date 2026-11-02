@@ -282,7 +282,7 @@ in
         };
 
         services.podman.containers.sure-finance-redis = {
-          image = "docker.io/library/redis:8.10.2";
+          image = "docker.io/library/redis:8.10.3";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "sure-finance.network" ];
