@@ -86,8 +86,8 @@
 
             # Hard denies, applied after agent rules and saved approvals, so no
             # allow rule can bypass them. Same list-merge as opencode.nix.
-            experimental.policies = map (pattern: {
-              action = "permission";
+            policies = map (pattern: {
+              action = "tool.use";
               resource = "slack_${pattern}:*";
               effect = "deny";
             }) deniedPatterns;

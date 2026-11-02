@@ -88,14 +88,14 @@
 
             # Hard denies, applied after agent rules and saved approvals, so no
             # allow rule can bypass them. Same list-merge as opencode.nix.
-            experimental.policies =
+            policies =
               map (tool: {
-                action = "permission";
+                action = "tool.use";
                 resource = "openviking_${tool}:*";
                 effect = "deny";
               }) deniedTools
               ++ map (prefix: {
-                action = "permission";
+                action = "tool.use";
                 resource = "openviking_${prefix}*:*";
                 effect = "deny";
               }) deniedPrefixes;

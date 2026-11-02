@@ -67,14 +67,14 @@
               }
             ];
 
-            experimental.policies =
+            policies =
               map (tool: {
-                action = "permission";
+                action = "tool.use";
                 resource = "atlassian_${tool}:*";
                 effect = "deny";
               }) deniedTools
               ++ map (prefix: {
-                action = "permission";
+                action = "tool.use";
                 resource = "atlassian_${prefix}*:*";
                 effect = "deny";
               }) deniedPrefixes;
