@@ -20,6 +20,7 @@
             mcp.servers.figma = {
               type = "remote";
               url = hmArgs.config.programs.mcp.servers.figma.url;
+              disabled = true;
             };
 
             permissions = [
