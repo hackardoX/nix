@@ -81,6 +81,8 @@
             "$XDG_STATE_HOME/opencode"
             "$XDG_DATA_HOME/opentui"
             "$WM_WORKTREES"
+            # Checkout root when the session starts in a subdirectory; needed by `workmux merge`.
+            "$WM_TOPLEVEL"
           ];
           # The sandbox config dir links to this file, so TUI settings changes persist.
           allowFile = [ "$XDG_CONFIG_HOME/opencode/cli.json" ];

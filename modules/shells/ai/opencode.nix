@@ -99,23 +99,10 @@
             }
           ];
           # Hard deny, applied after agent rules and saved approvals, and
-          # not overridable by project config.
+          # not overridable by project config. `git push` is not listed: it
+          # falls through to the global shell ask (unsandboxed), the sandbox
+          # relaxes that to allow, and the git broker asks for each push.
           policies = [
-            {
-              action = "tool.use";
-              resource = "shell:git push *";
-              effect = "deny";
-            }
-            {
-              action = "tool.use";
-              resource = "shell:git -C * push *";
-              effect = "deny";
-            }
-            {
-              action = "tool.use";
-              resource = "shell:git -c * push *";
-              effect = "deny";
-            }
             {
               action = "tool.use";
               resource = "shell:gh pr merge *";
