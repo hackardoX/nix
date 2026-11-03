@@ -144,7 +144,10 @@
 
             from.session = {
               sandbox = {
-                fs_read = [ "/nix/store" ];
+                fs_read = [
+                  "/nix/store"
+                  "$TMPDIR/opencode"
+                ];
                 fs_write = [ glabState ];
                 unsafe_macos_seatbelt_rules = [
                   ''(allow process-exec* (subpath "/nix/store"))''
