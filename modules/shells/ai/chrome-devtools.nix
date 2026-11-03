@@ -22,6 +22,7 @@
       programs.opencode.settings = {
         mcp.servers.chrome-devtools = {
           type = "local";
+          disabled = true;
           # Pinned on purpose: the server controls a browser and sees its data,
           # so bump by hand after reading the changes. Telemetry is opted out.
           command = [

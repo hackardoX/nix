@@ -42,6 +42,7 @@
 
             mcp.servers.quark = {
               type = "local";
+              disabled = true;
               command = [
                 "/bin/sh"
                 "-c"
