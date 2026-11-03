@@ -1,0 +1,12 @@
+# TEST ONLY, fake values. Encrypted at build time by _vm-test/mock-sops.nix.
+# Stands in for the production sops file of the same name (secrets/ with / -> -).
+github:
+  authorization_key: mock-github-authorization_key
+  email: mock-github-email
+  host: mock-github-host
+  name: mock-github-name
+  token: mock-github-token
+hal:
+  authorized_key: mock-hal-authorized_key
+  hashed_password: "!"
+  sudo_authorized_key: mock-hal-sudo_authorized_key

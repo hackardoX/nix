@@ -1,0 +1,71 @@
+# TEST ONLY, fake values. Encrypted at build time by _vm-test/mock-sops.nix.
+# Stands in for the production sops file of the same name (secrets/ with / -> -).
+alerting:
+  ntfy_token: mock-alerting-ntfy_token
+authelia:
+  jwks_key: generated at build time
+  jwt_secret: mock-authelia-jwt_secret
+  oidc_hmac_secret: mock-authelia-oidc_hmac_secret
+  resend_api_key: mock-authelia-resend_api_key
+  session_secret: mock-authelia-session_secret
+  storage_encryption: mock-authelia-storage_encryption
+authelia_oidc:
+  beszel: mock-authelia_oidc-beszel
+  dawarich: mock-authelia_oidc-dawarich
+  immich: mock-authelia_oidc-immich
+  reactive-resume: mock-authelia_oidc-reactive-resume
+  sure-finance: mock-authelia_oidc-sure-finance
+  tandoor: mock-authelia_oidc-tandoor
+beszel:
+  backup_encryption_key: mock-beszel-backup_encryption_key
+  email: mock-beszel-email
+  password: mock-beszel-password
+  ssh_private_key: generated at build time
+  ssh_public_key: generated at build time
+dawarich:
+  backup_encryption_key: mock-dawarich-backup_encryption_key
+  db_password: mock-dawarich-db_password
+  oidc_client_secret: mock-dawarich-oidc_client_secret
+  resend_api_key: mock-dawarich-resend_api_key
+  secret_key_base: mock-dawarich-secret_key_base
+fail2ban:
+  resend_api_key: mock-fail2ban-resend_api_key
+immich:
+  backup_encryption_key: mock-immich-backup_encryption_key
+  db_password: mock-immich-db_password
+  oidc_client_secret: mock-immich-oidc_client_secret
+ingress:
+  cloudflare_api_token: mock-ingress-cloudflare_api_token
+  cloudflare_tunnel_credentials: mock-ingress-cloudflare_tunnel_credentials
+  maxmind_license_key: mock-ingress-maxmind_license_key
+job-ops:
+  adzuna_api_key: mock-job-ops-adzuna_api_key
+  backup_encryption_key: mock-job-ops-backup_encryption_key
+  basic_auth_password: mock-job-ops-basic_auth_password
+  gmail_oauth_secret: mock-job-ops-gmail_oauth_secret
+  llm_api_key: mock-job-ops-llm_api_key
+  rxresume_api_key: mock-job-ops-rxresume_api_key
+reactive-resume:
+  auth_secret: mock-reactive-resume-auth_secret
+  backup_encryption_key: mock-reactive-resume-backup_encryption_key
+  db_password: mock-reactive-resume-db_password
+  oidc_client_secret: mock-reactive-resume-oidc_client_secret
+sure-finance:
+  active_record_deterministic_key: mock-sure-finance-active_record_deterministic_key
+  active_record_key_derivation_salt: mock-sure-finance-active_record_key_derivation_salt
+  active_record_primary_key: mock-sure-finance-active_record_primary_key
+  backup_encryption_key: mock-sure-finance-backup_encryption_key
+  brand_fetch_client_id: mock-sure-finance-brand_fetch_client_id
+  oidc_client_secret: mock-sure-finance-oidc_client_secret
+  openai_token: mock-sure-finance-openai_token
+  postgres_password: mock-sure-finance-postgres_password
+  resend_api_key: mock-sure-finance-resend_api_key
+  secret_key: mock-sure-finance-secret_key
+  twelve_data_api_key: mock-sure-finance-twelve_data_api_key
+tandoor:
+  backup_encryption_key: mock-tandoor-backup_encryption_key
+  db_password: mock-tandoor-db_password
+  fdc_api_key: mock-tandoor-fdc_api_key
+  oidc_client_secret: mock-tandoor-oidc_client_secret
+  resend_api_key: mock-tandoor-resend_api_key
+  secret_key: mock-tandoor-secret_key

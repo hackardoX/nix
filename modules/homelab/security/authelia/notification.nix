@@ -9,6 +9,8 @@
     {
       systemd.services.authelia-ntfy = {
         description = "Send ntfy notifications for new Authelia bans";
+        after = [ "authelia-default.service" ];
+        unitConfig.ConditionPathExists = "${autheliaDataDir}/db.sqlite3";
         path = [
           pkgs.sqlite
           pkgs.curl

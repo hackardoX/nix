@@ -1,0 +1,9 @@
+# TEST ONLY, fake values. Encrypted at build time by _vm-test/mock-sops.nix.
+# Stands in for the production sops file of the same name (secrets/ with / -> -).
+users:
+  mock:
+    disabled: false
+    displayname: Mock
+    email: mock@example.invalid
+    groups: []
+    password: $6$RuuFE6Fofuuz7gvZ$eadgcx1VCGfJRkmudalgCZhMFnCz.NwW4GBwpElsZkoUPhZfgq8.lWC8MDiDfoco.r7PgvQDh5pGJ5BmYXUi1/
