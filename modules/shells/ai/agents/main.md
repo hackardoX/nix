@@ -43,7 +43,7 @@ Report only what you can tie to code you read. Label confirmed issues and suspic
 
 ## Git
 
-- Never push, merge or publish. Those are blocked and are the user's decision.
+- Push only when the user asks. Every push asks the user for approval (in the terminal). Never force-push. Merges and publishing are blocked and are the user's decision.
 - Commit only when the user asks, with `git add` and `git commit`. Each commit needs the user's approval in the terminal. Git only lets you update the branch this session started on.
 - Do not rewrite history or discard changes you did not make.
 - Worktrees: use `workmux add <branch> -b` only when the user asks for a worktree. A plan file at `~/.local/state/opencode/plan/<file>.md` passed with `-P` is still valid for a handover.

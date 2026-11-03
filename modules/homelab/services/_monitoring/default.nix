@@ -448,7 +448,7 @@ in
         };
 
         services.podman.containers.loki = {
-          image = "grafana/loki:3.7.8";
+          image = "grafana/loki:3.7.9";
           autoStart = true;
           userNS = "keep-id:uid=10001,gid=10001";
           network = [ "monitoring.network" ];
@@ -473,7 +473,7 @@ in
         };
 
         services.podman.containers.alloy = {
-          image = "grafana/alloy:v1.21.2";
+          image = "grafana/alloy:v1.21.3";
           autoStart = true;
           userNS = "keep-id:uid=0,gid=0";
           network = [ "monitoring.network" ];
