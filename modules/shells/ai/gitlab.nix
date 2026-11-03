@@ -146,6 +146,9 @@
               sandbox = {
                 fs_read = [ "/nix/store" ];
                 fs_write = [ glabState ];
+                unsafe_macos_seatbelt_rules = [
+                  ''(allow process-exec* (subpath "/nix/store"))''
+                ];
                 network.allow_domain = [ hmArgs.config.sops.placeholder."gitlab/host" ];
                 environment = {
                   allow_vars = [
