@@ -74,6 +74,7 @@
       mcp-figma
       mcp-openviking
       mcp-quark
+      mcp-slack
       opencode-jobs
       proton-pass
       shell
