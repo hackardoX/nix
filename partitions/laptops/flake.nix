@@ -21,6 +21,11 @@
       flake = false;
     };
 
+    hex-homebrew-tap = {
+      url = "github:anomalyco/homebrew-tap";
+      flake = false;
+    };
+
     nix-rosetta-builder = {
       url = "github:cpick/nix-rosetta-builder";
       inputs.nixpkgs.follows = "";
