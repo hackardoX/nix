@@ -75,6 +75,8 @@
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/zellij-[0-9]+(/.*)?$"))''
               # workmux's zellij pane handshake FIFO in $TMPDIR (mkfifo, open, unlink).
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/workmux_pipe_[0-9]+_[0-9]+$"))''
+              # Prompt files (workmux-prompt-*.md) and other markdown under workmux*/opencode* in $TMPDIR.
+              ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/(workmux|opencode)[^/]*(/.*\.md)?$"))''
               # mktemp in hooks (e.g. pre_remove). Default template only (tmp.XXXXXX), not the whole
               ''(allow file-read* file-write* (regex #"^/(private/)?var/folders/[^/]+/[^/]+/T/tmp\.[A-Za-z0-9]+(/.*)?$"))''
               # direnv data dir (allow/ and deny/ stores), used by the post_create hook. The whole
