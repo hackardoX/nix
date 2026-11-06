@@ -3,7 +3,7 @@
 How to implement a feature with the `main` agent, the nono sandbox and workmux.
 
 Agents: `main` (default, the only primary agent) and the built-in `explore` subagent for broad searches.
-In the anthropic profile, Jira and Confluence go through the `lumo` subagent (`models.nix`): it reads both and writes Jira (create/edit, comments, transitions, links) only when asked; `main` is denied `atlassian_*`.
+In the anthropic profile, Jira and Confluence go through the `lumo` subagent (`models.nix`): it reads both and writes Jira (create/edit, comments, transitions, links) only when asked. Slack goes through `lumo` too (reads, and posts to the configured channels only when asked). `atlassian_*` and `slack_*` are denied by default (`atlassian.nix`, `slack.nix`) and only `lumo` opts back in with an ask rule.
 Definitions: `agents.nix` and `agents/main.md`. Sandbox and git guard: `sandbox/` (`sandbox/git-broker.nix`).
 
 ## Before starting

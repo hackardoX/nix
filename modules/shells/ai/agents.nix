@@ -2,7 +2,6 @@
   flake.modules.homeManager.ai-agents = {
     programs.opencode.settings = {
       default_agent = "main";
-
       agents = {
         build = {
           disabled = true;
