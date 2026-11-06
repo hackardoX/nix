@@ -13,6 +13,7 @@
               "homebrew/homebrew-core" = inputs.homebrew-core;
               "homebrew/homebrew-cask" = inputs.homebrew-cask;
               "hackardox/homebrew-formulas" = inputs.custom-homebrew-formulas;
+              "anomalyco/homebrew-tap" = inputs.hex-homebrew-tap;
             };
             mutableTaps = false;
             autoMigrate = true;
@@ -28,6 +29,8 @@
 
       homebrew = {
         enable = true;
+
+        casks = [ "anomalyco/tap/hex" ];
 
         global = {
           brewfile = true;
