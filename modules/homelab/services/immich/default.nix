@@ -260,7 +260,7 @@ in
           image = "ghcr.io/immich-app/immich-server:v3.1.0@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb";
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
-          dropCapabilities = [ "NET_RAW" ];
+          dropCapabilities = [ "ALL" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-server" ];
           ports = [ "${toString reverseProxyPort}:${toString immichPort}" ];
@@ -300,7 +300,7 @@ in
           image = "ghcr.io/immich-app/immich-machine-learning:v3.1.0@sha256:5a0839dc5303cd7215bcd2180a26aed3af41675aefb3e75e5157e9f10ad16e6e";
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
-          dropCapabilities = [ "NET_RAW" ];
+          dropCapabilities = [ "ALL" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-machine-learning" ];
 
@@ -331,7 +331,7 @@ in
           image = "docker.io/valkey/valkey:9@sha256:3acc0687f2a2e1091fae6450d7842dd658c941338cf0a873ddd9e14b9e4ea4dd";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
-          dropCapabilities = [ "NET_RAW" ];
+          dropCapabilities = [ "ALL" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-redis" ];
           volumes = [ "${immichDataDir}/redis:/data" ];
@@ -350,7 +350,7 @@ in
           image = "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
-          dropCapabilities = [ "NET_RAW" ];
+          dropCapabilities = [ "ALL" ];
           network = [ "immich.network" ];
           networkAlias = [ "immich-db" ];
           volumes = [

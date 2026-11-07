@@ -204,6 +204,7 @@ in
           image = "ghcr.io/henrygd/beszel/beszel-agent:0.21.1@sha256:cb6868012964d7a68debaa2c84bb72285e5f08531e81f506bd4c493bf052e41c";
           autoStart = true;
           userNS = "keep-id";
+          dropCapabilities = [ "ALL" ];
           ports = [ "127.0.0.1:${toString cfg.port}:45876" ];
 
           environment = {
