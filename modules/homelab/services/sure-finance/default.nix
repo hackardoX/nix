@@ -55,7 +55,6 @@ in
       isSystemUser = true;
       group = sureFinanceGroup;
       extraGroups = [
-        "podman"
         "homelab-users"
         "rclone"
       ];
