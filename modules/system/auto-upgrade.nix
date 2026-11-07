@@ -43,13 +43,14 @@
 
         token="$("${lib.getExe' pkgs.coreutils "cat"}" "$token_path")"
 
-        "${lib.getExe' pkgs.curl "curl"}" -sf -o /dev/null \
-          -H "Authorization: Bearer $token" \
+        # The URL (it holds the topic) and the token go on stdin so they stay
+        # out of the process list; printf is a shell builtin.
+        printf 'url = "%s"\nheader = "Authorization: Bearer %s"\n' "$url" "$token" \
+          | "${lib.getExe' pkgs.curl "curl"}" -sf -o /dev/null -K - \
           -H "Title: $title" \
           -H "Priority: $priority" \
           -H "Tags: $tags" \
-          -d "$message" \
-          "$url" || "${lib.getExe' pkgs.util-linux "logger"}" -t ntfy-upgrade "ntfy notification failed: $title"
+          -d "$message" || "${lib.getExe' pkgs.util-linux "logger"}" -t ntfy-upgrade "ntfy notification failed: $title"
       '';
     in
     {

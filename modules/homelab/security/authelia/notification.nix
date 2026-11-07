@@ -39,13 +39,14 @@
 
           send() {
             local kind="$1" value="$2" until="$3"
-            curl -sf -o /dev/null \
-              -H "Authorization: Bearer $token" \
+            # The URL (it holds the topic) and the token go on stdin so they
+            # stay out of the process list; printf is a shell builtin.
+            printf 'url = "%s"\nheader = "Authorization: Bearer %s"\n' "$url" "$token" \
+              | curl -sf -o /dev/null -K - \
               -H "Title: Authelia: $kind banned" \
               -H "Priority: high" \
               -H "Tags: warning,skull" \
               -d "$kind '$value' banned by Authelia until $until" \
-              "$url" \
               || logger -t authelia-ntfy "ntfy notification failed for $kind $value"
           }
 
