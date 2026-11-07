@@ -88,12 +88,7 @@ let
 in
 {
   flake.modules.nixos.homelab-homepage =
-    nixosArgs@{ pkgs, ... }:
-    let
-      homepageServicesTemplate = pkgs.writeText "services-template.json" (
-        builtins.toJSON homepageServices
-      );
-    in
+    { pkgs, ... }:
     {
       users.users.${homepageUser} = {
         uid = homepageUid;
@@ -135,39 +130,25 @@ in
       systemd.tmpfiles.rules = [
         "d ${homepageAppDir} 0750 ${homepageUser} ${homepageGroup} -"
         "d ${homepageAppDir}/config 0750 ${homepageUser} ${homepageGroup} -"
+        # Older deployments generated a services.yaml holding the Beszel
+        # password here. It is now mounted from the Nix store, so drop the copy.
+        "r ${homepageAppDir}/config/services.yaml"
       ];
 
-      systemd.services.homepage-generate-config = {
-        description = "Generate Homepage services.yaml with runtime secrets";
-        before = [ "user@${toString homepageUid}.service" ];
-        requiredBy = [ "user@${toString homepageUid}.service" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
+      # Homepage reads the Beszel credentials from these files (see
+      # HOMEPAGE_FILE_* below), so they never land in services.yaml. They reuse
+      # the Beszel hub's sops entries but are owned by the homepage user.
+      sops.secrets = {
+        "homepage/beszel_user" = {
+          key = "beszel/email";
+          owner = homepageUser;
+          group = homepageGroup;
         };
-        script = ''
-          set -e
-          mkdir -p ${homepageAppDir}/config
-
-          BESZEL_USER="$(cat ${nixosArgs.config.sops.secrets."beszel/email".path} 2>/dev/null || true)"
-          BESZEL_PASS="$(cat ${nixosArgs.config.sops.secrets."beszel/password".path} 2>/dev/null || true)"
-
-          ${pkgs.jq}/bin/jq \
-            --arg beszel_user "$BESZEL_USER" \
-            --arg beszel_pass "$BESZEL_PASS" \
-            'walk(
-              if type == "object" and .widget != null and .widget.type == "beszel" then
-                .widget.username = $beszel_user |
-                .widget.password = $beszel_pass
-              else .
-              end
-            )' \
-            ${homepageServicesTemplate} \
-            > ${homepageAppDir}/config/services.yaml
-
-          chown ${homepageUser}:${homepageGroup} ${homepageAppDir}/config/services.yaml
-          chmod 640 ${homepageAppDir}/config/services.yaml
-        '';
+        "homepage/beszel_password" = {
+          key = "beszel/password";
+          owner = homepageUser;
+          group = homepageGroup;
+        };
       };
 
       services.caddy.virtualHosts."${domain}" = {
@@ -198,6 +179,9 @@ in
 
         volumes = [
           "${homepageAppDir}/config:/app/config"
+          "${pkgs.writeText "services.yaml" (builtins.toJSON homepageServices)}:/app/config/services.yaml:ro"
+          "${osConfig.sops.secrets."homepage/beszel_user".path}:/run/homepage/beszel_user:ro"
+          "${osConfig.sops.secrets."homepage/beszel_password".path}:/run/homepage/beszel_password:ro"
           "${pkgs.writeText "settings.yaml" (builtins.toJSON homepageSettings)}:/app/config/settings.yaml:ro"
           "${pkgs.writeText "bookmarks.yaml" (builtins.toJSON homepageBookmarks)}:/app/config/bookmarks.yaml:ro"
           "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
@@ -208,6 +192,8 @@ in
         environment = {
           TZ = osConfig.time.timeZone;
           HOMEPAGE_ALLOWED_HOSTS = "localhost,${hosts.homepage}";
+          HOMEPAGE_FILE_BESZEL_USER = "/run/homepage/beszel_user";
+          HOMEPAGE_FILE_BESZEL_PASSWORD = "/run/homepage/beszel_password";
         };
 
         extraConfig.Container.NoNewPrivileges = true;

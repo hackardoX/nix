@@ -6,8 +6,9 @@ let
   # Service users (linger, home under /var/lib) whose state is not under a
   # persist.directories entry. Each exception needs a reason.
   persistenceExceptions = {
-    # Config is regenerated under /var/lib/podman/homepage on every start.
-    homepage = "config is regenerated on every start";
+    # The config is mounted read-only from the Nix store; the app dir only
+    # holds mount points.
+    homepage = "config is mounted from the Nix store";
     # State lives in /var/lib/data/beszel, a persistent mount.
     beszel = "state lives in /var/lib/data/beszel (persistent mount)";
     # Open question: /var/lib/backrest (operation log) is not persisted.

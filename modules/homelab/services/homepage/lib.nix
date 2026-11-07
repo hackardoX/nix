@@ -25,6 +25,10 @@ let
       type = "beszel";
       url = defaultBeszelUrl;
       version = 2;
+      # Resolved by Homepage from the files named by these environment
+      # variables (set on the homepage container), not stored in the config.
+      username = "{{HOMEPAGE_FILE_BESZEL_USER}}";
+      password = "{{HOMEPAGE_FILE_BESZEL_PASSWORD}}";
       inherit
         systemId
         fields
