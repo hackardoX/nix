@@ -51,7 +51,6 @@ in
       isSystemUser = true;
       group = dawarichGroup;
       extraGroups = [
-        "podman"
         "homelab-users"
         "rclone"
       ];

@@ -96,7 +96,6 @@ in
         group = homepageGroup;
         shell = pkgs.bash;
         extraGroups = [
-          "podman"
           "homelab-users"
         ];
         createHome = true;

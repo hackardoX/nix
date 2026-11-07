@@ -49,7 +49,6 @@ in
       isSystemUser = true;
       group = tandoorGroup;
       extraGroups = [
-        "podman"
         "homelab-users"
         "rclone"
       ];

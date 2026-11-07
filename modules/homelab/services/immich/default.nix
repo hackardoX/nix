@@ -88,7 +88,6 @@ in
       isSystemUser = true;
       group = immichGroup;
       extraGroups = [
-        "podman"
         "homelab-users"
         "rclone"
       ];
