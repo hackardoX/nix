@@ -81,11 +81,17 @@ in
               pkgs.whois
             ];
             jails = {
-              ssh-iptables.settings = {
+              # Overrides the sshd jail the NixOS module enables itself, so there
+              # is a single jail on the sshd filter. The default backend is
+              # systemd, so it reads the journal. A logpath would be ignored, and
+              # NixOS does not write /var/log/auth.log by default.
+              #
+              # SSH reached through the Cloudflare tunnel is seen from 127.0.0.1,
+              # which ignoreip excludes: the jail only bans clients that reach
+              # sshd directly. Protect the tunnel hostname with Cloudflare Access.
+              sshd.settings = {
                 enabled = true;
                 port = "ssh";
-                filter = "sshd";
-                logpath = "/var/log/auth.log";
                 maxretry = 3;
                 bantime = "1w";
                 sender = "fail2ban@${config.flake.meta.reverse-proxy.domain}";
