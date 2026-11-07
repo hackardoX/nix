@@ -10,10 +10,11 @@
       inherit (hmArgs) osConfig;
       ntfy = osConfig.services.ntfy-notify or { };
       tokenPath = osConfig.sops.secrets."alerting/ntfy_token".path;
+      topicPath = osConfig.sops.secrets."alerting/ntfy_topic".path;
       hostName = osConfig.networking.hostName or "host";
 
       notifyScript =
-        pkgs: token_path: url: host:
+        pkgs: token_path: topic_path: url: host:
         pkgs.writeShellScript "backup-notify" ''
           set -euo pipefail
 
@@ -22,7 +23,7 @@
           name="''${instance#*.}"
 
           token_path="${token_path}"
-          url="${url}"
+          url="${url}/$("${pkgs.coreutils}/bin/cat" "${topic_path}")"
           host="${host}"
 
           case "$result" in
@@ -64,8 +65,14 @@
 
         url = lib.mkOption {
           type = lib.types.str;
-          default = "${ntfy.url or "https://ntfy.sh"}/${ntfy.topic or ""}";
-          description = "ntfy URL and topic";
+          default = ntfy.url or "https://ntfy.sh";
+          description = "ntfy server URL";
+        };
+
+        topicFile = lib.mkOption {
+          type = lib.types.path;
+          default = topicPath;
+          description = "Path to a file containing the ntfy topic";
         };
 
         tokenFile = lib.mkOption {
@@ -82,7 +89,7 @@
               Unit.Description = "Send ntfy notification about a backup result";
               Service = {
                 Type = "oneshot";
-                ExecStart = toString (notifyScript pkgs cfg.notify.tokenFile cfg.notify.url hostName) + " %i";
+                ExecStart = toString (notifyScript pkgs cfg.notify.tokenFile cfg.notify.topicFile cfg.notify.url hostName) + " %i";
               };
             };
           }

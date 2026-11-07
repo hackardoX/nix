@@ -10,12 +10,13 @@
     let
       ntfy = nixosArgs.config.services.ntfy-notify;
       tokenPath = nixosArgs.config.sops.secrets."alerting/ntfy_token".path;
+      topicPath = ntfy.topicFile;
 
       upgradeNotifyScript = pkgs.writeShellScript "ntfy-upgrade-notify" ''
         set -euo pipefail
 
         token_path="${tokenPath}"
-        url="${ntfy.url}/${ntfy.topic}"
+        url="${ntfy.url}/$("${lib.getExe' pkgs.coreutils "cat"}" "${topicPath}")"
         host="${nixosArgs.config.networking.hostName}"
         journal_url="${config.flake.meta.reverse-proxy.hosts.logs}"
 
