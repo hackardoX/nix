@@ -26,6 +26,7 @@
           DB=${autheliaDataDir}/db.sqlite3
           STATE=/var/lib/authelia-ntfy/last_ids
           TOKEN_FILE=${nixosArgs.config.sops.secrets."alerting/ntfy_token".path}
+          TOPIC_FILE=${nixosArgs.config.sops.secrets."alerting/ntfy_topic".path}
 
           last_user=0
           last_ip=0
@@ -34,6 +35,7 @@
           fi
 
           token=$(cat "$TOKEN_FILE")
+          url="${ntfy.url}/$(cat "$TOPIC_FILE")"
 
           send() {
             local kind="$1" value="$2" until="$3"
@@ -43,7 +45,7 @@
               -H "Priority: high" \
               -H "Tags: warning,skull" \
               -d "$kind '$value' banned by Authelia until $until" \
-              ${ntfy.url}/${ntfy.topic} \
+              "$url" \
               || logger -t authelia-ntfy "ntfy notification failed for $kind $value"
           }
 

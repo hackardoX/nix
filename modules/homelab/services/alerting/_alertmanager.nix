@@ -110,7 +110,6 @@ in
           ntfy = {
             baseurl = ntfy.url;
             notification = {
-              inherit (ntfy) topic;
               priority = ''
                 alertname == "ContainerDown" ? "urgent" : "high"
               '';
@@ -153,6 +152,8 @@ in
           ntfy:
             auth:
               token: "$NTFY_TOKEN"
+            notification:
+              topic: "$NTFY_TOPIC"
           EOF
           exec /usr/local/bin/alertmanager-ntfy --configs /etc/config.yml,/etc/auth.yml
         '';
@@ -209,6 +210,7 @@ in
 
           secrets = {
             NTFY_TOKEN = osConfig.sops.secrets."alerting/ntfy_token".path;
+            NTFY_TOPIC = osConfig.sops.secrets."alerting/ntfy_topic".path;
           };
 
           extraConfig = {

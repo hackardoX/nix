@@ -1,6 +1,6 @@
 {
   flake.modules.nixos.homelab-alerting =
-    { lib, ... }:
+    { config, lib, ... }:
     {
       options.services.ntfy-notify = {
         url = lib.mkOption {
@@ -9,10 +9,14 @@
           description = "Base URL of the ntfy server.";
         };
 
-        topic = lib.mkOption {
-          type = lib.types.str;
-          default = "xQE7urtm8kLErMDUUjGU3hvn8KKijmwyU6PkQMNs88EcunqhtFxFVfViXwzkvuqB";
-          description = "ntfy topic for notifications.";
+        topicFile = lib.mkOption {
+          type = lib.types.path;
+          default = config.sops.secrets."alerting/ntfy_topic".path;
+          description = ''
+            File holding the ntfy topic. The topic is the only thing keeping a
+            public ntfy server's notifications private, so it is a secret and
+            consumers read it at runtime.
+          '';
         };
 
         tokenFile = lib.mkOption {
@@ -22,9 +26,15 @@
         };
       };
 
-      config.sops.secrets."alerting/ntfy_token" = {
-        group = "homelab-users";
-        mode = "0640";
+      config.sops.secrets = {
+        "alerting/ntfy_token" = {
+          group = "homelab-users";
+          mode = "0640";
+        };
+        "alerting/ntfy_topic" = {
+          group = "homelab-users";
+          mode = "0640";
+        };
       };
     };
 }
