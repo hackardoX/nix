@@ -99,8 +99,8 @@ in
               };
               regulation = {
                 max_retries = 3;
-                find_time = "1h";
-                ban_time = "1w";
+                find_time = "10m";
+                ban_time = "30m";
               };
               storage = {
                 local.path = "${autheliaDataDir}/db.sqlite3";
