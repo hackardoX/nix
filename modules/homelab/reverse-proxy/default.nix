@@ -121,6 +121,10 @@ in
                 X-Content-Type-Options "nosniff"
                 X-Frame-Options "SAMEORIGIN"
                 Referrer-Policy "strict-origin-when-cross-origin"
+                # Only the framing/base/plugin directives, which apps rarely
+                # need. The "?" prefix keeps an app's own, stricter CSP (e.g.
+                # Authelia's) instead of overwriting it.
+                ?Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'"
                 -Server
               }
             }
