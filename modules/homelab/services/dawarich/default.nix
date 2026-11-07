@@ -13,7 +13,7 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   domain = config.flake.meta.reverse-proxy.domain;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.dawarich;
-  dawarichImage = "docker.io/freikin/dawarich:1.12.0";
+  dawarichImage = "docker.io/freikin/dawarich:1.12.0@sha256:e66b6742768d0b0d055f031bfc2c1fb87b45389f0564d6503cd654b18389aa0b";
   dawarichPort = 3000;
   dawarichDbName = "dawarich";
   dawarichDbUser = "dawarich";
@@ -213,7 +213,7 @@ in
         services.podman.networks.dawarich.driver = "bridge";
 
         services.podman.containers.dawarich-db = {
-          image = "docker.io/imresamu/postgis:17-3.5-alpine";
+          image = "docker.io/imresamu/postgis:17-3.5-alpine@sha256:7f25892b7cb34c2bbb33e597b24430957da748a14ce1a4821a28d8c2935c9758";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "dawarich.network" ];
@@ -247,7 +247,7 @@ in
         };
 
         services.podman.containers.dawarich-redis = {
-          image = "docker.io/library/redis:8.8.0";
+          image = "docker.io/library/redis:8.8.0@sha256:234c902a2db49461a129e2d4aeff85b28cf20187ed274a67f6e50995fa713c7b";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "dawarich.network" ];

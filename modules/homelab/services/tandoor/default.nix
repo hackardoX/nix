@@ -14,7 +14,7 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   domain = config.flake.meta.reverse-proxy.domain;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.tandoor;
-  tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13";
+  tandoorImage = "ghcr.io/tandoorrecipes/recipes:2.6.13@sha256:f6c58afdea7a721d079ebd6ee5483f2c9da77dd1e709e16d60a82c218e80a451";
   tandoorPort = 8080;
   tandoorDbName = "tandoor";
   tandoorDbUser = "tandoor";
@@ -191,7 +191,7 @@ in
         services.podman.networks.tandoor.driver = "bridge";
 
         services.podman.containers.tandoor-db = {
-          image = "docker.io/library/postgres:16.15";
+          image = "docker.io/library/postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "tandoor.network" ];
