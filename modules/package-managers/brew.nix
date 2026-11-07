@@ -30,8 +30,6 @@
       homebrew = {
         enable = true;
 
-        casks = [ "anomalyco/tap/hex" ];
-
         global = {
           brewfile = true;
           autoUpdate = true;
