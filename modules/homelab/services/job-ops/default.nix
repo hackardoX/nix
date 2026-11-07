@@ -13,7 +13,7 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.job-ops;
 
-  jobOpsImage = "ghcr.io/dakheera47/job-ops:v0.11.0";
+  jobOpsImage = "ghcr.io/dakheera47/job-ops:v0.11.0@sha256:37b11b43f2e88b034a3b64066cedd530687e7f280d5a980b60af1714434ef43d";
   jobOpsPort = 3001;
   jobOpsModel = "deepseek-v4-flash";
   jobOpsLlmProvider = "openai_compatible";

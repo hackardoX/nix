@@ -10,7 +10,7 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.reactive-resume;
 
-  reactiveResumeImage = "amruthpillai/reactive-resume:v5.2.4";
+  reactiveResumeImage = "amruthpillai/reactive-resume:v5.2.4@sha256:f14f499187037ee613d0b6e489f259b3328e82e314256889e1e3d18a65d48723";
   reactiveResumePort = 3000;
   reactiveResumeDbName = "rxresume";
   reactiveResumeDbUser = "rxresume";
@@ -180,7 +180,7 @@ in
         services.podman.networks.reactive-resume.driver = "bridge";
 
         services.podman.containers.reactive-resume-db = {
-          image = "docker.io/library/postgres:16.15";
+          image = "docker.io/library/postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           network = [ "reactive-resume.network" ];
