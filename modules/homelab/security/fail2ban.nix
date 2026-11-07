@@ -45,11 +45,16 @@ in
           ntfy_url = ${ntfy.url}
           ntfy_token = ${nixosArgs.config.sops.secrets."alerting/ntfy_token".path}
 
-          actionstart = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" "<ntfy_url>/$TOPIC" || logger -t fail2ban "ntfy notification failed for start"
-          actionstop = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" "<ntfy_url>/$TOPIC" || logger -t fail2ban "ntfy notification failed for stop"
+          # The URL (which holds the topic) and the token go to curl on stdin
+          # (-K -) so they never show up in the process list. echo is a shell
+          # builtin, so it spawns no process either.
+          ntfy_curl = { echo "url = \"<ntfy_url>/$TOPIC\""; echo "header = \"Authorization: Bearer $TOKEN\""; } | curl -sf -o /dev/null -K -
+
+          actionstart = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); <ntfy_curl> -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: rocket" -d "Jail <name> started" || logger -t fail2ban "ntfy notification failed for start"
+          actionstop = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); <ntfy_curl> -H "Title: Fail2ban: <name>" -H "Priority: low" -H "Tags: stop_sign" -d "Jail <name> stopped" || logger -t fail2ban "ntfy notification failed for stop"
           actioncheck =
-          actionban = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: high" -H "Tags: warning,skull" -d "Banned <ip> in <name> after <failures> failed attempts" "<ntfy_url>/$TOPIC" || logger -t fail2ban "ntfy notification failed for ban <ip>"
-          actionunban = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); curl -sf -o /dev/null -H "Authorization: Bearer $TOKEN" -H "Title: Fail2ban: <name>" -H "Priority: default" -H "Tags: white_check_mark" -d "Unbanned <ip> in <name>" "<ntfy_url>/$TOPIC" || logger -t fail2ban "ntfy notification failed for unban <ip>"
+          actionban = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); <ntfy_curl> -H "Title: Fail2ban: <name>" -H "Priority: high" -H "Tags: warning,skull" -d "Banned <ip> in <name> after <failures> failed attempts" || logger -t fail2ban "ntfy notification failed for ban <ip>"
+          actionunban = TOKEN=$(cat <ntfy_token>); TOPIC=$(cat <ntfy_topic_file>); <ntfy_curl> -H "Title: Fail2ban: <name>" -H "Priority: default" -H "Tags: white_check_mark" -d "Unbanned <ip> in <name>" || logger -t fail2ban "ntfy notification failed for unban <ip>"
         '';
 
         programs.msmtp = {
