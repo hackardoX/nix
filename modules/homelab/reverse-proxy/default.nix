@@ -95,7 +95,9 @@ in
             log access-log {
               include http.log.access
               output file /var/lib/caddy/access.log {
-                roll_disabled
+                roll_size 100MiB
+                roll_keep 10
+                roll_keep_for 720h
               }
             }
           '';
