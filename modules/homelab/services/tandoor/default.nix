@@ -247,6 +247,7 @@ in
             EMAIL_HOST_USER = "resend";
             EMAIL_PORT = 587;
             EMAIL_USE_TLS = 1;
+            ENABLE_SIGNUP = 0;
             HIDE_LOGIN_FORM = 1;
             POSTGRES_HOST = "db";
             POSTGRES_DB = tandoorDbName;
