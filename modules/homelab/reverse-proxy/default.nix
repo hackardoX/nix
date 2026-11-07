@@ -123,13 +123,15 @@ in
               }
             }
 
+            # No ip_header here: the matcher then uses Caddy's client_ip, which
+            # honours trusted_proxies. X-Forwarded-For is client-controlled and
+            # the plugin reads its first value, so it would bypass the filter.
             (geoblock) {
               @not_allowed {
                 not {
                   maxmind_geolocation {
                     db_path "${geoipDbPath}/GeoLite2-Country.mmdb"
                     allow_countries ${lib.concatStringsSep " " allowedCountries}
-                    ip_header X-Forwarded-For
                   }
                 }
               }
