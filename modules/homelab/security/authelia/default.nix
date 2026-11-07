@@ -76,11 +76,11 @@ in
                   }
                   {
                     inherit domain;
-                    policy = "one_factor";
+                    policy = "two_factor";
                   }
                   {
                     domain = "*.${domain}";
-                    policy = "one_factor";
+                    policy = "two_factor";
                   }
                 ];
               };
