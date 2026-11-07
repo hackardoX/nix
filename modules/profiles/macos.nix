@@ -5,6 +5,7 @@
       auto-upgrade
       battery
       clock
+      dictation
       dock
       fonts
       keyboard
