@@ -216,6 +216,7 @@ in
           image = "docker.io/imresamu/postgis:17-3.5-alpine@sha256:7f25892b7cb34c2bbb33e597b24430957da748a14ce1a4821a28d8c2935c9758";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "ALL" ];
           network = [ "dawarich.network" ];
           networkAlias = [ "dawarich-db" ];
           volumes = [
@@ -250,6 +251,7 @@ in
           image = "docker.io/library/redis:8.8.0@sha256:234c902a2db49461a129e2d4aeff85b28cf20187ed274a67f6e50995fa713c7b";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "ALL" ];
           network = [ "dawarich.network" ];
           networkAlias = [ "dawarich-redis" ];
           volumes = [ "${dawarichDataDir}/redis:/data" ];
@@ -270,6 +272,7 @@ in
           image = dawarichImage;
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
+          dropCapabilities = [ "ALL" ];
           network = [ "dawarich.network" ];
           networkAlias = [ "dawarich-app" ];
           ports = [ "${toString reverseProxyPort}:${toString dawarichPort}" ];
@@ -317,6 +320,7 @@ in
           image = dawarichImage;
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
+          dropCapabilities = [ "ALL" ];
           network = [ "dawarich.network" ];
           networkAlias = [ "dawarich-sidekiq" ];
 

@@ -244,6 +244,7 @@ in
           image = "docker.io/library/postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "ALL" ];
           network = [ "sure-finance.network" ];
           networkAlias = [ "db" ];
           volumes = [
@@ -285,6 +286,7 @@ in
           image = "docker.io/library/redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "ALL" ];
           network = [ "sure-finance.network" ];
           networkAlias = [ "redis" ];
           volumes = [ "${sureFinanceDataDir}/redis:/data" ];
@@ -311,6 +313,7 @@ in
           image = sureFinanceImage;
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
+          dropCapabilities = [ "ALL" ];
           network = [ "sure-finance.network" ];
           networkAlias = [ "web" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];
@@ -345,6 +348,7 @@ in
           image = sureFinanceImage;
           autoStart = true;
           userNS = "keep-id:uid=1000,gid=1000";
+          dropCapabilities = [ "ALL" ];
           network = [ "sure-finance.network" ];
           networkAlias = [ "worker" ];
           volumes = [ "${sureFinanceAppDir}/storage:/rails/storage" ];

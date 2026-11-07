@@ -194,6 +194,7 @@ in
           image = "docker.io/library/postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
+          dropCapabilities = [ "ALL" ];
           network = [ "tandoor.network" ];
           networkAlias = [ "db" ];
           volumes = [
