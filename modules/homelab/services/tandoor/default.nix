@@ -235,6 +235,14 @@ in
           image = tandoorImage;
           autoStart = true;
           userNS = "keep-id";
+          dropCapabilities = [ "ALL" ];
+          addCapabilities = [
+            "CAP_CHOWN"
+            "CAP_SETUID"
+            "CAP_SETGID"
+            "CAP_DAC_OVERRIDE"
+            "CAP_FOWNER"
+          ];
           network = [ "tandoor.network" ];
           networkAlias = [ "app" ];
           ports = [ "${toString reverseProxyPort}:${toString tandoorPort}" ];
@@ -278,13 +286,6 @@ in
               Requires = [ "podman-tandoor-db.service" ];
             };
             Container = {
-              AddCapability = [
-                "CAP_CHOWN"
-                "CAP_SETUID"
-                "CAP_SETGID"
-                "CAP_DAC_OVERRIDE"
-                "CAP_FOWNER"
-              ];
               HealthCmd = "wget -qO- http://localhost:${toString tandoorPort} || exit 1";
               HealthInterval = "30s";
               HealthTimeout = "10s";
