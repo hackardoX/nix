@@ -30,6 +30,15 @@ in
     widget = config.flake.lib.beszel.mkWidget {
       systemId = "Tandoor";
     };
+    # The key (secret homepage/tandoor_key) is a user API token with the read
+    # scope: Settings > API > Generate.
+    widgets = [
+      {
+        type = "tandoor";
+        url = "http://localhost:${toString reverseProxyPort}";
+        key = "{{HOMEPAGE_FILE_TANDOOR_KEY}}";
+      }
+    ];
     container = "tandoor";
     dockerServer = "tandoor";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;

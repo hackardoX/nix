@@ -59,6 +59,17 @@ in
     widget = config.flake.lib.beszel.mkWidget {
       systemId = "Immich";
     };
+    # The key (secret homepage/immich_key) is an Immich API key with the
+    # server.statistics permission: Account Settings > API Keys. Version 2 is
+    # for Immich >= 1.118.
+    widgets = [
+      {
+        type = "immich";
+        url = "http://localhost:${toString reverseProxyPort}";
+        key = "{{HOMEPAGE_FILE_IMMICH_KEY}}";
+        version = 2;
+      }
+    ];
     container = "immich-server";
     dockerServer = "immich";
     dockerSocketProxyPort = config.flake.meta.reverse-proxy.ports.immich-docker-socket-proxy;

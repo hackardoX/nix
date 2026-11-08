@@ -20,6 +20,11 @@
         type = lib.types.nullOr (lib.types.attrsOf lib.types.anything);
         default = null;
       };
+      widgets = lib.mkOption {
+        type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
+        default = [ ];
+        description = "Further widgets, shown next to `widget`.";
+      };
       ping = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;

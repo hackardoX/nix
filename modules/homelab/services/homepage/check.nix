@@ -28,6 +28,37 @@ let
     ) homepageServices
   );
 
+  # --- homepage-widget-files ---------------------------------------------
+  # A widget key written as {{HOMEPAGE_FILE_X}} is only replaced if the
+  # container has HOMEPAGE_FILE_X set to a path that is mounted into it.
+  # Otherwise Homepage sends the literal text, which looks like a bad key.
+
+  container = hmUsers.homepage.services.podman.containers.homepage;
+  widgetFileRefs = lib.unique (
+    lib.concatMap (m: lib.optionals (lib.isList m) m) (
+      builtins.split "\\{\\{(HOMEPAGE_FILE_[A-Z0-9_]+)\\}\\}" (
+        builtins.toJSON (
+          lib.mapAttrsToList (_: svc: {
+            inherit (svc) widget widgets;
+          }) homepageServices
+        )
+      )
+    )
+  );
+
+  widgetFileFailures = lib.concatMap (
+    name:
+    let
+      path = container.environment.${name} or null;
+    in
+    if path == null then
+      [ "widgets use {{${name}}}, but the homepage container has no ${name} environment variable" ]
+    else
+      lib.optional (
+        !lib.any (v: lib.hasInfix ":${path}:" v) container.volumes
+      ) "${name} points to ${path}, which is not mounted into the homepage container"
+  ) widgetFileRefs;
+
   # --- homepage-lib ------------------------------------------------------
 
   libTests = {
@@ -62,6 +93,8 @@ in
     {
       checks = {
         "homelab/homepage-proxy-ports" = mkCheck pkgs "homelab/homepage-proxy-ports" proxyFailures;
+        "homelab/homepage-widget-files" =
+          mkCheck pkgs "homelab/homepage-widget-files" widgetFileFailures;
         "homelab/homepage-lib" = mkCheck pkgs "homelab/homepage-lib" libFailures;
       };
     };

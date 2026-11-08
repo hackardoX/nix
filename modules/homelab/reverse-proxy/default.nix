@@ -49,7 +49,21 @@ in
       tandoor = 20000;
       tandoor-docker-socket-proxy = 20001;
       backup = 2100;
+      # Read-only view of Caddy's admin API for the Homepage widget.
+      caddy-upstreams = 2020;
     };
+  };
+
+  flake.meta.homepage.services.caddy = {
+    category = "Monitoring";
+    name = "Caddy";
+    description = "Reverse Proxy";
+    icon = "sh-caddy.webp";
+    widget = {
+      type = "caddy";
+      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.caddy-upstreams}";
+    };
+    pingPort = config.flake.meta.reverse-proxy.ports.caddy-upstreams;
   };
 
   flake.modules.nixos.homelab-ingress =
@@ -86,6 +100,28 @@ in
           virtualHosts."*.${domain}" = {
             extraConfig = ''
               abort
+            '';
+          };
+
+          # The Homepage widget needs /reverse_proxy/upstreams from the admin
+          # API. The admin API itself can rewrite the whole config, so the
+          # Homepage container only gets this loopback listener, which
+          # forwards that one GET and nothing else.
+          virtualHosts."http://127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.caddy-upstreams}" = {
+            extraConfig = ''
+              bind 127.0.0.1
+              @upstreams {
+                method GET
+                path /reverse_proxy/upstreams
+              }
+              handle @upstreams {
+                reverse_proxy 127.0.0.1:2019 {
+                  header_up Host 127.0.0.1:2019
+                }
+              }
+              handle {
+                respond 404
+              }
             '';
           };
 
