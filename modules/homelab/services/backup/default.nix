@@ -29,6 +29,12 @@ in
     icon = "mdi-backup-restore";
     href = "https://${hosts.backup}";
     siteMonitor = "http://localhost:${toString backrestPort}";
+    # No credentials: Backrest's auth is disabled (see backrestConfig) and it
+    # only listens on loopback behind the Caddy forward-auth.
+    widget = {
+      type = "backrest";
+      url = "http://localhost:${toString backrestPort}";
+    };
     pingPort = backrestPort;
   };
 
