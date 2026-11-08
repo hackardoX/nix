@@ -16,10 +16,14 @@
       };
       sops.secrets."hal/authorized_key" = {
         sopsFile = "${inputs.self}/secrets/users/hal.yaml";
+        owner = config.flake.meta.users.hal.name;
+        group = config.flake.meta.users.hal.name;
       };
       sops.secrets."hal/sudo_authorized_key" = {
         sopsFile = "${inputs.self}/secrets/users/hal.yaml";
         path = "/etc/ssh/hal/authorized_sudo_keys";
+        owner = config.flake.meta.users.hal.name;
+        group = config.flake.meta.users.hal.name;
       };
 
       nix.settings.allowed-users = [ config.flake.meta.users.hal.name ];
