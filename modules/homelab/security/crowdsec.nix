@@ -1,4 +1,3 @@
-_:
 let
   # Caddy's combined access log (JSON). Declared in reverse-proxy/default.nix.
   caddyAccessLog = "/var/lib/caddy/access.log";
@@ -7,6 +6,7 @@ let
   # crowdsec-caddy-bouncer-register, read by Caddy (see reverse-proxy).
   caddyBouncerDir = "/var/lib/crowdsec-caddy-bouncer";
   caddyBouncerKey = "${caddyBouncerDir}/api-key";
+  crowdsecHubDir = "/var/lib/crowdsec/data/hub";
 in
 {
   flake.modules.nixos.homelab-security =
@@ -109,6 +109,7 @@ in
       systemd.tmpfiles.rules = [
         "d ${caddyBouncerDir} 0750 ${cfg.user} caddy -"
         "f ${caddyBouncerKey} 0640 ${cfg.user} caddy - unregistered"
+        "d ${crowdsecHubDir} 0750 ${cfg.user} caddy -"
         # Caddy creates its log with mode 0600 unless told otherwise (see
         # reverse-proxy); fix a file that already exists.
         "z ${caddyAccessLog} 0640 caddy caddy -"
