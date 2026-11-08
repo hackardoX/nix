@@ -51,7 +51,6 @@ in
       group = jobOpsGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${jobOpsUser}";
@@ -91,7 +90,6 @@ in
       ];
       home.username = jobOpsUser;
       home.stateVersion = "26.05";
-      services.rclone.remotes = [ "koofr" ];
       services.homelab-docker-socket-proxy = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.job-ops-docker-socket-proxy;

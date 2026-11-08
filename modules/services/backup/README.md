@@ -82,3 +82,27 @@ Because the restic service uses `Wants` (not `Requires`), a failed dump does **n
 prevent the backup from running — restic proceeds with whatever dump file exists.
 
 The dump file is written atomically to `~/backups/postgres/<job>_dump.sql.gz`.
+
+## Append-only gateway (`backup-gateway`)
+
+By default every user with a backup job holds the storage credentials (the
+Koofr password), so one compromised service can delete or overwrite every
+repository. Importing `flake.modules.nixos.backup-gateway` on the host changes
+that:
+
+- For each job, a socket-activated `backup-gateway-<job>` unit serves
+  `koofr:backup/<job>` to restic over `/run/backup-gateway/<job>.sock`
+  (`rclone serve restic --append-only`: new files only, existing files cannot be
+  overwritten, only locks can be deleted).
+- The socket is `0660`, group = the job user's group, so a service reaches its
+  own repository and no other. The units get the Koofr password through
+  `LoadCredential`; service users no longer need it or the `rclone` group.
+- Jobs then use `rest:http+unix://.../<job>.sock:/`, and their own `forget` /
+  prune is off, because the socket refuses it. The weekly `backup-prune-<job>`
+  timer applies the job's `retention` instead (it holds the Koofr password and
+  the repository key, in a sandboxed `DynamicUser` unit).
+- Jobs must use `providers = [ "koofr" ]`.
+
+This stops a compromised service. It does not stop root on the host.
+A failed `backup-prune-<job>` is not notified; check
+`systemctl list-units 'backup-prune-*'`.

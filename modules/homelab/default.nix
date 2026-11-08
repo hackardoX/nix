@@ -19,6 +19,7 @@
 
       # Dependencies on these modules
       backup
+      backup-gateway
       rclone
     ];
 

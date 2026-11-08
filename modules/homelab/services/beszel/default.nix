@@ -45,7 +45,6 @@ in
       group = beszelGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${beszelUser}";
@@ -134,7 +133,6 @@ in
       );
     in
     {
-      services.rclone.remotes = [ "koofr" ];
 
       services.backup.jobs.beszel = {
         paths = [ beszelDataDir ];

@@ -50,7 +50,6 @@ in
       group = tandoorGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${tandoorUser}";
@@ -100,7 +99,6 @@ in
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.tandoor-docker-socket-proxy;
       };
-      services.rclone.remotes = [ "koofr" ];
     };
 
     sops.secrets = {

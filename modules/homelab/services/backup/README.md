@@ -15,7 +15,9 @@ The dashboard is automatically configured when the homelab module is imported. I
 ## Dependencies
 
 - `backup` module (for backup jobs)
-- `rclone` module (remote storage access)
+- `backup-gateway` module (append-only sockets to the storage; Backrest reaches the
+  repositories through them, so it cannot delete backups, and its prune/forget
+  actions are refused. Retention is applied by the weekly `backup-prune-<job>` units)
 - `backrest` package from nixpkgs
 
 ## Notes
