@@ -3,22 +3,17 @@
   flake.modules.homeManager.workmux =
     hmArgs@{ lib, pkgs, ... }:
     let
-      # TODO: restore once https://github.com/raine/workmux/pull/331 merged
-      # workmux = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux;
-      base = inputs.workmux-zellij-sidebar.packages.${pkgs.stdenv.hostPlatform.system}.default;
       sandboxedOpencode = hmArgs.config.programs.nono.harnesses ? opencode;
 
-      workmux = base.overrideAttrs (old: {
-        # Skip the failing upstream test suite.
-        doCheck = false;
-        postPatch = (old.postPatch or "") + ''
-          substituteInPlace src/multiplexer/handshake.rs \
-            --replace-fail "HANDSHAKE_TIMEOUT_SECS: u64 = 5;" "HANDSHAKE_TIMEOUT_SECS: u64 = 120;"
-        '';
-        meta = old.meta // {
-          mainProgram = "workmux";
-        };
-      });
+      workmux =
+        inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux.overrideAttrs
+          (old: {
+            # Skip the failing upstream test suite.
+            postPatch = (old.postPatch or "") + ''
+              substituteInPlace src/multiplexer/handshake.rs \
+                --replace-fail "HANDSHAKE_TIMEOUT_SECS: u64 = 5;" "HANDSHAKE_TIMEOUT_SECS: u64 = 120;"
+            '';
+          });
     in
     {
       home.packages = [ workmux ];
@@ -117,7 +112,9 @@
 
       xdg.configFile."opencode/plugins/workmux-status" = {
         enable = hmArgs.config.programs.opencode.enable;
-        source = "${inputs.workmux-zellij-sidebar}/resources/opencode/v2/workmux-status";
+        source = "${
+          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux
+        }/resources/opencode/v2/workmux-status";
         recursive = true;
       };
     };

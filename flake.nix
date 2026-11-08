@@ -1,13 +1,6 @@
 {
   description = "My flake";
   inputs = {
-    # android-nixpkgs = {
-    #   url = "github:tadfisher/android-nixpkgs";
-    #   inputs = {
-    #     flake-utils.follows = "flake-utils";
-    #     nixpkgs.follows = "nixpkgs";
-    #   };
-    # };
     catppuccin = {
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,13 +17,13 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      inputs.systems.follows = "systems";
-    };
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
     };
     git-hooks = {
       url = "github:cachix/git-hooks.nix";
@@ -55,6 +48,9 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixpkgs = {
+      url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    };
     nixvim = {
       url = "github:nix-community/nixvim";
       inputs = {
@@ -63,26 +59,12 @@
         systems.follows = "systems";
       };
     };
-    # nix4vscode = {
-    #   url = "github:nix-community/nix4vscode";
-    #   inputs = {
-    #     nixpkgs.follows = "nixpkgs";
-    #     systems.follows = "systems";
-    #   };
-    # };
-    nixpkgs = {
-      url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    };
     op-shell-plugins = {
       url = "github:1password/shell-plugins";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         systems.follows = "systems";
       };
-    };
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     refjump-nvim = {
       flake = false;
@@ -99,15 +81,15 @@
         systems.follows = "systems";
       };
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     systems = {
       url = "github:nix-systems/default";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    workmux-zellij-sidebar = {
-      url = "github:koepalex/workmux?ref=koepalex/zellij-sidebar";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
