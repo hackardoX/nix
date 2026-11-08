@@ -65,6 +65,7 @@ let
           statusStyle
           ;
         inherit (svc) widget;
+        widgets = if svc.widgets == [ ] then null else svc.widgets;
         server = svc.dockerServer;
         inherit (svc) container;
       };
@@ -160,6 +161,16 @@ in
           owner = homepageUser;
           group = homepageGroup;
         };
+        # API keys for the Immich and Tandoor widgets. Both are created in the
+        # app (see the widget notes in each service module), then stored here.
+        "homepage/immich_key" = {
+          owner = homepageUser;
+          group = homepageGroup;
+        };
+        "homepage/tandoor_key" = {
+          owner = homepageUser;
+          group = homepageGroup;
+        };
         # Signs and encrypts the session cookie.
         "homepage/auth_secret" = {
           owner = homepageUser;
@@ -208,6 +219,8 @@ in
           "${pkgs.writeText "services.yaml" (builtins.toJSON homepageServices)}:/app/config/services.yaml:ro"
           "${osConfig.sops.secrets."homepage/beszel_user".path}:/run/homepage/beszel_user:ro"
           "${osConfig.sops.secrets."homepage/beszel_password".path}:/run/homepage/beszel_password:ro"
+          "${osConfig.sops.secrets."homepage/immich_key".path}:/run/homepage/immich_key:ro"
+          "${osConfig.sops.secrets."homepage/tandoor_key".path}:/run/homepage/tandoor_key:ro"
           "${pkgs.writeText "settings.yaml" (builtins.toJSON homepageSettings)}:/app/config/settings.yaml:ro"
           "${pkgs.writeText "bookmarks.yaml" (builtins.toJSON homepageBookmarks)}:/app/config/bookmarks.yaml:ro"
           "${pkgs.writeText "widgets.yaml" (builtins.toJSON homepageWidgets)}:/app/config/widgets.yaml:ro"
@@ -220,6 +233,8 @@ in
           HOMEPAGE_ALLOWED_HOSTS = "localhost,${hosts.homepage}";
           HOMEPAGE_FILE_BESZEL_USER = "/run/homepage/beszel_user";
           HOMEPAGE_FILE_BESZEL_PASSWORD = "/run/homepage/beszel_password";
+          HOMEPAGE_FILE_IMMICH_KEY = "/run/homepage/immich_key";
+          HOMEPAGE_FILE_TANDOOR_KEY = "/run/homepage/tandoor_key";
           HOMEPAGE_AUTH_ENABLED = "true";
           HOMEPAGE_EXTERNAL_URL = "https://${hosts.homepage}";
           HOMEPAGE_OIDC_ISSUER = "https://${hosts.auth}";
