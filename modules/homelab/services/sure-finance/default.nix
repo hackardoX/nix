@@ -274,6 +274,7 @@ in
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
+              Memory = "512m";
               NoNewPrivileges = true;
             };
           };
@@ -301,6 +302,7 @@ in
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
+              Memory = "128m";
               NoNewPrivileges = true;
             };
           };
@@ -336,6 +338,7 @@ in
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
+              Memory = "768m";
               NoNewPrivileges = true;
             };
           };
@@ -372,6 +375,7 @@ in
               HealthInterval = "30s";
               HealthTimeout = "10s";
               HealthRetries = 3;
+              Memory = "1g";
               NoNewPrivileges = true;
             };
           };

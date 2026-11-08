@@ -173,6 +173,7 @@ in
         extraConfig = {
           Container = {
             LogDriver = "journald";
+            Memory = "256m";
             NoNewPrivileges = true;
           };
         };
@@ -220,6 +221,7 @@ in
           extraConfig.Container = {
             LogDriver = "journald";
             SecurityLabelDisable = true;
+            Memory = "64m";
             NoNewPrivileges = true;
           };
         };

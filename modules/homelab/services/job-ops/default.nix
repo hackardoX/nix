@@ -195,6 +195,7 @@ in
           HealthInterval = "30s";
           HealthTimeout = "5s";
           HealthRetries = 3;
+          Memory = "2g";
           NoNewPrivileges = true;
         };
       };

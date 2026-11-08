@@ -76,6 +76,7 @@ in
           ];
           ports = [ "127.0.0.1:${toString cfg.port}:2375" ];
           extraConfig = {
+            Container.Memory = "64m";
             Container.NoNewPrivileges = true;
             # Make the container's generated quadlet unit wait for the
             # socket to actually be listening before it tries to bind-mount it.

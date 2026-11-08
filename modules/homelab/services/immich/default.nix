@@ -292,6 +292,7 @@ in
             Container = {
               LogDriver = "journald";
               SecurityLabelDisable = false;
+              Memory = "2g";
               NoNewPrivileges = true;
               # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1";
               # HealthInterval = "30s";
@@ -326,6 +327,7 @@ in
 
           extraConfig = {
             Container = {
+              Memory = "3g";
               NoNewPrivileges = true;
               # HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3003/ping || exit 1";
               # HealthInterval = "30s";
@@ -350,6 +352,7 @@ in
             HealthInterval = "5s";
             HealthTimeout = "5s";
             HealthRetries = 5;
+            Memory = "128m";
             NoNewPrivileges = true;
           };
         };
@@ -380,6 +383,7 @@ in
             Container = {
               LogDriver = "journald";
               ShmSize = "128m";
+              Memory = "2g";
               NoNewPrivileges = true;
               HealthCmd = "pg_isready -U ${immichDbUser} -d ${immichDbName} || exit 1";
               HealthInterval = "5s";
