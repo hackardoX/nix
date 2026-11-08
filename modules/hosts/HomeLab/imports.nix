@@ -21,6 +21,12 @@
 
     sops.defaultSopsFile = "${inputs.self}/secrets/homelab/services.yaml";
 
+    # Activation (and so sops-nix, including neededForUsers secrets) runs before
+    # the /var/lib/sops bind mount from /persist exists, because only
+    # neededForBoot filesystems are mounted before activation. Read the age key
+    # from /persist directly, which is mounted in the initrd.
+    sops.age.keyFile = lib.mkForce "/persist/var/lib/sops/age-key.txt";
+
     home-manager.users.${config.flake.meta.users.hal.name} = config.flake.modules.homeManager.hal;
   };
 
