@@ -26,7 +26,11 @@ let
       [ ]
   ) sopsSecrets;
 
-  sopsFiles = lib.unique (map (s: s.file) (lib.filter isChecked sopsSecrets));
+  # Whole-file secrets are included too: they skip the key lookup but still
+  # have to be encrypted.
+  sopsFiles = lib.unique (
+    map (s: s.file) (lib.filter (s: s.format == "yaml" || s.format == "json") sopsSecrets)
+  );
 
   sopsEntriesFor =
     file:
@@ -49,11 +53,18 @@ let
 
         # Only key names are read: sops keeps YAML/JSON keys in plaintext and
         # values stay encrypted. Nothing is decrypted and no values are printed.
+        # A file without the "sops" metadata block is a plaintext placeholder:
+        # sops-install-secrets cannot decrypt it and aborts the whole manifest.
         check_file() {
           file="$1"
           entries="$2"
           if ! json=$(yq -o=json '.' "$file"); then
             echo "  - $file: cannot be parsed" >&2
+            fail=1
+            return
+          fi
+          if ! printf '%s' "$json" | jq -e 'has("sops") and (.sops | has("mac"))' > /dev/null; then
+            echo "  - $file: not encrypted (no sops metadata); run sops --encrypt --in-place on it" >&2
             fail=1
             return
           fi
