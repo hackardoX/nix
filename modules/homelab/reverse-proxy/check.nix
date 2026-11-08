@@ -97,6 +97,7 @@ let
           -e "s#/run/secrets/#$work/secrets/#g" \
           -e "s#/var/lib/caddy#$work/state#g" \
           -e "s#/var/log/caddy#$work/log#g" \
+          -e "s#/var/lib/crowdsec-caddy-bouncer/#$work/secrets/#g" \
           $work/Caddyfile
 
         sed -n "s#.*\($work/secrets/[^ {}\"]*\).*#\1#p" $work/Caddyfile | sort -u | while IFS= read -r secret; do

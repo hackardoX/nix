@@ -92,9 +92,23 @@ in
           globalConfig = ''
             acme_dns cloudflare {file.${nixosArgs.config.sops.secrets."ingress/cloudflare_api_token".path}}
 
+            # Blocks clients CrowdSec has banned. It checks Caddy's client_ip, so
+            # it also works for visitors arriving through the Cloudflare tunnel.
+            # The key file is written by crowdsec-caddy-bouncer-register
+            # (homelab-security). Without a valid key, or if CrowdSec is down,
+            # nothing is blocked and Caddy keeps serving.
+            order crowdsec first
+            crowdsec {
+              api_url http://127.0.0.1:8080
+              api_key {file./var/lib/crowdsec-caddy-bouncer/api-key}
+              ticker_interval 15s
+            }
+
+            # Read by CrowdSec (acquisition in security/crowdsec.nix).
             log access-log {
               include http.log.access
               output file /var/lib/caddy/access.log {
+                mode 0640
                 roll_size 100MiB
                 roll_keep 10
                 roll_keep_for 720h
@@ -102,7 +116,12 @@ in
             }
           '';
 
-          package = pkgs.caddy.withPlugins {
+          # doInstallCheck is off because nixpkgs looks the plugin up in the
+          # binary's build info by the path given here, and the crowdsec
+          # bouncer is a package inside a module (.../http in
+          # github.com/hslatman/caddy-crowdsec-bouncer). validate-caddy proves
+          # the plugin is compiled in.
+          package = (pkgs.caddy.withPlugins {
             plugins = [
               "github.com/rfbezerra/caddy-maxmind-geolocation@v0.0.0-20260411180149-e7a64b59e99b"
               "github.com/caddy-dns/cloudflare@v0.2.4"
@@ -110,9 +129,11 @@ in
               "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
               "github.com/mholt/caddy-ratelimit@v0.1.0"
               "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
+              "github.com/hslatman/caddy-crowdsec-bouncer/http@v0.15.0"
             ];
-            hash = "sha256-+YJysWWWXvOpL3H4mNTv1uGutqO3lbe5EMerFxNe5do=";
-          };
+            hash = "sha256-MvYIQlS3PzufPSPSKqbXiARpau5Pq59I6WVDvYx2Ldo=";
+          }).overrideAttrs
+            { doInstallCheck = false; };
 
           extraConfig = ''
             (common_headers) {
@@ -167,6 +188,7 @@ in
             }
 
             (reverse_proxy_common) {
+              crowdsec
               import common_headers
               import geoblock
               import tls_hardened
