@@ -28,12 +28,14 @@ in
     description = "Restic Backup Browser";
     icon = "mdi-backup-restore";
     href = "https://${hosts.backup}";
-    siteMonitor = "http://localhost:${toString backrestPort}";
+    # 127.0.0.1, not localhost: Backrest only binds IPv4 loopback, and pasta
+    # resets connections the container makes to ::1.
+    siteMonitor = "http://127.0.0.1:${toString backrestPort}";
     # No credentials: Backrest's auth is disabled (see backrestConfig) and it
     # only listens on loopback behind the Caddy forward-auth.
     widget = {
       type = "backrest";
-      url = "http://localhost:${toString backrestPort}";
+      url = "http://127.0.0.1:${toString backrestPort}";
     };
     pingPort = backrestPort;
   };
