@@ -1,4 +1,4 @@
-{ ... }:
+_:
 let
   # Caddy's combined access log (JSON). Declared in reverse-proxy/default.nix.
   caddyAccessLog = "/var/lib/caddy/access.log";
@@ -181,14 +181,14 @@ in
       boot.initrd.impermanence.persist.directories = [
         {
           directory = "/var/lib/crowdsec";
-          user = cfg.user;
-          group = cfg.group;
+          inherit (cfg) user;
+          inherit (cfg) group;
           mode = "0750";
         }
         {
           directory = "/var/lib/crowdsec-firewall-bouncer-register";
-          user = cfg.user;
-          group = cfg.group;
+          inherit (cfg) user;
+          inherit (cfg) group;
           mode = "0750";
         }
       ];
