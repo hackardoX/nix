@@ -97,6 +97,9 @@ in
     clientName = "Homepage";
     policy = "admin-only";
     redirectUris = [ "https://${hosts.homepage}/api/auth/callback/homepage-oidc" ];
+    extraYamlLines = [
+      ''token_endpoint_auth_method: "client_secret_basic"''
+    ];
   };
 
   flake.modules.nixos.homelab-homepage =
