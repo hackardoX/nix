@@ -14,6 +14,7 @@ let
   domain = config.flake.meta.reverse-proxy.domain;
   hosts = config.flake.meta.reverse-proxy.hosts;
   reverseProxyPort = config.flake.meta.reverse-proxy.ports.homepage;
+  oidcClientId = config.flake.meta.oidc-clients.homepage.clientId;
 
   homepageSettings = {
     title = "Homelab";
@@ -87,6 +88,16 @@ let
   );
 in
 {
+  # Homepage's own sign-in gate (HOMEPAGE_AUTH_ENABLED) on top of the Caddy
+  # forward-auth. Homepage lets in whoever Authelia authorizes for this client,
+  # so the policy is the only access rule.
+  flake.meta.oidc-clients.homepage = {
+    clientId = "homepage";
+    clientName = "Homepage";
+    policy = "admin-only";
+    redirectUris = [ "https://${hosts.homepage}/api/auth/callback/homepage-oidc" ];
+  };
+
   flake.modules.nixos.homelab-homepage =
     { pkgs, ... }:
     {
@@ -112,6 +123,7 @@ in
         home.username = homepageUser;
         home.stateVersion = "26.05";
         imports = with config.flake.modules.homeManager; [
+          podman-secrets
           homelab-homepage
           homelab-beszel-agent
           homelab-docker-socket-proxy
@@ -147,6 +159,21 @@ in
           key = "beszel/password";
           owner = homepageUser;
           group = homepageGroup;
+        };
+        # Signs and encrypts the session cookie.
+        "homepage/auth_secret" = {
+          owner = homepageUser;
+          group = homepageGroup;
+        };
+        # Same value as authelia_oidc/homepage, which Authelia stores hashed.
+        "homepage/oidc_client_secret" = {
+          owner = homepageUser;
+          group = homepageGroup;
+        };
+        "authelia_oidc/homepage" = {
+          owner = config.flake.meta.users.authelia.name;
+          group = config.flake.meta.users.authelia.primaryGroup;
+          restartUnits = [ "authelia-default.service" ];
         };
       };
 
@@ -193,6 +220,18 @@ in
           HOMEPAGE_ALLOWED_HOSTS = "localhost,${hosts.homepage}";
           HOMEPAGE_FILE_BESZEL_USER = "/run/homepage/beszel_user";
           HOMEPAGE_FILE_BESZEL_PASSWORD = "/run/homepage/beszel_password";
+          HOMEPAGE_AUTH_ENABLED = "true";
+          HOMEPAGE_EXTERNAL_URL = "https://${hosts.homepage}";
+          HOMEPAGE_OIDC_ISSUER = "https://${hosts.auth}";
+          HOMEPAGE_OIDC_CLIENT_ID = oidcClientId;
+          HOMEPAGE_OIDC_NAME = "Authelia";
+        };
+
+        # Homepage reads these two from the environment only (HOMEPAGE_FILE_*
+        # works for config templating, not for auth).
+        secrets = {
+          HOMEPAGE_AUTH_SECRET = osConfig.sops.secrets."homepage/auth_secret".path;
+          HOMEPAGE_OIDC_CLIENT_SECRET = osConfig.sops.secrets."homepage/oidc_client_secret".path;
         };
 
         extraConfig.Container.NoNewPrivileges = true;
