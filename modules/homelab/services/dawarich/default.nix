@@ -235,6 +235,7 @@ in
             Container = {
               LogDriver = "journald";
               ShmSize = "1g";
+              Memory = "1g";
               NoNewPrivileges = true;
               HealthCmd = "pg_isready -U ${dawarichDbUser} -d ${dawarichDbName} || exit 1";
               HealthInterval = "5s";
@@ -256,6 +257,7 @@ in
           extraConfig = {
             Container = {
               LogDriver = "journald";
+              Memory = "128m";
               NoNewPrivileges = true;
               HealthCmd = "redis-cli --raw incr ping";
               HealthInterval = "5s";
@@ -303,6 +305,7 @@ in
             };
             Container = {
               LogDriver = "journald";
+              Memory = "1g";
               NoNewPrivileges = true;
               HealthCmd = "wget --no-verbose --tries=1 --spider http://localhost:3000/api/v1/health || exit 1";
               HealthInterval = "30s";
@@ -351,6 +354,7 @@ in
             };
             Container = {
               LogDriver = "journald";
+              Memory = "1g";
               NoNewPrivileges = true;
               HealthCmd = "ps aux | grep -q '[s]idekiq' || exit 1";
               HealthInterval = "30s";

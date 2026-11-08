@@ -226,6 +226,7 @@ in
               HealthInterval = "5s";
               HealthTimeout = "5s";
               HealthRetries = 5;
+              Memory = "512m";
               NoNewPrivileges = true;
             };
           };
@@ -291,6 +292,7 @@ in
               HealthTimeout = "10s";
               HealthRetries = 3;
               HealthStartPeriod = "30s";
+              Memory = "1g";
               NoNewPrivileges = true;
             };
             Service = {

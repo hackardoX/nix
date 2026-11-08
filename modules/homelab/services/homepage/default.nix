@@ -249,6 +249,7 @@ in
           HOMEPAGE_OIDC_CLIENT_SECRET = osConfig.sops.secrets."homepage/oidc_client_secret".path;
         };
 
+        extraConfig.Container.Memory = "256m";
         extraConfig.Container.NoNewPrivileges = true;
       };
     };
