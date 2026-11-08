@@ -61,7 +61,8 @@ in
     icon = "sh-caddy.webp";
     widget = {
       type = "caddy";
-      url = "http://localhost:${toString config.flake.meta.reverse-proxy.ports.caddy-upstreams}";
+      # 127.0.0.1, not localhost: the listener only binds IPv4 loopback.
+      url = "http://127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.caddy-upstreams}";
     };
     pingPort = config.flake.meta.reverse-proxy.ports.caddy-upstreams;
   };
@@ -107,23 +108,24 @@ in
           # API. The admin API itself can rewrite the whole config, so the
           # Homepage container only gets this loopback listener, which
           # forwards that one GET and nothing else.
-          virtualHosts."http://127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.caddy-upstreams}" = {
-            extraConfig = ''
-              bind 127.0.0.1
-              @upstreams {
-                method GET
-                path /reverse_proxy/upstreams
-              }
-              handle @upstreams {
-                reverse_proxy 127.0.0.1:2019 {
-                  header_up Host 127.0.0.1:2019
+          virtualHosts."http://127.0.0.1:${toString config.flake.meta.reverse-proxy.ports.caddy-upstreams}" =
+            {
+              extraConfig = ''
+                bind 127.0.0.1
+                @upstreams {
+                  method GET
+                  path /reverse_proxy/upstreams
                 }
-              }
-              handle {
-                respond 404
-              }
-            '';
-          };
+                handle @upstreams {
+                  reverse_proxy 127.0.0.1:2019 {
+                    header_up Host 127.0.0.1:2019
+                  }
+                }
+                handle {
+                  respond 404
+                }
+              '';
+            };
 
           globalConfig = ''
             acme_dns cloudflare {file.${nixosArgs.config.sops.secrets."ingress/cloudflare_api_token".path}}
@@ -157,19 +159,20 @@ in
           # bouncer is a package inside a module (.../http in
           # github.com/hslatman/caddy-crowdsec-bouncer). validate-caddy proves
           # the plugin is compiled in.
-          package = (pkgs.caddy.withPlugins {
-            plugins = [
-              "github.com/rfbezerra/caddy-maxmind-geolocation@v0.0.0-20260411180149-e7a64b59e99b"
-              "github.com/caddy-dns/cloudflare@v0.2.4"
-              "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
-              "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
-              "github.com/mholt/caddy-ratelimit@v0.1.0"
-              "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
-              "github.com/hslatman/caddy-crowdsec-bouncer/http@v0.15.0"
-            ];
-            hash = "sha256-MvYIQlS3PzufPSPSKqbXiARpau5Pq59I6WVDvYx2Ldo=";
-          }).overrideAttrs
-            { doInstallCheck = false; };
+          package =
+            (pkgs.caddy.withPlugins {
+              plugins = [
+                "github.com/rfbezerra/caddy-maxmind-geolocation@v0.0.0-20260411180149-e7a64b59e99b"
+                "github.com/caddy-dns/cloudflare@v0.2.4"
+                "github.com/caddyserver/transform-encoder@v0.0.0-20260423033309-ba4124974830"
+                "github.com/WeidiDeng/caddy-cloudflare-ip@v0.0.0-20231130002422-f53b62aa13cb"
+                "github.com/mholt/caddy-ratelimit@v0.1.0"
+                "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
+                "github.com/hslatman/caddy-crowdsec-bouncer/http@v0.15.0"
+              ];
+              hash = "sha256-MvYIQlS3PzufPSPSKqbXiARpau5Pq59I6WVDvYx2Ldo=";
+            }).overrideAttrs
+              { doInstallCheck = false; };
 
           extraConfig = ''
             (common_headers) {
