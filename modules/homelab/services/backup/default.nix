@@ -11,6 +11,9 @@ let
   hosts = config.flake.meta.reverse-proxy.hosts;
   backrestPort = config.flake.meta.reverse-proxy.ports.backup;
 
+  gatewaySocketDir = "/run/backup-gateway";
+  gatewayUri = name: "rest:http+unix://${gatewaySocketDir}/${name}.sock:/";
+
   backrestRepos = lib.mapAttrsToList (name: repo: {
     id = name;
     inherit (repo) uri;
@@ -29,33 +32,36 @@ in
     pingPort = backrestPort;
   };
 
+  # Backrest reads the repositories through the append-only gateway sockets
+  # (services.backup-gateway.socketDir), not with the storage credentials. The
+  # homelab/backup check keeps this in step with the NixOS option.
   flake.meta.backup.repos = {
     beszel = {
-      uri = "rclone:koofr:backup/beszel";
+      uri = gatewayUri "beszel";
       passwordFile = "/run/secrets/beszel/backup_encryption_key";
     };
     immich = {
-      uri = "rclone:koofr:backup/immich";
+      uri = gatewayUri "immich";
       passwordFile = "/run/secrets/immich/backup_encryption_key";
     };
     job-ops = {
-      uri = "rclone:koofr:backup/job-ops";
+      uri = gatewayUri "job-ops";
       passwordFile = "/run/secrets/job-ops/backup_encryption_key";
     };
     sure-finance = {
-      uri = "rclone:koofr:backup/sure-finance";
+      uri = gatewayUri "sure-finance";
       passwordFile = "/run/secrets/sure-finance/backup_encryption_key";
     };
     dawarich = {
-      uri = "rclone:koofr:backup/dawarich";
+      uri = gatewayUri "dawarich";
       passwordFile = "/run/secrets/dawarich/backup_encryption_key";
     };
     reactive-resume = {
-      uri = "rclone:koofr:backup/reactive-resume";
+      uri = gatewayUri "reactive-resume";
       passwordFile = "/run/secrets/reactive-resume/backup_encryption_key";
     };
     tandoor = {
-      uri = "rclone:koofr:backup/tandoor";
+      uri = gatewayUri "tandoor";
       passwordFile = "/run/secrets/tandoor/backup_encryption_key";
     };
   };
@@ -81,7 +87,6 @@ in
         isSystemUser = true;
         group = backrestGroup;
         extraGroups = [
-          "rclone"
           "homelab-users"
           "beszel"
           "immich"
@@ -108,7 +113,6 @@ in
       ];
 
       home-manager.users.${backrestUser} = {
-        services.rclone.remotes = [ "koofr" ];
         home.username = backrestUser;
         home.stateVersion = "26.05";
         imports = with config.flake.modules.homeManager; [

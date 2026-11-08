@@ -1,5 +1,25 @@
 { lib, config, ... }:
 {
+  # Shared with the append-only gateway, which does the pruning the backup
+  # jobs cannot do (see backup-gateway).
+  flake.lib.backup.retentionPresets = {
+    short = [
+      "--keep-daily 7"
+      "--keep-weekly 4"
+    ];
+    standard = [
+      "--keep-daily 7"
+      "--keep-weekly 4"
+      "--keep-monthly 3"
+    ];
+    extended = [
+      "--keep-daily 7"
+      "--keep-weekly 4"
+      "--keep-monthly 6"
+      "--keep-yearly 3"
+    ];
+  };
+
   flake.modules.nixos.backup =
     { config, ... }:
     let
@@ -46,26 +66,14 @@
     hmArgs:
     let
       cfg = hmArgs.config.services.backup;
+      # Set by the backup-gateway NixOS module. When present, repositories are
+      # reached through its append-only sockets and this user holds no storage
+      # credentials; pruning is done by the gateway's own job.
+      gatewaySocketDir = (hmArgs.osConfig or { }).services.backup-gateway.socketDir or null;
       rcloneRemotes = hmArgs.config.programs.rclone.remotes or { };
       dbOptions = config.flake.lib.types.backup.db;
 
-      retentionPresets = {
-        short = [
-          "--keep-daily 7"
-          "--keep-weekly 4"
-        ];
-        standard = [
-          "--keep-daily 7"
-          "--keep-weekly 4"
-          "--keep-monthly 3"
-        ];
-        extended = [
-          "--keep-daily 7"
-          "--keep-weekly 4"
-          "--keep-monthly 6"
-          "--keep-yearly 3"
-        ];
-      };
+      inherit (config.flake.lib.backup) retentionPresets;
 
       scheduleMap = {
         hourly = "hourly";
@@ -90,13 +98,18 @@
               null;
         in
         {
-          repository = "rclone:${provider}:backup/${destination}";
+          repository =
+            if gatewaySocketDir != null then
+              "rest:http+unix://${gatewaySocketDir}/${jobName}.sock:/"
+            else
+              "rclone:${provider}:backup/${destination}";
           passwordFile = jobCfg.encryptionKey;
           paths = if hasDb then jobCfg.paths ++ [ dumpPath ] else jobCfg.paths;
           initialize = true;
           runCheck = true;
           checkOpts = [ "--read-data" ];
-          pruneOpts = retentionPresets.${jobCfg.retention};
+          # An append-only repository cannot be pruned from here.
+          pruneOpts = if gatewaySocketDir != null then [ ] else retentionPresets.${jobCfg.retention};
           timerConfig = {
             OnCalendar = scheduleMap.${jobCfg.schedule};
             Persistent = true;
@@ -170,10 +183,16 @@
 
       config = lib.mkIf (cfg.jobs != { }) {
         assertions = lib.flatten (
-          lib.mapAttrsToList (name: job: {
-            assertion = job.encryptionKey != null;
-            message = "backup: job '${name}' has no encryptionKey set";
-          }) cfg.jobs
+          lib.mapAttrsToList (name: job: [
+            {
+              assertion = job.encryptionKey != null;
+              message = "backup: job '${name}' has no encryptionKey set";
+            }
+            {
+              assertion = gatewaySocketDir == null || job.providers == [ "koofr" ];
+              message = "backup: job '${name}' must use providers = [ \"koofr\" ] while the backup gateway is enabled (it only fronts Koofr)";
+            }
+          ]) cfg.jobs
         );
 
         services.restic = {

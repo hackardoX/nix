@@ -49,7 +49,6 @@ in
       group = reactiveResumeGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${reactiveResumeUser}";
@@ -72,7 +71,6 @@ in
       ];
       home.username = reactiveResumeUser;
       home.stateVersion = "26.05";
-      services.rclone.remotes = [ "koofr" ];
       services.homelab-docker-socket-proxy = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.reactive-resume-docker-socket-proxy;

@@ -89,7 +89,6 @@ in
       group = immichGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${immichUser}";
@@ -135,7 +134,6 @@ in
       ];
       home.username = immichUser;
       home.stateVersion = "26.05";
-      services.rclone.remotes = [ "koofr" ];
       services.homelab-beszel-agent = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.beszel-agent-immich;

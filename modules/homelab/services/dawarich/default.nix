@@ -52,7 +52,6 @@ in
       group = dawarichGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${dawarichUser}";
@@ -97,7 +96,6 @@ in
       ];
       home.username = dawarichUser;
       home.stateVersion = "26.05";
-      services.rclone.remotes = [ "koofr" ];
       services.homelab-docker-socket-proxy = {
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.dawarich-docker-socket-proxy;

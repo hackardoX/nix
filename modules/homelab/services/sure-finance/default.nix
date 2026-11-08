@@ -56,7 +56,6 @@ in
       group = sureFinanceGroup;
       extraGroups = [
         "homelab-users"
-        "rclone"
       ];
       createHome = true;
       home = "/var/lib/${sureFinanceUser}";
@@ -106,7 +105,6 @@ in
         enable = true;
         port = config.flake.meta.reverse-proxy.ports.beszel-agent-sure-finance;
       };
-      services.rclone.remotes = [ "koofr" ];
     };
 
     sops.secrets = {
