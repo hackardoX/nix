@@ -36,7 +36,7 @@ let
   container = hmUsers.homepage.services.podman.containers.homepage;
   widgetFileRefs = lib.unique (
     lib.concatMap (m: lib.optionals (lib.isList m) m) (
-      builtins.split "\\{\\{(HOMEPAGE_FILE_[A-Z0-9_]+)\\}\\}" (
+      builtins.split "[{][{](HOMEPAGE_FILE_[A-Z0-9_]+)[}][}]" (
         builtins.toJSON (
           lib.mapAttrsToList (_: svc: {
             inherit (svc) widget widgets;
