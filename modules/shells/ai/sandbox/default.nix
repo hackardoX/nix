@@ -119,7 +119,7 @@
       config = {
         programs.nono.launchers = lib.mapAttrs (
           name: a:
-          pkgs.writeShellScript "nono-${name}" ''
+          pkgs.writeShellScriptBin "nono-${name}" ''
             export WM_WORKTREES=$(${lib.getExe worktreesDir})
             export WM_TOPLEVEL=$(${lib.getExe toplevelDir})
             exec ${nono}/bin/nono run --silent --profile ${profilePath name} --allow-cwd -- ${a.command} "$@"
@@ -131,6 +131,7 @@
           worktreesDir
           toplevelDir
         ]
+        ++ lib.attrValues cfg.launchers
         ++ lib.mapAttrsToList (name: _: profileExporter name) cfg.harnesses;
 
         # Rendered at activation so secret hosts stay out of the store.
@@ -141,7 +142,7 @@
 
         # Interactive shells only, so scripts fail closed.
         home.shellAliases = lib.mapAttrs' (
-          name: a: lib.nameValuePair a.alias "${cfg.launchers.${name}}"
+          name: a: lib.nameValuePair a.alias (lib.getExe cfg.launchers.${name})
         ) cfg.harnesses;
       };
     };

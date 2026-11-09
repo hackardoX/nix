@@ -110,7 +110,7 @@
         type = lib.types.attrsOf lib.types.package;
         readOnly = true;
         description = ''
-          Per-harness executable that runs the harness in its nono sandbox. 
+          Per-harness package providing `bin/nono-<name>`, which runs the harness in its nono sandbox.
         '';
       };
     };

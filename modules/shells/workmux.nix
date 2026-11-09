@@ -105,7 +105,7 @@
             agents = lib.optionalAttrs sandboxedOpencode {
               opencode-sandboxed = {
                 type = "opencode";
-                command = "${hmArgs.config.programs.nono.launchers.opencode}";
+                command = "nono-opencode";
               };
             };
           };
