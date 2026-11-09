@@ -210,7 +210,7 @@ in
         services.podman.networks.dawarich.driver = "bridge";
 
         services.podman.containers.dawarich-db = {
-          image = "docker.io/imresamu/postgis:17-3.5-alpine@sha256:7f25892b7cb34c2bbb33e597b24430957da748a14ce1a4821a28d8c2935c9758";
+          image = "docker.io/imresamu/postgis:17-recent-postgis3.6.1-geos3.14.1-proj9.7.1-gdal3.12.1-cgal6.1-sfcgal2.2.0-bookworm@sha256:26873ca0c468ef2933a93ec91af5bac668cae6142062543f26b3192940c81a68";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           dropCapabilities = [ "ALL" ];
@@ -246,7 +246,7 @@ in
         };
 
         services.podman.containers.dawarich-redis = {
-          image = "docker.io/library/redis:8.8.0@sha256:234c902a2db49461a129e2d4aeff85b28cf20187ed274a67f6e50995fa713c7b";
+          image = "docker.io/library/redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           dropCapabilities = [ "ALL" ];
