@@ -210,7 +210,7 @@ in
         services.podman.networks.dawarich.driver = "bridge";
 
         services.podman.containers.dawarich-db = {
-          image = "docker.io/imresamu/postgis:17-3.5-alpine@sha256:7f25892b7cb34c2bbb33e597b24430957da748a14ce1a4821a28d8c2935c9758";
+          image = "docker.io/imresamu/postgis:18-recent-postgis3.6.1-geos3.14.1-proj9.7.1-gdal3.12.1-cgal6.1-sfcgal2.2.0-bookworm@sha256:ea4a0edd345779d5eaec23dac6fb002540c26a24193753b625d8a67793059f89";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           dropCapabilities = [ "ALL" ];
