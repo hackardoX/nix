@@ -113,7 +113,7 @@
       xdg.configFile."opencode/plugins/workmux-status" = {
         enable = hmArgs.config.programs.opencode.enable;
         source = "${
-          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux
+          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux.src
         }/resources/opencode/v2/workmux-status";
         recursive = true;
       };
