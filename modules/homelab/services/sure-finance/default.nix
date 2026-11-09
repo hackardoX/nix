@@ -238,7 +238,7 @@ in
         services.podman.networks.sure-finance.driver = "bridge";
 
         services.podman.containers.sure-finance-db = {
-          image = "docker.io/library/postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657";
+          image = "docker.io/library/postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42";
           autoStart = true;
           userNS = "keep-id:uid=999,gid=999";
           dropCapabilities = [ "ALL" ];
