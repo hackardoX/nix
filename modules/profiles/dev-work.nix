@@ -28,6 +28,7 @@
       nixvim
       nono
       opencode
+      orca
       podman
       starship
       superpowers
