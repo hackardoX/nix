@@ -177,7 +177,7 @@ in
         services.podman.networks.alerting.driver = "bridge";
 
         services.podman.containers.alertmanager = {
-          image = "prom/alertmanager:v0.33.1";
+          image = "prom/alertmanager:v0.34.2";
           autoStart = true;
           userNS = "keep-id:uid=65534,gid=65534";
           network = [ "alerting.network" ];
