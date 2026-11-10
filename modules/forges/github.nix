@@ -29,6 +29,12 @@
         [includeIf "hasconfig:remote.*.url:ssh://git@${hmArgs.config.sops.placeholder."github/host"}:*/**"]
             path = ${hmArgs.config.sops.templates."git-github-identity".path}
       '';
+      sops.templates."nix-github-access-token".content = ''
+        access-tokens = github.com=${hmArgs.config.sops.placeholder."github/token"}
+      '';
+      xdg.configFile."nix/nix.conf".text = ''
+        !include ${hmArgs.config.sops.templates."nix-github-access-token".path}
+      '';
       programs.ssh.includes = [ hmArgs.config.sops.templates."forge-github-config".path ];
       programs.git.includes = [
         { path = hmArgs.config.sops.templates."git-github-conditional-includes".path; }
