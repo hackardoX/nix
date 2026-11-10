@@ -128,6 +128,8 @@
         };
         cli = {
           tabs.mode = "off";
+          prompt.image_preview = true;
+          session.image_preview = true;
         };
       };
 
