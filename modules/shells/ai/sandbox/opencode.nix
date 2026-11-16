@@ -80,6 +80,8 @@
             "$XDG_CACHE_HOME/opencode"
             "$XDG_STATE_HOME/opencode"
             "$XDG_DATA_HOME/opentui"
+            # npm content cache: the plugin update check writes it (node_runtime only grants ~/.npm read-only).
+            "$HOME/.npm/_cacache"
             "$WM_WORKTREES"
             # Checkout root when the session starts in a subdirectory; needed by `workmux merge`.
             "$WM_TOPLEVEL"

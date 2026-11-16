@@ -82,8 +82,12 @@
           argv.contains = [ "config" ];
           reason = "Can plant hooks or config that run unsandboxed later.";
         }
+        # `prefix` on purpose for init and update-index: OpenCode's snapshots (undo/redo) run
+        # `git --git-dir <snapshot repo> --work-tree <dir> init|update-index`, which `contains`
+        # would block. Only the plain form is denied; the `--git-dir` form passes, and so can
+        # a deliberate `git -C . init`. Accepted gap, see the comment above.
         {
-          argv.contains = [ "init" ];
+          argv.prefix = [ "init" ];
           reason = "Creates repos outside the reviewed checkout.";
         }
         {
@@ -127,7 +131,7 @@
           reason = "Moves refs directly, bypassing review.";
         }
         {
-          argv.contains = [ "update-index" ];
+          argv.prefix = [ "update-index" ];
           reason = "Writes the index directly.";
         }
       ];
