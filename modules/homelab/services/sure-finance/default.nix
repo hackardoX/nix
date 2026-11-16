@@ -133,6 +133,10 @@ in
         owner = sureFinanceUser;
         group = sureFinanceGroup;
       };
+      "ai/lumo_api_key" = {
+        owner = sureFinanceUser;
+        group = sureFinanceGroup;
+      };
       "sure-finance/oidc_client_secret" = {
         owner = sureFinanceUser;
         group = sureFinanceGroup;
@@ -178,13 +182,13 @@ in
         DB_HOST = "db";
         DB_PORT = "5432";
         EMAIL_SENDER = "sure-finance@${config.flake.meta.reverse-proxy.domain}";
-        EXCHANGE_RATE_PROVIDER = "twelve_data";
+        EXCHANGE_RATE_PROVIDER = "yahoo_finance";
         OIDC_CLIENT_ID = sureFinanceOidcClientId;
         OIDC_ISSUER = "https://${hosts.auth}";
         OIDC_REDIRECT_URI = "https://${hosts.finance}/auth/openid_connect/callback";
         OIDC_BUTTON_LABEL = "Sign in with Authelia";
-        OPENAI_MODEL = "mimo-v2.5";
-        OPENAI_URI_BASE = "https://opencode.ai/zen/go/v1";
+        OPENAI_MODEL = "lumo-max";
+        OPENAI_URI_BASE = config.flake.meta.aiProviders.lumo.endpoint;
         ONBOARDING_STATE = "closed";
         POSTGRES_USER = sureFinanceDbUser;
         POSTGRES_DB = sureFinanceDbName;
@@ -196,7 +200,7 @@ in
         SMTP_PORT = "587";
         SMTP_USERNAME = "resend";
         SMTP_TLS_ENABLED = "true";
-        SECURITIES_PROVIDER = "twelve_data";
+        SECURITIES_PROVIDER = "yahoo_finance";
         TZ = osConfig.time.timeZone;
       };
 
@@ -209,7 +213,7 @@ in
           osConfig.sops.secrets."sure-finance/active_record_primary_key".path;
         BRAND_FETCH_CLIENT_ID = osConfig.sops.secrets."sure-finance/brand_fetch_client_id".path;
         OIDC_CLIENT_SECRET = osConfig.sops.secrets."sure-finance/oidc_client_secret".path;
-        OPENAI_ACCESS_TOKEN = osConfig.sops.secrets."sure-finance/openai_token".path;
+        OPENAI_ACCESS_TOKEN = osConfig.sops.secrets."ai/lumo_api_key".path;
         POSTGRES_PASSWORD = osConfig.sops.secrets."sure-finance/postgres_password".path;
         SECRET_KEY_BASE = osConfig.sops.secrets."sure-finance/secret_key".path;
         SMTP_PASSWORD = osConfig.sops.secrets."sure-finance/resend_api_key".path;
