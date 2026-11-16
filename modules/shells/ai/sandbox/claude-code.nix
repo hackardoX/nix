@@ -18,6 +18,15 @@
             CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
           };
           allow = [ "$XDG_STATE_HOME/claude-code-sandbox" ];
+          # OAuth callback for remote MCP servers (figma, atlassian): Claude binds a random free
+          # port in the ephemeral range on localhost. Without this it fails with "No available
+          # ports for OAuth redirect".
+          extra.network.open_port_range = [
+            [
+              49152
+              65535
+            ]
+          ];
         };
 
         home.shellAliases.claude-unsandboxed = lib.getExe claudeCode.finalPackage;

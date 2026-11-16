@@ -29,10 +29,13 @@
         [includeIf "hasconfig:remote.*.url:ssh://git@${hmArgs.config.sops.placeholder."github/host"}:*/**"]
             path = ${hmArgs.config.sops.templates."git-github-identity".path}
       '';
+      # Authenticated GitHub API requests for nix fetchers (avoids rate limits).
+      # The token stays out of the store: nix reads it from the rendered file at
+      # run time, and silently ignores the include while the file is missing.
       sops.templates."nix-github-access-token".content = ''
         access-tokens = github.com=${hmArgs.config.sops.placeholder."github/token"}
       '';
-      xdg.configFile."nix/nix.conf".text = ''
+      nix.extraOptions = ''
         !include ${hmArgs.config.sops.templates."nix-github-access-token".path}
       '';
       programs.ssh.includes = [ hmArgs.config.sops.templates."forge-github-config".path ];
