@@ -145,7 +145,7 @@ in
       services.podman.enable = true;
 
       services.podman.containers.beszel-hub = {
-        image = "ghcr.io/henrygd/beszel/beszel:0.21.1@sha256:8514a69d9bbbcb74f371a3205561ee231fc0289739cea64e8131f341d695b770";
+        image = "ghcr.io/henrygd/beszel/beszel:0.21.2@sha256:b0be90bd4aee2993fde763032a5098ce4386fba43cfe5031ec017b8d9e8c97a2";
         autoStart = true;
         userNS = "keep-id:uid=0,gid=0";
         network = [ "pasta:${beszelPastaArgs}" ];
@@ -200,7 +200,7 @@ in
         services.podman.enable = true;
 
         services.podman.containers.homelab-beszel-agent = {
-          image = "ghcr.io/henrygd/beszel/beszel-agent:0.21.1@sha256:cb6868012964d7a68debaa2c84bb72285e5f08531e81f506bd4c493bf052e41c";
+          image = "ghcr.io/henrygd/beszel/beszel-agent:0.21.2@sha256:343254226ae57a5cc6f8c23c755b1464730aba2abc7043116a2e222711ec6e1a";
           autoStart = true;
           userNS = "keep-id";
           dropCapabilities = [ "ALL" ];
