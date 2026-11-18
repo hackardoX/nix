@@ -45,6 +45,8 @@
               "@git:toplevel"
               "$XDG_STATE_HOME/workmux"
               "$XDG_CACHE_HOME/workmux"
+              # zellij 0.46 client reads and writes its session index (session_index.sqlite, session_info/).
+              "$HOME/Library/Caches/org.Zellij-Contributors.Zellij"
             ];
             environment.allow_vars = [
               "PATH"
