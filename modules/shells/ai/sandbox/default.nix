@@ -67,17 +67,17 @@
             };
 
             filesystem = {
-              inherit (a) allow;
-              read = a.read ++ cfg.readPaths;
+              allow = [ "$HOME/.cargo" ] ++ a.allow;
+              read = cfg.readPaths ++ a.read;
               unix_socket = [ "/nix/var/nix/daemon-socket/socket" ];
               deny = [
-                "$XDG_CONFIG_HOME/opencode/service.json"
                 "$XDG_CONFIG_HOME/nono"
                 "$XDG_CONFIG_HOME/sops"
                 "$XDG_CONFIG_HOME/sops-nix"
                 "$TMPDIR/secrets.d"
                 "$TMPDIR/proton-pass-agent"
-              ];
+              ]
+              ++ a.deny;
             }
             // lib.optionalAttrs (a.allowFile != [ ]) {
               # nono's key for single-file read+write grants.
@@ -102,7 +102,15 @@
             # OpenCode's sandbox config dir (OPENCODE_CONFIG_DIR, built by sandbox/opencode.nix) is a
             # real dir in the writable state dir: without this the session could replace its links
             # (e.g. set session.permissions autoaccept). Home Manager writes it from outside.
+            # The last rule re-allows the cache dir (Seatbelt: the last matching rule wins): tools
+            # create these names there as plain files and links, e.g. Bazel's execroot symlink
+            # forest links the workspace's .claude and .git. Nothing in a cache is run unsandboxed.
+            # The iokit-open rule lets Bazel's server register for system power events
+            # (IORegisterForSystemPower); without it the server dies with
+            # "CHECK failed: (suspend_state.connect_port) != (0)".
             unsafe_macos_seatbelt_rules = [
+              ''(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))''
+              ''(allow file-write* (subpath "${hmArgs.config.xdg.cacheHome}"))''
               ''(deny file-write* (regex #"/\.[cC][lL][aA][uU][dD][eE](/.*)?$"))''
               ''(deny file-write* (regex #"/\.[mM][cC][pP]\.[jJ][sS][oO][nN]$"))''
               ''(deny file-write* (regex #"/\.[wW][oO][rR][kK][mM][uU][xX]\.[yY]([aA])?[mM][lL]$"))''

@@ -8,6 +8,9 @@
       # Must stay outside the session's grants, or the agent could rewrite what is signed.
       gitTmp = "${hmArgs.config.xdg.stateHome}/opencode-git/tmp";
 
+      # Where workmux creates worktrees, as a Seatbelt regex fragment.
+      worktreesRegex = lib.escapeRegex "${hmArgs.config.xdg.stateHome}/workmux/worktrees";
+
       gitReal = lib.getExe hmArgs.config.programs.git.package;
 
       sshReal = lib.getExe' pkgs.openssh "ssh";
@@ -186,6 +189,13 @@
               # submodules). Not bare repos or snapshot repos.
               unsafe_macos_seatbelt_rules = [
                 ''(allow process-exec* (subpath "/nix/store"))''
+                # Husky hooks (core.hooksPath = .husky/_): git execs them from the worktree, and
+                # they are `#!/usr/bin/env sh` scripts. Accepted: the session can write .husky/*,
+                # so this runs session-controlled code inside the git sandbox (no network, writes
+                # limited to the grants above). Raw rules do not expand $WORKDIR (checked with
+                # `nono profile show`), so the regex is anchored to workmux worktrees
+                # (<worktreesDir>/<project>/<handle>/.../.husky/...) plus the shebang interpreters.
+                ''(allow process-exec* (regex #"^${worktreesRegex}/[^/]+/[^/]+/(.+/)?\.husky/.+") (literal "/usr/bin/env") (literal "/bin/sh"))''
                 ''(deny file-write* (regex #"/\.[gG][iI][tT]/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?))$"))''
                 # Linked-worktree admin files: a rewritten commondir/gitdir can redirect git
                 # to a session-controlled config.
@@ -201,8 +211,7 @@
             invocation_policy = {
               default = "allow";
               deny = gitSessionDenies;
-              # TODO: restore once nono  fixed
-              # approve = [ { argv.contains = [ "push" ]; } ];
+              approve = [ { argv.contains = [ "push" ]; } ];
             };
           };
 

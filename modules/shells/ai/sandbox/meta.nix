@@ -84,6 +84,12 @@
                   description = "Directories the agent may read.";
                 };
 
+                deny = lib.mkOption {
+                  type = lib.types.listOf lib.types.str;
+                  default = [ ];
+                  description = "Paths the agent may not access, added to the shared deny list (`filesystem.deny`).";
+                };
+
                 allowFile = lib.mkOption {
                   type = lib.types.listOf lib.types.str;
                   default = [ ];

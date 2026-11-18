@@ -74,6 +74,7 @@
             OPENCODE_DISABLE_PROJECT_CONFIG = "1";
             OPENCODE_TEST_HOME = "$WORKDIR";
             OPENCODE_CONFIG_DIR = "$XDG_STATE_HOME/opencode/sandbox-config";
+            OPENTUI_NOTIFICATION_PROTOCOL = "osc99";
           };
           allow = [
             "$XDG_DATA_HOME/opencode"
@@ -86,6 +87,8 @@
             # Checkout root when the session starts in a subdirectory; needed by `workmux merge`.
             "$WM_TOPLEVEL"
           ];
+          # Inside the read grant on $XDG_CONFIG_HOME/opencode below; the sandbox config dir omits it too.
+          deny = [ "$XDG_CONFIG_HOME/opencode/service.json" ];
           # The sandbox config dir links to this file, so TUI settings changes persist.
           allowFile = [ "$XDG_CONFIG_HOME/opencode/cli.json" ];
           read = [
