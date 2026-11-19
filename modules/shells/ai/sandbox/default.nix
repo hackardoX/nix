@@ -7,6 +7,21 @@
 
       nono = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.nono;
 
+      # Seatbelt regexes have no case-insensitive flag, and APFS ignores case: write each letter as a
+      # [Aa] class. Regex metacharacters (e.g. "\\.") pass through unchanged.
+      anyCase =
+        s:
+        lib.concatStrings (
+          map (
+            c:
+            let
+              upper = lib.toUpper c;
+              lower = lib.toLower c;
+            in
+            if upper == lower then c else "[${upper}${lower}]"
+          ) (lib.stringToCharacters s)
+        );
+
       profilePath = name: hmArgs.config.sops.templates."nono-${name}.json".path;
 
       worktreesDir = pkgs.writeShellScriptBin "workmux-worktrees-dir" ''
@@ -111,11 +126,11 @@
             unsafe_macos_seatbelt_rules = [
               ''(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))''
               ''(allow file-write* (subpath "${hmArgs.config.xdg.cacheHome}"))''
-              ''(deny file-write* (regex #"/\.[cC][lL][aA][uU][dD][eE](/.*)?$"))''
-              ''(deny file-write* (regex #"/\.[mM][cC][pP]\.[jJ][sS][oO][nN]$"))''
-              ''(deny file-write* (regex #"/\.[wW][oO][rR][kK][mM][uU][xX]\.[yY]([aA])?[mM][lL]$"))''
-              ''(deny file-write* (regex #"/\.[gG][iI][tT](/.*)?$"))''
-              ''(deny file-write* (regex #"/[oO][pP][eE][nN][cC][oO][dD][eE]/[sS][aA][nN][dD][bB][oO][xX]-[cC][oO][nN][fF][iI][gG](/.*)?$"))''
+              ''(deny file-write* (regex #"/${anyCase "\\.claude"}(/.*)?$"))''
+              ''(deny file-write* (regex #"/${anyCase "\\.mcp\\.json"}$"))''
+              ''(deny file-write* (regex #"/${anyCase "\\.workmux\\.y"}(${anyCase "a"})?${anyCase "ml"}$"))''
+              ''(deny file-write* (regex #"/${anyCase "\\.git"}(/.*)?$"))''
+              ''(deny file-write* (regex #"/${anyCase "opencode/sandbox-config"}(/.*)?$"))''
             ];
           }
           // lib.optionalAttrs (cfg.commandPolicies != { }) {
