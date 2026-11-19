@@ -59,6 +59,8 @@
         hmArgs.config.lib.file.mkOutOfStoreSymlink hmArgs.config.sops.templates."atuin-config".path
       );
 
+      home.sessionVariables.ATUIN_CONFIG_DIR = "${hmArgs.config.xdg.configHome}/atuin";
+
       sops.templates."atuin-ai-server-config".content = ''
         port = 9999 
         endpoint = "https://lumo.proton.me/api/ai/v1"
