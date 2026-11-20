@@ -5,6 +5,7 @@
     {
       programs.opencode = {
         enable = true;
+        mutableSettings = true;
         package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode2;
         settings = {
           autoupdate = false;
