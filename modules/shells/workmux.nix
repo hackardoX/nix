@@ -114,9 +114,8 @@
 
       xdg.configFile."opencode/plugins/workmux-status" = {
         enable = hmArgs.config.programs.opencode.enable;
-        source = "${
-          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.workmux
-        }/resources/opencode/v2/workmux-status";
+        # The package output ships no resources/; the plugin only exists in the source tree.
+        source = "${workmux.src}/resources/opencode/v2/workmux-status";
         recursive = true;
       };
     };
