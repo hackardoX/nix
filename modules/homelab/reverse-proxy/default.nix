@@ -170,7 +170,7 @@ in
                 "github.com/fvbommel/caddy-combine-ip-ranges@v0.0.2-0.20240127132546-5624d08f5f9e"
                 "github.com/hslatman/caddy-crowdsec-bouncer/http@v0.15.0"
               ];
-              hash = "sha256-MvYIQlS3PzufPSPSKqbXiARpau5Pq59I6WVDvYx2Ldo=";
+              hash = "sha256-165uptUx7hbjIqShxpJPFIf9Kpsm6MM0aWhRc0WC8mI=";
             }).overrideAttrs
               { doInstallCheck = false; };
 
