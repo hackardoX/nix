@@ -3,12 +3,25 @@
   flake.modules.homeManager.opencode =
     { pkgs, ... }:
     {
+      # Read by the plugin from ~/.config/opencode (also in the sandbox, which can read it).
+      # "ghostty" sends OSC 9 through the tty, which zellij forwards to Ghostty; the default
+      # osascript popup would depend on the sandbox allowing it.
+      xdg.configFile."opencode/opencode-notifier.json".text = builtins.toJSON {
+        notificationSystem = "ghostty";
+        suppressGhosttySound = true;
+        suppressWhenFocused = false;
+      };
+
       programs.opencode = {
         enable = true;
         mutableSettings = true;
         package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode2;
         settings = {
           autoupdate = false;
+          # v2 key is `plugins`. Notifications come from this plugin: the built-in attention
+          # alerts are skipped under zellij (it never answers OpenTUI's focus-reporting query,
+          # so OpenCode's focus state stays unknown). The plugin checks the zellij pane itself.
+          plugins = [ "@mohak34/opencode-notifier@latest" ];
           # Last matching rule wins: broad rules first, exceptions after.
           experimental = {
             schedules = true;

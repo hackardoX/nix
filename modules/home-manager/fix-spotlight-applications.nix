@@ -50,6 +50,15 @@
               fi
               done
         '';
+        # Stale Ghostty registrations make notification clicks launch a second instance.
+        pruneGhosttyRegistrations = inputs.home-manager.lib.hm.dag.entryAfter [ "copyNixApps" ] ''
+          lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+          current=${pkgs.ghostty-bin}/Applications/Ghostty.app
+          $lsregister -dump | sed -n 's/^path: *\(.*Ghostty\.app\) (0x.*/\1/p' | while IFS= read -r p; do
+            [ "$p" = "$current" ] || run $lsregister -u "$p"
+          done
+          run $lsregister -gc
+        '';
       };
     };
 }

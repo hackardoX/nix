@@ -75,7 +75,6 @@
             OPENCODE_TEST_HOME = "$WORKDIR";
             OPENCODE_CONFIG_DIR = "$XDG_STATE_HOME/opencode/sandbox-config";
             OPENCODE_CONFIG = "$XDG_STATE_HOME/opencode/sandbox-config/opencode.json";
-            OPENTUI_NOTIFICATION_PROTOCOL = "osc99";
           };
           allow = [
             "$XDG_DATA_HOME/opencode"
