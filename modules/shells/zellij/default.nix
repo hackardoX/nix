@@ -51,13 +51,13 @@
         {
           key = "Alt s";
           run = ''
-            Run "workmux" "sidebar" {
+            Run "workmux" "dashboard" {
                         floating true
                         close_on_exit true
-                        x "40%"
-                        y "45%"
-                        width "20%"
-                        height "10%"
+                        x "5%"
+                        y "5%"
+                        width "90%"
+                        height "90%"
                       }'';
           when = hasPackage "workmux";
         }
