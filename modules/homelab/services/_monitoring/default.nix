@@ -419,7 +419,7 @@ in
         };
 
         services.podman.containers.grafana = {
-          image = "grafana/grafana:13.3.0";
+          image = "grafana/grafana:13.3.1";
           autoStart = true;
           userNS = "keep-id:uid=472,gid=0";
           network = [ "monitoring.network" ];
