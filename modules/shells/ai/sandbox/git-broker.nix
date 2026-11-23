@@ -48,6 +48,11 @@
             GIT_CONFIG_VALUE_0 = signerName;
             GIT_CONFIG_KEY_1 = "maintenance.auto";
             GIT_CONFIG_VALUE_1 = "false";
+            # Husky hooks run pnpm in here, with no network and no pnpm cache. When the repo's
+            # `packageManager` differs from the pnpm on PATH, pnpm would download and verify the
+            # pinned one and fail closed (ERR_PNPM_PNPM_ENGINE_IDENTITY_UNVERIFIABLE). Hooks run
+            # with the pnpm on PATH instead.
+            PNPM_CONFIG_PM_ON_FAIL = "ignore";
           };
         };
       };
