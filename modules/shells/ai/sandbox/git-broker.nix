@@ -143,6 +143,54 @@
           reason = "Writes the index directly.";
         }
       ];
+
+      # Git called by a hook inside the session edge. lint-staged runs every git call as
+      # `git -c submodule.recurse=false ...`, so `-c` is the one session deny dropped here.
+      gitNestedDenies = lib.filter (d: (d.argv.contains or [ ]) != [ "-c" ]) gitSessionDenies;
+
+      # Push asks the user in the terminal every time. `contains` also matches
+      # `git stash push`, which prompts too. Not matched: a remote-side
+      # `--receive-pack=<cmd>` (one token), so read the prompt before approving.
+      gitPushApprove = [ { argv.contains = [ "push" ]; } ];
+
+      # Shared by the session edge and the nested git edge (hooks).
+      sessionGitSandbox = gitSandboxBase // {
+        fs_write = [
+          "$WORKDIR"
+          "@git:common-dir"
+          "@git:toplevel"
+          gitTmp
+          # OpenCode snapshot repo, written via `git --git-dir`.
+          "$XDG_DATA_HOME/opencode/snapshot"
+        ];
+        # Appended last so the deny wins. Static regex, case-insensitive via bracket
+        # classes (APFS). Covers the .git dirs of checkouts (incl. linked worktrees and
+        # submodules). Not bare repos or snapshot repos.
+        unsafe_macos_seatbelt_rules = [
+          ''(allow process-exec* (subpath "/nix/store"))''
+          # Husky hooks (core.hooksPath = .husky/_): git execs them from the worktree, and
+          # they are `#!/usr/bin/env sh` scripts. Accepted: the session can write .husky/*,
+          # so this runs session-controlled code inside the git sandbox (no network, writes
+          # limited to the grants above). Raw rules do not expand $WORKDIR (checked with
+          # `nono profile show`), so the regex is anchored to workmux worktrees
+          # (<worktreesDir>/<project>/<handle>/.../.husky/...) plus the shebang interpreters.
+          # macOS /bin/sh is a wrapper that execs /bin/bash (/private/var/select/sh), so both
+          # are needed.
+          ''(allow process-exec* (regex #"^${worktreesRegex}/[^/]+/[^/]+/(.+/)?\.husky/.+") (literal "/usr/bin/env") (literal "/bin/sh") (literal "/bin/bash"))''
+          # Tools the hooks run (lint-staged, oxfmt, knip): pnpm's node_modules/.bin shims are
+          # `#!/bin/sh` files, and the native addons they load (.node) need file-map-executable.
+          # Only the shims are exec'd, the package JS is just read. Same accepted gap as above:
+          # the session can write node_modules.
+          ''(allow process-exec* (regex #"^${worktreesRegex}/[^/]+/[^/]+/(.+/)?node_modules/\.bin/[^/]+$"))''
+          ''(allow file-map-executable (regex #"^${worktreesRegex}/[^/]+/[^/]+/(.+/)?node_modules/.+\.node$"))''
+          ''(deny file-write* (regex #"/\.[gG][iI][tT]/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?))$"))''
+          # Linked-worktree admin files: a rewritten commondir/gitdir can redirect git
+          # to a session-controlled config.
+          ''(deny file-write* (regex #"/\.[gG][iI][tT]/(([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/)?([cC][oO][mM][mM][oO][nN][dD][iI][rR]|[gG][iI][tT][dD][iI][rR])$"))''
+          # Project config that runs unsandboxed later (MCP, Claude hooks, workmux panes).
+          ''(deny file-write* (regex #"/(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
+        ];
+      };
     in
     {
       assertions = [
@@ -177,46 +225,29 @@
           can_use = [
             signerName
             "ssh"
+            "git"
           ];
 
           from.session = {
-            sandbox = gitSandboxBase // {
-              fs_write = [
-                "$WORKDIR"
-                "@git:common-dir"
-                "@git:toplevel"
-                gitTmp
-                # OpenCode snapshot repo, written via `git --git-dir`.
-                "$XDG_DATA_HOME/opencode/snapshot"
-              ];
-              # Appended last so the deny wins. Static regex, case-insensitive via bracket
-              # classes (APFS). Covers the .git dirs of checkouts (incl. linked worktrees and
-              # submodules). Not bare repos or snapshot repos.
-              unsafe_macos_seatbelt_rules = [
-                ''(allow process-exec* (subpath "/nix/store"))''
-                # Husky hooks (core.hooksPath = .husky/_): git execs them from the worktree, and
-                # they are `#!/usr/bin/env sh` scripts. Accepted: the session can write .husky/*,
-                # so this runs session-controlled code inside the git sandbox (no network, writes
-                # limited to the grants above). Raw rules do not expand $WORKDIR (checked with
-                # `nono profile show`), so the regex is anchored to workmux worktrees
-                # (<worktreesDir>/<project>/<handle>/.../.husky/...) plus the shebang interpreters.
-                ''(allow process-exec* (regex #"^${worktreesRegex}/[^/]+/[^/]+/(.+/)?\.husky/.+") (literal "/usr/bin/env") (literal "/bin/sh"))''
-                ''(deny file-write* (regex #"/\.[gG][iI][tT]/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?|([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/([cC][oO][nN][fF][iI][gG](\.[wW][oO][rR][kK][tT][rR][eE][eE])?|[hH][oO][oO][kK][sS](/.*)?))$"))''
-                # Linked-worktree admin files: a rewritten commondir/gitdir can redirect git
-                # to a session-controlled config.
-                ''(deny file-write* (regex #"/\.[gG][iI][tT]/(([wW][oO][rR][kK][tT][rR][eE][eE][sS]|[mM][oO][dD][uU][lL][eE][sS])/.+/)?([cC][oO][mM][mM][oO][nN][dD][iI][rR]|[gG][iI][tT][dD][iI][rR])$"))''
-                # Project config that runs unsandboxed later (MCP, Claude hooks, workmux panes).
-                ''(deny file-write* (regex #"/(\.[cC][lL][aA][uU][dD][eE](/.*)?|\.[mM][cC][pP]\.[jJ][sS][oO][nN]|\.[wW][oO][rR][kK][mM][uU][xX]\.[yY][aA]?[mM][lL])$"))''
-              ];
-            };
-
-            # Push asks the user in the terminal every time. `contains` also matches
-            # `git stash push`, which prompts too. Not matched: a remote-side
-            # `--receive-pack=<cmd>` (one token), so read the prompt before approving.
+            sandbox = sessionGitSandbox;
             invocation_policy = {
               default = "allow";
               deny = gitSessionDenies;
-              approve = [ { argv.contains = [ "push" ]; } ];
+              approve = gitPushApprove;
+            };
+          };
+
+          # Git run by a hook inside the session edge (e.g. lint-staged in the husky pre-commit).
+          # Without this edge the nested call is denied (`missing from.git`). Same sandbox as the
+          # session edge, so it gains no access; the argv rules are the session's minus `-c`
+          # (see gitNestedDenies), and push still asks. Git run by the workmux edge's hooks would
+          # land here too, but that edge has no exec grants for hooks.
+          from.git = {
+            sandbox = sessionGitSandbox;
+            invocation_policy = {
+              default = "allow";
+              deny = gitNestedDenies;
+              approve = gitPushApprove;
             };
           };
 
