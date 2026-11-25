@@ -19,6 +19,18 @@
       );
 
       sandboxSettings = settings // {
+        # OPENCODE_DISABLE_PROJECT_CONFIG skips the checkout's opencode.json and AGENTS.md, and the
+        # session's .agents/skills only loads for the start directory (via OPENCODE_TEST_HOME). Load
+        # the checkout root's instructions and skills here instead: WM_TOPLEVEL is exported by the
+        # launcher (sandbox/default.nix), {env:} is expanded by OpenCode when it reads this file, and
+        # missing files are skipped. Mirrors the instruction paths of the monorepo's opencode.json.
+        # Append to the shared lists: quark.nix already puts its instructions file in settings.
+        instructions = (settings.instructions or [ ]) ++ [
+          "{env:WM_TOPLEVEL}/AGENTS.md"
+          "{env:WM_TOPLEVEL}/AGENTS.local.md"
+          "{env:WM_TOPLEVEL}/.agents/rules/**/*.md"
+        ];
+        skills = (settings.skills or [ ]) ++ [ "{env:WM_TOPLEVEL}/.agents/skills" ];
         permissions = relax (settings.permissions or [ ]) ++ [
           {
             action = "external_directory";
