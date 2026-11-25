@@ -43,7 +43,8 @@ Inside the sandbox, `glab` runs through a command edge of the broker (`gitlab.ni
 - Token: `gitlab/agent_api_token`, an api-scope personal access token. Create it in GitLab and add it to `secrets/users/aaccardo.yaml` with sops before switching. Host: `gitlab/host` (sops). The old `gitlab/agent_token` (read_api) is no longer used.
 - Default deny, with an allowlist. Reads run without a prompt: `mr view|list|diff|issues|approvers`, `issue view|list`, `ci status|list|get|trace`, `repo view`, `release view|list`, and the exact `--version` and `version`.
 - Writes ask in the terminal (the terminal approval backend, 120 s, from `git-broker.nix`): `mr create|update|note|approve`, `issue create|update|note`. `mr update` can set assignees and reviewers. The glab child has no tty, so it cannot prompt; `NO_PROMPT` keeps it from waiting.
-- Denied: merge, delete, close, `glab api`, auth and config. `ci view` is not allowed (interactive TUI with run, retry and cancel keys).
+- `api` runs without a prompt, for any method (matching is literal argv, so it cannot be limited to GET). It reaches merge, close, delete and approve with the api-scope token, bypassing their denies and the approve prompt; the agent instructions tell it not to. Accepted.
+- Denied: merge, delete, close, auth and config. `ci view` is not allowed (interactive TUI with run, retry and cancel keys).
 - Limits:
   - Matching is literal argv. The subcommand must come first, so `glab -R x mr view` is denied, and `--flag=value` forms are not normalized.
   - The token has api scope, so this is a guard, not a boundary: an approved write runs with the full token.
