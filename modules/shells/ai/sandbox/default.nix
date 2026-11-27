@@ -125,12 +125,12 @@
             # "CHECK failed: (suspend_state.connect_port) != (0)".
             unsafe_macos_seatbelt_rules = [
               ''(allow iokit-open (iokit-user-client-class "RootDomainUserClient"))''
-              ''(allow file-write* (subpath "${hmArgs.config.xdg.cacheHome}"))''
               ''(deny file-write* (regex #"/${anyCase "\\.claude"}(/.*)?$"))''
               ''(deny file-write* (regex #"/${anyCase "\\.mcp\\.json"}$"))''
               ''(deny file-write* (regex #"/${anyCase "\\.workmux\\.y"}(${anyCase "a"})?${anyCase "ml"}$"))''
               ''(deny file-write* (regex #"/${anyCase "\\.git"}(/.*)?$"))''
               ''(deny file-write* (regex #"/${anyCase "opencode/sandbox-config"}(/.*)?$"))''
+              ''(allow file-write* (subpath "${hmArgs.config.xdg.cacheHome}"))''
             ];
           }
           // lib.optionalAttrs (cfg.commandPolicies != { }) {
