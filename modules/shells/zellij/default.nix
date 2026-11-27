@@ -11,9 +11,12 @@
           lib.splitString "\n" s
         );
 
-      # popup running a tool, through dexec when direnv is enabled
+      # popup running a tool (cmd is split on spaces into its arguments),
+      # through dexec when direnv is enabled
       floating = cmd: ''
-        Run ${lib.optionalString config.programs.direnv.enable ''"dexec" ''}"${cmd}" {
+        Run ${lib.optionalString config.programs.direnv.enable ''"dexec" ''}${
+          lib.concatMapStringsSep " " (arg: ''"${arg}"'') (lib.splitString " " cmd)
+        } {
           floating true
           close_on_exit true
           x "5%"
